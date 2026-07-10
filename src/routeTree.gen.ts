@@ -9,38 +9,612 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
+import { Route as UseCasesRouteImport } from './routes/use-cases'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as StatusRouteImport } from './routes/status'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SecurityRouteImport } from './routes/security'
+import { Route as RoadmapRouteImport } from './routes/roadmap'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as ImprintRouteImport } from './routes/imprint'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as DocsRouteImport } from './routes/docs'
+import { Route as CopyrightRouteImport } from './routes/copyright'
+import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as AiTransparencyRouteImport } from './routes/ai-transparency'
+import { Route as AcceptableUseRouteImport } from './routes/acceptable-use'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UseCasesIndexRouteImport } from './routes/use-cases.index'
+import { Route as UseCasesYoutubeRouteImport } from './routes/use-cases.youtube'
+import { Route as UseCasesShortFormRouteImport } from './routes/use-cases.short-form'
+import { Route as UseCasesProductDemosRouteImport } from './routes/use-cases.product-demos'
+import { Route as UseCasesPodcastsRouteImport } from './routes/use-cases.podcasts'
+import { Route as UseCasesCoursesRouteImport } from './routes/use-cases.courses'
+import { Route as DocsUploadingMediaRouteImport } from './routes/docs.uploading-media'
+import { Route as DocsTimelineRouteImport } from './routes/docs.timeline'
+import { Route as DocsGettingStartedRouteImport } from './routes/docs.getting-started'
+import { Route as DocsExportingRouteImport } from './routes/docs.exporting'
+import { Route as DocsAiEditorRouteImport } from './routes/docs.ai-editor'
 
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UseCasesRoute = UseCasesRouteImport.update({
+  id: '/use-cases',
+  path: '/use-cases',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RoadmapRoute = RoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ImprintRoute = ImprintRouteImport.update({
+  id: '/imprint',
+  path: '/imprint',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const FeaturesRoute = FeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CopyrightRoute = CopyrightRouteImport.update({
+  id: '/copyright',
+  path: '/copyright',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ChangelogRoute = ChangelogRouteImport.update({
+  id: '/changelog',
+  path: '/changelog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AiTransparencyRoute = AiTransparencyRouteImport.update({
+  id: '/ai-transparency',
+  path: '/ai-transparency',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AcceptableUseRoute = AcceptableUseRouteImport.update({
+  id: '/acceptable-use',
+  path: '/acceptable-use',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const UseCasesIndexRoute = UseCasesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => UseCasesRoute,
+} as any)
+const UseCasesYoutubeRoute = UseCasesYoutubeRouteImport.update({
+  id: '/youtube',
+  path: '/youtube',
+  getParentRoute: () => UseCasesRoute,
+} as any)
+const UseCasesShortFormRoute = UseCasesShortFormRouteImport.update({
+  id: '/short-form',
+  path: '/short-form',
+  getParentRoute: () => UseCasesRoute,
+} as any)
+const UseCasesProductDemosRoute = UseCasesProductDemosRouteImport.update({
+  id: '/product-demos',
+  path: '/product-demos',
+  getParentRoute: () => UseCasesRoute,
+} as any)
+const UseCasesPodcastsRoute = UseCasesPodcastsRouteImport.update({
+  id: '/podcasts',
+  path: '/podcasts',
+  getParentRoute: () => UseCasesRoute,
+} as any)
+const UseCasesCoursesRoute = UseCasesCoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => UseCasesRoute,
+} as any)
+const DocsUploadingMediaRoute = DocsUploadingMediaRouteImport.update({
+  id: '/uploading-media',
+  path: '/uploading-media',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsTimelineRoute = DocsTimelineRouteImport.update({
+  id: '/timeline',
+  path: '/timeline',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsGettingStartedRoute = DocsGettingStartedRouteImport.update({
+  id: '/getting-started',
+  path: '/getting-started',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsExportingRoute = DocsExportingRouteImport.update({
+  id: '/exporting',
+  path: '/exporting',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsAiEditorRoute = DocsAiEditorRouteImport.update({
+  id: '/ai-editor',
+  path: '/ai-editor',
+  getParentRoute: () => DocsRoute,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/acceptable-use': typeof AcceptableUseRoute
+  '/ai-transparency': typeof AiTransparencyRoute
+  '/changelog': typeof ChangelogRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/copyright': typeof CopyrightRoute
+  '/docs': typeof DocsRouteWithChildren
+  '/features': typeof FeaturesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/imprint': typeof ImprintRoute
+  '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/roadmap': typeof RoadmapRoute
+  '/security': typeof SecurityRoute
+  '/signup': typeof SignupRoute
+  '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
+  '/use-cases': typeof UseCasesRouteWithChildren
+  '/verify-email': typeof VerifyEmailRoute
+  '/docs/ai-editor': typeof DocsAiEditorRoute
+  '/docs/exporting': typeof DocsExportingRoute
+  '/docs/getting-started': typeof DocsGettingStartedRoute
+  '/docs/timeline': typeof DocsTimelineRoute
+  '/docs/uploading-media': typeof DocsUploadingMediaRoute
+  '/use-cases/courses': typeof UseCasesCoursesRoute
+  '/use-cases/podcasts': typeof UseCasesPodcastsRoute
+  '/use-cases/product-demos': typeof UseCasesProductDemosRoute
+  '/use-cases/short-form': typeof UseCasesShortFormRoute
+  '/use-cases/youtube': typeof UseCasesYoutubeRoute
+  '/use-cases/': typeof UseCasesIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/acceptable-use': typeof AcceptableUseRoute
+  '/ai-transparency': typeof AiTransparencyRoute
+  '/changelog': typeof ChangelogRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/copyright': typeof CopyrightRoute
+  '/docs': typeof DocsRouteWithChildren
+  '/features': typeof FeaturesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/imprint': typeof ImprintRoute
+  '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/roadmap': typeof RoadmapRoute
+  '/security': typeof SecurityRoute
+  '/signup': typeof SignupRoute
+  '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
+  '/verify-email': typeof VerifyEmailRoute
+  '/docs/ai-editor': typeof DocsAiEditorRoute
+  '/docs/exporting': typeof DocsExportingRoute
+  '/docs/getting-started': typeof DocsGettingStartedRoute
+  '/docs/timeline': typeof DocsTimelineRoute
+  '/docs/uploading-media': typeof DocsUploadingMediaRoute
+  '/use-cases/courses': typeof UseCasesCoursesRoute
+  '/use-cases/podcasts': typeof UseCasesPodcastsRoute
+  '/use-cases/product-demos': typeof UseCasesProductDemosRoute
+  '/use-cases/short-form': typeof UseCasesShortFormRoute
+  '/use-cases/youtube': typeof UseCasesYoutubeRoute
+  '/use-cases': typeof UseCasesIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/acceptable-use': typeof AcceptableUseRoute
+  '/ai-transparency': typeof AiTransparencyRoute
+  '/changelog': typeof ChangelogRoute
+  '/contact': typeof ContactRoute
+  '/cookies': typeof CookiesRoute
+  '/copyright': typeof CopyrightRoute
+  '/docs': typeof DocsRouteWithChildren
+  '/features': typeof FeaturesRoute
+  '/forgot-password': typeof ForgotPasswordRoute
+  '/how-it-works': typeof HowItWorksRoute
+  '/imprint': typeof ImprintRoute
+  '/login': typeof LoginRoute
+  '/pricing': typeof PricingRoute
+  '/privacy': typeof PrivacyRoute
+  '/reset-password': typeof ResetPasswordRoute
+  '/roadmap': typeof RoadmapRoute
+  '/security': typeof SecurityRoute
+  '/signup': typeof SignupRoute
+  '/status': typeof StatusRoute
+  '/terms': typeof TermsRoute
+  '/use-cases': typeof UseCasesRouteWithChildren
+  '/verify-email': typeof VerifyEmailRoute
+  '/docs/ai-editor': typeof DocsAiEditorRoute
+  '/docs/exporting': typeof DocsExportingRoute
+  '/docs/getting-started': typeof DocsGettingStartedRoute
+  '/docs/timeline': typeof DocsTimelineRoute
+  '/docs/uploading-media': typeof DocsUploadingMediaRoute
+  '/use-cases/courses': typeof UseCasesCoursesRoute
+  '/use-cases/podcasts': typeof UseCasesPodcastsRoute
+  '/use-cases/product-demos': typeof UseCasesProductDemosRoute
+  '/use-cases/short-form': typeof UseCasesShortFormRoute
+  '/use-cases/youtube': typeof UseCasesYoutubeRoute
+  '/use-cases/': typeof UseCasesIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/'
+  fullPaths:
+    | '/'
+    | '/acceptable-use'
+    | '/ai-transparency'
+    | '/changelog'
+    | '/contact'
+    | '/cookies'
+    | '/copyright'
+    | '/docs'
+    | '/features'
+    | '/forgot-password'
+    | '/how-it-works'
+    | '/imprint'
+    | '/login'
+    | '/pricing'
+    | '/privacy'
+    | '/reset-password'
+    | '/roadmap'
+    | '/security'
+    | '/signup'
+    | '/status'
+    | '/terms'
+    | '/use-cases'
+    | '/verify-email'
+    | '/docs/ai-editor'
+    | '/docs/exporting'
+    | '/docs/getting-started'
+    | '/docs/timeline'
+    | '/docs/uploading-media'
+    | '/use-cases/courses'
+    | '/use-cases/podcasts'
+    | '/use-cases/product-demos'
+    | '/use-cases/short-form'
+    | '/use-cases/youtube'
+    | '/use-cases/'
   fileRoutesByTo: FileRoutesByTo
-  to: '/'
-  id: '__root__' | '/'
+  to:
+    | '/'
+    | '/acceptable-use'
+    | '/ai-transparency'
+    | '/changelog'
+    | '/contact'
+    | '/cookies'
+    | '/copyright'
+    | '/docs'
+    | '/features'
+    | '/forgot-password'
+    | '/how-it-works'
+    | '/imprint'
+    | '/login'
+    | '/pricing'
+    | '/privacy'
+    | '/reset-password'
+    | '/roadmap'
+    | '/security'
+    | '/signup'
+    | '/status'
+    | '/terms'
+    | '/verify-email'
+    | '/docs/ai-editor'
+    | '/docs/exporting'
+    | '/docs/getting-started'
+    | '/docs/timeline'
+    | '/docs/uploading-media'
+    | '/use-cases/courses'
+    | '/use-cases/podcasts'
+    | '/use-cases/product-demos'
+    | '/use-cases/short-form'
+    | '/use-cases/youtube'
+    | '/use-cases'
+  id:
+    | '__root__'
+    | '/'
+    | '/acceptable-use'
+    | '/ai-transparency'
+    | '/changelog'
+    | '/contact'
+    | '/cookies'
+    | '/copyright'
+    | '/docs'
+    | '/features'
+    | '/forgot-password'
+    | '/how-it-works'
+    | '/imprint'
+    | '/login'
+    | '/pricing'
+    | '/privacy'
+    | '/reset-password'
+    | '/roadmap'
+    | '/security'
+    | '/signup'
+    | '/status'
+    | '/terms'
+    | '/use-cases'
+    | '/verify-email'
+    | '/docs/ai-editor'
+    | '/docs/exporting'
+    | '/docs/getting-started'
+    | '/docs/timeline'
+    | '/docs/uploading-media'
+    | '/use-cases/courses'
+    | '/use-cases/podcasts'
+    | '/use-cases/product-demos'
+    | '/use-cases/short-form'
+    | '/use-cases/youtube'
+    | '/use-cases/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AcceptableUseRoute: typeof AcceptableUseRoute
+  AiTransparencyRoute: typeof AiTransparencyRoute
+  ChangelogRoute: typeof ChangelogRoute
+  ContactRoute: typeof ContactRoute
+  CookiesRoute: typeof CookiesRoute
+  CopyrightRoute: typeof CopyrightRoute
+  DocsRoute: typeof DocsRouteWithChildren
+  FeaturesRoute: typeof FeaturesRoute
+  ForgotPasswordRoute: typeof ForgotPasswordRoute
+  HowItWorksRoute: typeof HowItWorksRoute
+  ImprintRoute: typeof ImprintRoute
+  LoginRoute: typeof LoginRoute
+  PricingRoute: typeof PricingRoute
+  PrivacyRoute: typeof PrivacyRoute
+  ResetPasswordRoute: typeof ResetPasswordRoute
+  RoadmapRoute: typeof RoadmapRoute
+  SecurityRoute: typeof SecurityRoute
+  SignupRoute: typeof SignupRoute
+  StatusRoute: typeof StatusRoute
+  TermsRoute: typeof TermsRoute
+  UseCasesRoute: typeof UseCasesRouteWithChildren
+  VerifyEmailRoute: typeof VerifyEmailRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/use-cases': {
+      id: '/use-cases'
+      path: '/use-cases'
+      fullPath: '/use-cases'
+      preLoaderRoute: typeof UseCasesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roadmap': {
+      id: '/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof RoadmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/imprint': {
+      id: '/imprint'
+      path: '/imprint'
+      fullPath: '/imprint'
+      preLoaderRoute: typeof ImprintRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/features': {
+      id: '/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/copyright': {
+      id: '/copyright'
+      path: '/copyright'
+      fullPath: '/copyright'
+      preLoaderRoute: typeof CopyrightRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/changelog': {
+      id: '/changelog'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof ChangelogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/ai-transparency': {
+      id: '/ai-transparency'
+      path: '/ai-transparency'
+      fullPath: '/ai-transparency'
+      preLoaderRoute: typeof AiTransparencyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/acceptable-use': {
+      id: '/acceptable-use'
+      path: '/acceptable-use'
+      fullPath: '/acceptable-use'
+      preLoaderRoute: typeof AcceptableUseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/': {
       id: '/'
       path: '/'
@@ -48,22 +622,151 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/use-cases/': {
+      id: '/use-cases/'
+      path: '/'
+      fullPath: '/use-cases/'
+      preLoaderRoute: typeof UseCasesIndexRouteImport
+      parentRoute: typeof UseCasesRoute
+    }
+    '/use-cases/youtube': {
+      id: '/use-cases/youtube'
+      path: '/youtube'
+      fullPath: '/use-cases/youtube'
+      preLoaderRoute: typeof UseCasesYoutubeRouteImport
+      parentRoute: typeof UseCasesRoute
+    }
+    '/use-cases/short-form': {
+      id: '/use-cases/short-form'
+      path: '/short-form'
+      fullPath: '/use-cases/short-form'
+      preLoaderRoute: typeof UseCasesShortFormRouteImport
+      parentRoute: typeof UseCasesRoute
+    }
+    '/use-cases/product-demos': {
+      id: '/use-cases/product-demos'
+      path: '/product-demos'
+      fullPath: '/use-cases/product-demos'
+      preLoaderRoute: typeof UseCasesProductDemosRouteImport
+      parentRoute: typeof UseCasesRoute
+    }
+    '/use-cases/podcasts': {
+      id: '/use-cases/podcasts'
+      path: '/podcasts'
+      fullPath: '/use-cases/podcasts'
+      preLoaderRoute: typeof UseCasesPodcastsRouteImport
+      parentRoute: typeof UseCasesRoute
+    }
+    '/use-cases/courses': {
+      id: '/use-cases/courses'
+      path: '/courses'
+      fullPath: '/use-cases/courses'
+      preLoaderRoute: typeof UseCasesCoursesRouteImport
+      parentRoute: typeof UseCasesRoute
+    }
+    '/docs/uploading-media': {
+      id: '/docs/uploading-media'
+      path: '/uploading-media'
+      fullPath: '/docs/uploading-media'
+      preLoaderRoute: typeof DocsUploadingMediaRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/timeline': {
+      id: '/docs/timeline'
+      path: '/timeline'
+      fullPath: '/docs/timeline'
+      preLoaderRoute: typeof DocsTimelineRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/getting-started': {
+      id: '/docs/getting-started'
+      path: '/getting-started'
+      fullPath: '/docs/getting-started'
+      preLoaderRoute: typeof DocsGettingStartedRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/exporting': {
+      id: '/docs/exporting'
+      path: '/exporting'
+      fullPath: '/docs/exporting'
+      preLoaderRoute: typeof DocsExportingRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/ai-editor': {
+      id: '/docs/ai-editor'
+      path: '/ai-editor'
+      fullPath: '/docs/ai-editor'
+      preLoaderRoute: typeof DocsAiEditorRouteImport
+      parentRoute: typeof DocsRoute
+    }
   }
 }
 
+interface DocsRouteChildren {
+  DocsAiEditorRoute: typeof DocsAiEditorRoute
+  DocsExportingRoute: typeof DocsExportingRoute
+  DocsGettingStartedRoute: typeof DocsGettingStartedRoute
+  DocsTimelineRoute: typeof DocsTimelineRoute
+  DocsUploadingMediaRoute: typeof DocsUploadingMediaRoute
+}
+
+const DocsRouteChildren: DocsRouteChildren = {
+  DocsAiEditorRoute: DocsAiEditorRoute,
+  DocsExportingRoute: DocsExportingRoute,
+  DocsGettingStartedRoute: DocsGettingStartedRoute,
+  DocsTimelineRoute: DocsTimelineRoute,
+  DocsUploadingMediaRoute: DocsUploadingMediaRoute,
+}
+
+const DocsRouteWithChildren = DocsRoute._addFileChildren(DocsRouteChildren)
+
+interface UseCasesRouteChildren {
+  UseCasesCoursesRoute: typeof UseCasesCoursesRoute
+  UseCasesPodcastsRoute: typeof UseCasesPodcastsRoute
+  UseCasesProductDemosRoute: typeof UseCasesProductDemosRoute
+  UseCasesShortFormRoute: typeof UseCasesShortFormRoute
+  UseCasesYoutubeRoute: typeof UseCasesYoutubeRoute
+  UseCasesIndexRoute: typeof UseCasesIndexRoute
+}
+
+const UseCasesRouteChildren: UseCasesRouteChildren = {
+  UseCasesCoursesRoute: UseCasesCoursesRoute,
+  UseCasesPodcastsRoute: UseCasesPodcastsRoute,
+  UseCasesProductDemosRoute: UseCasesProductDemosRoute,
+  UseCasesShortFormRoute: UseCasesShortFormRoute,
+  UseCasesYoutubeRoute: UseCasesYoutubeRoute,
+  UseCasesIndexRoute: UseCasesIndexRoute,
+}
+
+const UseCasesRouteWithChildren = UseCasesRoute._addFileChildren(
+  UseCasesRouteChildren,
+)
+
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AcceptableUseRoute: AcceptableUseRoute,
+  AiTransparencyRoute: AiTransparencyRoute,
+  ChangelogRoute: ChangelogRoute,
+  ContactRoute: ContactRoute,
+  CookiesRoute: CookiesRoute,
+  CopyrightRoute: CopyrightRoute,
+  DocsRoute: DocsRouteWithChildren,
+  FeaturesRoute: FeaturesRoute,
+  ForgotPasswordRoute: ForgotPasswordRoute,
+  HowItWorksRoute: HowItWorksRoute,
+  ImprintRoute: ImprintRoute,
+  LoginRoute: LoginRoute,
+  PricingRoute: PricingRoute,
+  PrivacyRoute: PrivacyRoute,
+  ResetPasswordRoute: ResetPasswordRoute,
+  RoadmapRoute: RoadmapRoute,
+  SecurityRoute: SecurityRoute,
+  SignupRoute: SignupRoute,
+  StatusRoute: StatusRoute,
+  TermsRoute: TermsRoute,
+  UseCasesRoute: UseCasesRouteWithChildren,
+  VerifyEmailRoute: VerifyEmailRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}
