@@ -25,12 +25,14 @@ import { Route as HowItWorksRouteImport } from './routes/how-it-works'
 import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
 import { Route as FeaturesRouteImport } from './routes/features'
 import { Route as DocsRouteImport } from './routes/docs'
+import { Route as DesignSystemRouteImport } from './routes/design-system'
 import { Route as CopyrightRouteImport } from './routes/copyright'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ChangelogRouteImport } from './routes/changelog'
 import { Route as AiTransparencyRouteImport } from './routes/ai-transparency'
 import { Route as AcceptableUseRouteImport } from './routes/acceptable-use'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UseCasesIndexRouteImport } from './routes/use-cases.index'
 import { Route as UseCasesYoutubeRouteImport } from './routes/use-cases.youtube'
@@ -43,6 +45,29 @@ import { Route as DocsTimelineRouteImport } from './routes/docs.timeline'
 import { Route as DocsGettingStartedRouteImport } from './routes/docs.getting-started'
 import { Route as DocsExportingRouteImport } from './routes/docs.exporting'
 import { Route as DocsAiEditorRouteImport } from './routes/docs.ai-editor'
+import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated.app'
+import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated.app.index'
+import { Route as AuthenticatedAppUsageRouteImport } from './routes/_authenticated.app.usage'
+import { Route as AuthenticatedAppUploadsRouteImport } from './routes/_authenticated.app.uploads'
+import { Route as AuthenticatedAppTemplatesRouteImport } from './routes/_authenticated.app.templates'
+import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated.app.settings'
+import { Route as AuthenticatedAppHelpRouteImport } from './routes/_authenticated.app.help'
+import { Route as AuthenticatedAppFeedbackRouteImport } from './routes/_authenticated.app.feedback'
+import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authenticated.app.billing'
+import { Route as AuthenticatedAppSettingsIndexRouteImport } from './routes/_authenticated.app.settings.index'
+import { Route as AuthenticatedAppProjectsIndexRouteImport } from './routes/_authenticated.app.projects.index'
+import { Route as AuthenticatedAppSettingsPrivacyRouteImport } from './routes/_authenticated.app.settings.privacy'
+import { Route as AuthenticatedAppSettingsPreferencesRouteImport } from './routes/_authenticated.app.settings.preferences'
+import { Route as AuthenticatedAppSettingsNotificationsRouteImport } from './routes/_authenticated.app.settings.notifications'
+import { Route as AuthenticatedAppSettingsIntegrationsRouteImport } from './routes/_authenticated.app.settings.integrations'
+import { Route as AuthenticatedAppProjectsNewRouteImport } from './routes/_authenticated.app.projects.new'
+import { Route as AuthenticatedAppProjectsProjectIdRouteImport } from './routes/_authenticated.app.projects.$projectId'
+import { Route as AuthenticatedAppProjectsProjectIdIndexRouteImport } from './routes/_authenticated.app.projects.$projectId.index'
+import { Route as AuthenticatedAppProjectsProjectIdVersionsRouteImport } from './routes/_authenticated.app.projects.$projectId.versions'
+import { Route as AuthenticatedAppProjectsProjectIdTranscriptRouteImport } from './routes/_authenticated.app.projects.$projectId.transcript'
+import { Route as AuthenticatedAppProjectsProjectIdMediaRouteImport } from './routes/_authenticated.app.projects.$projectId.media'
+import { Route as AuthenticatedAppProjectsProjectIdExportsRouteImport } from './routes/_authenticated.app.projects.$projectId.exports'
+import { Route as AuthenticatedAppProjectsProjectIdEditorRouteImport } from './routes/_authenticated.app.projects.$projectId.editor'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -124,6 +149,11 @@ const DocsRoute = DocsRouteImport.update({
   path: '/docs',
   getParentRoute: () => rootRouteImport,
 } as any)
+const DesignSystemRoute = DesignSystemRouteImport.update({
+  id: '/design-system',
+  path: '/design-system',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const CopyrightRoute = CopyrightRouteImport.update({
   id: '/copyright',
   path: '/copyright',
@@ -152,6 +182,10 @@ const AiTransparencyRoute = AiTransparencyRouteImport.update({
 const AcceptableUseRoute = AcceptableUseRouteImport.update({
   id: '/acceptable-use',
   path: '/acceptable-use',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const IndexRoute = IndexRouteImport.update({
@@ -214,6 +248,138 @@ const DocsAiEditorRoute = DocsAiEditorRouteImport.update({
   path: '/ai-editor',
   getParentRoute: () => DocsRoute,
 } as any)
+const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
+  id: '/app',
+  path: '/app',
+  getParentRoute: () => AuthenticatedRoute,
+} as any)
+const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppUsageRoute = AuthenticatedAppUsageRouteImport.update({
+  id: '/usage',
+  path: '/usage',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppUploadsRoute = AuthenticatedAppUploadsRouteImport.update({
+  id: '/uploads',
+  path: '/uploads',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppTemplatesRoute =
+  AuthenticatedAppTemplatesRouteImport.update({
+    id: '/templates',
+    path: '/templates',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppSettingsRoute =
+  AuthenticatedAppSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppHelpRoute = AuthenticatedAppHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppFeedbackRoute =
+  AuthenticatedAppFeedbackRouteImport.update({
+    id: '/feedback',
+    path: '/feedback',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppBillingRoute = AuthenticatedAppBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppSettingsIndexRoute =
+  AuthenticatedAppSettingsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAppSettingsRoute,
+  } as any)
+const AuthenticatedAppProjectsIndexRoute =
+  AuthenticatedAppProjectsIndexRouteImport.update({
+    id: '/projects/',
+    path: '/projects/',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppSettingsPrivacyRoute =
+  AuthenticatedAppSettingsPrivacyRouteImport.update({
+    id: '/privacy',
+    path: '/privacy',
+    getParentRoute: () => AuthenticatedAppSettingsRoute,
+  } as any)
+const AuthenticatedAppSettingsPreferencesRoute =
+  AuthenticatedAppSettingsPreferencesRouteImport.update({
+    id: '/preferences',
+    path: '/preferences',
+    getParentRoute: () => AuthenticatedAppSettingsRoute,
+  } as any)
+const AuthenticatedAppSettingsNotificationsRoute =
+  AuthenticatedAppSettingsNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedAppSettingsRoute,
+  } as any)
+const AuthenticatedAppSettingsIntegrationsRoute =
+  AuthenticatedAppSettingsIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => AuthenticatedAppSettingsRoute,
+  } as any)
+const AuthenticatedAppProjectsNewRoute =
+  AuthenticatedAppProjectsNewRouteImport.update({
+    id: '/projects/new',
+    path: '/projects/new',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppProjectsProjectIdRoute =
+  AuthenticatedAppProjectsProjectIdRouteImport.update({
+    id: '/projects/$projectId',
+    path: '/projects/$projectId',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppProjectsProjectIdIndexRoute =
+  AuthenticatedAppProjectsProjectIdIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
+  } as any)
+const AuthenticatedAppProjectsProjectIdVersionsRoute =
+  AuthenticatedAppProjectsProjectIdVersionsRouteImport.update({
+    id: '/versions',
+    path: '/versions',
+    getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
+  } as any)
+const AuthenticatedAppProjectsProjectIdTranscriptRoute =
+  AuthenticatedAppProjectsProjectIdTranscriptRouteImport.update({
+    id: '/transcript',
+    path: '/transcript',
+    getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
+  } as any)
+const AuthenticatedAppProjectsProjectIdMediaRoute =
+  AuthenticatedAppProjectsProjectIdMediaRouteImport.update({
+    id: '/media',
+    path: '/media',
+    getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
+  } as any)
+const AuthenticatedAppProjectsProjectIdExportsRoute =
+  AuthenticatedAppProjectsProjectIdExportsRouteImport.update({
+    id: '/exports',
+    path: '/exports',
+    getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
+  } as any)
+const AuthenticatedAppProjectsProjectIdEditorRoute =
+  AuthenticatedAppProjectsProjectIdEditorRouteImport.update({
+    id: '/editor',
+    path: '/editor',
+    getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -223,6 +389,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/copyright': typeof CopyrightRoute
+  '/design-system': typeof DesignSystemRoute
   '/docs': typeof DocsRouteWithChildren
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -239,6 +406,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/use-cases': typeof UseCasesRouteWithChildren
   '/verify-email': typeof VerifyEmailRoute
+  '/app': typeof AuthenticatedAppRouteWithChildren
   '/docs/ai-editor': typeof DocsAiEditorRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
@@ -250,6 +418,28 @@ export interface FileRoutesByFullPath {
   '/use-cases/short-form': typeof UseCasesShortFormRoute
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/use-cases/': typeof UseCasesIndexRoute
+  '/app/billing': typeof AuthenticatedAppBillingRoute
+  '/app/feedback': typeof AuthenticatedAppFeedbackRoute
+  '/app/help': typeof AuthenticatedAppHelpRoute
+  '/app/settings': typeof AuthenticatedAppSettingsRouteWithChildren
+  '/app/templates': typeof AuthenticatedAppTemplatesRoute
+  '/app/uploads': typeof AuthenticatedAppUploadsRoute
+  '/app/usage': typeof AuthenticatedAppUsageRoute
+  '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
+  '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
+  '/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
+  '/app/settings/notifications': typeof AuthenticatedAppSettingsNotificationsRoute
+  '/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
+  '/app/settings/privacy': typeof AuthenticatedAppSettingsPrivacyRoute
+  '/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
+  '/app/settings/': typeof AuthenticatedAppSettingsIndexRoute
+  '/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
+  '/app/projects/$projectId/exports': typeof AuthenticatedAppProjectsProjectIdExportsRoute
+  '/app/projects/$projectId/media': typeof AuthenticatedAppProjectsProjectIdMediaRoute
+  '/app/projects/$projectId/transcript': typeof AuthenticatedAppProjectsProjectIdTranscriptRoute
+  '/app/projects/$projectId/versions': typeof AuthenticatedAppProjectsProjectIdVersionsRoute
+  '/app/projects/$projectId/': typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -259,6 +449,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/copyright': typeof CopyrightRoute
+  '/design-system': typeof DesignSystemRoute
   '/docs': typeof DocsRouteWithChildren
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -285,16 +476,38 @@ export interface FileRoutesByTo {
   '/use-cases/short-form': typeof UseCasesShortFormRoute
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/use-cases': typeof UseCasesIndexRoute
+  '/app/billing': typeof AuthenticatedAppBillingRoute
+  '/app/feedback': typeof AuthenticatedAppFeedbackRoute
+  '/app/help': typeof AuthenticatedAppHelpRoute
+  '/app/templates': typeof AuthenticatedAppTemplatesRoute
+  '/app/uploads': typeof AuthenticatedAppUploadsRoute
+  '/app/usage': typeof AuthenticatedAppUsageRoute
+  '/app': typeof AuthenticatedAppIndexRoute
+  '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
+  '/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
+  '/app/settings/notifications': typeof AuthenticatedAppSettingsNotificationsRoute
+  '/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
+  '/app/settings/privacy': typeof AuthenticatedAppSettingsPrivacyRoute
+  '/app/projects': typeof AuthenticatedAppProjectsIndexRoute
+  '/app/settings': typeof AuthenticatedAppSettingsIndexRoute
+  '/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
+  '/app/projects/$projectId/exports': typeof AuthenticatedAppProjectsProjectIdExportsRoute
+  '/app/projects/$projectId/media': typeof AuthenticatedAppProjectsProjectIdMediaRoute
+  '/app/projects/$projectId/transcript': typeof AuthenticatedAppProjectsProjectIdTranscriptRoute
+  '/app/projects/$projectId/versions': typeof AuthenticatedAppProjectsProjectIdVersionsRoute
+  '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/acceptable-use': typeof AcceptableUseRoute
   '/ai-transparency': typeof AiTransparencyRoute
   '/changelog': typeof ChangelogRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/copyright': typeof CopyrightRoute
+  '/design-system': typeof DesignSystemRoute
   '/docs': typeof DocsRouteWithChildren
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
@@ -311,6 +524,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/use-cases': typeof UseCasesRouteWithChildren
   '/verify-email': typeof VerifyEmailRoute
+  '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/docs/ai-editor': typeof DocsAiEditorRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
@@ -322,6 +536,28 @@ export interface FileRoutesById {
   '/use-cases/short-form': typeof UseCasesShortFormRoute
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/use-cases/': typeof UseCasesIndexRoute
+  '/_authenticated/app/billing': typeof AuthenticatedAppBillingRoute
+  '/_authenticated/app/feedback': typeof AuthenticatedAppFeedbackRoute
+  '/_authenticated/app/help': typeof AuthenticatedAppHelpRoute
+  '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRouteWithChildren
+  '/_authenticated/app/templates': typeof AuthenticatedAppTemplatesRoute
+  '/_authenticated/app/uploads': typeof AuthenticatedAppUploadsRoute
+  '/_authenticated/app/usage': typeof AuthenticatedAppUsageRoute
+  '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
+  '/_authenticated/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
+  '/_authenticated/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
+  '/_authenticated/app/settings/notifications': typeof AuthenticatedAppSettingsNotificationsRoute
+  '/_authenticated/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
+  '/_authenticated/app/settings/privacy': typeof AuthenticatedAppSettingsPrivacyRoute
+  '/_authenticated/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
+  '/_authenticated/app/settings/': typeof AuthenticatedAppSettingsIndexRoute
+  '/_authenticated/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
+  '/_authenticated/app/projects/$projectId/exports': typeof AuthenticatedAppProjectsProjectIdExportsRoute
+  '/_authenticated/app/projects/$projectId/media': typeof AuthenticatedAppProjectsProjectIdMediaRoute
+  '/_authenticated/app/projects/$projectId/transcript': typeof AuthenticatedAppProjectsProjectIdTranscriptRoute
+  '/_authenticated/app/projects/$projectId/versions': typeof AuthenticatedAppProjectsProjectIdVersionsRoute
+  '/_authenticated/app/projects/$projectId/': typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -333,6 +569,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/copyright'
+    | '/design-system'
     | '/docs'
     | '/features'
     | '/forgot-password'
@@ -349,6 +586,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/use-cases'
     | '/verify-email'
+    | '/app'
     | '/docs/ai-editor'
     | '/docs/exporting'
     | '/docs/getting-started'
@@ -360,6 +598,28 @@ export interface FileRouteTypes {
     | '/use-cases/short-form'
     | '/use-cases/youtube'
     | '/use-cases/'
+    | '/app/billing'
+    | '/app/feedback'
+    | '/app/help'
+    | '/app/settings'
+    | '/app/templates'
+    | '/app/uploads'
+    | '/app/usage'
+    | '/app/'
+    | '/app/projects/$projectId'
+    | '/app/projects/new'
+    | '/app/settings/integrations'
+    | '/app/settings/notifications'
+    | '/app/settings/preferences'
+    | '/app/settings/privacy'
+    | '/app/projects/'
+    | '/app/settings/'
+    | '/app/projects/$projectId/editor'
+    | '/app/projects/$projectId/exports'
+    | '/app/projects/$projectId/media'
+    | '/app/projects/$projectId/transcript'
+    | '/app/projects/$projectId/versions'
+    | '/app/projects/$projectId/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -369,6 +629,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/cookies'
     | '/copyright'
+    | '/design-system'
     | '/docs'
     | '/features'
     | '/forgot-password'
@@ -395,15 +656,37 @@ export interface FileRouteTypes {
     | '/use-cases/short-form'
     | '/use-cases/youtube'
     | '/use-cases'
+    | '/app/billing'
+    | '/app/feedback'
+    | '/app/help'
+    | '/app/templates'
+    | '/app/uploads'
+    | '/app/usage'
+    | '/app'
+    | '/app/projects/new'
+    | '/app/settings/integrations'
+    | '/app/settings/notifications'
+    | '/app/settings/preferences'
+    | '/app/settings/privacy'
+    | '/app/projects'
+    | '/app/settings'
+    | '/app/projects/$projectId/editor'
+    | '/app/projects/$projectId/exports'
+    | '/app/projects/$projectId/media'
+    | '/app/projects/$projectId/transcript'
+    | '/app/projects/$projectId/versions'
+    | '/app/projects/$projectId'
   id:
     | '__root__'
     | '/'
+    | '/_authenticated'
     | '/acceptable-use'
     | '/ai-transparency'
     | '/changelog'
     | '/contact'
     | '/cookies'
     | '/copyright'
+    | '/design-system'
     | '/docs'
     | '/features'
     | '/forgot-password'
@@ -420,6 +703,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/use-cases'
     | '/verify-email'
+    | '/_authenticated/app'
     | '/docs/ai-editor'
     | '/docs/exporting'
     | '/docs/getting-started'
@@ -431,16 +715,40 @@ export interface FileRouteTypes {
     | '/use-cases/short-form'
     | '/use-cases/youtube'
     | '/use-cases/'
+    | '/_authenticated/app/billing'
+    | '/_authenticated/app/feedback'
+    | '/_authenticated/app/help'
+    | '/_authenticated/app/settings'
+    | '/_authenticated/app/templates'
+    | '/_authenticated/app/uploads'
+    | '/_authenticated/app/usage'
+    | '/_authenticated/app/'
+    | '/_authenticated/app/projects/$projectId'
+    | '/_authenticated/app/projects/new'
+    | '/_authenticated/app/settings/integrations'
+    | '/_authenticated/app/settings/notifications'
+    | '/_authenticated/app/settings/preferences'
+    | '/_authenticated/app/settings/privacy'
+    | '/_authenticated/app/projects/'
+    | '/_authenticated/app/settings/'
+    | '/_authenticated/app/projects/$projectId/editor'
+    | '/_authenticated/app/projects/$projectId/exports'
+    | '/_authenticated/app/projects/$projectId/media'
+    | '/_authenticated/app/projects/$projectId/transcript'
+    | '/_authenticated/app/projects/$projectId/versions'
+    | '/_authenticated/app/projects/$projectId/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AcceptableUseRoute: typeof AcceptableUseRoute
   AiTransparencyRoute: typeof AiTransparencyRoute
   ChangelogRoute: typeof ChangelogRoute
   ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
   CopyrightRoute: typeof CopyrightRoute
+  DesignSystemRoute: typeof DesignSystemRoute
   DocsRoute: typeof DocsRouteWithChildren
   FeaturesRoute: typeof FeaturesRoute
   ForgotPasswordRoute: typeof ForgotPasswordRoute
@@ -573,6 +881,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/design-system': {
+      id: '/design-system'
+      path: '/design-system'
+      fullPath: '/design-system'
+      preLoaderRoute: typeof DesignSystemRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/copyright': {
       id: '/copyright'
       path: '/copyright'
@@ -613,6 +928,13 @@ declare module '@tanstack/react-router' {
       path: '/acceptable-use'
       fullPath: '/acceptable-use'
       preLoaderRoute: typeof AcceptableUseRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/': {
@@ -699,8 +1021,268 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsAiEditorRouteImport
       parentRoute: typeof DocsRoute
     }
+    '/_authenticated/app': {
+      id: '/_authenticated/app'
+      path: '/app'
+      fullPath: '/app'
+      preLoaderRoute: typeof AuthenticatedAppRouteImport
+      parentRoute: typeof AuthenticatedRoute
+    }
+    '/_authenticated/app/': {
+      id: '/_authenticated/app/'
+      path: '/'
+      fullPath: '/app/'
+      preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/usage': {
+      id: '/_authenticated/app/usage'
+      path: '/usage'
+      fullPath: '/app/usage'
+      preLoaderRoute: typeof AuthenticatedAppUsageRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/uploads': {
+      id: '/_authenticated/app/uploads'
+      path: '/uploads'
+      fullPath: '/app/uploads'
+      preLoaderRoute: typeof AuthenticatedAppUploadsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/templates': {
+      id: '/_authenticated/app/templates'
+      path: '/templates'
+      fullPath: '/app/templates'
+      preLoaderRoute: typeof AuthenticatedAppTemplatesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/settings': {
+      id: '/_authenticated/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/help': {
+      id: '/_authenticated/app/help'
+      path: '/help'
+      fullPath: '/app/help'
+      preLoaderRoute: typeof AuthenticatedAppHelpRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/feedback': {
+      id: '/_authenticated/app/feedback'
+      path: '/feedback'
+      fullPath: '/app/feedback'
+      preLoaderRoute: typeof AuthenticatedAppFeedbackRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/billing': {
+      id: '/_authenticated/app/billing'
+      path: '/billing'
+      fullPath: '/app/billing'
+      preLoaderRoute: typeof AuthenticatedAppBillingRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/settings/': {
+      id: '/_authenticated/app/settings/'
+      path: '/'
+      fullPath: '/app/settings/'
+      preLoaderRoute: typeof AuthenticatedAppSettingsIndexRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsRoute
+    }
+    '/_authenticated/app/projects/': {
+      id: '/_authenticated/app/projects/'
+      path: '/projects'
+      fullPath: '/app/projects/'
+      preLoaderRoute: typeof AuthenticatedAppProjectsIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/settings/privacy': {
+      id: '/_authenticated/app/settings/privacy'
+      path: '/privacy'
+      fullPath: '/app/settings/privacy'
+      preLoaderRoute: typeof AuthenticatedAppSettingsPrivacyRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsRoute
+    }
+    '/_authenticated/app/settings/preferences': {
+      id: '/_authenticated/app/settings/preferences'
+      path: '/preferences'
+      fullPath: '/app/settings/preferences'
+      preLoaderRoute: typeof AuthenticatedAppSettingsPreferencesRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsRoute
+    }
+    '/_authenticated/app/settings/notifications': {
+      id: '/_authenticated/app/settings/notifications'
+      path: '/notifications'
+      fullPath: '/app/settings/notifications'
+      preLoaderRoute: typeof AuthenticatedAppSettingsNotificationsRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsRoute
+    }
+    '/_authenticated/app/settings/integrations': {
+      id: '/_authenticated/app/settings/integrations'
+      path: '/integrations'
+      fullPath: '/app/settings/integrations'
+      preLoaderRoute: typeof AuthenticatedAppSettingsIntegrationsRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsRoute
+    }
+    '/_authenticated/app/projects/new': {
+      id: '/_authenticated/app/projects/new'
+      path: '/projects/new'
+      fullPath: '/app/projects/new'
+      preLoaderRoute: typeof AuthenticatedAppProjectsNewRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/projects/$projectId': {
+      id: '/_authenticated/app/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/app/projects/$projectId'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/projects/$projectId/': {
+      id: '/_authenticated/app/projects/$projectId/'
+      path: '/'
+      fullPath: '/app/projects/$projectId/'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdIndexRouteImport
+      parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
+    }
+    '/_authenticated/app/projects/$projectId/versions': {
+      id: '/_authenticated/app/projects/$projectId/versions'
+      path: '/versions'
+      fullPath: '/app/projects/$projectId/versions'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdVersionsRouteImport
+      parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
+    }
+    '/_authenticated/app/projects/$projectId/transcript': {
+      id: '/_authenticated/app/projects/$projectId/transcript'
+      path: '/transcript'
+      fullPath: '/app/projects/$projectId/transcript'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdTranscriptRouteImport
+      parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
+    }
+    '/_authenticated/app/projects/$projectId/media': {
+      id: '/_authenticated/app/projects/$projectId/media'
+      path: '/media'
+      fullPath: '/app/projects/$projectId/media'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdMediaRouteImport
+      parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
+    }
+    '/_authenticated/app/projects/$projectId/exports': {
+      id: '/_authenticated/app/projects/$projectId/exports'
+      path: '/exports'
+      fullPath: '/app/projects/$projectId/exports'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdExportsRouteImport
+      parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
+    }
+    '/_authenticated/app/projects/$projectId/editor': {
+      id: '/_authenticated/app/projects/$projectId/editor'
+      path: '/editor'
+      fullPath: '/app/projects/$projectId/editor'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdEditorRouteImport
+      parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
+    }
   }
 }
+
+interface AuthenticatedAppSettingsRouteChildren {
+  AuthenticatedAppSettingsIntegrationsRoute: typeof AuthenticatedAppSettingsIntegrationsRoute
+  AuthenticatedAppSettingsNotificationsRoute: typeof AuthenticatedAppSettingsNotificationsRoute
+  AuthenticatedAppSettingsPreferencesRoute: typeof AuthenticatedAppSettingsPreferencesRoute
+  AuthenticatedAppSettingsPrivacyRoute: typeof AuthenticatedAppSettingsPrivacyRoute
+  AuthenticatedAppSettingsIndexRoute: typeof AuthenticatedAppSettingsIndexRoute
+}
+
+const AuthenticatedAppSettingsRouteChildren: AuthenticatedAppSettingsRouteChildren =
+  {
+    AuthenticatedAppSettingsIntegrationsRoute:
+      AuthenticatedAppSettingsIntegrationsRoute,
+    AuthenticatedAppSettingsNotificationsRoute:
+      AuthenticatedAppSettingsNotificationsRoute,
+    AuthenticatedAppSettingsPreferencesRoute:
+      AuthenticatedAppSettingsPreferencesRoute,
+    AuthenticatedAppSettingsPrivacyRoute: AuthenticatedAppSettingsPrivacyRoute,
+    AuthenticatedAppSettingsIndexRoute: AuthenticatedAppSettingsIndexRoute,
+  }
+
+const AuthenticatedAppSettingsRouteWithChildren =
+  AuthenticatedAppSettingsRoute._addFileChildren(
+    AuthenticatedAppSettingsRouteChildren,
+  )
+
+interface AuthenticatedAppProjectsProjectIdRouteChildren {
+  AuthenticatedAppProjectsProjectIdEditorRoute: typeof AuthenticatedAppProjectsProjectIdEditorRoute
+  AuthenticatedAppProjectsProjectIdExportsRoute: typeof AuthenticatedAppProjectsProjectIdExportsRoute
+  AuthenticatedAppProjectsProjectIdMediaRoute: typeof AuthenticatedAppProjectsProjectIdMediaRoute
+  AuthenticatedAppProjectsProjectIdTranscriptRoute: typeof AuthenticatedAppProjectsProjectIdTranscriptRoute
+  AuthenticatedAppProjectsProjectIdVersionsRoute: typeof AuthenticatedAppProjectsProjectIdVersionsRoute
+  AuthenticatedAppProjectsProjectIdIndexRoute: typeof AuthenticatedAppProjectsProjectIdIndexRoute
+}
+
+const AuthenticatedAppProjectsProjectIdRouteChildren: AuthenticatedAppProjectsProjectIdRouteChildren =
+  {
+    AuthenticatedAppProjectsProjectIdEditorRoute:
+      AuthenticatedAppProjectsProjectIdEditorRoute,
+    AuthenticatedAppProjectsProjectIdExportsRoute:
+      AuthenticatedAppProjectsProjectIdExportsRoute,
+    AuthenticatedAppProjectsProjectIdMediaRoute:
+      AuthenticatedAppProjectsProjectIdMediaRoute,
+    AuthenticatedAppProjectsProjectIdTranscriptRoute:
+      AuthenticatedAppProjectsProjectIdTranscriptRoute,
+    AuthenticatedAppProjectsProjectIdVersionsRoute:
+      AuthenticatedAppProjectsProjectIdVersionsRoute,
+    AuthenticatedAppProjectsProjectIdIndexRoute:
+      AuthenticatedAppProjectsProjectIdIndexRoute,
+  }
+
+const AuthenticatedAppProjectsProjectIdRouteWithChildren =
+  AuthenticatedAppProjectsProjectIdRoute._addFileChildren(
+    AuthenticatedAppProjectsProjectIdRouteChildren,
+  )
+
+interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppBillingRoute: typeof AuthenticatedAppBillingRoute
+  AuthenticatedAppFeedbackRoute: typeof AuthenticatedAppFeedbackRoute
+  AuthenticatedAppHelpRoute: typeof AuthenticatedAppHelpRoute
+  AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRouteWithChildren
+  AuthenticatedAppTemplatesRoute: typeof AuthenticatedAppTemplatesRoute
+  AuthenticatedAppUploadsRoute: typeof AuthenticatedAppUploadsRoute
+  AuthenticatedAppUsageRoute: typeof AuthenticatedAppUsageRoute
+  AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppProjectsProjectIdRoute: typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
+  AuthenticatedAppProjectsNewRoute: typeof AuthenticatedAppProjectsNewRoute
+  AuthenticatedAppProjectsIndexRoute: typeof AuthenticatedAppProjectsIndexRoute
+}
+
+const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppBillingRoute: AuthenticatedAppBillingRoute,
+  AuthenticatedAppFeedbackRoute: AuthenticatedAppFeedbackRoute,
+  AuthenticatedAppHelpRoute: AuthenticatedAppHelpRoute,
+  AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRouteWithChildren,
+  AuthenticatedAppTemplatesRoute: AuthenticatedAppTemplatesRoute,
+  AuthenticatedAppUploadsRoute: AuthenticatedAppUploadsRoute,
+  AuthenticatedAppUsageRoute: AuthenticatedAppUsageRoute,
+  AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppProjectsProjectIdRoute:
+    AuthenticatedAppProjectsProjectIdRouteWithChildren,
+  AuthenticatedAppProjectsNewRoute: AuthenticatedAppProjectsNewRoute,
+  AuthenticatedAppProjectsIndexRoute: AuthenticatedAppProjectsIndexRoute,
+}
+
+const AuthenticatedAppRouteWithChildren =
+  AuthenticatedAppRoute._addFileChildren(AuthenticatedAppRouteChildren)
+
+interface AuthenticatedRouteChildren {
+  AuthenticatedAppRoute: typeof AuthenticatedAppRouteWithChildren
+}
+
+const AuthenticatedRouteChildren: AuthenticatedRouteChildren = {
+  AuthenticatedAppRoute: AuthenticatedAppRouteWithChildren,
+}
+
+const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
+  AuthenticatedRouteChildren,
+)
 
 interface DocsRouteChildren {
   DocsAiEditorRoute: typeof DocsAiEditorRoute
@@ -744,12 +1326,14 @@ const UseCasesRouteWithChildren = UseCasesRoute._addFileChildren(
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AcceptableUseRoute: AcceptableUseRoute,
   AiTransparencyRoute: AiTransparencyRoute,
   ChangelogRoute: ChangelogRoute,
   ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
   CopyrightRoute: CopyrightRoute,
+  DesignSystemRoute: DesignSystemRoute,
   DocsRoute: DocsRouteWithChildren,
   FeaturesRoute: FeaturesRoute,
   ForgotPasswordRoute: ForgotPasswordRoute,
