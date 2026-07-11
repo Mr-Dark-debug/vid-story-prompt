@@ -3,6 +3,8 @@ import { Sparkles, Check, X, Wand2 } from "lucide-react";
 import { useTimeline } from "@/domain/timeline/store";
 import { planFromPrompt } from "@/domain/timeline/planner";
 import type { PlanOp } from "@/domain/timeline/types";
+
+type PlanOpWithStatus = PlanOp & { status: "pending" | "accepted" | "rejected" };
 import type { MockProject } from "@/mock/seed";
 import { StatusDot } from "@/components/primitives/status-dot";
 
@@ -36,18 +38,21 @@ export function AIPanel({ project }: { project: MockProject }) {
 
   function toggle(id: string, status: "accepted" | "rejected") {
     if (!plan) return;
-    setPlan({
-      ...plan,
-      ops: plan.ops.map((o) => (o.id === id ? { ...o, status } : o)),
-    });
+    const ops = plan.ops.map((o) => (o.id === id ? { ...o, status } : o)) as PlanOpWithStatus[];
+    setPlan({ ...plan, ops });
   }
 
   function acceptAll() {
     if (!plan) return;
-    const nextOps = plan.ops.map((o) => (o.status === "rejected" ? o : { ...o, status: "accepted" as const }));
+    const nextOps = plan.ops.map((o) =>
+      o.status === "rejected" ? o : ({ ...o, status: "accepted" } as PlanOpWithStatus),
+    ) as PlanOpWithStatus[];
     applyOps(nextOps.filter((o) => o.status === "accepted") as PlanOp[]);
     setPlan({ ...plan, ops: nextOps });
-    setMessages((m) => [...m, { role: "ai", text: `Applied ${nextOps.filter((o) => o.status === "accepted").length} operations.` }]);
+    setMessages((m) => [
+      ...m,
+      { role: "ai", text: `Applied ${nextOps.filter((o) => o.status === "accepted").length} operations.` },
+    ]);
   }
 
   return (
