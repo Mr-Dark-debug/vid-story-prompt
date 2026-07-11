@@ -50,6 +50,7 @@ import { Route as AuthenticatedAppProjectsIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedAppProjectsNewRouteImport } from './routes/_authenticated.app.projects.new'
 import { Route as AuthenticatedAppProjectsProjectIdRouteImport } from './routes/_authenticated.app.projects.$projectId'
 import { Route as AuthenticatedAppProjectsProjectIdIndexRouteImport } from './routes/_authenticated.app.projects.$projectId.index'
+import { Route as AuthenticatedAppProjectsProjectIdEditorRouteImport } from './routes/_authenticated.app.projects.$projectId.editor'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -259,6 +260,12 @@ const AuthenticatedAppProjectsProjectIdIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
   } as any)
+const AuthenticatedAppProjectsProjectIdEditorRoute =
+  AuthenticatedAppProjectsProjectIdEditorRouteImport.update({
+    id: '/editor',
+    path: '/editor',
+    getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -300,6 +307,7 @@ export interface FileRoutesByFullPath {
   '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
+  '/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
   '/app/projects/$projectId/': typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -339,6 +347,7 @@ export interface FileRoutesByTo {
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/projects': typeof AuthenticatedAppProjectsIndexRoute
+  '/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
   '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 export interface FileRoutesById {
@@ -383,6 +392,7 @@ export interface FileRoutesById {
   '/_authenticated/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   '/_authenticated/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/_authenticated/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
+  '/_authenticated/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
   '/_authenticated/app/projects/$projectId/': typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -427,6 +437,7 @@ export interface FileRouteTypes {
     | '/app/projects/$projectId'
     | '/app/projects/new'
     | '/app/projects/'
+    | '/app/projects/$projectId/editor'
     | '/app/projects/$projectId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -466,6 +477,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/projects/new'
     | '/app/projects'
+    | '/app/projects/$projectId/editor'
     | '/app/projects/$projectId'
   id:
     | '__root__'
@@ -509,6 +521,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/projects/$projectId'
     | '/_authenticated/app/projects/new'
     | '/_authenticated/app/projects/'
+    | '/_authenticated/app/projects/$projectId/editor'
     | '/_authenticated/app/projects/$projectId/'
   fileRoutesById: FileRoutesById
 }
@@ -828,15 +841,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdIndexRouteImport
       parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
     }
+    '/_authenticated/app/projects/$projectId/editor': {
+      id: '/_authenticated/app/projects/$projectId/editor'
+      path: '/editor'
+      fullPath: '/app/projects/$projectId/editor'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdEditorRouteImport
+      parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
+    }
   }
 }
 
 interface AuthenticatedAppProjectsProjectIdRouteChildren {
+  AuthenticatedAppProjectsProjectIdEditorRoute: typeof AuthenticatedAppProjectsProjectIdEditorRoute
   AuthenticatedAppProjectsProjectIdIndexRoute: typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 
 const AuthenticatedAppProjectsProjectIdRouteChildren: AuthenticatedAppProjectsProjectIdRouteChildren =
   {
+    AuthenticatedAppProjectsProjectIdEditorRoute:
+      AuthenticatedAppProjectsProjectIdEditorRoute,
     AuthenticatedAppProjectsProjectIdIndexRoute:
       AuthenticatedAppProjectsProjectIdIndexRoute,
   }
