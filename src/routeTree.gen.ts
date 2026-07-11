@@ -50,6 +50,7 @@ import { Route as AuthenticatedAppProjectsIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedAppProjectsNewRouteImport } from './routes/_authenticated.app.projects.new'
 import { Route as AuthenticatedAppProjectsProjectIdRouteImport } from './routes/_authenticated.app.projects.$projectId'
 import { Route as AuthenticatedAppProjectsProjectIdIndexRouteImport } from './routes/_authenticated.app.projects.$projectId.index'
+import { Route as AuthenticatedAppProjectsProjectIdVersionsRouteImport } from './routes/_authenticated.app.projects.$projectId.versions'
 import { Route as AuthenticatedAppProjectsProjectIdTranscriptRouteImport } from './routes/_authenticated.app.projects.$projectId.transcript'
 import { Route as AuthenticatedAppProjectsProjectIdMediaRouteImport } from './routes/_authenticated.app.projects.$projectId.media'
 import { Route as AuthenticatedAppProjectsProjectIdEditorRouteImport } from './routes/_authenticated.app.projects.$projectId.editor'
@@ -262,6 +263,12 @@ const AuthenticatedAppProjectsProjectIdIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
   } as any)
+const AuthenticatedAppProjectsProjectIdVersionsRoute =
+  AuthenticatedAppProjectsProjectIdVersionsRouteImport.update({
+    id: '/versions',
+    path: '/versions',
+    getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
+  } as any)
 const AuthenticatedAppProjectsProjectIdTranscriptRoute =
   AuthenticatedAppProjectsProjectIdTranscriptRouteImport.update({
     id: '/transcript',
@@ -324,6 +331,7 @@ export interface FileRoutesByFullPath {
   '/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
   '/app/projects/$projectId/media': typeof AuthenticatedAppProjectsProjectIdMediaRoute
   '/app/projects/$projectId/transcript': typeof AuthenticatedAppProjectsProjectIdTranscriptRoute
+  '/app/projects/$projectId/versions': typeof AuthenticatedAppProjectsProjectIdVersionsRoute
   '/app/projects/$projectId/': typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -366,6 +374,7 @@ export interface FileRoutesByTo {
   '/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
   '/app/projects/$projectId/media': typeof AuthenticatedAppProjectsProjectIdMediaRoute
   '/app/projects/$projectId/transcript': typeof AuthenticatedAppProjectsProjectIdTranscriptRoute
+  '/app/projects/$projectId/versions': typeof AuthenticatedAppProjectsProjectIdVersionsRoute
   '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 export interface FileRoutesById {
@@ -413,6 +422,7 @@ export interface FileRoutesById {
   '/_authenticated/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
   '/_authenticated/app/projects/$projectId/media': typeof AuthenticatedAppProjectsProjectIdMediaRoute
   '/_authenticated/app/projects/$projectId/transcript': typeof AuthenticatedAppProjectsProjectIdTranscriptRoute
+  '/_authenticated/app/projects/$projectId/versions': typeof AuthenticatedAppProjectsProjectIdVersionsRoute
   '/_authenticated/app/projects/$projectId/': typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -460,6 +470,7 @@ export interface FileRouteTypes {
     | '/app/projects/$projectId/editor'
     | '/app/projects/$projectId/media'
     | '/app/projects/$projectId/transcript'
+    | '/app/projects/$projectId/versions'
     | '/app/projects/$projectId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -502,6 +513,7 @@ export interface FileRouteTypes {
     | '/app/projects/$projectId/editor'
     | '/app/projects/$projectId/media'
     | '/app/projects/$projectId/transcript'
+    | '/app/projects/$projectId/versions'
     | '/app/projects/$projectId'
   id:
     | '__root__'
@@ -548,6 +560,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/projects/$projectId/editor'
     | '/_authenticated/app/projects/$projectId/media'
     | '/_authenticated/app/projects/$projectId/transcript'
+    | '/_authenticated/app/projects/$projectId/versions'
     | '/_authenticated/app/projects/$projectId/'
   fileRoutesById: FileRoutesById
 }
@@ -867,6 +880,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdIndexRouteImport
       parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
     }
+    '/_authenticated/app/projects/$projectId/versions': {
+      id: '/_authenticated/app/projects/$projectId/versions'
+      path: '/versions'
+      fullPath: '/app/projects/$projectId/versions'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdVersionsRouteImport
+      parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
+    }
     '/_authenticated/app/projects/$projectId/transcript': {
       id: '/_authenticated/app/projects/$projectId/transcript'
       path: '/transcript'
@@ -895,6 +915,7 @@ interface AuthenticatedAppProjectsProjectIdRouteChildren {
   AuthenticatedAppProjectsProjectIdEditorRoute: typeof AuthenticatedAppProjectsProjectIdEditorRoute
   AuthenticatedAppProjectsProjectIdMediaRoute: typeof AuthenticatedAppProjectsProjectIdMediaRoute
   AuthenticatedAppProjectsProjectIdTranscriptRoute: typeof AuthenticatedAppProjectsProjectIdTranscriptRoute
+  AuthenticatedAppProjectsProjectIdVersionsRoute: typeof AuthenticatedAppProjectsProjectIdVersionsRoute
   AuthenticatedAppProjectsProjectIdIndexRoute: typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 
@@ -906,6 +927,8 @@ const AuthenticatedAppProjectsProjectIdRouteChildren: AuthenticatedAppProjectsPr
       AuthenticatedAppProjectsProjectIdMediaRoute,
     AuthenticatedAppProjectsProjectIdTranscriptRoute:
       AuthenticatedAppProjectsProjectIdTranscriptRoute,
+    AuthenticatedAppProjectsProjectIdVersionsRoute:
+      AuthenticatedAppProjectsProjectIdVersionsRoute,
     AuthenticatedAppProjectsProjectIdIndexRoute:
       AuthenticatedAppProjectsProjectIdIndexRoute,
   }
