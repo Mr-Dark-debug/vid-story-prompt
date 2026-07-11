@@ -8,14 +8,14 @@ export const Route = createFileRoute("/_authenticated/app/projects/$projectId")(
   component: ProjectLayout,
 });
 
-const tabs = [
+const tabs: { to: string; label: string; end?: boolean }[] = [
   { to: "/app/projects/$projectId", label: "Overview", end: true },
   { to: "/app/projects/$projectId/editor", label: "Editor" },
   { to: "/app/projects/$projectId/media", label: "Media" },
   { to: "/app/projects/$projectId/transcript", label: "Transcript" },
   { to: "/app/projects/$projectId/versions", label: "Versions" },
   { to: "/app/projects/$projectId/exports", label: "Exports" },
-] as const;
+];
 
 function ProjectLayout() {
   const { projectId } = useParams({ from: "/_authenticated/app/projects/$projectId" });
@@ -56,6 +56,7 @@ function ProjectLayout() {
           return (
             <Link
               key={t.label}
+              // @ts-expect-error dynamic route path
               to={t.to}
               params={{ projectId }}
               className={cn(

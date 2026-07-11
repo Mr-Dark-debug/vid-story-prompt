@@ -48,6 +48,7 @@ import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated.ap
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated.app.index'
 import { Route as AuthenticatedAppProjectsIndexRouteImport } from './routes/_authenticated.app.projects.index'
 import { Route as AuthenticatedAppProjectsNewRouteImport } from './routes/_authenticated.app.projects.new'
+import { Route as AuthenticatedAppProjectsProjectIdRouteImport } from './routes/_authenticated.app.projects.$projectId'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -245,6 +246,12 @@ const AuthenticatedAppProjectsNewRoute =
     path: '/projects/new',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppProjectsProjectIdRoute =
+  AuthenticatedAppProjectsProjectIdRouteImport.update({
+    id: '/projects/$projectId',
+    path: '/projects/$projectId',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -283,6 +290,7 @@ export interface FileRoutesByFullPath {
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/use-cases/': typeof UseCasesIndexRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRoute
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
 }
@@ -321,6 +329,7 @@ export interface FileRoutesByTo {
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/use-cases': typeof UseCasesIndexRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRoute
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/projects': typeof AuthenticatedAppProjectsIndexRoute
 }
@@ -363,6 +372,7 @@ export interface FileRoutesById {
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/use-cases/': typeof UseCasesIndexRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRoute
   '/_authenticated/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/_authenticated/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
 }
@@ -405,6 +415,7 @@ export interface FileRouteTypes {
     | '/use-cases/youtube'
     | '/use-cases/'
     | '/app/'
+    | '/app/projects/$projectId'
     | '/app/projects/new'
     | '/app/projects/'
   fileRoutesByTo: FileRoutesByTo
@@ -443,6 +454,7 @@ export interface FileRouteTypes {
     | '/use-cases/youtube'
     | '/use-cases'
     | '/app'
+    | '/app/projects/$projectId'
     | '/app/projects/new'
     | '/app/projects'
   id:
@@ -484,6 +496,7 @@ export interface FileRouteTypes {
     | '/use-cases/youtube'
     | '/use-cases/'
     | '/_authenticated/app/'
+    | '/_authenticated/app/projects/$projectId'
     | '/_authenticated/app/projects/new'
     | '/_authenticated/app/projects/'
   fileRoutesById: FileRoutesById
@@ -790,17 +803,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProjectsNewRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/projects/$projectId': {
+      id: '/_authenticated/app/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/app/projects/$projectId'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppProjectsProjectIdRoute: typeof AuthenticatedAppProjectsProjectIdRoute
   AuthenticatedAppProjectsNewRoute: typeof AuthenticatedAppProjectsNewRoute
   AuthenticatedAppProjectsIndexRoute: typeof AuthenticatedAppProjectsIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppProjectsProjectIdRoute:
+    AuthenticatedAppProjectsProjectIdRoute,
   AuthenticatedAppProjectsNewRoute: AuthenticatedAppProjectsNewRoute,
   AuthenticatedAppProjectsIndexRoute: AuthenticatedAppProjectsIndexRoute,
 }
