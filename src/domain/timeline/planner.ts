@@ -1,4 +1,5 @@
 import type { PlanOp } from "./types";
+type Status = "pending" | "accepted" | "rejected";
 import type { MockProject } from "@/mock/seed";
 
 function uid(p = "op") {
@@ -11,7 +12,7 @@ function uid(p = "op") {
  */
 export function planFromPrompt(prompt: string, project: MockProject) {
   const p = prompt.toLowerCase();
-  const ops: (PlanOp & { status: "pending" })[] = [];
+  const ops: (PlanOp & { status: Status })[] = [];
   const wantsFirstCut = /(first cut|assembly|rough|make|build|create)/.test(p);
   const wantsShort = /(short|9:16|vertical|tiktok|reels|shorts)/.test(p);
   const wantsSilence = /(silence|pause|breath|dead air)/.test(p);
