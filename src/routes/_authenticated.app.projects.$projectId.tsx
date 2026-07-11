@@ -56,8 +56,7 @@ function ProjectLayout() {
           return (
             <Link
               key={t.label}
-              // @ts-expect-error dynamic route path
-              to={t.to}
+              to={t.to as "/app/projects/$projectId"}
               params={{ projectId }}
               className={cn(
                 "border-b-2 px-3 py-2 text-sm text-ink-soft hover:text-ink",
