@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as YoutubeClipperRouteImport } from './routes/youtube-clipper'
 import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as UseCasesRouteImport } from './routes/use-cases'
 import { Route as TermsRouteImport } from './routes/terms'
@@ -47,6 +48,8 @@ import { Route as DocsExportingRouteImport } from './routes/docs.exporting'
 import { Route as DocsAiEditorRouteImport } from './routes/docs.ai-editor'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated.app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated.app.index'
+import { Route as AuthYoutubeCallbackRouteImport } from './routes/auth.youtube.callback'
+import { Route as AuthenticatedAppYoutubeClipperRouteImport } from './routes/_authenticated.app.youtube-clipper'
 import { Route as AuthenticatedAppUsageRouteImport } from './routes/_authenticated.app.usage'
 import { Route as AuthenticatedAppUploadsRouteImport } from './routes/_authenticated.app.uploads'
 import { Route as AuthenticatedAppTemplatesRouteImport } from './routes/_authenticated.app.templates'
@@ -54,8 +57,10 @@ import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppHelpRouteImport } from './routes/_authenticated.app.help'
 import { Route as AuthenticatedAppFeedbackRouteImport } from './routes/_authenticated.app.feedback'
 import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authenticated.app.billing'
+import { Route as AuthenticatedAppYoutubeClipperIndexRouteImport } from './routes/_authenticated.app.youtube-clipper.index'
 import { Route as AuthenticatedAppSettingsIndexRouteImport } from './routes/_authenticated.app.settings.index'
 import { Route as AuthenticatedAppProjectsIndexRouteImport } from './routes/_authenticated.app.projects.index'
+import { Route as AuthenticatedAppYoutubeClipperNewRouteImport } from './routes/_authenticated.app.youtube-clipper.new'
 import { Route as AuthenticatedAppSettingsPrivacyRouteImport } from './routes/_authenticated.app.settings.privacy'
 import { Route as AuthenticatedAppSettingsPreferencesRouteImport } from './routes/_authenticated.app.settings.preferences'
 import { Route as AuthenticatedAppSettingsNotificationsRouteImport } from './routes/_authenticated.app.settings.notifications'
@@ -63,12 +68,19 @@ import { Route as AuthenticatedAppSettingsIntegrationsRouteImport } from './rout
 import { Route as AuthenticatedAppProjectsNewRouteImport } from './routes/_authenticated.app.projects.new'
 import { Route as AuthenticatedAppProjectsProjectIdRouteImport } from './routes/_authenticated.app.projects.$projectId'
 import { Route as AuthenticatedAppProjectsProjectIdIndexRouteImport } from './routes/_authenticated.app.projects.$projectId.index'
+import { Route as AuthenticatedAppYoutubeClipperJobsJobIdRouteImport } from './routes/_authenticated.app.youtube-clipper.jobs.$jobId'
 import { Route as AuthenticatedAppProjectsProjectIdVersionsRouteImport } from './routes/_authenticated.app.projects.$projectId.versions'
 import { Route as AuthenticatedAppProjectsProjectIdTranscriptRouteImport } from './routes/_authenticated.app.projects.$projectId.transcript'
 import { Route as AuthenticatedAppProjectsProjectIdMediaRouteImport } from './routes/_authenticated.app.projects.$projectId.media'
 import { Route as AuthenticatedAppProjectsProjectIdExportsRouteImport } from './routes/_authenticated.app.projects.$projectId.exports'
 import { Route as AuthenticatedAppProjectsProjectIdEditorRouteImport } from './routes/_authenticated.app.projects.$projectId.editor'
+import { Route as AuthenticatedAppYoutubeClipperClipsClipIdEditRouteImport } from './routes/_authenticated.app.youtube-clipper.clips.$clipId.edit'
 
+const YoutubeClipperRoute = YoutubeClipperRouteImport.update({
+  id: '/youtube-clipper',
+  path: '/youtube-clipper',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
   path: '/verify-email',
@@ -258,6 +270,17 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthYoutubeCallbackRoute = AuthYoutubeCallbackRouteImport.update({
+  id: '/auth/youtube/callback',
+  path: '/auth/youtube/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAppYoutubeClipperRoute =
+  AuthenticatedAppYoutubeClipperRouteImport.update({
+    id: '/youtube-clipper',
+    path: '/youtube-clipper',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppUsageRoute = AuthenticatedAppUsageRouteImport.update({
   id: '/usage',
   path: '/usage',
@@ -296,6 +319,12 @@ const AuthenticatedAppBillingRoute = AuthenticatedAppBillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppYoutubeClipperIndexRoute =
+  AuthenticatedAppYoutubeClipperIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAppYoutubeClipperRoute,
+  } as any)
 const AuthenticatedAppSettingsIndexRoute =
   AuthenticatedAppSettingsIndexRouteImport.update({
     id: '/',
@@ -307,6 +336,12 @@ const AuthenticatedAppProjectsIndexRoute =
     id: '/projects/',
     path: '/projects/',
     getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppYoutubeClipperNewRoute =
+  AuthenticatedAppYoutubeClipperNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAppYoutubeClipperRoute,
   } as any)
 const AuthenticatedAppSettingsPrivacyRoute =
   AuthenticatedAppSettingsPrivacyRouteImport.update({
@@ -350,6 +385,12 @@ const AuthenticatedAppProjectsProjectIdIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
   } as any)
+const AuthenticatedAppYoutubeClipperJobsJobIdRoute =
+  AuthenticatedAppYoutubeClipperJobsJobIdRouteImport.update({
+    id: '/jobs/$jobId',
+    path: '/jobs/$jobId',
+    getParentRoute: () => AuthenticatedAppYoutubeClipperRoute,
+  } as any)
 const AuthenticatedAppProjectsProjectIdVersionsRoute =
   AuthenticatedAppProjectsProjectIdVersionsRouteImport.update({
     id: '/versions',
@@ -380,6 +421,12 @@ const AuthenticatedAppProjectsProjectIdEditorRoute =
     path: '/editor',
     getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
   } as any)
+const AuthenticatedAppYoutubeClipperClipsClipIdEditRoute =
+  AuthenticatedAppYoutubeClipperClipsClipIdEditRouteImport.update({
+    id: '/clips/$clipId/edit',
+    path: '/clips/$clipId/edit',
+    getParentRoute: () => AuthenticatedAppYoutubeClipperRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -406,6 +453,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/use-cases': typeof UseCasesRouteWithChildren
   '/verify-email': typeof VerifyEmailRoute
+  '/youtube-clipper': typeof YoutubeClipperRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/docs/ai-editor': typeof DocsAiEditorRoute
   '/docs/exporting': typeof DocsExportingRoute
@@ -425,6 +473,8 @@ export interface FileRoutesByFullPath {
   '/app/templates': typeof AuthenticatedAppTemplatesRoute
   '/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/app/usage': typeof AuthenticatedAppUsageRoute
+  '/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperRouteWithChildren
+  '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
@@ -432,14 +482,18 @@ export interface FileRoutesByFullPath {
   '/app/settings/notifications': typeof AuthenticatedAppSettingsNotificationsRoute
   '/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
   '/app/settings/privacy': typeof AuthenticatedAppSettingsPrivacyRoute
+  '/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
   '/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
   '/app/settings/': typeof AuthenticatedAppSettingsIndexRoute
+  '/app/youtube-clipper/': typeof AuthenticatedAppYoutubeClipperIndexRoute
   '/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
   '/app/projects/$projectId/exports': typeof AuthenticatedAppProjectsProjectIdExportsRoute
   '/app/projects/$projectId/media': typeof AuthenticatedAppProjectsProjectIdMediaRoute
   '/app/projects/$projectId/transcript': typeof AuthenticatedAppProjectsProjectIdTranscriptRoute
   '/app/projects/$projectId/versions': typeof AuthenticatedAppProjectsProjectIdVersionsRoute
+  '/app/youtube-clipper/jobs/$jobId': typeof AuthenticatedAppYoutubeClipperJobsJobIdRoute
   '/app/projects/$projectId/': typeof AuthenticatedAppProjectsProjectIdIndexRoute
+  '/app/youtube-clipper/clips/$clipId/edit': typeof AuthenticatedAppYoutubeClipperClipsClipIdEditRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -465,6 +519,7 @@ export interface FileRoutesByTo {
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
+  '/youtube-clipper': typeof YoutubeClipperRoute
   '/docs/ai-editor': typeof DocsAiEditorRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
@@ -482,20 +537,25 @@ export interface FileRoutesByTo {
   '/app/templates': typeof AuthenticatedAppTemplatesRoute
   '/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/app/usage': typeof AuthenticatedAppUsageRoute
+  '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
   '/app/settings/notifications': typeof AuthenticatedAppSettingsNotificationsRoute
   '/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
   '/app/settings/privacy': typeof AuthenticatedAppSettingsPrivacyRoute
+  '/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
   '/app/projects': typeof AuthenticatedAppProjectsIndexRoute
   '/app/settings': typeof AuthenticatedAppSettingsIndexRoute
+  '/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperIndexRoute
   '/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
   '/app/projects/$projectId/exports': typeof AuthenticatedAppProjectsProjectIdExportsRoute
   '/app/projects/$projectId/media': typeof AuthenticatedAppProjectsProjectIdMediaRoute
   '/app/projects/$projectId/transcript': typeof AuthenticatedAppProjectsProjectIdTranscriptRoute
   '/app/projects/$projectId/versions': typeof AuthenticatedAppProjectsProjectIdVersionsRoute
+  '/app/youtube-clipper/jobs/$jobId': typeof AuthenticatedAppYoutubeClipperJobsJobIdRoute
   '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdIndexRoute
+  '/app/youtube-clipper/clips/$clipId/edit': typeof AuthenticatedAppYoutubeClipperClipsClipIdEditRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -524,6 +584,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/use-cases': typeof UseCasesRouteWithChildren
   '/verify-email': typeof VerifyEmailRoute
+  '/youtube-clipper': typeof YoutubeClipperRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/docs/ai-editor': typeof DocsAiEditorRoute
   '/docs/exporting': typeof DocsExportingRoute
@@ -543,6 +604,8 @@ export interface FileRoutesById {
   '/_authenticated/app/templates': typeof AuthenticatedAppTemplatesRoute
   '/_authenticated/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/_authenticated/app/usage': typeof AuthenticatedAppUsageRoute
+  '/_authenticated/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperRouteWithChildren
+  '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   '/_authenticated/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
@@ -550,14 +613,18 @@ export interface FileRoutesById {
   '/_authenticated/app/settings/notifications': typeof AuthenticatedAppSettingsNotificationsRoute
   '/_authenticated/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
   '/_authenticated/app/settings/privacy': typeof AuthenticatedAppSettingsPrivacyRoute
+  '/_authenticated/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
   '/_authenticated/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
   '/_authenticated/app/settings/': typeof AuthenticatedAppSettingsIndexRoute
+  '/_authenticated/app/youtube-clipper/': typeof AuthenticatedAppYoutubeClipperIndexRoute
   '/_authenticated/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
   '/_authenticated/app/projects/$projectId/exports': typeof AuthenticatedAppProjectsProjectIdExportsRoute
   '/_authenticated/app/projects/$projectId/media': typeof AuthenticatedAppProjectsProjectIdMediaRoute
   '/_authenticated/app/projects/$projectId/transcript': typeof AuthenticatedAppProjectsProjectIdTranscriptRoute
   '/_authenticated/app/projects/$projectId/versions': typeof AuthenticatedAppProjectsProjectIdVersionsRoute
+  '/_authenticated/app/youtube-clipper/jobs/$jobId': typeof AuthenticatedAppYoutubeClipperJobsJobIdRoute
   '/_authenticated/app/projects/$projectId/': typeof AuthenticatedAppProjectsProjectIdIndexRoute
+  '/_authenticated/app/youtube-clipper/clips/$clipId/edit': typeof AuthenticatedAppYoutubeClipperClipsClipIdEditRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -586,6 +653,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/use-cases'
     | '/verify-email'
+    | '/youtube-clipper'
     | '/app'
     | '/docs/ai-editor'
     | '/docs/exporting'
@@ -605,6 +673,8 @@ export interface FileRouteTypes {
     | '/app/templates'
     | '/app/uploads'
     | '/app/usage'
+    | '/app/youtube-clipper'
+    | '/auth/youtube/callback'
     | '/app/'
     | '/app/projects/$projectId'
     | '/app/projects/new'
@@ -612,14 +682,18 @@ export interface FileRouteTypes {
     | '/app/settings/notifications'
     | '/app/settings/preferences'
     | '/app/settings/privacy'
+    | '/app/youtube-clipper/new'
     | '/app/projects/'
     | '/app/settings/'
+    | '/app/youtube-clipper/'
     | '/app/projects/$projectId/editor'
     | '/app/projects/$projectId/exports'
     | '/app/projects/$projectId/media'
     | '/app/projects/$projectId/transcript'
     | '/app/projects/$projectId/versions'
+    | '/app/youtube-clipper/jobs/$jobId'
     | '/app/projects/$projectId/'
+    | '/app/youtube-clipper/clips/$clipId/edit'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -645,6 +719,7 @@ export interface FileRouteTypes {
     | '/status'
     | '/terms'
     | '/verify-email'
+    | '/youtube-clipper'
     | '/docs/ai-editor'
     | '/docs/exporting'
     | '/docs/getting-started'
@@ -662,20 +737,25 @@ export interface FileRouteTypes {
     | '/app/templates'
     | '/app/uploads'
     | '/app/usage'
+    | '/auth/youtube/callback'
     | '/app'
     | '/app/projects/new'
     | '/app/settings/integrations'
     | '/app/settings/notifications'
     | '/app/settings/preferences'
     | '/app/settings/privacy'
+    | '/app/youtube-clipper/new'
     | '/app/projects'
     | '/app/settings'
+    | '/app/youtube-clipper'
     | '/app/projects/$projectId/editor'
     | '/app/projects/$projectId/exports'
     | '/app/projects/$projectId/media'
     | '/app/projects/$projectId/transcript'
     | '/app/projects/$projectId/versions'
+    | '/app/youtube-clipper/jobs/$jobId'
     | '/app/projects/$projectId'
+    | '/app/youtube-clipper/clips/$clipId/edit'
   id:
     | '__root__'
     | '/'
@@ -703,6 +783,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/use-cases'
     | '/verify-email'
+    | '/youtube-clipper'
     | '/_authenticated/app'
     | '/docs/ai-editor'
     | '/docs/exporting'
@@ -722,6 +803,8 @@ export interface FileRouteTypes {
     | '/_authenticated/app/templates'
     | '/_authenticated/app/uploads'
     | '/_authenticated/app/usage'
+    | '/_authenticated/app/youtube-clipper'
+    | '/auth/youtube/callback'
     | '/_authenticated/app/'
     | '/_authenticated/app/projects/$projectId'
     | '/_authenticated/app/projects/new'
@@ -729,14 +812,18 @@ export interface FileRouteTypes {
     | '/_authenticated/app/settings/notifications'
     | '/_authenticated/app/settings/preferences'
     | '/_authenticated/app/settings/privacy'
+    | '/_authenticated/app/youtube-clipper/new'
     | '/_authenticated/app/projects/'
     | '/_authenticated/app/settings/'
+    | '/_authenticated/app/youtube-clipper/'
     | '/_authenticated/app/projects/$projectId/editor'
     | '/_authenticated/app/projects/$projectId/exports'
     | '/_authenticated/app/projects/$projectId/media'
     | '/_authenticated/app/projects/$projectId/transcript'
     | '/_authenticated/app/projects/$projectId/versions'
+    | '/_authenticated/app/youtube-clipper/jobs/$jobId'
     | '/_authenticated/app/projects/$projectId/'
+    | '/_authenticated/app/youtube-clipper/clips/$clipId/edit'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -765,10 +852,19 @@ export interface RootRouteChildren {
   TermsRoute: typeof TermsRoute
   UseCasesRoute: typeof UseCasesRouteWithChildren
   VerifyEmailRoute: typeof VerifyEmailRoute
+  YoutubeClipperRoute: typeof YoutubeClipperRoute
+  AuthYoutubeCallbackRoute: typeof AuthYoutubeCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/youtube-clipper': {
+      id: '/youtube-clipper'
+      path: '/youtube-clipper'
+      fullPath: '/youtube-clipper'
+      preLoaderRoute: typeof YoutubeClipperRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/verify-email': {
       id: '/verify-email'
       path: '/verify-email'
@@ -1035,6 +1131,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/auth/youtube/callback': {
+      id: '/auth/youtube/callback'
+      path: '/auth/youtube/callback'
+      fullPath: '/auth/youtube/callback'
+      preLoaderRoute: typeof AuthYoutubeCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/app/youtube-clipper': {
+      id: '/_authenticated/app/youtube-clipper'
+      path: '/youtube-clipper'
+      fullPath: '/app/youtube-clipper'
+      preLoaderRoute: typeof AuthenticatedAppYoutubeClipperRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/usage': {
       id: '/_authenticated/app/usage'
       path: '/usage'
@@ -1084,6 +1194,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBillingRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/youtube-clipper/': {
+      id: '/_authenticated/app/youtube-clipper/'
+      path: '/'
+      fullPath: '/app/youtube-clipper/'
+      preLoaderRoute: typeof AuthenticatedAppYoutubeClipperIndexRouteImport
+      parentRoute: typeof AuthenticatedAppYoutubeClipperRoute
+    }
     '/_authenticated/app/settings/': {
       id: '/_authenticated/app/settings/'
       path: '/'
@@ -1097,6 +1214,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/projects/'
       preLoaderRoute: typeof AuthenticatedAppProjectsIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/youtube-clipper/new': {
+      id: '/_authenticated/app/youtube-clipper/new'
+      path: '/new'
+      fullPath: '/app/youtube-clipper/new'
+      preLoaderRoute: typeof AuthenticatedAppYoutubeClipperNewRouteImport
+      parentRoute: typeof AuthenticatedAppYoutubeClipperRoute
     }
     '/_authenticated/app/settings/privacy': {
       id: '/_authenticated/app/settings/privacy'
@@ -1147,6 +1271,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdIndexRouteImport
       parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
     }
+    '/_authenticated/app/youtube-clipper/jobs/$jobId': {
+      id: '/_authenticated/app/youtube-clipper/jobs/$jobId'
+      path: '/jobs/$jobId'
+      fullPath: '/app/youtube-clipper/jobs/$jobId'
+      preLoaderRoute: typeof AuthenticatedAppYoutubeClipperJobsJobIdRouteImport
+      parentRoute: typeof AuthenticatedAppYoutubeClipperRoute
+    }
     '/_authenticated/app/projects/$projectId/versions': {
       id: '/_authenticated/app/projects/$projectId/versions'
       path: '/versions'
@@ -1182,6 +1313,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdEditorRouteImport
       parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
     }
+    '/_authenticated/app/youtube-clipper/clips/$clipId/edit': {
+      id: '/_authenticated/app/youtube-clipper/clips/$clipId/edit'
+      path: '/clips/$clipId/edit'
+      fullPath: '/app/youtube-clipper/clips/$clipId/edit'
+      preLoaderRoute: typeof AuthenticatedAppYoutubeClipperClipsClipIdEditRouteImport
+      parentRoute: typeof AuthenticatedAppYoutubeClipperRoute
+    }
   }
 }
 
@@ -1208,6 +1346,30 @@ const AuthenticatedAppSettingsRouteChildren: AuthenticatedAppSettingsRouteChildr
 const AuthenticatedAppSettingsRouteWithChildren =
   AuthenticatedAppSettingsRoute._addFileChildren(
     AuthenticatedAppSettingsRouteChildren,
+  )
+
+interface AuthenticatedAppYoutubeClipperRouteChildren {
+  AuthenticatedAppYoutubeClipperNewRoute: typeof AuthenticatedAppYoutubeClipperNewRoute
+  AuthenticatedAppYoutubeClipperIndexRoute: typeof AuthenticatedAppYoutubeClipperIndexRoute
+  AuthenticatedAppYoutubeClipperJobsJobIdRoute: typeof AuthenticatedAppYoutubeClipperJobsJobIdRoute
+  AuthenticatedAppYoutubeClipperClipsClipIdEditRoute: typeof AuthenticatedAppYoutubeClipperClipsClipIdEditRoute
+}
+
+const AuthenticatedAppYoutubeClipperRouteChildren: AuthenticatedAppYoutubeClipperRouteChildren =
+  {
+    AuthenticatedAppYoutubeClipperNewRoute:
+      AuthenticatedAppYoutubeClipperNewRoute,
+    AuthenticatedAppYoutubeClipperIndexRoute:
+      AuthenticatedAppYoutubeClipperIndexRoute,
+    AuthenticatedAppYoutubeClipperJobsJobIdRoute:
+      AuthenticatedAppYoutubeClipperJobsJobIdRoute,
+    AuthenticatedAppYoutubeClipperClipsClipIdEditRoute:
+      AuthenticatedAppYoutubeClipperClipsClipIdEditRoute,
+  }
+
+const AuthenticatedAppYoutubeClipperRouteWithChildren =
+  AuthenticatedAppYoutubeClipperRoute._addFileChildren(
+    AuthenticatedAppYoutubeClipperRouteChildren,
   )
 
 interface AuthenticatedAppProjectsProjectIdRouteChildren {
@@ -1248,6 +1410,7 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppTemplatesRoute: typeof AuthenticatedAppTemplatesRoute
   AuthenticatedAppUploadsRoute: typeof AuthenticatedAppUploadsRoute
   AuthenticatedAppUsageRoute: typeof AuthenticatedAppUsageRoute
+  AuthenticatedAppYoutubeClipperRoute: typeof AuthenticatedAppYoutubeClipperRouteWithChildren
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
   AuthenticatedAppProjectsProjectIdRoute: typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   AuthenticatedAppProjectsNewRoute: typeof AuthenticatedAppProjectsNewRoute
@@ -1262,6 +1425,8 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppTemplatesRoute: AuthenticatedAppTemplatesRoute,
   AuthenticatedAppUploadsRoute: AuthenticatedAppUploadsRoute,
   AuthenticatedAppUsageRoute: AuthenticatedAppUsageRoute,
+  AuthenticatedAppYoutubeClipperRoute:
+    AuthenticatedAppYoutubeClipperRouteWithChildren,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
   AuthenticatedAppProjectsProjectIdRoute:
     AuthenticatedAppProjectsProjectIdRouteWithChildren,
@@ -1350,7 +1515,19 @@ const rootRouteChildren: RootRouteChildren = {
   TermsRoute: TermsRoute,
   UseCasesRoute: UseCasesRouteWithChildren,
   VerifyEmailRoute: VerifyEmailRoute,
+  YoutubeClipperRoute: YoutubeClipperRoute,
+  AuthYoutubeCallbackRoute: AuthYoutubeCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

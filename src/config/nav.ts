@@ -1,6 +1,7 @@
 export type NavItem = { label: string; to: string; description?: string };
 
 export const productMenu: NavItem[] = [
+  { label: "YouTube Clipper", to: "/youtube-clipper", description: "Turn long videos into editable short clips." },
   { label: "Features", to: "/features", description: "The complete workflow" },
   { label: "How it works", to: "/how-it-works", description: "From footage to first cut" },
   { label: "AI transparency", to: "/ai-transparency", description: "What the AI sees and does" },
@@ -63,10 +64,12 @@ export const footerColumns: { title: string; items: NavItem[] }[] = [
 
 export const appNav: NavItem[] = [
   { label: "Overview", to: "/app" },
+  { label: "YouTube Clipper", to: "/app/youtube-clipper" },
   { label: "Projects", to: "/app/projects" },
   { label: "Templates", to: "/app/templates" },
   { label: "Uploads", to: "/app/uploads" },
   { label: "Usage", to: "/app/usage" },
   { label: "Billing", to: "/app/billing" },
+  { label: "Settings", to: "/app/settings" },
   { label: "Help", to: "/app/help" },
 ];

@@ -12,23 +12,26 @@ import {
   Menu,
   X,
   Plus,
+  Scissors,
 } from "lucide-react";
 import { useState } from "react";
 import { authService, useSession } from "@/services/auth";
 import { Logo } from "@/components/primitives/logo";
 import { StatusDot } from "@/components/primitives/status-dot";
 import { cn } from "@/lib/utils";
+import { appNav } from "@/config/nav";
 
-const nav = [
-  { label: "Overview", to: "/app", icon: LayoutDashboard },
-  { label: "Projects", to: "/app/projects", icon: FolderKanban },
-  { label: "Templates", to: "/app/templates", icon: Layers3 },
-  { label: "Uploads", to: "/app/uploads", icon: UploadCloud },
-  { label: "Usage", to: "/app/usage", icon: Gauge },
-  { label: "Billing", to: "/app/billing", icon: CreditCard },
-  { label: "Settings", to: "/app/settings", icon: Settings },
-  { label: "Help", to: "/app/help", icon: HelpCircle },
-] as const;
+const navIcons = {
+  "/app": LayoutDashboard,
+  "/app/youtube-clipper": Scissors,
+  "/app/projects": FolderKanban,
+  "/app/templates": Layers3,
+  "/app/uploads": UploadCloud,
+  "/app/usage": Gauge,
+  "/app/billing": CreditCard,
+  "/app/settings": Settings,
+  "/app/help": HelpCircle,
+} as const;
 
 export function AppLayout() {
   const user = useSession();
@@ -70,12 +73,13 @@ export function AppLayout() {
           </Link>
         </div>
         <nav className="mt-5 flex flex-col gap-0.5">
-          {nav.map((n) => {
+          {appNav.map((n) => {
             const active =
               n.to === "/app"
                 ? pathname === "/app"
                 : pathname === n.to || pathname.startsWith(n.to + "/");
-            const Icon = n.icon;
+            const Icon = navIcons[n.to as keyof typeof navIcons];
+            if (!Icon) return null;
             return (
               <Link
                 key={n.to}
@@ -105,16 +109,16 @@ export function AppLayout() {
             <button
               className="rounded-md p-1.5 text-ink-mute hover:bg-surface-sunken hover:text-ink"
               aria-label="Sign out"
-              onClick={() => {
-                authService.logout();
-                navigate({ to: "/login" });
+              onClick={async () => {
+                await authService.logout();
+                await navigate({ to: "/login" });
               }}
             >
               <LogOut className="h-4 w-4" />
             </button>
           </div>
           <div className="mt-2">
-            <StatusDot variant="demo">Simulated app · demo data</StatusDot>
+            <StatusDot variant="success">Supabase session · {user?.plan ?? "free"}</StatusDot>
           </div>
         </div>
       </aside>

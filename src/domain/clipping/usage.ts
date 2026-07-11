@@ -1,0 +1,5 @@
+export type UsageState={limit:number;reserved:number;committed:number};
+export function reserveUsage(state:UsageState,seconds:number):UsageState{if(!Number.isInteger(seconds)||seconds<=0)throw new Error("invalid_usage_amount");if(state.reserved+state.committed+seconds>state.limit)throw new Error("insufficient_usage");return{...state,reserved:state.reserved+seconds};}
+export function commitUsage(state:UsageState,seconds:number):UsageState{if(seconds<0||seconds>state.reserved)throw new Error("invalid_usage_commit");return{...state,reserved:state.reserved-seconds,committed:state.committed+seconds};}
+export function releaseUsage(state:UsageState,seconds:number):UsageState{if(seconds<0||seconds>state.reserved)throw new Error("invalid_usage_release");return{...state,reserved:state.reserved-seconds};}
+export function idempotencyKey(scope:string,...parts:(string|number)[]){const value=[scope,...parts].join(":");if(!/^[A-Za-z0-9:_-]+$/.test(value))throw new Error("invalid_idempotency_key");return value;}

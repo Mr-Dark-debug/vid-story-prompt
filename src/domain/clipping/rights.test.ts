@@ -1,0 +1,3 @@
+import { describe,expect,it } from "vitest";
+import { POLICY_VERSION,RIGHTS_ATTESTATION_VERSION,rightsAttestationSchema } from "./rights";
+describe("rights attestation",()=>{it("accepts a versioned privacy-safe record",()=>expect(rightsAttestationSchema.parse({userId:"11111111-1111-4111-8111-111111111111",workspaceId:"22222222-2222-4222-8222-222222222222",jobId:"33333333-3333-4333-8333-333333333333",sourceUrl:"https://youtube.com/watch?v=dQw4w9WgXcQ",youtubeVideoId:"dQw4w9WgXcQ",attestationVersion:RIGHTS_ATTESTATION_VERSION,policyVersion:POLICY_VERSION,acceptedAt:new Date().toISOString(),requestMetadata:{client:"web"}}).youtubeVideoId).toBe("dQw4w9WgXcQ"));it("rejects malformed video identifiers",()=>expect(()=>rightsAttestationSchema.parse({})).toThrow());});

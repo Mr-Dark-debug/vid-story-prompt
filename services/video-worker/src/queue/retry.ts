@@ -1,0 +1,3 @@
+import { TaskFailure } from "../domain/types.js";
+export function classifyFailure(error: unknown) { if (error instanceof TaskFailure) return { code:error.code,message:error.message,retryable:error.retryable }; const message=error instanceof Error?error.message:"Unknown worker failure"; const retryable=/timeout|ECONN|fetch failed|storage|rate.?limit|5\d\d/i.test(message); return {code:retryable?"temporary_failure":"worker_failure",message,retryable}; }
+export function nextAttempt(attempt: number, random=Math.random()) { const delay=Math.min(300_000,1000*2**Math.max(0,attempt-1))*(.75+Math.min(1,Math.max(0,random))*.5); return new Date(Date.now()+delay).toISOString(); }
