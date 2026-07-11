@@ -50,6 +50,7 @@ import { Route as AuthenticatedAppProjectsIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedAppProjectsNewRouteImport } from './routes/_authenticated.app.projects.new'
 import { Route as AuthenticatedAppProjectsProjectIdRouteImport } from './routes/_authenticated.app.projects.$projectId'
 import { Route as AuthenticatedAppProjectsProjectIdIndexRouteImport } from './routes/_authenticated.app.projects.$projectId.index'
+import { Route as AuthenticatedAppProjectsProjectIdMediaRouteImport } from './routes/_authenticated.app.projects.$projectId.media'
 import { Route as AuthenticatedAppProjectsProjectIdEditorRouteImport } from './routes/_authenticated.app.projects.$projectId.editor'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
@@ -260,6 +261,12 @@ const AuthenticatedAppProjectsProjectIdIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
   } as any)
+const AuthenticatedAppProjectsProjectIdMediaRoute =
+  AuthenticatedAppProjectsProjectIdMediaRouteImport.update({
+    id: '/media',
+    path: '/media',
+    getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
+  } as any)
 const AuthenticatedAppProjectsProjectIdEditorRoute =
   AuthenticatedAppProjectsProjectIdEditorRouteImport.update({
     id: '/editor',
@@ -308,6 +315,7 @@ export interface FileRoutesByFullPath {
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
   '/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
+  '/app/projects/$projectId/media': typeof AuthenticatedAppProjectsProjectIdMediaRoute
   '/app/projects/$projectId/': typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 export interface FileRoutesByTo {
@@ -348,6 +356,7 @@ export interface FileRoutesByTo {
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/projects': typeof AuthenticatedAppProjectsIndexRoute
   '/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
+  '/app/projects/$projectId/media': typeof AuthenticatedAppProjectsProjectIdMediaRoute
   '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 export interface FileRoutesById {
@@ -393,6 +402,7 @@ export interface FileRoutesById {
   '/_authenticated/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/_authenticated/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
   '/_authenticated/app/projects/$projectId/editor': typeof AuthenticatedAppProjectsProjectIdEditorRoute
+  '/_authenticated/app/projects/$projectId/media': typeof AuthenticatedAppProjectsProjectIdMediaRoute
   '/_authenticated/app/projects/$projectId/': typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 export interface FileRouteTypes {
@@ -438,6 +448,7 @@ export interface FileRouteTypes {
     | '/app/projects/new'
     | '/app/projects/'
     | '/app/projects/$projectId/editor'
+    | '/app/projects/$projectId/media'
     | '/app/projects/$projectId/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -478,6 +489,7 @@ export interface FileRouteTypes {
     | '/app/projects/new'
     | '/app/projects'
     | '/app/projects/$projectId/editor'
+    | '/app/projects/$projectId/media'
     | '/app/projects/$projectId'
   id:
     | '__root__'
@@ -522,6 +534,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/projects/new'
     | '/_authenticated/app/projects/'
     | '/_authenticated/app/projects/$projectId/editor'
+    | '/_authenticated/app/projects/$projectId/media'
     | '/_authenticated/app/projects/$projectId/'
   fileRoutesById: FileRoutesById
 }
@@ -841,6 +854,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdIndexRouteImport
       parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
     }
+    '/_authenticated/app/projects/$projectId/media': {
+      id: '/_authenticated/app/projects/$projectId/media'
+      path: '/media'
+      fullPath: '/app/projects/$projectId/media'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdMediaRouteImport
+      parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
+    }
     '/_authenticated/app/projects/$projectId/editor': {
       id: '/_authenticated/app/projects/$projectId/editor'
       path: '/editor'
@@ -853,6 +873,7 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedAppProjectsProjectIdRouteChildren {
   AuthenticatedAppProjectsProjectIdEditorRoute: typeof AuthenticatedAppProjectsProjectIdEditorRoute
+  AuthenticatedAppProjectsProjectIdMediaRoute: typeof AuthenticatedAppProjectsProjectIdMediaRoute
   AuthenticatedAppProjectsProjectIdIndexRoute: typeof AuthenticatedAppProjectsProjectIdIndexRoute
 }
 
@@ -860,6 +881,8 @@ const AuthenticatedAppProjectsProjectIdRouteChildren: AuthenticatedAppProjectsPr
   {
     AuthenticatedAppProjectsProjectIdEditorRoute:
       AuthenticatedAppProjectsProjectIdEditorRoute,
+    AuthenticatedAppProjectsProjectIdMediaRoute:
+      AuthenticatedAppProjectsProjectIdMediaRoute,
     AuthenticatedAppProjectsProjectIdIndexRoute:
       AuthenticatedAppProjectsProjectIdIndexRoute,
   }

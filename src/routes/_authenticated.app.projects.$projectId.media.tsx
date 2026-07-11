@@ -59,7 +59,7 @@ function MediaPage() {
         <StatusDot variant="demo">Natural-language search · simulated</StatusDot>
       </div>
       {filtered.length === 0 ? (
-        <EmptyState title="No matching media" body="Try a different search or role filter." />
+        <EmptyState title="No matching media" description="Try a different search or role filter." />
       ) : (
         <ul className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
           {filtered.map((a) => {
