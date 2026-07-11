@@ -47,6 +47,7 @@ import { Route as DocsAiEditorRouteImport } from './routes/docs.ai-editor'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated.app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated.app.index'
 import { Route as AuthenticatedAppProjectsIndexRouteImport } from './routes/_authenticated.app.projects.index'
+import { Route as AuthenticatedAppProjectsNewRouteImport } from './routes/_authenticated.app.projects.new'
 
 const VerifyEmailRoute = VerifyEmailRouteImport.update({
   id: '/verify-email',
@@ -238,6 +239,12 @@ const AuthenticatedAppProjectsIndexRoute =
     path: '/projects/',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppProjectsNewRoute =
+  AuthenticatedAppProjectsNewRouteImport.update({
+    id: '/projects/new',
+    path: '/projects/new',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -276,6 +283,7 @@ export interface FileRoutesByFullPath {
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/use-cases/': typeof UseCasesIndexRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
 }
 export interface FileRoutesByTo {
@@ -313,6 +321,7 @@ export interface FileRoutesByTo {
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/use-cases': typeof UseCasesIndexRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/projects': typeof AuthenticatedAppProjectsIndexRoute
 }
 export interface FileRoutesById {
@@ -354,6 +363,7 @@ export interface FileRoutesById {
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/use-cases/': typeof UseCasesIndexRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/_authenticated/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
 }
 export interface FileRouteTypes {
@@ -395,6 +405,7 @@ export interface FileRouteTypes {
     | '/use-cases/youtube'
     | '/use-cases/'
     | '/app/'
+    | '/app/projects/new'
     | '/app/projects/'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -432,6 +443,7 @@ export interface FileRouteTypes {
     | '/use-cases/youtube'
     | '/use-cases'
     | '/app'
+    | '/app/projects/new'
     | '/app/projects'
   id:
     | '__root__'
@@ -472,6 +484,7 @@ export interface FileRouteTypes {
     | '/use-cases/youtube'
     | '/use-cases/'
     | '/_authenticated/app/'
+    | '/_authenticated/app/projects/new'
     | '/_authenticated/app/projects/'
   fileRoutesById: FileRoutesById
 }
@@ -770,16 +783,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProjectsIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/projects/new': {
+      id: '/_authenticated/app/projects/new'
+      path: '/projects/new'
+      fullPath: '/app/projects/new'
+      preLoaderRoute: typeof AuthenticatedAppProjectsNewRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
   }
 }
 
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppProjectsNewRoute: typeof AuthenticatedAppProjectsNewRoute
   AuthenticatedAppProjectsIndexRoute: typeof AuthenticatedAppProjectsIndexRoute
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppProjectsNewRoute: AuthenticatedAppProjectsNewRoute,
   AuthenticatedAppProjectsIndexRoute: AuthenticatedAppProjectsIndexRoute,
 }
 
