@@ -7,6 +7,9 @@ let browserClient: SupabaseClient<Database> | undefined;
 
 export function getSupabaseBrowserClient() {
   const publicEnv = getPublicEnv();
+  if (!publicEnv.VITE_SUPABASE_URL || !publicEnv.VITE_SUPABASE_ANON_KEY) {
+    throw new Error("Supabase is not configured.");
+  }
   browserClient ??= createBrowserClient<Database>(
     publicEnv.VITE_SUPABASE_URL,
     publicEnv.VITE_SUPABASE_ANON_KEY,
