@@ -23,8 +23,6 @@ services:
         sync: false
       - key: GROQ_TRANSCRIPTION_MODEL
         value: whisper-large-v3-turbo
-      - key: OPENAI_API_KEY
-        sync: false
       - key: OPENAI_TRANSCRIPTION_MODEL
         value: gpt-4o-mini-transcribe
       - key: OPENROUTER_API_KEY
