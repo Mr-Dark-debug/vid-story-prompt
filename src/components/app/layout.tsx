@@ -43,7 +43,7 @@ export function AppLayout() {
     <div className="flex min-h-dvh bg-surface-page">
       {/* Mobile top bar */}
       <header className="fixed inset-x-0 top-0 z-40 flex items-center justify-between border-b border-line bg-surface-panel/95 px-4 py-3 backdrop-blur lg:hidden">
-        <Link to="/app" className="flex items-center gap-2"><Logo /></Link>
+        <Logo to="/app" />
         <button
           onClick={() => setOpen((v) => !v)}
           aria-label={open ? "Close menu" : "Open menu"}
@@ -60,9 +60,7 @@ export function AppLayout() {
           open ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <Link to="/app" className="mb-6 hidden items-center gap-2 lg:flex">
-          <Logo />
-        </Link>
+        <Logo to="/app" className="mb-6 hidden lg:flex" />
         <div className="mt-14 lg:mt-0">
           <Link
             to="/app/projects/new"
@@ -161,9 +159,7 @@ export function AppPageHeader({
           </div>
         )}
         <h1 className="font-display text-2xl text-ink sm:text-3xl">{title}</h1>
-        {description && (
-          <p className="mt-2 max-w-2xl text-sm text-ink-soft">{description}</p>
-        )}
+        {description && <p className="mt-2 max-w-2xl text-sm text-ink-soft">{description}</p>}
       </div>
       {actions && <div className="flex flex-wrap gap-2">{actions}</div>}
     </div>
