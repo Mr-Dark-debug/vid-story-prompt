@@ -1,0 +1,49 @@
+services:
+  - type: web
+    name: vidrial-video-worker
+    runtime: docker
+    plan: free
+    region: frankfurt
+    branch: main
+    dockerfilePath: ./services/video-worker/Dockerfile
+    dockerContext: ./services/video-worker
+    healthCheckPath: /readyz
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: WORKER_ID
+        value: render-free-1
+      - key: WORKER_WAKE_SECRET
+        sync: false
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false
+      - key: GROQ_API_KEY
+        sync: false
+      - key: GROQ_TRANSCRIPTION_MODEL
+        value: whisper-large-v3-turbo
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: OPENAI_TRANSCRIPTION_MODEL
+        value: gpt-4o-mini-transcribe
+      - key: OPENROUTER_API_KEY
+        sync: false
+      - key: OPENROUTER_CLIP_MODEL
+        sync: false
+      - key: QUEUE_POLL_INTERVAL_MS
+        value: "1500"
+      - key: TASK_VISIBILITY_TIMEOUT_SECONDS
+        value: "180"
+      - key: MAX_DIRECT_DOWNLOAD_BYTES
+        value: "2147483648"
+      - key: DIRECT_DOWNLOAD_CONNECT_TIMEOUT_MS
+        value: "10000"
+      - key: DIRECT_DOWNLOAD_READ_TIMEOUT_MS
+        value: "300000"
+      - key: DIRECT_DOWNLOAD_REDIRECT_LIMIT
+        value: "4"
+      - key: FFMPEG_THREADS
+        value: "1"
+      - key: LOG_LEVEL
+        value: info

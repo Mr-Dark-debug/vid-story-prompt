@@ -10,6 +10,8 @@ import {
   Youtube,
 } from "lucide-react";
 import { SourceUpload, type UploadedSource } from "./source-upload";
+import { TurnstileWidget } from "@/components/security/turnstile";
+import { getPublicEnv } from "@/config/env";
 import { getYouTubeMetadata } from "@/services/youtube/server";
 import { createClipJob } from "@/services/clipping/server";
 import { beginYouTubeConnection } from "@/services/youtube/oauth.server";
@@ -25,6 +27,7 @@ export function JobWizard({
   initialSource?: string;
 }) {
   const navigate = useNavigate();
+  const turnstileSiteKey = getPublicEnv().VITE_TURNSTILE_SITE_KEY;
   const [step, setStep] = useState(0);
   const [sourceMode, setSourceMode] = useState<"youtube" | "upload" | "direct">(
     initialSource === "upload" ? "upload" : "youtube",
@@ -45,9 +48,11 @@ export function JobWizard({
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
+  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
 
   useEffect(() => {
-    if (!initialYoutube) return;
+    if (!initialYoutube || turnstileSiteKey) return;
     let active = true;
     setBusy(true);
     setError(null);
@@ -65,16 +70,28 @@ export function JobWizard({
     return () => {
       active = false;
     };
-  }, [initialYoutube]);
+  }, [initialYoutube, turnstileSiteKey]);
   const analyseYoutube = async () => {
+    if (turnstileSiteKey && !turnstileToken) {
+      setError("Complete the abuse-protection check before retrieving YouTube details.");
+      return;
+    }
     setBusy(true);
     setError(null);
     try {
-      setMetadata(await getYouTubeMetadata({ data: { url: youtubeUrl } }));
+      setMetadata(
+        await getYouTubeMetadata({
+          data: { turnstileToken: turnstileToken ?? undefined, url: youtubeUrl },
+        }),
+      );
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "YouTube details are unavailable.");
     } finally {
       setBusy(false);
+      if (turnstileSiteKey) {
+        setTurnstileToken(null);
+        setTurnstileResetKey((value) => value + 1);
+      }
     }
   };
   const next = () => {
@@ -172,6 +189,10 @@ export function JobWizard({
             setDirectUrl={setDirectUrl}
             directDuration={directDuration}
             setDirectDuration={setDirectDuration}
+            setTurnstileToken={setTurnstileToken}
+            turnstileReady={!turnstileSiteKey || Boolean(turnstileToken)}
+            turnstileResetKey={turnstileResetKey}
+            turnstileSiteKey={turnstileSiteKey}
           />
         )}
         {step === 1 && (
@@ -288,6 +309,10 @@ function SourceStep(props: {
   setDirectUrl: (value: string) => void;
   directDuration: number;
   setDirectDuration: (value: number) => void;
+  setTurnstileToken: (token: string | null) => void;
+  turnstileReady: boolean;
+  turnstileResetKey: number;
+  turnstileSiteKey?: string;
 }) {
   const [connectionError, setConnectionError] = useState<string | null>(null);
   const modes = [
@@ -342,13 +367,20 @@ function SourceStep(props: {
             />
             <button
               type="button"
-              disabled={props.busy}
+              disabled={props.busy || !props.turnstileReady}
               onClick={props.analyse}
               className="rounded-xl bg-ink px-4 text-sm font-semibold text-surface-page"
             >
               Retrieve details
             </button>
           </div>
+          {props.turnstileSiteKey && (
+            <TurnstileWidget
+              onToken={props.setTurnstileToken}
+              resetKey={props.turnstileResetKey}
+              siteKey={props.turnstileSiteKey}
+            />
+          )}
           {props.metadata && (
             <div className="mt-4 flex gap-4 rounded-xl border border-line p-3">
               <img
@@ -375,7 +407,9 @@ function SourceStep(props: {
                       window.location.assign(connection.url);
                     } catch (cause) {
                       setConnectionError(
-                        cause instanceof Error ? cause.message : "YouTube connection is unavailable.",
+                        cause instanceof Error
+                          ? cause.message
+                          : "YouTube connection is unavailable.",
                       );
                     }
                   }}

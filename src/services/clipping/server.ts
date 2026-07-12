@@ -2,6 +2,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getCurrentSession } from "@/services/auth/server";
+import { wakeVideoWorker } from "@/services/worker/server";
 
 const sourceType = z.enum([
   "local_upload",
@@ -57,7 +58,8 @@ export const createClipJob = createServerFn({ method: "POST" })
     });
     if (error || typeof jobId !== "string")
       throw new Error(error?.message ?? "The clipping job could not be created.");
-    return { jobId };
+    const workerWake = await wakeVideoWorker();
+    return { jobId, workerWake };
   });
 
 export const listClipJobs = createServerFn({ method: "GET" }).handler(async () => {
@@ -80,25 +82,27 @@ export const getClipJob = createServerFn({ method: "GET" })
     const supabase = getSupabaseServerClient();
     const [{ data: job, error }, { data: events }, { data: clips }, { data: exports }] =
       await Promise.all([
-      supabase.from("clip_jobs").select("*").eq("id", data.jobId).single(),
-      supabase
-        .from("processing_events")
-        .select("*")
-        .eq("clip_job_id", data.jobId)
-        .order("created_at", { ascending: false })
-        .limit(50),
-      supabase
-        .from("clips")
-        .select("*")
-        .eq("clip_job_id", data.jobId)
-        .is("deleted_at", null)
-        .order("created_at"),
-      supabase
-        .from("exports")
-        .select("id,clip_id,export_type,format,resolution,watermarked,status,expires_at,created_at")
-        .eq("clip_job_id", data.jobId)
-        .order("created_at", { ascending: false }),
-    ]);
+        supabase.from("clip_jobs").select("*").eq("id", data.jobId).single(),
+        supabase
+          .from("processing_events")
+          .select("*")
+          .eq("clip_job_id", data.jobId)
+          .order("created_at", { ascending: false })
+          .limit(50),
+        supabase
+          .from("clips")
+          .select("*")
+          .eq("clip_job_id", data.jobId)
+          .is("deleted_at", null)
+          .order("created_at"),
+        supabase
+          .from("exports")
+          .select(
+            "id,clip_id,export_type,format,resolution,watermarked,status,expires_at,created_at",
+          )
+          .eq("clip_job_id", data.jobId)
+          .order("created_at", { ascending: false }),
+      ]);
     if (error) throw new Error(error.message);
     return { job, events: events ?? [], clips: clips ?? [], exports: exports ?? [] };
   });

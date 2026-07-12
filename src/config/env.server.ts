@@ -10,6 +10,8 @@ const serverEnvSchema = z.object({
   GOOGLE_CLIENT_SECRET: z.string().min(10).optional(),
   GOOGLE_OAUTH_TOKEN_ENCRYPTION_KEY: z.string().min(32).optional(),
   TURNSTILE_SECRET_KEY: z.string().min(10).optional(),
+  VIDEO_WORKER_URL: z.string().url().optional(),
+  WORKER_WAKE_SECRET: z.string().min(20).optional(),
 });
 
 export function getServerEnv() {
@@ -23,5 +25,7 @@ export function getServerEnv() {
     GOOGLE_CLIENT_SECRET: process.env.GOOGLE_CLIENT_SECRET,
     GOOGLE_OAUTH_TOKEN_ENCRYPTION_KEY: process.env.GOOGLE_OAUTH_TOKEN_ENCRYPTION_KEY,
     TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
+    VIDEO_WORKER_URL: process.env.VIDEO_WORKER_URL,
+    WORKER_WAKE_SECRET: process.env.WORKER_WAKE_SECRET,
   });
 }

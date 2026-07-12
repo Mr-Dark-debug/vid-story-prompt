@@ -3,6 +3,7 @@ import { z } from "zod";
 const publicEnvSchema = z.object({
   VITE_SUPABASE_URL: z.string().url(),
   VITE_SUPABASE_ANON_KEY: z.string().min(20),
+  VITE_TURNSTILE_SITE_KEY: z.string().min(10).optional(),
 });
 
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
@@ -29,6 +30,10 @@ export function getPublicEnv(): PublicEnv {
       browserEnv?.VITE_SUPABASE_ANON_KEY ??
       import.meta.env.VITE_SUPABASE_ANON_KEY ??
       processEnv?.VITE_SUPABASE_ANON_KEY,
+    VITE_TURNSTILE_SITE_KEY:
+      browserEnv?.VITE_TURNSTILE_SITE_KEY ??
+      import.meta.env.VITE_TURNSTILE_SITE_KEY ??
+      processEnv?.VITE_TURNSTILE_SITE_KEY,
   });
 }
 

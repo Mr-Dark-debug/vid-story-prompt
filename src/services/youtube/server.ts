@@ -31,17 +31,35 @@ function enforceRateLimit() {
 }
 
 async function verifyTurnstile(token: string | undefined) {
-  const secret = getServerEnv().TURNSTILE_SECRET_KEY;
+  const serverEnv = getServerEnv();
+  const secret = serverEnv.TURNSTILE_SECRET_KEY;
   if (!secret) return;
   if (!token) throw new Error("Complete the abuse-protection check and retry.");
+  const requestIp = getRequestIP({ xForwardedFor: true });
   const body = new URLSearchParams({ secret, response: token });
+  if (requestIp) body.set("remoteip", requestIp);
   const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
     method: "POST",
     body,
     signal: AbortSignal.timeout(8_000),
   });
-  const result = z.object({ success: z.boolean() }).parse(await response.json());
+  const result = z
+    .object({
+      action: z.string().optional(),
+      hostname: z.string().optional(),
+      success: z.boolean(),
+    })
+    .parse(await response.json());
   if (!result.success) throw new Error("The abuse-protection check expired. Retry it.");
+  if (result.action !== "youtube_metadata")
+    throw new Error("The abuse-protection check was issued for a different action.");
+  const expectedHostname = new URL(serverEnv.PUBLIC_APP_URL).hostname;
+  if (
+    expectedHostname !== "localhost" &&
+    expectedHostname !== "127.0.0.1" &&
+    result.hostname !== expectedHostname
+  )
+    throw new Error("The abuse-protection check was issued for a different website.");
 }
 
 const youtubeResponseSchema = z.object({
