@@ -46,6 +46,7 @@ import { Route as DocsTimelineRouteImport } from './routes/docs.timeline'
 import { Route as DocsGettingStartedRouteImport } from './routes/docs.getting-started'
 import { Route as DocsExportingRouteImport } from './routes/docs.exporting'
 import { Route as DocsAiEditorRouteImport } from './routes/docs.ai-editor'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated.app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated.app.index'
 import { Route as AuthYoutubeCallbackRouteImport } from './routes/auth.youtube.callback'
@@ -260,6 +261,11 @@ const DocsAiEditorRoute = DocsAiEditorRouteImport.update({
   path: '/ai-editor',
   getParentRoute: () => DocsRoute,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   id: '/app',
   path: '/app',
@@ -455,6 +461,7 @@ export interface FileRoutesByFullPath {
   '/verify-email': typeof VerifyEmailRoute
   '/youtube-clipper': typeof YoutubeClipperRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
   '/docs/ai-editor': typeof DocsAiEditorRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
@@ -520,6 +527,7 @@ export interface FileRoutesByTo {
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/youtube-clipper': typeof YoutubeClipperRoute
+  '/auth/callback': typeof AuthCallbackRoute
   '/docs/ai-editor': typeof DocsAiEditorRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
@@ -586,6 +594,7 @@ export interface FileRoutesById {
   '/verify-email': typeof VerifyEmailRoute
   '/youtube-clipper': typeof YoutubeClipperRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
+  '/auth/callback': typeof AuthCallbackRoute
   '/docs/ai-editor': typeof DocsAiEditorRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
@@ -655,6 +664,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/youtube-clipper'
     | '/app'
+    | '/auth/callback'
     | '/docs/ai-editor'
     | '/docs/exporting'
     | '/docs/getting-started'
@@ -720,6 +730,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/verify-email'
     | '/youtube-clipper'
+    | '/auth/callback'
     | '/docs/ai-editor'
     | '/docs/exporting'
     | '/docs/getting-started'
@@ -785,6 +796,7 @@ export interface FileRouteTypes {
     | '/verify-email'
     | '/youtube-clipper'
     | '/_authenticated/app'
+    | '/auth/callback'
     | '/docs/ai-editor'
     | '/docs/exporting'
     | '/docs/getting-started'
@@ -853,6 +865,7 @@ export interface RootRouteChildren {
   UseCasesRoute: typeof UseCasesRouteWithChildren
   VerifyEmailRoute: typeof VerifyEmailRoute
   YoutubeClipperRoute: typeof YoutubeClipperRoute
+  AuthCallbackRoute: typeof AuthCallbackRoute
   AuthYoutubeCallbackRoute: typeof AuthYoutubeCallbackRoute
 }
 
@@ -1116,6 +1129,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/docs/ai-editor'
       preLoaderRoute: typeof DocsAiEditorRouteImport
       parentRoute: typeof DocsRoute
+    }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app': {
       id: '/_authenticated/app'
@@ -1516,6 +1536,7 @@ const rootRouteChildren: RootRouteChildren = {
   UseCasesRoute: UseCasesRouteWithChildren,
   VerifyEmailRoute: VerifyEmailRoute,
   YoutubeClipperRoute: YoutubeClipperRoute,
+  AuthCallbackRoute: AuthCallbackRoute,
   AuthYoutubeCallbackRoute: AuthYoutubeCallbackRoute,
 }
 export const routeTree = rootRouteImport

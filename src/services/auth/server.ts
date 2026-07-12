@@ -8,6 +8,19 @@ const credentialsSchema = z.object({
   password: z.string().min(8).max(128),
 });
 
+const redirectSchema = z.string().max(2048).optional();
+
+function safeAppPath(value?: string) {
+  return value?.startsWith("/") && !value.startsWith("//") ? value : "/app";
+}
+
+function authCallbackUrl(next?: string) {
+  const env = getServerEnv();
+  const callback = new URL("/auth/callback", env.PUBLIC_APP_URL);
+  callback.searchParams.set("next", safeAppPath(next));
+  return callback.toString();
+}
+
 function authError(message: string) {
   return new Error(message.replace(/\.$/, ""));
 }
@@ -50,19 +63,42 @@ export const login = createServerFn({ method: "POST" })
   });
 
 export const signup = createServerFn({ method: "POST" })
-  .validator(credentialsSchema.extend({ displayName: z.string().trim().min(2).max(80) }))
+  .validator(
+    credentialsSchema.extend({
+      displayName: z.string().trim().min(2).max(80),
+      redirect: redirectSchema,
+    }),
+  )
   .handler(async ({ data }) => {
-    const env = getServerEnv();
-    const { error } = await getSupabaseServerClient().auth.signUp({
+    const { data: result, error } = await getSupabaseServerClient().auth.signUp({
       email: data.email,
       password: data.password,
       options: {
         data: { display_name: data.displayName },
-        emailRedirectTo: `${env.PUBLIC_APP_URL}/verify-email`,
+        emailRedirectTo: authCallbackUrl(data.redirect),
       },
     });
     if (error) throw authError(error.message);
-    return { ok: true };
+    return { ok: true, requiresEmailConfirmation: !result.session };
+  });
+
+export const beginGoogleSignIn = createServerFn({ method: "POST" })
+  .validator(z.object({ redirect: redirectSchema }))
+  .handler(async ({ data }) => {
+    const { data: result, error } = await getSupabaseServerClient().auth.signInWithOAuth({
+      provider: "google",
+      options: {
+        redirectTo: authCallbackUrl(data.redirect),
+        scopes: "openid email profile",
+        queryParams: {
+          access_type: "offline",
+          prompt: "select_account",
+        },
+      },
+    });
+    if (error) throw authError(error.message);
+    if (!result.url) throw new Error("Google sign-in could not be started");
+    return { url: result.url };
   });
 
 export const logout = createServerFn({ method: "POST" }).handler(async () => {
@@ -74,9 +110,8 @@ export const logout = createServerFn({ method: "POST" }).handler(async () => {
 export const requestPasswordReset = createServerFn({ method: "POST" })
   .validator(z.object({ email: z.string().email().max(320) }))
   .handler(async ({ data }) => {
-    const env = getServerEnv();
     const { error } = await getSupabaseServerClient().auth.resetPasswordForEmail(data.email, {
-      redirectTo: `${env.PUBLIC_APP_URL}/reset-password`,
+      redirectTo: authCallbackUrl("/reset-password"),
     });
     if (error) throw authError(error.message);
     return { ok: true };

@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import {
   getCurrentSession,
+  beginGoogleSignIn,
   login,
   logout,
   requestPasswordReset,
@@ -14,8 +15,9 @@ export type User = NonNullable<Awaited<ReturnType<typeof getCurrentSession>>>;
 export const authService = {
   current: getCurrentSession,
   login: (email: string, password: string) => login({ data: { email, password } }),
-  signup: (email: string, password: string, displayName: string) =>
-    signup({ data: { email, password, displayName } }),
+  signup: (email: string, password: string, displayName: string, redirect?: string) =>
+    signup({ data: { email, password, displayName, redirect } }),
+  googleSignIn: (redirect?: string) => beginGoogleSignIn({ data: { redirect } }),
   requestPasswordReset: (email: string) => requestPasswordReset({ data: { email } }),
   resetPassword: (password: string) => resetPassword({ data: { password } }),
   logout: () => logout(),
