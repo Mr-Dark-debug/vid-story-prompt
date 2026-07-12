@@ -1,0 +1,17 @@
+.env
+.env.*
+!.env.example
+.output
+.wrangler
+coverage
+test-results
+playwright-report
+docs
+e2e
+services
+supabase
+src/**/*.test.ts
+src/**/*.test.tsx
+src/integration
+src/test
+package-lock.json
