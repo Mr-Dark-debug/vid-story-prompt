@@ -107,6 +107,10 @@ export function JobWizard({
       setError("Confirm your rights before creating a processing job.");
       return;
     }
+    if (step === 1 && sourceMode !== "direct" && !uploaded) {
+      setError("Upload the authorised original media file before continuing.");
+      return;
+    }
     setError(null);
     setStep((value) => Math.min(3, value + 1));
   };
