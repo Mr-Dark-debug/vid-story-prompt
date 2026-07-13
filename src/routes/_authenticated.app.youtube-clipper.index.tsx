@@ -3,5 +3,95 @@ import { ArrowRight, Clock3, Plus, Scissors } from "lucide-react";
 import { AppPageHeader } from "@/components/app/layout";
 import { listClipJobs } from "@/services/clipping/server";
 
-export const Route = createFileRoute("/_authenticated/app/youtube-clipper/")({ loader: () => listClipJobs(), component: ClipperDashboard });
-function ClipperDashboard() { const jobs = Route.useLoaderData(); return <div><AppPageHeader eyebrow="YouTube Clipper" title="Clipping jobs" description="Turn authorised long-form sources into explainable, editable short clips." actions={<Link to="/app/youtube-clipper/new" className="inline-flex items-center gap-2 rounded-lg bg-ink px-3.5 py-2 text-sm font-semibold text-surface-page"><Plus className="h-4 w-4" />New clipping job</Link>} />{jobs.length === 0 ? <div className="rounded-3xl border border-dashed border-line-strong bg-surface-panel px-6 py-16 text-center"><Scissors className="mx-auto h-8 w-8 text-ember" /><h2 className="mt-4 font-display text-xl text-ink">No clipping jobs yet</h2><p className="mx-auto mt-2 max-w-md text-sm text-ink-soft">Add an authorised YouTube video, upload the original, or import an owner-controlled media URL.</p><Link to="/app/youtube-clipper/new" className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-ember-ink">Create your first job<ArrowRight className="h-4 w-4" /></Link></div> : <div className="grid gap-3">{jobs.map((job: any) => <Link key={job.id} to="/app/youtube-clipper/jobs/$jobId" params={{ jobId: job.id }} className="flex items-center gap-4 rounded-2xl border border-line bg-surface-panel p-4 hover:border-line-strong">{job.source_thumbnail_url ? <img src={job.source_thumbnail_url} alt="" className="h-16 w-28 rounded-lg object-cover" /> : <div className="flex h-16 w-28 items-center justify-center rounded-lg bg-surface-sunken"><Scissors className="h-5 w-5 text-ink-mute" /></div>}<div className="min-w-0 flex-1"><div className="truncate font-medium text-ink">{job.source_title ?? "Untitled source"}</div><div className="mt-1 flex items-center gap-2 text-xs text-ink-mute"><Clock3 className="h-3.5 w-3.5" />{new Date(job.created_at).toLocaleString()} · {job.completed_clip_count}/{job.requested_clip_count} clips</div></div><span className="rounded-full bg-surface-sunken px-3 py-1 text-xs font-medium capitalize text-ink-soft">{job.status.replaceAll("_", " ")}</span><ArrowRight className="h-4 w-4 text-ink-mute" /></Link>)}</div>}</div>; }
+export const Route = createFileRoute("/_authenticated/app/youtube-clipper/")({
+  loader: () => listClipJobs(),
+  component: ClipperDashboard,
+});
+
+type ClipJobSummary = {
+  id: string;
+  source_title: string | null;
+  source_thumbnail_url: string | null;
+  status: string;
+  requested_clip_count: number;
+  completed_clip_count: number;
+  created_at: string;
+};
+
+function ClipperDashboard() {
+  const jobs = Route.useLoaderData();
+
+  return (
+    <div>
+      <AppPageHeader
+        eyebrow="YouTube Clipper"
+        title="Clipping jobs"
+        description="Turn authorised long-form sources into explainable, editable short clips."
+        actions={
+          <Link
+            to="/app/youtube-clipper/new"
+            className="inline-flex items-center gap-2 rounded-lg bg-ink px-3.5 py-2 text-sm font-semibold text-surface-page"
+          >
+            <Plus className="h-4 w-4" />
+            New clipping job
+          </Link>
+        }
+      />
+
+      {jobs.length === 0 ? (
+        <div className="rounded-3xl border border-dashed border-line-strong bg-surface-panel px-6 py-16 text-center">
+          <Scissors className="mx-auto h-8 w-8 text-ember" />
+          <h2 className="mt-4 font-display text-xl text-ink">No clipping jobs yet</h2>
+          <p className="mx-auto mt-2 max-w-md text-sm text-ink-soft">
+            Add an authorised YouTube video, upload the original, or import an owner-controlled
+            media URL.
+          </p>
+          <Link
+            to="/app/youtube-clipper/new"
+            className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-ember-ink"
+          >
+            Create your first job
+            <ArrowRight className="h-4 w-4" />
+          </Link>
+        </div>
+      ) : (
+        <div className="grid gap-3">
+          {jobs.map((job: ClipJobSummary) => (
+            <Link
+              key={job.id}
+              to="/app/youtube-clipper/jobs/$jobId"
+              params={{ jobId: job.id }}
+              className="flex items-center gap-4 rounded-2xl border border-line bg-surface-panel p-4 hover:border-line-strong"
+            >
+              {job.source_thumbnail_url ? (
+                <img
+                  src={job.source_thumbnail_url}
+                  alt=""
+                  className="h-16 w-28 rounded-lg object-cover"
+                />
+              ) : (
+                <div className="flex h-16 w-28 items-center justify-center rounded-lg bg-surface-sunken">
+                  <Scissors className="h-5 w-5 text-ink-mute" />
+                </div>
+              )}
+              <div className="min-w-0 flex-1">
+                <div className="truncate font-medium text-ink">
+                  {job.source_title ?? "Untitled source"}
+                </div>
+                <div className="mt-1 flex items-center gap-2 text-xs text-ink-mute">
+                  <Clock3 className="h-3.5 w-3.5" />
+                  {new Date(job.created_at).toLocaleString()} · {job.completed_clip_count}/
+                  {job.requested_clip_count} clips
+                </div>
+              </div>
+              <span className="rounded-full bg-surface-sunken px-3 py-1 text-xs font-medium capitalize text-ink-soft">
+                {job.status.replaceAll("_", " ")}
+              </span>
+              <ArrowRight className="h-4 w-4 text-ink-mute" />
+            </Link>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
