@@ -84,57 +84,61 @@ const youtubeResponseSchema = z.object({
   ),
 });
 
+export async function fetchYouTubeMetadataById(videoId: string): Promise<PublicMetadata> {
+  const cached = metadataCache.get(videoId);
+  if (cached && cached.expiresAt > Date.now()) return cached.value;
+  const apiKey = getServerEnv().YOUTUBE_API_KEY;
+  if (!apiKey)
+    throw new Error("YouTube metadata is not configured yet. Add YOUTUBE_API_KEY and retry.");
+  const params = new URLSearchParams({
+    id: videoId,
+    key: apiKey,
+    part: "snippet,contentDetails,status",
+  });
+  const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?${params}`, {
+    signal: AbortSignal.timeout(10_000),
+    headers: { accept: "application/json" },
+  });
+  if (!response.ok)
+    throw new Error(
+      response.status === 403
+        ? "YouTube metadata quota is unavailable. Retry later."
+        : "YouTube metadata could not be retrieved.",
+    );
+  const result = youtubeResponseSchema.parse(await response.json());
+  const video = result.items[0];
+  if (!video || video.status.uploadStatus !== "processed")
+    throw new Error("This video is unavailable or still processing.");
+  const durationSeconds = parseIsoDuration(video.contentDetails.duration);
+  if (video.snippet.liveBroadcastContent !== "none" && durationSeconds === 0)
+    throw new Error("Live broadcasts are not supported until they finish processing.");
+  const thumbnail =
+    video.snippet.thumbnails.maxres ??
+    video.snippet.thumbnails.standard ??
+    video.snippet.thumbnails.high ??
+    video.snippet.thumbnails.medium ??
+    video.snippet.thumbnails.default;
+  const value: PublicMetadata = {
+    videoId,
+    title: video.snippet.title,
+    channelId: video.snippet.channelId,
+    channelTitle: video.snippet.channelTitle,
+    publishedAt: video.snippet.publishedAt,
+    durationSeconds,
+    thumbnailUrl: thumbnail?.url ?? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+    availability: video.status.privacyStatus,
+    embeddable: video.status.embeddable ?? true,
+    ownership: "unknown",
+  };
+  metadataCache.set(videoId, { expiresAt: Date.now() + 5 * 60_000, value });
+  return value;
+}
+
 export const getYouTubeMetadata = createServerFn({ method: "POST" })
   .validator(z.object({ url: z.string().url().max(2048), turnstileToken: z.string().optional() }))
   .handler(async ({ data }) => {
     enforceRateLimit();
     await verifyTurnstile(data.turnstileToken);
     const videoId = parseYouTubeVideoId(data.url);
-    const cached = metadataCache.get(videoId);
-    if (cached && cached.expiresAt > Date.now()) return cached.value;
-    const apiKey = getServerEnv().YOUTUBE_API_KEY;
-    if (!apiKey)
-      throw new Error("YouTube metadata is not configured yet. Add YOUTUBE_API_KEY and retry.");
-    const params = new URLSearchParams({
-      id: videoId,
-      key: apiKey,
-      part: "snippet,contentDetails,status",
-    });
-    const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?${params}`, {
-      signal: AbortSignal.timeout(10_000),
-      headers: { accept: "application/json" },
-    });
-    if (!response.ok)
-      throw new Error(
-        response.status === 403
-          ? "YouTube metadata quota is unavailable. Retry later."
-          : "YouTube metadata could not be retrieved.",
-      );
-    const result = youtubeResponseSchema.parse(await response.json());
-    const video = result.items[0];
-    if (!video || video.status.uploadStatus !== "processed")
-      throw new Error("This video is unavailable or still processing.");
-    const durationSeconds = parseIsoDuration(video.contentDetails.duration);
-    if (video.snippet.liveBroadcastContent !== "none" && durationSeconds === 0)
-      throw new Error("Live broadcasts are not supported until they finish processing.");
-    const thumbnail =
-      video.snippet.thumbnails.maxres ??
-      video.snippet.thumbnails.standard ??
-      video.snippet.thumbnails.high ??
-      video.snippet.thumbnails.medium ??
-      video.snippet.thumbnails.default;
-    const value: PublicMetadata = {
-      videoId,
-      title: video.snippet.title,
-      channelId: video.snippet.channelId,
-      channelTitle: video.snippet.channelTitle,
-      publishedAt: video.snippet.publishedAt,
-      durationSeconds,
-      thumbnailUrl: thumbnail?.url ?? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
-      availability: video.status.privacyStatus,
-      embeddable: video.status.embeddable ?? true,
-      ownership: "unknown",
-    };
-    metadataCache.set(videoId, { expiresAt: Date.now() + 5 * 60_000, value });
-    return value;
+    return fetchYouTubeMetadataById(videoId);
   });

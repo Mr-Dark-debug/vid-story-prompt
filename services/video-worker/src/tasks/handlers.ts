@@ -13,32 +13,543 @@ import { downloadDirectMedia } from "../security/direct-download.js";
 import { downloadAsset, supabase, uploadAsset } from "../storage/client.js";
 import { mergeTranscriptChunks } from "../transcription/merge.js";
 import { transcribeWithFallback } from "../transcription/providers.js";
-import { downloadJobSource, getAsset, getJob, immutablePath, sha256, withTaskDirectory } from "./context.js";
+import {
+  downloadJobSource,
+  getAsset,
+  getJob,
+  immutablePath,
+  sha256,
+  withTaskDirectory,
+} from "./context.js";
 import { renderExport } from "./export.js";
 import { deleteExpiredAssets } from "./cleanup.js";
 import { renderBatchExport } from "./batch-export.js";
+import { publishYouTubeVideo } from "./youtube-publish.js";
 
 const uuid = z.string().uuid();
-async function insertAsset(job: Awaited<ReturnType<typeof getJob>>, input: { bucket:string; path:string; name:string; mime:string; size:number; checksum:string; status?:string; metadata?:Record<string,unknown> }) { const id=randomUUID(); const { error }=await supabase.from("media_assets").insert({ id,workspace_id:job.workspace_id,user_id:job.user_id,source_type:job.source_type,storage_bucket:input.bucket,storage_path:input.path,display_name:input.name,mime_type:input.mime,size_bytes:input.size,checksum_sha256:input.checksum,status:input.status??"ready",metadata_json:input.metadata??{} }); if(error) throw error; return id; }
+async function insertAsset(
+  job: Awaited<ReturnType<typeof getJob>>,
+  input: {
+    bucket: string;
+    path: string;
+    name: string;
+    mime: string;
+    size: number;
+    checksum: string;
+    status?: string;
+    metadata?: Record<string, unknown>;
+  },
+) {
+  const id = randomUUID();
+  const { error } = await supabase
+    .from("media_assets")
+    .insert({
+      id,
+      workspace_id: job.workspace_id,
+      user_id: job.user_id,
+      source_type: job.source_type,
+      storage_bucket: input.bucket,
+      storage_path: input.path,
+      display_name: input.name,
+      mime_type: input.mime,
+      size_bytes: input.size,
+      checksum_sha256: input.checksum,
+      status: input.status ?? "ready",
+      metadata_json: input.metadata ?? {},
+    });
+  if (error) throw error;
+  return id;
+}
 
-async function validateSource(task: ClipTask): Promise<TaskResult> { return withTaskDirectory(task,async directory=>{ const {job,asset,target}=await downloadJobSource(task.clip_job_id,directory); const info=await probeMedia(target); if(!info.hasAudio) throw new TaskFailure("missing_audio","Speech clipping requires an audio stream.",false); if(info.durationSeconds>Number(job.source_duration_seconds)*1.05+5) throw new TaskFailure("duration_limit","Worker validation found a source longer than the reserved duration.",false); const checksum=await sha256(target); const {error}=await supabase.from("media_assets").update({ checksum_sha256:checksum,duration_seconds:info.durationSeconds,width:info.width,height:info.height,frame_rate:info.frameRate ? Number(info.frameRate.split("/")[0])/Number(info.frameRate.split("/")[1]||1):null,video_codec:info.videoCodec,audio_codec:info.audioCodec,has_audio:info.hasAudio,status:"ready",metadata_json:info,updated_at:new Date().toISOString() }).eq("id",asset.id); if(error) throw error; const {error:usageError}=await supabase.rpc("commit_source_usage",{p_job_id:job.id}); if(usageError) throw usageError; return { output:{checksum,...info},jobStatus:"creating_proxy",message:"Source validated with FFprobe.",children:[{taskType:"create_proxy",input:{},idempotencyKey:`${job.id}:proxy`},{taskType:"extract_audio",input:{},idempotencyKey:`${job.id}:audio`},{taskType:"detect_scenes",input:{},idempotencyKey:`${job.id}:scenes`}] }; }); }
+async function validateSource(task: ClipTask): Promise<TaskResult> {
+  return withTaskDirectory(task, async (directory) => {
+    const { job, asset, target } = await downloadJobSource(task.clip_job_id, directory);
+    const info = await probeMedia(target);
+    if (!info.hasAudio)
+      throw new TaskFailure("missing_audio", "Speech clipping requires an audio stream.", false);
+    if (info.durationSeconds > Number(job.source_duration_seconds) * 1.05 + 5)
+      throw new TaskFailure(
+        "duration_limit",
+        "Worker validation found a source longer than the reserved duration.",
+        false,
+      );
+    const checksum = await sha256(target);
+    const { error } = await supabase
+      .from("media_assets")
+      .update({
+        checksum_sha256: checksum,
+        duration_seconds: info.durationSeconds,
+        width: info.width,
+        height: info.height,
+        frame_rate: info.frameRate
+          ? Number(info.frameRate.split("/")[0]) / Number(info.frameRate.split("/")[1] || 1)
+          : null,
+        video_codec: info.videoCodec,
+        audio_codec: info.audioCodec,
+        has_audio: info.hasAudio,
+        status: "ready",
+        metadata_json: info,
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", asset.id);
+    if (error) throw error;
+    const { error: usageError } = await supabase.rpc("commit_source_usage", { p_job_id: job.id });
+    if (usageError) throw usageError;
+    return {
+      output: { checksum, ...info },
+      jobStatus: "creating_proxy",
+      message: "Source validated with FFprobe.",
+      children: [
+        { taskType: "create_proxy", input: {}, idempotencyKey: `${job.id}:proxy` },
+        { taskType: "extract_audio", input: {}, idempotencyKey: `${job.id}:audio` },
+        { taskType: "detect_scenes", input: {}, idempotencyKey: `${job.id}:scenes` },
+      ],
+    };
+  });
+}
 
-async function downloadDirect(task: ClipTask): Promise<TaskResult> { return withTaskDirectory(task,async directory=>{ const job=await getJob(task.clip_job_id); const url=z.string().url().parse(task.input_json.url); const target=join(directory,"direct-source"); const downloaded=await downloadDirectMedia(url,target); const info=await probeMedia(target); if(!info.hasAudio) throw new TaskFailure("missing_audio","Speech clipping requires an audio stream.",false); const checksum=await sha256(target); const path=immutablePath(job,"source","bin"); await uploadAsset("source-media",path,target,"application/octet-stream"); const assetId=await insertAsset(job,{bucket:"source-media",path,name:job.source_title??"Direct source",mime:"application/octet-stream",size:(await stat(target)).size,checksum,metadata:{...info,finalUrlOrigin:new URL(downloaded.finalUrl).origin}}); const {error}=await supabase.from("clip_jobs").update({source_asset_id:assetId,status:"validating",updated_at:new Date().toISOString()}).eq("id",job.id); if(error) throw error; return {output:{assetId,checksum,bytes:downloaded.bytes},jobStatus:"validating",message:"Owner-controlled media downloaded and isolated.",children:[{taskType:"validate_source",input:{},idempotencyKey:`${job.id}:validate-direct`}]}; }); }
+async function downloadDirect(task: ClipTask): Promise<TaskResult> {
+  return withTaskDirectory(task, async (directory) => {
+    const job = await getJob(task.clip_job_id);
+    const url = z.string().url().parse(task.input_json.url);
+    const target = join(directory, "direct-source");
+    const downloaded = await downloadDirectMedia(url, target);
+    const info = await probeMedia(target);
+    if (!info.hasAudio)
+      throw new TaskFailure("missing_audio", "Speech clipping requires an audio stream.", false);
+    const checksum = await sha256(target);
+    const path = immutablePath(job, "source", "bin");
+    await uploadAsset("source-media", path, target, "application/octet-stream");
+    const assetId = await insertAsset(job, {
+      bucket: "source-media",
+      path,
+      name: job.source_title ?? "Direct source",
+      mime: "application/octet-stream",
+      size: (await stat(target)).size,
+      checksum,
+      metadata: { ...info, finalUrlOrigin: new URL(downloaded.finalUrl).origin },
+    });
+    const { error } = await supabase
+      .from("clip_jobs")
+      .update({
+        source_asset_id: assetId,
+        status: "validating",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", job.id);
+    if (error) throw error;
+    return {
+      output: { assetId, checksum, bytes: downloaded.bytes },
+      jobStatus: "validating",
+      message: "Owner-controlled media downloaded and isolated.",
+      children: [
+        { taskType: "validate_source", input: {}, idempotencyKey: `${job.id}:validate-direct` },
+      ],
+    };
+  });
+}
 
-async function proxy(task: ClipTask): Promise<TaskResult> { return withTaskDirectory(task,async directory=>{ const {job,target}=await downloadJobSource(task.clip_job_id,directory); const output=join(directory,"proxy.mp4"); await createProxy(target,output); const path=immutablePath(job,"proxy","mp4"); await uploadAsset("source-proxies",path,output,"video/mp4"); const checksum=await sha256(output); const assetId=await insertAsset(job,{bucket:"source-proxies",path,name:"Source proxy",mime:"video/mp4",size:(await stat(output)).size,checksum}); return {output:{assetId,path},message:"Editing proxy created."}; }); }
+async function proxy(task: ClipTask): Promise<TaskResult> {
+  return withTaskDirectory(task, async (directory) => {
+    const { job, target } = await downloadJobSource(task.clip_job_id, directory);
+    const output = join(directory, "proxy.mp4");
+    await createProxy(target, output);
+    const path = immutablePath(job, "proxy", "mp4");
+    await uploadAsset("source-proxies", path, output, "video/mp4");
+    const checksum = await sha256(output);
+    const assetId = await insertAsset(job, {
+      bucket: "source-proxies",
+      path,
+      name: "Source proxy",
+      mime: "video/mp4",
+      size: (await stat(output)).size,
+      checksum,
+    });
+    return { output: { assetId, path }, message: "Editing proxy created." };
+  });
+}
 
-async function audio(task: ClipTask): Promise<TaskResult> { return withTaskDirectory(task,async directory=>{ const {job,target}=await downloadJobSource(task.clip_job_id,directory); const output=join(directory,"speech.flac"); await extractSpeechAudio(target,output); const path=immutablePath(job,"audio","flac"); await uploadAsset("audio-artifacts",path,output,"audio/flac"); const checksum=await sha256(output); const assetId=await insertAsset(job,{bucket:"audio-artifacts",path,name:"Speech audio",mime:"audio/flac",size:(await stat(output)).size,checksum}); return {output:{assetId,path},jobStatus:"transcribing",message:"Speech audio extracted as mono 16 kHz FLAC.",children:[{taskType:"split_audio",input:{assetId},idempotencyKey:`${job.id}:split-audio`}]}; }); }
+async function audio(task: ClipTask): Promise<TaskResult> {
+  return withTaskDirectory(task, async (directory) => {
+    const { job, target } = await downloadJobSource(task.clip_job_id, directory);
+    const output = join(directory, "speech.flac");
+    await extractSpeechAudio(target, output);
+    const path = immutablePath(job, "audio", "flac");
+    await uploadAsset("audio-artifacts", path, output, "audio/flac");
+    const checksum = await sha256(output);
+    const assetId = await insertAsset(job, {
+      bucket: "audio-artifacts",
+      path,
+      name: "Speech audio",
+      mime: "audio/flac",
+      size: (await stat(output)).size,
+      checksum,
+    });
+    return {
+      output: { assetId, path },
+      jobStatus: "transcribing",
+      message: "Speech audio extracted as mono 16 kHz FLAC.",
+      children: [
+        { taskType: "split_audio", input: { assetId }, idempotencyKey: `${job.id}:split-audio` },
+      ],
+    };
+  });
+}
 
-async function splitAudio(task: ClipTask): Promise<TaskResult> { return withTaskDirectory(task,async directory=>{ const job=await getJob(task.clip_job_id); const asset=await getAsset(uuid.parse(task.input_json.assetId)); if(!asset.storage_bucket||!asset.storage_path) throw new TaskFailure("missing_audio","Audio artifact is missing.",false); const source=join(directory,"audio.flac"); await downloadAsset(asset.storage_bucket,asset.storage_path,source); const pattern=join(directory,"chunk-%03d.flac"); await execa(env.FFMPEG_PATH,["-hide_banner","-nostdin","-y","-i",source,"-f","segment","-segment_time","600","-segment_time_delta","2","-reset_timestamps","1","-c","copy",pattern],{timeout:30*60_000}); const files=(await readdir(directory)).filter(name=>name.startsWith("chunk-")).sort(); const children=[]; for(let index=0;index<files.length;index++){const file=join(directory,files[index]);const path=immutablePath(job,"audio-chunks","flac");await uploadAsset("audio-artifacts",path,file,"audio/flac");const chunkId=await insertAsset(job,{bucket:"audio-artifacts",path,name:`Audio chunk ${index+1}`,mime:"audio/flac",size:(await stat(file)).size,checksum:await sha256(file),metadata:{sequence:index,offsetSeconds:index*600}});children.push({taskType:"transcribe_chunk",input:{assetId:chunkId,sequence:index,offsetSeconds:index*600},dependencyGroup:"transcription",idempotencyKey:`${job.id}:transcribe:${index}`});} children.push({taskType:"merge_transcript",input:{expectedChunks:files.length},dependencyGroup:"transcription-merge",idempotencyKey:`${job.id}:merge-transcript`}); return {output:{chunks:files.length},message:`Created ${files.length} bounded transcription chunks.`,children}; }); }
+async function splitAudio(task: ClipTask): Promise<TaskResult> {
+  return withTaskDirectory(task, async (directory) => {
+    const job = await getJob(task.clip_job_id);
+    const asset = await getAsset(uuid.parse(task.input_json.assetId));
+    if (!asset.storage_bucket || !asset.storage_path)
+      throw new TaskFailure("missing_audio", "Audio artifact is missing.", false);
+    const source = join(directory, "audio.flac");
+    await downloadAsset(asset.storage_bucket, asset.storage_path, source);
+    const pattern = join(directory, "chunk-%03d.flac");
+    await execa(
+      env.FFMPEG_PATH,
+      [
+        "-hide_banner",
+        "-nostdin",
+        "-y",
+        "-i",
+        source,
+        "-f",
+        "segment",
+        "-segment_time",
+        "600",
+        "-segment_time_delta",
+        "2",
+        "-reset_timestamps",
+        "1",
+        "-c",
+        "copy",
+        pattern,
+      ],
+      { timeout: 30 * 60_000 },
+    );
+    const files = (await readdir(directory)).filter((name) => name.startsWith("chunk-")).sort();
+    const children = [];
+    for (let index = 0; index < files.length; index++) {
+      const file = join(directory, files[index]);
+      const path = immutablePath(job, "audio-chunks", "flac");
+      await uploadAsset("audio-artifacts", path, file, "audio/flac");
+      const chunkId = await insertAsset(job, {
+        bucket: "audio-artifacts",
+        path,
+        name: `Audio chunk ${index + 1}`,
+        mime: "audio/flac",
+        size: (await stat(file)).size,
+        checksum: await sha256(file),
+        metadata: { sequence: index, offsetSeconds: index * 600 },
+      });
+      children.push({
+        taskType: "transcribe_chunk",
+        input: { assetId: chunkId, sequence: index, offsetSeconds: index * 600 },
+        dependencyGroup: "transcription",
+        idempotencyKey: `${job.id}:transcribe:${index}`,
+      });
+    }
+    children.push({
+      taskType: "merge_transcript",
+      input: { expectedChunks: files.length },
+      dependencyGroup: "transcription-merge",
+      idempotencyKey: `${job.id}:merge-transcript`,
+    });
+    return {
+      output: { chunks: files.length },
+      message: `Created ${files.length} bounded transcription chunks.`,
+      children,
+    };
+  });
+}
 
-async function transcribe(task: ClipTask): Promise<TaskResult> { return withTaskDirectory(task,async directory=>{ const asset=await getAsset(uuid.parse(task.input_json.assetId)); if(!asset.storage_bucket||!asset.storage_path) throw new TaskFailure("missing_audio","Transcription chunk is missing.",false); const file=join(directory,"chunk.flac");await downloadAsset(asset.storage_bucket,asset.storage_path,file);const result=await transcribeWithFallback(file);return {output:{...result,sequence:Number(task.input_json.sequence??0),offsetSeconds:Number(task.input_json.offsetSeconds??0)},message:`Chunk transcribed with ${result.provider}.`}; }); }
+async function transcribe(task: ClipTask): Promise<TaskResult> {
+  return withTaskDirectory(task, async (directory) => {
+    const asset = await getAsset(uuid.parse(task.input_json.assetId));
+    if (!asset.storage_bucket || !asset.storage_path)
+      throw new TaskFailure("missing_audio", "Transcription chunk is missing.", false);
+    const file = join(directory, "chunk.flac");
+    await downloadAsset(asset.storage_bucket, asset.storage_path, file);
+    const result = await transcribeWithFallback(file);
+    return {
+      output: {
+        ...result,
+        sequence: Number(task.input_json.sequence ?? 0),
+        offsetSeconds: Number(task.input_json.offsetSeconds ?? 0),
+      },
+      message: `Chunk transcribed with ${result.provider}.`,
+    };
+  });
+}
 
-async function mergeTranscript(task: ClipTask): Promise<TaskResult> { const job=await getJob(task.clip_job_id); const {data,error}=await supabase.from("job_tasks").select("output_json").eq("clip_job_id",job.id).eq("task_type","transcribe_chunk").eq("status","succeeded");if(error)throw error;const chunks=(data??[]).map(row=>row.output_json as {offsetSeconds:number;text:string;words:{word:string;start:number;end:number}[]});if(!chunks.length)throw new TaskFailure("transcript_incomplete","No successful transcript chunks were available.",true);const merged=mergeTranscriptChunks(chunks);const {data:transcript,error:insertError}=await supabase.from("transcripts").insert({clip_job_id:job.id,media_asset_id:job.source_asset_id,language:job.source_language,provider:"merged",model:"provider-neutral-v1",duration_seconds:job.source_duration_seconds,text:merged.text,status:"ready"}).select("id").single();if(insertError)throw insertError;const segments=merged.words.map((word,index)=>({transcript_id:transcript.id,sequence:index,start_seconds:word.start,end_seconds:word.end,text:word.word,words_json:[word]}));if(segments.length){const {error:segmentError}=await supabase.from("transcript_segments").insert(segments);if(segmentError)throw segmentError;}return {output:{transcriptId:transcript.id,wordCount:merged.words.length},jobStatus:"planning",message:"Transcript chunks merged with overlap deduplication.",children:[{taskType:"generate_candidate_windows",input:{transcriptId:transcript.id},idempotencyKey:`${job.id}:plan`}]}; }
+async function mergeTranscript(task: ClipTask): Promise<TaskResult> {
+  const job = await getJob(task.clip_job_id);
+  const { data, error } = await supabase
+    .from("job_tasks")
+    .select("output_json")
+    .eq("clip_job_id", job.id)
+    .eq("task_type", "transcribe_chunk")
+    .eq("status", "succeeded");
+  if (error) throw error;
+  const chunks = (data ?? []).map(
+    (row) =>
+      row.output_json as {
+        offsetSeconds: number;
+        text: string;
+        words: { word: string; start: number; end: number }[];
+      },
+  );
+  if (!chunks.length)
+    throw new TaskFailure(
+      "transcript_incomplete",
+      "No successful transcript chunks were available.",
+      true,
+    );
+  const merged = mergeTranscriptChunks(chunks);
+  const { data: transcript, error: insertError } = await supabase
+    .from("transcripts")
+    .insert({
+      clip_job_id: job.id,
+      media_asset_id: job.source_asset_id,
+      language: job.source_language,
+      provider: "merged",
+      model: "provider-neutral-v1",
+      duration_seconds: job.source_duration_seconds,
+      text: merged.text,
+      status: "ready",
+    })
+    .select("id")
+    .single();
+  if (insertError) throw insertError;
+  const segments = merged.words.map((word, index) => ({
+    transcript_id: transcript.id,
+    sequence: index,
+    start_seconds: word.start,
+    end_seconds: word.end,
+    text: word.word,
+    words_json: [word],
+  }));
+  if (segments.length) {
+    const { error: segmentError } = await supabase.from("transcript_segments").insert(segments);
+    if (segmentError) throw segmentError;
+  }
+  return {
+    output: { transcriptId: transcript.id, wordCount: merged.words.length },
+    jobStatus: "planning",
+    message: "Transcript chunks merged with overlap deduplication.",
+    children: [
+      {
+        taskType: "generate_candidate_windows",
+        input: { transcriptId: transcript.id },
+        idempotencyKey: `${job.id}:plan`,
+      },
+    ],
+  };
+}
 
-async function plan(task: ClipTask): Promise<TaskResult> { const job=await getJob(task.clip_job_id);const {data:transcript,error}=await supabase.from("transcripts").select("*").eq("id",uuid.parse(task.input_json.transcriptId)).single();if(error)throw error;const settings=job.settings_json as Record<string,unknown>;const candidates=selectDiverseCandidates(await planClips({transcript:transcript.text,durationSeconds:Number(job.source_duration_seconds),requestedClips:job.requested_clip_count,instruction:String(settings.instruction??"")}),job.requested_clip_count);const {data:planningRun,error:runError}=await supabase.from("planning_runs").insert({clip_job_id:job.id,provider:"openrouter",model:env.OPENROUTER_CLIP_MODEL,prompt_version:"clip-planner-v1",schema_version:"clip-candidate-v1",status:"succeeded",completed_at:new Date().toISOString()}).select("id").single();if(runError)throw runError;const children=[];for(let index=0;index<candidates.length;index++){const item=candidates[index];const {data:candidate,error:candidateError}=await supabase.from("clip_candidates").insert({clip_job_id:job.id,planning_run_id:planningRun.id,start_seconds:item.startSeconds,end_seconds:item.endSeconds,title:item.title,hook:item.hook,summary:item.summary,topic:item.topic,transcript_excerpt:item.transcriptExcerpt,standalone_score:item.standaloneScore,hook_score:item.hookScore,clarity_score:item.clarityScore,story_score:item.storyScore,relevance_score:item.relevanceScore,technical_score:item.overallScore,overall_score:item.overallScore,selection_reason:item.explanation,rank:index+1,status:"selected"}).select("id").single();if(candidateError)throw candidateError;const {data:clip,error:clipError}=await supabase.from("clips").insert({clip_job_id:job.id,clip_candidate_id:candidate.id,title:item.title,status:"queued",selected:true,duration_seconds:item.endSeconds-item.startSeconds}).select("id").single();if(clipError)throw clipError;children.push({taskType:"render_clip_preview",input:{clipId:clip.id,candidateId:candidate.id},dependencyGroup:"previews",idempotencyKey:`${job.id}:preview:${clip.id}`});}return {output:{candidateCount:candidates.length},jobStatus:"rendering_previews",message:`Selected ${candidates.length} diverse complete moments.`,children}; }
+async function plan(task: ClipTask): Promise<TaskResult> {
+  const job = await getJob(task.clip_job_id);
+  const { data: transcript, error } = await supabase
+    .from("transcripts")
+    .select("*")
+    .eq("id", uuid.parse(task.input_json.transcriptId))
+    .single();
+  if (error) throw error;
+  const settings = job.settings_json as Record<string, unknown>;
+  const candidates = selectDiverseCandidates(
+    await planClips({
+      transcript: transcript.text,
+      durationSeconds: Number(job.source_duration_seconds),
+      requestedClips: job.requested_clip_count,
+      instruction: String(settings.instruction ?? ""),
+    }),
+    job.requested_clip_count,
+  );
+  const { data: planningRun, error: runError } = await supabase
+    .from("planning_runs")
+    .insert({
+      clip_job_id: job.id,
+      provider: "openrouter",
+      model: env.OPENROUTER_CLIP_MODEL,
+      prompt_version: "clip-planner-v1",
+      schema_version: "clip-candidate-v1",
+      status: "succeeded",
+      completed_at: new Date().toISOString(),
+    })
+    .select("id")
+    .single();
+  if (runError) throw runError;
+  const children = [];
+  for (let index = 0; index < candidates.length; index++) {
+    const item = candidates[index];
+    const { data: candidate, error: candidateError } = await supabase
+      .from("clip_candidates")
+      .insert({
+        clip_job_id: job.id,
+        planning_run_id: planningRun.id,
+        start_seconds: item.startSeconds,
+        end_seconds: item.endSeconds,
+        title: item.title,
+        hook: item.hook,
+        summary: item.summary,
+        topic: item.topic,
+        transcript_excerpt: item.transcriptExcerpt,
+        standalone_score: item.standaloneScore,
+        hook_score: item.hookScore,
+        clarity_score: item.clarityScore,
+        story_score: item.storyScore,
+        relevance_score: item.relevanceScore,
+        technical_score: item.overallScore,
+        overall_score: item.overallScore,
+        selection_reason: item.explanation,
+        rank: index + 1,
+        status: "selected",
+      })
+      .select("id")
+      .single();
+    if (candidateError) throw candidateError;
+    const { data: clip, error: clipError } = await supabase
+      .from("clips")
+      .insert({
+        clip_job_id: job.id,
+        clip_candidate_id: candidate.id,
+        title: item.title,
+        status: "queued",
+        selected: true,
+        duration_seconds: item.endSeconds - item.startSeconds,
+      })
+      .select("id")
+      .single();
+    if (clipError) throw clipError;
+    children.push({
+      taskType: "render_clip_preview",
+      input: { clipId: clip.id, candidateId: candidate.id },
+      dependencyGroup: "previews",
+      idempotencyKey: `${job.id}:preview:${clip.id}`,
+    });
+  }
+  return {
+    output: { candidateCount: candidates.length },
+    jobStatus: "rendering_previews",
+    message: `Selected ${candidates.length} diverse complete moments.`,
+    children,
+  };
+}
 
-async function preview(task: ClipTask): Promise<TaskResult> { return withTaskDirectory(task,async directory=>{const {job,target}=await downloadJobSource(task.clip_job_id,directory);const clipId=uuid.parse(task.input_json.clipId);const candidateId=uuid.parse(task.input_json.candidateId);const {data:candidate,error}=await supabase.from("clip_candidates").select("*").eq("id",candidateId).single();if(error)throw error;const output=join(directory,"preview.mp4");await renderClip({source:target,output,start:Number(candidate.start_seconds),duration:Number(candidate.end_seconds)-Number(candidate.start_seconds),width:720,height:1280,watermark:job.watermark_required});const path=immutablePath(job,"previews","mp4");await uploadAsset("clip-previews",path,output,"video/mp4");const assetId=await insertAsset(job,{bucket:"clip-previews",path,name:`${candidate.title} preview`,mime:"video/mp4",size:(await stat(output)).size,checksum:await sha256(output)});const {error:updateError}=await supabase.from("clips").update({preview_asset_id:assetId,status:"ready",updated_at:new Date().toISOString()}).eq("id",clipId);if(updateError)throw updateError;const {count}=await supabase.from("clips").select("id",{count:"exact",head:true}).eq("clip_job_id",job.id).eq("status","ready");await supabase.from("clip_jobs").update({completed_clip_count:count??0,updated_at:new Date().toISOString()}).eq("id",job.id);return {output:{assetId,path},message:"Preview rendered with server-side entitlement watermarking."};}); }
+async function preview(task: ClipTask): Promise<TaskResult> {
+  return withTaskDirectory(task, async (directory) => {
+    const { job, target } = await downloadJobSource(task.clip_job_id, directory);
+    const clipId = uuid.parse(task.input_json.clipId);
+    const candidateId = uuid.parse(task.input_json.candidateId);
+    const { data: candidate, error } = await supabase
+      .from("clip_candidates")
+      .select("*")
+      .eq("id", candidateId)
+      .single();
+    if (error) throw error;
+    const output = join(directory, "preview.mp4");
+    await renderClip({
+      source: target,
+      output,
+      start: Number(candidate.start_seconds),
+      duration: Number(candidate.end_seconds) - Number(candidate.start_seconds),
+      width: 720,
+      height: 1280,
+      watermark: job.watermark_required,
+    });
+    const path = immutablePath(job, "previews", "mp4");
+    await uploadAsset("clip-previews", path, output, "video/mp4");
+    const assetId = await insertAsset(job, {
+      bucket: "clip-previews",
+      path,
+      name: `${candidate.title} preview`,
+      mime: "video/mp4",
+      size: (await stat(output)).size,
+      checksum: await sha256(output),
+    });
+    const { error: updateError } = await supabase
+      .from("clips")
+      .update({ preview_asset_id: assetId, status: "ready", updated_at: new Date().toISOString() })
+      .eq("id", clipId);
+    if (updateError) throw updateError;
+    const { count } = await supabase
+      .from("clips")
+      .select("id", { count: "exact", head: true })
+      .eq("clip_job_id", job.id)
+      .eq("status", "ready");
+    await supabase
+      .from("clip_jobs")
+      .update({ completed_clip_count: count ?? 0, updated_at: new Date().toISOString() })
+      .eq("id", job.id);
+    return {
+      output: { assetId, path },
+      message: "Preview rendered with server-side entitlement watermarking.",
+    };
+  });
+}
 
-async function detectScenes(task: ClipTask): Promise<TaskResult> { return withTaskDirectory(task,async directory=>{const {target}=await downloadJobSource(task.clip_job_id,directory);const {stderr}=await execa(env.FFMPEG_PATH,["-hide_banner","-nostdin","-i",target,"-filter:v","select='gt(scene,0.35)',showinfo","-f","null","-"],{timeout:60*60_000,reject:false});const timestamps=[...stderr.matchAll(/pts_time:([0-9.]+)/g)].map(match=>Number(match[1]));return {output:{sceneTimestamps:timestamps},message:`Detected ${timestamps.length} scene changes.`};});}
+async function detectScenes(task: ClipTask): Promise<TaskResult> {
+  return withTaskDirectory(task, async (directory) => {
+    const { target } = await downloadJobSource(task.clip_job_id, directory);
+    const { stderr } = await execa(
+      env.FFMPEG_PATH,
+      [
+        "-hide_banner",
+        "-nostdin",
+        "-i",
+        target,
+        "-filter:v",
+        "select='gt(scene,0.35)',showinfo",
+        "-f",
+        "null",
+        "-",
+      ],
+      { timeout: 60 * 60_000, reject: false },
+    );
+    const timestamps = [...stderr.matchAll(/pts_time:([0-9.]+)/g)].map((match) => Number(match[1]));
+    return {
+      output: { sceneTimestamps: timestamps },
+      message: `Detected ${timestamps.length} scene changes.`,
+    };
+  });
+}
 
-export async function handleTask(task: ClipTask, signal?: AbortSignal): Promise<TaskResult> { if(signal?.aborted)throw new TaskFailure("cancelled","Worker is shutting down.",true);switch(task.task_type){case"validate_source":return validateSource(task);case"download_direct_source":return downloadDirect(task);case"create_proxy":return proxy(task);case"extract_audio":return audio(task);case"detect_scenes":return detectScenes(task);case"split_audio":return splitAudio(task);case"transcribe_chunk":return transcribe(task);case"merge_transcript":return mergeTranscript(task);case"generate_candidate_windows":return plan(task);case"render_clip_preview":return preview(task);case"render_clip_export":return renderExport(task);case"render_batch_export":return renderBatchExport(task);case"delete_expired_assets":return deleteExpiredAssets(task);default:throw new TaskFailure("unsupported_task",`Worker task ${task.task_type} is not supported by this worker version.`,false);}}
+export async function handleTask(task: ClipTask, signal?: AbortSignal): Promise<TaskResult> {
+  if (signal?.aborted) throw new TaskFailure("cancelled", "Worker is shutting down.", true);
+  switch (task.task_type) {
+    case "validate_source":
+      return validateSource(task);
+    case "download_direct_source":
+      return downloadDirect(task);
+    case "create_proxy":
+      return proxy(task);
+    case "extract_audio":
+      return audio(task);
+    case "detect_scenes":
+      return detectScenes(task);
+    case "split_audio":
+      return splitAudio(task);
+    case "transcribe_chunk":
+      return transcribe(task);
+    case "merge_transcript":
+      return mergeTranscript(task);
+    case "generate_candidate_windows":
+      return plan(task);
+    case "render_clip_preview":
+      return preview(task);
+    case "render_clip_export":
+      return renderExport(task);
+    case "render_batch_export":
+      return renderBatchExport(task);
+    case "publish_youtube_video":
+      return publishYouTubeVideo(task);
+    case "delete_expired_assets":
+      return deleteExpiredAssets(task);
+    default:
+      throw new TaskFailure(
+        "unsupported_task",
+        `Worker task ${task.task_type} is not supported by this worker version.`,
+        false,
+      );
+  }
+}

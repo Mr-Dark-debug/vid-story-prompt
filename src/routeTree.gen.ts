@@ -50,6 +50,7 @@ import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated.app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated.app.index'
 import { Route as AuthYoutubeCallbackRouteImport } from './routes/auth.youtube.callback'
+import { Route as ApiYoutubeWebhookRouteImport } from './routes/api.youtube.webhook'
 import { Route as AuthenticatedAppYoutubeClipperRouteImport } from './routes/_authenticated.app.youtube-clipper'
 import { Route as AuthenticatedAppUsageRouteImport } from './routes/_authenticated.app.usage'
 import { Route as AuthenticatedAppUploadsRouteImport } from './routes/_authenticated.app.uploads'
@@ -281,6 +282,11 @@ const AuthYoutubeCallbackRoute = AuthYoutubeCallbackRouteImport.update({
   path: '/auth/youtube/callback',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiYoutubeWebhookRoute = ApiYoutubeWebhookRouteImport.update({
+  id: '/api/youtube/webhook',
+  path: '/api/youtube/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppYoutubeClipperRoute =
   AuthenticatedAppYoutubeClipperRouteImport.update({
     id: '/youtube-clipper',
@@ -481,6 +487,7 @@ export interface FileRoutesByFullPath {
   '/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/app/usage': typeof AuthenticatedAppUsageRoute
   '/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperRouteWithChildren
+  '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
@@ -545,6 +552,7 @@ export interface FileRoutesByTo {
   '/app/templates': typeof AuthenticatedAppTemplatesRoute
   '/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/app/usage': typeof AuthenticatedAppUsageRoute
+  '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
@@ -614,6 +622,7 @@ export interface FileRoutesById {
   '/_authenticated/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/_authenticated/app/usage': typeof AuthenticatedAppUsageRoute
   '/_authenticated/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperRouteWithChildren
+  '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
@@ -684,6 +693,7 @@ export interface FileRouteTypes {
     | '/app/uploads'
     | '/app/usage'
     | '/app/youtube-clipper'
+    | '/api/youtube/webhook'
     | '/auth/youtube/callback'
     | '/app/'
     | '/app/projects/$projectId'
@@ -748,6 +758,7 @@ export interface FileRouteTypes {
     | '/app/templates'
     | '/app/uploads'
     | '/app/usage'
+    | '/api/youtube/webhook'
     | '/auth/youtube/callback'
     | '/app'
     | '/app/projects/new'
@@ -816,6 +827,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/uploads'
     | '/_authenticated/app/usage'
     | '/_authenticated/app/youtube-clipper'
+    | '/api/youtube/webhook'
     | '/auth/youtube/callback'
     | '/_authenticated/app/'
     | '/_authenticated/app/projects/$projectId'
@@ -866,6 +878,7 @@ export interface RootRouteChildren {
   VerifyEmailRoute: typeof VerifyEmailRoute
   YoutubeClipperRoute: typeof YoutubeClipperRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  ApiYoutubeWebhookRoute: typeof ApiYoutubeWebhookRoute
   AuthYoutubeCallbackRoute: typeof AuthYoutubeCallbackRoute
 }
 
@@ -1156,6 +1169,13 @@ declare module '@tanstack/react-router' {
       path: '/auth/youtube/callback'
       fullPath: '/auth/youtube/callback'
       preLoaderRoute: typeof AuthYoutubeCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/youtube/webhook': {
+      id: '/api/youtube/webhook'
+      path: '/api/youtube/webhook'
+      fullPath: '/api/youtube/webhook'
+      preLoaderRoute: typeof ApiYoutubeWebhookRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/youtube-clipper': {
@@ -1537,8 +1557,19 @@ const rootRouteChildren: RootRouteChildren = {
   VerifyEmailRoute: VerifyEmailRoute,
   YoutubeClipperRoute: YoutubeClipperRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  ApiYoutubeWebhookRoute: ApiYoutubeWebhookRoute,
   AuthYoutubeCallbackRoute: AuthYoutubeCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

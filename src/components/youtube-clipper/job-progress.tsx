@@ -13,6 +13,7 @@ import {
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { cancelClipJob, type getClipJob } from "@/services/clipping/server";
 import { getExportDownload } from "@/services/exports/server";
+import { YouTubePublishPanel } from "./youtube-publish-panel";
 
 type JobData = Awaited<ReturnType<typeof getClipJob>>;
 const stages = [
@@ -27,7 +28,15 @@ const stages = [
   "ready",
 ];
 
-export function JobProgress({ data }: { data: JobData }) {
+export function JobProgress({
+  data,
+  youtubeConnection = null,
+  publishingJobs = [],
+}: {
+  data: JobData;
+  youtubeConnection?: Parameters<typeof YouTubePublishPanel>[0]["connection"];
+  publishingJobs?: Parameters<typeof YouTubePublishPanel>[0]["jobs"];
+}) {
   const router = useRouter();
   const { job, events, clips, exports } = data;
   useEffect(() => {
@@ -124,7 +133,7 @@ export function JobProgress({ data }: { data: JobData }) {
           </div>
         )}
       </div>
-    {clips.length > 0 && (
+      {clips.length > 0 && (
         <section className="mt-8">
           <div className="flex items-end justify-between">
             <div>
@@ -165,27 +174,51 @@ export function JobProgress({ data }: { data: JobData }) {
             ))}
           </div>
         </section>
-    )}
-    {exports.length > 0 && (
-      <section className="mt-8">
-        <h2 className="font-display text-xl text-ink">Exports</h2>
-        <div className="mt-3 overflow-hidden rounded-2xl border border-line bg-surface-panel">
-          {exports.map((item) => (
-            <div key={item.id} className="flex flex-wrap items-center gap-3 border-b border-line px-4 py-3 text-sm last:border-0">
-              <div className="min-w-0 flex-1">
-                <div className="font-medium capitalize text-ink">{item.export_type.replaceAll("_", " ")} · {item.format.toUpperCase()}</div>
-                <div className="mt-0.5 text-xs text-ink-mute">{item.resolution} · {item.watermarked ? "Vidrial watermark" : "No watermark"} · expires {new Date(item.expires_at).toLocaleDateString()}</div>
+      )}
+      {exports.length > 0 && (
+        <section className="mt-8">
+          <h2 className="font-display text-xl text-ink">Exports</h2>
+          <div className="mt-3 overflow-hidden rounded-2xl border border-line bg-surface-panel">
+            {exports.map((item) => (
+              <div
+                key={item.id}
+                className="flex flex-wrap items-center gap-3 border-b border-line px-4 py-3 text-sm last:border-0"
+              >
+                <div className="min-w-0 flex-1">
+                  <div className="font-medium capitalize text-ink">
+                    {item.export_type.replaceAll("_", " ")} · {item.format.toUpperCase()}
+                  </div>
+                  <div className="mt-0.5 text-xs text-ink-mute">
+                    {item.resolution} · {item.watermarked ? "Vidrial watermark" : "No watermark"} ·
+                    expires {new Date(item.expires_at).toLocaleDateString()}
+                  </div>
+                </div>
+                {item.status === "complete" ? (
+                  <button
+                    onClick={async () => {
+                      const download = await getExportDownload({ data: { exportId: item.id } });
+                      window.location.assign(download.url);
+                    }}
+                    className="rounded-lg bg-ink px-3 py-2 text-xs font-semibold text-surface-page"
+                  >
+                    Download
+                  </button>
+                ) : (
+                  <span className="rounded-full bg-surface-sunken px-3 py-1 text-xs capitalize text-ink-soft">
+                    {item.status}
+                  </span>
+                )}
               </div>
-              {item.status === "complete" ? (
-                <button onClick={async () => { const download=await getExportDownload({data:{exportId:item.id}}); window.location.assign(download.url); }} className="rounded-lg bg-ink px-3 py-2 text-xs font-semibold text-surface-page">Download</button>
-              ) : (
-                <span className="rounded-full bg-surface-sunken px-3 py-1 text-xs capitalize text-ink-soft">{item.status}</span>
-              )}
-            </div>
-          ))}
-        </div>
-      </section>
-    )}
+            ))}
+          </div>
+        </section>
+      )}
+      <YouTubePublishPanel
+        exports={exports}
+        connection={youtubeConnection}
+        jobs={publishingJobs}
+        defaultTitle={job.source_title ?? "Vidrial clip"}
+      />
       <section className="mt-8">
         <div className="flex items-center gap-2">
           <Clock3 className="h-4 w-4 text-ink-mute" />

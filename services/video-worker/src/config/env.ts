@@ -31,6 +31,12 @@ export const env = z
     OPENAI_TRANSCRIPTION_MODEL: z.string().default("gpt-4o-mini-transcribe"),
     OPENROUTER_API_KEY: optionalSecret,
     OPENROUTER_CLIP_MODEL: optionalSecret,
+    GOOGLE_CLIENT_ID: optionalSecret,
+    GOOGLE_CLIENT_SECRET: optionalSecret,
+    GOOGLE_OAUTH_TOKEN_ENCRYPTION_KEY: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.string().min(32).optional(),
+    ),
     LOG_LEVEL: z.string().default("info"),
   })
   .parse(process.env);

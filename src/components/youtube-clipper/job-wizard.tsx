@@ -15,6 +15,7 @@ import { getPublicEnv } from "@/config/env";
 import { getYouTubeMetadata } from "@/services/youtube/server";
 import { createClipJob } from "@/services/clipping/server";
 import { beginYouTubeConnection } from "@/services/youtube/oauth.server";
+import { attachSourceToAutomationDraft } from "@/services/youtube/automation.server";
 
 type YouTubeMetadata = Awaited<ReturnType<typeof getYouTubeMetadata>>;
 const steps = ["Video source", "Rights & source", "Clip preferences", "Review"];
@@ -22,9 +23,11 @@ const steps = ["Video source", "Rights & source", "Clip preferences", "Review"];
 export function JobWizard({
   initialYoutube = "",
   initialSource = "",
+  initialDraft,
 }: {
   initialYoutube?: string;
   initialSource?: string;
+  initialDraft?: string;
 }) {
   const navigate = useNavigate();
   const turnstileSiteKey = getPublicEnv().VITE_TURNSTILE_SITE_KEY;
@@ -118,6 +121,20 @@ export function JobWizard({
     setBusy(true);
     setError(null);
     try {
+      if (initialDraft && uploaded) {
+        const automated = await attachSourceToAutomationDraft({
+          data: {
+            draftId: initialDraft,
+            mediaAssetId: uploaded.assetId,
+            rightsAccepted: true,
+          },
+        });
+        await navigate({
+          to: "/app/youtube-clipper/jobs/$jobId",
+          params: { jobId: automated.jobId },
+        });
+        return;
+      }
       const sourceDuration =
         uploaded?.durationSeconds || metadata?.durationSeconds || directDuration;
       if (!sourceDuration)
@@ -407,7 +424,12 @@ function SourceStep(props: {
                   onClick={async () => {
                     setConnectionError(null);
                     try {
-                      const connection = await beginYouTubeConnection();
+                      const connection = await beginYouTubeConnection({
+                        data: {
+                          capability: "channel_read",
+                          returnTo: "/app/youtube-clipper/new",
+                        },
+                      });
                       window.location.assign(connection.url);
                     } catch (cause) {
                       setConnectionError(
@@ -419,8 +441,12 @@ function SourceStep(props: {
                   }}
                   className="mt-3 rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-ink"
                 >
-                  Connect YouTube account
+                  Connect YouTube for automation
                 </button>
+                <p className="mt-2 max-w-md text-[11px] leading-relaxed text-ink-mute">
+                  Optional. You do not need to connect YouTube to clip an authorised upload or
+                  owner-controlled media URL.
+                </p>
                 {connectionError && <p className="mt-2 text-xs text-danger">{connectionError}</p>}
               </div>
             </div>

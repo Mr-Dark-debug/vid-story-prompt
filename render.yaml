@@ -29,6 +29,12 @@ services:
         sync: false
       - key: OPENROUTER_CLIP_MODEL
         sync: false
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_OAUTH_TOKEN_ENCRYPTION_KEY
+        sync: false
       - key: QUEUE_POLL_INTERVAL_MS
         value: "1500"
       - key: TASK_VISIBILITY_TIMEOUT_SECONDS
