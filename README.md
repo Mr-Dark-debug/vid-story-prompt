@@ -25,23 +25,104 @@ Supabase (Auth / Postgres / Storage) · External Docker video worker
 
 ## Getting started
 
+### Prerequisites
+
+- [Bun](https://bun.sh) ≥ 1.1 (primary package manager and runtime)
+- Node.js ≥ 20 (used by some tooling)
+- [Docker Desktop](https://www.docker.com/) — required for the local
+  Supabase stack (`supabase start`) and the video worker container
+- [Supabase CLI](https://supabase.com/docs/guides/cli) — for local DB,
+  migrations, and type generation
+- FFmpeg / FFprobe — only needed if you run the video worker locally
+  outside Docker
+
+### 1. Install dependencies
+
 ```bash
 bun install
+bun install --cwd services/video-worker   # optional: only for the worker
+```
+
+### 2. Configure environment variables
+
+Copy the example file and fill in values as needed:
+
+```bash
+cp .env.example .env
+```
+
+The marketing prototype runs with an empty `.env`. To exercise the
+authenticated app and backend features, set at minimum:
+
+| Variable | Scope | Purpose |
+| --- | --- | --- |
+| `VITE_SUPABASE_URL` | Browser | Supabase project URL |
+| `VITE_SUPABASE_ANON_KEY` | Browser | Supabase publishable key |
+| `SUPABASE_URL` | Server | Supabase URL used by server functions |
+| `SUPABASE_ANON_KEY` | Server | Supabase anon key |
+| `SUPABASE_SERVICE_ROLE_KEY` | Server-only | Privileged admin operations |
+| `PUBLIC_APP_URL` | Server | Base URL for OAuth redirects |
+
+Additional groups (only needed for the matching feature):
+
+- **YouTube / Google OAuth** — `YOUTUBE_API_KEY`, `GOOGLE_CLIENT_ID`,
+  `GOOGLE_CLIENT_SECRET`, `GOOGLE_OAUTH_TOKEN_ENCRYPTION_KEY` (≥ 32 chars)
+- **Abuse protection** — `VITE_TURNSTILE_SITE_KEY`, `TURNSTILE_SECRET_KEY`
+- **AI providers** — `GROQ_API_KEY`, `OPENAI_API_KEY`, `OPENROUTER_API_KEY`
+  and matching model names
+- **Video worker** — `VIDEO_WORKER_URL`, `WORKER_WAKE_SECRET`,
+  concurrency, timeout and FFmpeg settings (see `.env.example`)
+
+Never prefix server-only secrets with `VITE_` and never commit `.env`.
+See [`docs/AUTHENTICATION.md`](./docs/AUTHENTICATION.md) for the full
+Google/Supabase OAuth setup.
+
+### 3. Start local Supabase (optional)
+
+```bash
+bun run supabase:start   # boots the local Supabase stack via Docker
+bun run supabase:reset   # applies migrations + seed data
+bun run supabase:types   # regenerates src/lib/supabase/database.types.ts
+```
+
+### 4. Run the app
+
+```bash
 bun run dev
 ```
 
-The dev server runs on `http://localhost:8080`. Public env vars
-(`VITE_SUPABASE_URL`, `VITE_SUPABASE_ANON_KEY`) are optional for the
-marketing prototype but required to exercise the authenticated backend.
+The dev server listens on [http://localhost:8080](http://localhost:8080)
+with HMR. To run the external video worker alongside it:
+
+```bash
+bun run worker:dev
+```
 
 ## Scripts
 
-- `bun run dev` — start the Vite dev server
-- `bun run build` — production build
-- `bun run typecheck` — strict TypeScript check
-- `bun run lint` — ESLint
-- `bun test` — Vitest suite
-- `bunx playwright test` — end-to-end tests
+| Command | Purpose |
+| --- | --- |
+| `bun run dev` | Start the Vite dev server on port 8080 |
+| `bun run build` | Production build (Cloudflare Workers target) |
+| `bun run build:dev` | Build with development mode flags |
+| `bun run preview` | Preview the production build locally |
+| `bun run typecheck` | Strict TypeScript check (`tsc --noEmit`) |
+| `bun run lint` | ESLint across the repo |
+| `bun run format` | Prettier write |
+| `bun run test` | Run the Vitest suite once |
+| `bun run test:watch` | Vitest in watch mode |
+| `bun run test:coverage` | Vitest with V8 coverage |
+| `bun run test:e2e` | Playwright end-to-end tests |
+| `bun run supabase:start` / `:stop` / `:reset` | Manage the local Supabase stack |
+| `bun run supabase:types` | Regenerate Supabase DB types |
+| `bun run worker:dev` | Run the external video worker locally |
+| `bun run worker:test` | Run the video worker test suite |
+
+Before opening a PR, run:
+
+```bash
+bun run typecheck && bun run lint && bun run test && bun run build
+```
 
 ## Repository map
 
