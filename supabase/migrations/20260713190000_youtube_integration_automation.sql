@@ -334,4 +334,50 @@ $$;
 revoke all on function public.create_automated_clip_job(uuid,uuid,uuid,uuid) from public,anon,authenticated;
 grant execute on function public.create_automated_clip_job(uuid,uuid,uuid,uuid) to service_role;
 
+-- Publishing is an independent delivery concern. A provider outage or revoked
+-- YouTube grant must never turn a successfully rendered clip job into a failure.
+create or replace function public.fail_clip_task(
+  p_task_id uuid, p_worker_id text, p_error_code text, p_error_message text,
+  p_retryable boolean, p_next_attempt_at timestamptz default null
+) returns text language plpgsql security definer set search_path = '' as $$
+declare v_task public.job_tasks%rowtype; v_status text; v_publish_job_id uuid;
+begin
+  select * into v_task from public.job_tasks where id = p_task_id and lease_owner = p_worker_id for update;
+  if not found then return 'lease_lost'; end if;
+  v_status := case when p_retryable and v_task.attempt < v_task.max_attempts then 'retry_wait' when p_retryable then 'dead_lettered' else 'failed' end;
+  update public.job_tasks set status = v_status, error_code = p_error_code, error_message = left(p_error_message,2000),
+    next_attempt_at = case when v_status = 'retry_wait' then coalesce(p_next_attempt_at,now()+interval '1 minute') else null end,
+    lease_owner = null, lease_expires_at = null, completed_at = case when v_status in ('failed','dead_lettered') then now() else null end
+  where id = p_task_id;
+  insert into public.processing_events (clip_job_id,job_task_id,stage,severity,message,attempt)
+  values (v_task.clip_job_id,v_task.id,v_task.task_type,case when v_status='retry_wait' then 'warning' else 'error' end,left(p_error_message,2000),v_task.attempt);
+  if v_task.task_type = 'publish_youtube_video' then
+    begin
+      v_publish_job_id := nullif(v_task.input_json->>'publishingJobId','')::uuid;
+    exception when invalid_text_representation then
+      v_publish_job_id := null;
+    end;
+    if v_publish_job_id is not null then
+      update public.publishing_jobs set
+        status = case
+          when v_status = 'retry_wait' then status
+          when p_error_code = 'youtube_reconnect_required' then 'reconnect_required'
+          else 'failed'
+        end,
+        last_error_code = p_error_code,
+        last_error_message = left(p_error_message,2000),
+        updated_at = now()
+      where id = v_publish_job_id;
+    end if;
+  elsif v_status in ('failed','dead_lettered') then
+    update public.clip_jobs set status = 'failed', error_code = p_error_code, error_message = left(p_error_message,2000), updated_at = now()
+    where id = v_task.clip_job_id;
+  end if;
+  return v_status;
+end;
+$$;
+
+revoke all on function public.fail_clip_task(uuid,text,text,text,boolean,timestamptz) from public,anon,authenticated;
+grant execute on function public.fail_clip_task(uuid,text,text,text,boolean,timestamptz) to service_role;
+
 commit;
