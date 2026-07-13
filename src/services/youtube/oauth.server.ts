@@ -165,6 +165,10 @@ export const finishYouTubeConnection = createServerFn({ method: "POST" })
       const providerReason = parsedError.success
         ? (parsedError.data.error?.errors?.[0]?.reason ?? parsedError.data.error?.status)
         : undefined;
+      if (providerReason === "youtubeSignupRequired")
+        throw new Error(
+          "This Google identity has no active YouTube channel. Create or restore the channel in YouTube, then connect it again.",
+        );
       throw new Error(
         `YouTube could not read this channel (${providerReason ?? channelsResponse.status}). Check that the channel exists and YouTube Data API access is enabled.`,
       );
