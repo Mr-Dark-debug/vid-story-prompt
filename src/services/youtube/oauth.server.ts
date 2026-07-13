@@ -150,8 +150,25 @@ export const finishYouTubeConnection = createServerFn({ method: "POST" })
         signal: AbortSignal.timeout(10_000),
       },
     );
-    if (!channelsResponse.ok)
-      throw new Error("The connected Google account has no accessible YouTube channel.");
+    if (!channelsResponse.ok) {
+      const responseBody = await channelsResponse.json().catch(() => null);
+      const parsedError = z
+        .object({
+          error: z
+            .object({
+              errors: z.array(z.object({ reason: z.string().optional() })).optional(),
+              status: z.string().optional(),
+            })
+            .optional(),
+        })
+        .safeParse(responseBody);
+      const providerReason = parsedError.success
+        ? (parsedError.data.error?.errors?.[0]?.reason ?? parsedError.data.error?.status)
+        : undefined;
+      throw new Error(
+        `YouTube could not read this channel (${providerReason ?? channelsResponse.status}). Check that the channel exists and YouTube Data API access is enabled.`,
+      );
+    }
     const channels = channelResponseSchema.parse(await channelsResponse.json()).items;
     if (!channels.length) throw new Error("The connected Google account has no YouTube channel.");
 
