@@ -16,3 +16,17 @@ test("protected clipper preserves the return URL", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Welcome back." })).toBeVisible();
   await expect(page.getByRole("button", { name: "Continue with Google" })).toBeVisible();
 });
+
+test("signup visibly verifies the visitor before enabling account creation", async ({ page }) => {
+  await page.goto("/signup");
+
+  await expect(page.getByRole("heading", { name: "Create your workspace." })).toBeVisible();
+  await expect(page.getByText("Security verification")).toBeVisible();
+  await expect(page.locator('input[name="cf-turnstile-response"]')).toHaveValue(/.+/, {
+    timeout: 15_000,
+  });
+  await expect(page.getByRole("button", { name: "Sign up with Google" })).toBeEnabled({
+    timeout: 15_000,
+  });
+  await expect(page.getByRole("button", { name: "Create free account" })).toBeEnabled();
+});

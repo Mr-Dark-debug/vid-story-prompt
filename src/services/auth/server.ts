@@ -2,6 +2,8 @@ import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";
 import { getServerEnv } from "@/config/env.server";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
+import { verifyTurnstile } from "@/services/security/turnstile.server";
+import { logAuthFailure } from "./diagnostics";
 
 const credentialsSchema = z.object({
   email: z.string().email().max(320),
@@ -9,6 +11,7 @@ const credentialsSchema = z.object({
 });
 
 const redirectSchema = z.string().max(2048).optional();
+const turnstileTokenSchema = z.string().min(1).max(4096).optional();
 
 function safeAppPath(value?: string) {
   return value?.startsWith("/") && !value.startsWith("//") ? value : "/app";
@@ -72,9 +75,11 @@ export const signup = createServerFn({ method: "POST" })
     credentialsSchema.extend({
       displayName: z.string().trim().min(2).max(80),
       redirect: redirectSchema,
+      turnstileToken: turnstileTokenSchema,
     }),
   )
   .handler(async ({ data }) => {
+    await verifyTurnstile(data.turnstileToken, "signup");
     const { data: result, error } = await getSupabaseServerClient().auth.signUp({
       email: data.email,
       password: data.password,
@@ -88,21 +93,33 @@ export const signup = createServerFn({ method: "POST" })
   });
 
 export const beginGoogleSignIn = createServerFn({ method: "POST" })
-  .validator(z.object({ redirect: redirectSchema }))
+  .validator(
+    z.object({
+      intent: z.enum(["login", "signup"]),
+      redirect: redirectSchema,
+      turnstileToken: turnstileTokenSchema,
+    }),
+  )
   .handler(async ({ data }) => {
+    if (data.intent === "signup") await verifyTurnstile(data.turnstileToken, "signup");
     const { data: result, error } = await getSupabaseServerClient().auth.signInWithOAuth({
       provider: "google",
       options: {
         redirectTo: authCallbackUrl(data.redirect),
         scopes: "openid email profile",
         queryParams: {
-          access_type: "offline",
           prompt: "select_account",
         },
       },
     });
-    if (error) throw authError(error.message);
-    if (!result.url) throw new Error("Google sign-in could not be started");
+    if (error) {
+      logAuthFailure("google_begin", error);
+      throw new Error("Google sign-in could not be started. Please retry.");
+    }
+    if (!result.url) {
+      logAuthFailure("google_begin", { code: "missing_provider_url" });
+      throw new Error("Google sign-in could not be started. Please retry.");
+    }
     return { url: result.url };
   });
 
@@ -134,7 +151,12 @@ export const exchangeAuthCode = createServerFn({ method: "POST" })
   .validator(z.object({ code: z.string().min(8).max(2048) }))
   .handler(async ({ data }) => {
     const { error } = await getSupabaseServerClient().auth.exchangeCodeForSession(data.code);
-    if (error) throw authError(error.message);
+    if (error) {
+      logAuthFailure("oauth_exchange", error);
+      throw new Error(
+        "The secure sign-in could not be completed. Start again from the sign-in page.",
+      );
+    }
     return { ok: true };
   });
 

@@ -15,9 +15,18 @@ export type User = NonNullable<Awaited<ReturnType<typeof getCurrentSession>>>;
 export const authService = {
   current: getCurrentSession,
   login: (email: string, password: string) => login({ data: { email, password } }),
-  signup: (email: string, password: string, displayName: string, redirect?: string) =>
-    signup({ data: { email, password, displayName, redirect } }),
-  googleSignIn: (redirect?: string) => beginGoogleSignIn({ data: { redirect } }),
+  signup: (
+    email: string,
+    password: string,
+    displayName: string,
+    turnstileToken?: string,
+    redirect?: string,
+  ) => signup({ data: { email, password, displayName, turnstileToken, redirect } }),
+  googleSignIn: (
+    intent: "login" | "signup",
+    redirect?: string,
+    turnstileToken?: string,
+  ) => beginGoogleSignIn({ data: { intent, redirect, turnstileToken } }),
   requestPasswordReset: (email: string) => requestPasswordReset({ data: { email } }),
   resetPassword: (password: string) => resetPassword({ data: { password } }),
   logout: () => logout(),

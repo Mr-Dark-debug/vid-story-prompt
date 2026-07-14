@@ -155,6 +155,7 @@ export function YouTubeClipperPublicPage() {
           {turnstileSiteKey ? (
             <div className="mx-auto mt-3 flex max-w-3xl justify-end">
               <TurnstileWidget
+                action="youtube_metadata"
                 siteKey={turnstileSiteKey}
                 resetKey={turnstileResetKey}
                 onToken={setTurnstileToken}

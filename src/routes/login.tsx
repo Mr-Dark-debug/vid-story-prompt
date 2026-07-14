@@ -23,7 +23,7 @@ function LoginPage() {
     setBusy(true);
     setError(null);
     try {
-      const { url } = await authService.googleSignIn(redirect);
+      const { url } = await authService.googleSignIn("login", redirect);
       window.location.assign(url);
     } catch (cause) {
       setError(userFacingError(cause, "Google sign-in could not be started."));

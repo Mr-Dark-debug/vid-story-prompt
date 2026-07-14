@@ -3,6 +3,7 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestIP } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { getServerEnv } from "@/config/env.server";
+import { verifyTurnstile } from "@/services/security/turnstile.server";
 import { parseIsoDuration, parseYouTubeVideoId } from "./parser";
 
 const hits = new Map<string, number[]>();
@@ -28,40 +29,6 @@ function enforceRateLimit() {
   if (recent.length >= 10) throw new Error("Too many metadata requests. Wait a minute and retry.");
   recent.push(now);
   hits.set(key, recent);
-}
-
-async function verifyTurnstile(token: string | undefined) {
-  const serverEnv = getServerEnv();
-  const secret = serverEnv.TURNSTILE_SECRET_KEY;
-  // Optional protection must be configured as a complete client/server pair.
-  // IP rate limiting remains active when the optional widget is disabled.
-  if (!secret || !serverEnv.VITE_TURNSTILE_SITE_KEY) return;
-  if (!token) throw new Error("Complete the abuse-protection check and retry.");
-  const requestIp = getRequestIP({ xForwardedFor: true });
-  const body = new URLSearchParams({ secret, response: token });
-  if (requestIp) body.set("remoteip", requestIp);
-  const response = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
-    method: "POST",
-    body,
-    signal: AbortSignal.timeout(8_000),
-  });
-  const result = z
-    .object({
-      action: z.string().optional(),
-      hostname: z.string().optional(),
-      success: z.boolean(),
-    })
-    .parse(await response.json());
-  if (!result.success) throw new Error("The abuse-protection check expired. Retry it.");
-  if (result.action !== "youtube_metadata")
-    throw new Error("The abuse-protection check was issued for a different action.");
-  const expectedHostname = new URL(serverEnv.PUBLIC_APP_URL).hostname;
-  if (
-    expectedHostname !== "localhost" &&
-    expectedHostname !== "127.0.0.1" &&
-    result.hostname !== expectedHostname
-  )
-    throw new Error("The abuse-protection check was issued for a different website.");
 }
 
 const youtubeResponseSchema = z.object({
@@ -140,7 +107,7 @@ export const getYouTubeMetadata = createServerFn({ method: "POST" })
   .validator(z.object({ url: z.string().url().max(2048), turnstileToken: z.string().optional() }))
   .handler(async ({ data }) => {
     enforceRateLimit();
-    await verifyTurnstile(data.turnstileToken);
+    await verifyTurnstile(data.turnstileToken, "youtube_metadata");
     const videoId = parseYouTubeVideoId(data.url);
     return fetchYouTubeMetadataById(videoId);
   });

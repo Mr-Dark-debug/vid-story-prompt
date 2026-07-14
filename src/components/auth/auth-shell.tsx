@@ -93,12 +93,14 @@ export function AuthForm({
   children,
   submitLabel,
   busy,
+  disabled = false,
   error,
   onSubmit,
 }: {
   children: ReactNode;
   submitLabel: string;
   busy: boolean;
+  disabled?: boolean;
   error: string | null;
   onSubmit: (event: FormEvent<HTMLFormElement>) => void;
 }) {
@@ -115,6 +117,7 @@ export function AuthForm({
       ) : null}
       <Button
         type="submit"
+        disabled={disabled || busy}
         loading={busy}
         loadingText="Please wait…"
         className="mt-1 h-11 rounded-xl bg-ink text-surface-page hover:bg-ink/90"
@@ -128,16 +131,19 @@ export function AuthForm({
 export function GoogleAuthButton({
   label,
   busy,
+  disabled = false,
   onClick,
 }: {
   label: string;
   busy: boolean;
+  disabled?: boolean;
   onClick: () => void;
 }) {
   return (
     <>
       <Button
         type="button"
+        disabled={disabled || busy}
         variant="outline"
         loading={busy}
         loadingText="Opening Google…"

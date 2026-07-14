@@ -19,4 +19,20 @@ describe("GoogleAuthButton", () => {
 
     expect(screen.getByRole("button", { name: "Opening Google…" })).toBeDisabled();
   });
+
+  it("can wait for signup security verification", async () => {
+    const onClick = vi.fn();
+    render(
+      <GoogleAuthButton
+        label="Sign up with Google"
+        busy={false}
+        disabled
+        onClick={onClick}
+      />,
+    );
+
+    await userEvent.click(screen.getByRole("button", { name: "Sign up with Google" }));
+
+    expect(onClick).not.toHaveBeenCalled();
+  });
 });

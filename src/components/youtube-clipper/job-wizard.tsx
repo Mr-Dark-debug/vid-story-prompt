@@ -397,6 +397,7 @@ function SourceStep(props: {
           </div>
           {props.turnstileSiteKey && (
             <TurnstileWidget
+              action="youtube_metadata"
               onToken={props.setTurnstileToken}
               resetKey={props.turnstileResetKey}
               siteKey={props.turnstileSiteKey}

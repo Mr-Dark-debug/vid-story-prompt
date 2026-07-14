@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { Button } from "@/components/ui/button";
 
 type TurnstileApi = {
   remove: (widgetId: string) => void;
@@ -6,7 +7,7 @@ type TurnstileApi = {
     container: HTMLElement,
     options: {
       action: string;
-      appearance: "interaction-only";
+      appearance: "always" | "execute" | "interaction-only";
       callback: (token: string) => void;
       "error-callback": () => void;
       "expired-callback": () => void;
@@ -32,12 +33,24 @@ function loadTurnstile() {
   scriptPromise = new Promise<TurnstileApi>((resolve, reject) => {
     const existing = document.querySelector<HTMLScriptElement>("script[data-vidrial-turnstile]");
     const script = existing ?? document.createElement("script");
-    const onLoad = () =>
-      window.turnstile ? resolve(window.turnstile) : reject(new Error("Turnstile did not load."));
+    const onLoad = () => {
+      if (window.turnstile) resolve(window.turnstile);
+      else {
+        scriptPromise = undefined;
+        script.remove();
+        reject(new Error("Turnstile did not load."));
+      }
+    };
     script.addEventListener("load", onLoad, { once: true });
-    script.addEventListener("error", () => reject(new Error("Turnstile could not load.")), {
-      once: true,
-    });
+    script.addEventListener(
+      "error",
+      () => {
+        scriptPromise = undefined;
+        script.remove();
+        reject(new Error("Turnstile could not load."));
+      },
+      { once: true },
+    );
     if (!existing) {
       script.async = true;
       script.defer = true;
@@ -50,16 +63,21 @@ function loadTurnstile() {
 }
 
 export function TurnstileWidget({
+  action,
+  appearance = "interaction-only",
   onToken,
   resetKey,
   siteKey,
 }: {
+  action: "signup" | "youtube_metadata";
+  appearance?: "always" | "interaction-only";
   onToken: (token: string | null) => void;
   resetKey: number;
   siteKey: string;
 }) {
   const container = useRef<HTMLDivElement>(null);
   const [error, setError] = useState<string | null>(null);
+  const [loadAttempt, setLoadAttempt] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -73,34 +91,57 @@ export function TurnstileWidget({
         if (cancelled || !container.current) return;
         api = turnstile;
         widgetId = turnstile.render(container.current, {
-          action: "youtube_metadata",
-          appearance: "interaction-only",
-          callback: (token) => onToken(token),
+          action,
+          appearance,
+          callback: (token) => {
+            setError(null);
+            onToken(token);
+          },
           "error-callback": () => {
             onToken(null);
-            setError("The abuse-protection check could not complete. Retry it.");
+            setError("Security verification could not complete. Please retry.");
           },
-          "expired-callback": () => onToken(null),
+          "expired-callback": () => {
+            onToken(null);
+            setError("Security verification expired. Complete it again.");
+          },
           sitekey: siteKey,
           size: "flexible",
           theme: "light",
         });
       })
-      .catch(() => setError("The abuse-protection check could not load."));
+      .catch(() => {
+        onToken(null);
+        setError("Security verification could not load. Check your connection and retry.");
+      });
 
     return () => {
       cancelled = true;
       if (api && widgetId) api.remove(widgetId);
     };
-  }, [onToken, resetKey, siteKey]);
+  }, [action, appearance, loadAttempt, onToken, resetKey, siteKey]);
 
   return (
-    <div className="mt-3">
-      <div ref={container} aria-label="Abuse-protection verification" />
+    <div className="mt-3 rounded-xl border border-line bg-surface-page p-3">
+      <p className="mb-2 text-xs font-medium text-ink-soft">Security verification</p>
+      <div
+        ref={container}
+        aria-label="Security verification"
+        className={appearance === "always" ? "min-h-[65px]" : undefined}
+      />
       {error && (
-        <p className="mt-2 text-xs text-danger" role="alert">
-          {error}
-        </p>
+        <div className="mt-2 flex flex-wrap items-center justify-between gap-2" role="alert">
+          <p className="text-xs text-danger">{error}</p>
+          <Button
+            type="button"
+            variant="link"
+            size="sm"
+            className="min-h-8 px-1 text-xs"
+            onClick={() => setLoadAttempt((value) => value + 1)}
+          >
+            Retry verification
+          </Button>
+        </div>
       )}
     </div>
   );
