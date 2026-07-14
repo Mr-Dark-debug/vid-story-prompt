@@ -46,7 +46,12 @@ export const getCurrentSession = createServerFn({ method: "GET" }).handler(async
   return {
     id: data.user.id,
     email: data.user.email ?? "",
-    name: profile?.display_name ?? data.user.user_metadata.display_name ?? "Vidrial user",
+    name:
+      profile?.display_name ??
+      data.user.user_metadata.display_name ??
+      data.user.user_metadata.full_name ??
+      data.user.email?.split("@")[0] ??
+      "Your account",
     avatarUrl: profile?.avatar_url ?? null,
     plan: profile?.plan_key ?? "free",
     workspaceId: membership?.workspace_id ?? null,
@@ -130,5 +135,23 @@ export const exchangeAuthCode = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const { error } = await getSupabaseServerClient().auth.exchangeCodeForSession(data.code);
     if (error) throw authError(error.message);
+    return { ok: true };
+  });
+
+export const updateProfile = createServerFn({ method: "POST" })
+  .validator(z.object({ displayName: z.string().trim().min(2).max(80) }))
+  .handler(async ({ data }) => {
+    const supabase = getSupabaseServerClient();
+    const { data: userData, error: userError } = await supabase.auth.getUser();
+    if (userError || !userData.user) throw new Error("Your session expired. Sign in again");
+    const { error } = await supabase
+      .from("profiles")
+      .update({ display_name: data.displayName, updated_at: new Date().toISOString() })
+      .eq("id", userData.user.id);
+    if (error) throw authError(error.message);
+    const { error: metadataError } = await supabase.auth.updateUser({
+      data: { display_name: data.displayName },
+    });
+    if (metadataError) throw authError(metadataError.message);
     return { ok: true };
   });

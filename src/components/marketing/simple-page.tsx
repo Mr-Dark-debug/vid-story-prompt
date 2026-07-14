@@ -25,16 +25,3 @@ export function SimpleMarketingPage({
     </MarketingLayout>
   );
 }
-
-/** Legal / policy placeholder note. */
-export function PlaceholderNote() {
-  return (
-    <div className="my-4 rounded-xl border border-warning/40 bg-warning/10 px-4 py-3 text-sm text-ink">
-      <strong className="font-medium">Placeholder document.</strong> This copy is
-      structural. Legal identity, addresses, subprocessors, retention periods and
-      governing law are marked{" "}
-      <code className="rounded bg-surface-sunken px-1 py-0.5">[TO BE COMPLETED]</code>{" "}
-      and require legal review before publishing.
-    </div>
-  );
-}

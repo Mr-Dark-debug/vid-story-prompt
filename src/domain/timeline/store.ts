@@ -22,6 +22,12 @@ type Actions = {
 };
 
 const uid = (p = "id") => `${p}_${Math.random().toString(36).slice(2, 9)}`;
+let snapEnabled = true;
+const snapTime = (value: number) => (snapEnabled ? Math.round(value * 10) / 10 : value);
+
+export function setTimelineSnapEnabled(enabled: boolean) {
+  snapEnabled = enabled;
+}
 
 const initialTracks: Track[] = [
   { id: "vt1", kind: "video", label: "Video 1" },
@@ -78,10 +84,11 @@ export const useTimeline = create<TimelineState & Actions & { _past: Snapshot[];
       commit((s) => {
         const c = s.clips.find((x) => x.id === id);
         if (!c) return s;
-        const offset = at - c.start;
+        const snappedAt = snapTime(at);
+        const offset = snappedAt - c.start;
         if (offset <= 0 || offset >= c.out - c.in) return s;
         const left: Clip = { ...c, out: c.in + offset };
-        const right: Clip = { ...c, id: uid("c"), start: at, in: c.in + offset };
+        const right: Clip = { ...c, id: uid("c"), start: snappedAt, in: c.in + offset };
         return { ...s, clips: [...s.clips.filter((x) => x.id !== id), left, right] };
       }),
     trimClip: (id, patch) =>
@@ -91,8 +98,8 @@ export const useTimeline = create<TimelineState & Actions & { _past: Snapshot[];
           c.id === id
             ? {
                 ...c,
-                in: patch.newIn ?? c.in,
-                out: patch.newOut ?? c.out,
+                in: patch.newIn === undefined ? c.in : snapTime(patch.newIn),
+                out: patch.newOut === undefined ? c.out : snapTime(patch.newOut),
               }
             : c,
         ),
@@ -115,7 +122,7 @@ export const useTimeline = create<TimelineState & Actions & { _past: Snapshot[];
       commit((s) => ({
         ...s,
         clips: s.clips.map((c) =>
-          c.id === id ? { ...c, start: Math.max(0, toStart), trackId: toTrack ?? c.trackId } : c,
+          c.id === id ? { ...c, start: Math.max(0, snapTime(toStart)), trackId: toTrack ?? c.trackId } : c,
         ),
       })),
     select: (ids) => set({ selection: ids }),

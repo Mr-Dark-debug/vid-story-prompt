@@ -13,6 +13,48 @@ type GeneratedTable<Row extends Record<string, unknown>> = {
 export type Database = {
   public: {
     Tables: {
+      app_projects: {
+        Row: {
+          id: string;
+          workspace_id: string;
+          user_id: string;
+          name: string;
+          brief: string;
+          aspect: string;
+          status: string;
+          timeline_json: Json;
+          transcript_edits_json: Json;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: string;
+          workspace_id: string;
+          user_id: string;
+          name: string;
+          brief?: string;
+          aspect?: string;
+          status?: string;
+          timeline_json?: Json;
+          transcript_edits_json?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: string;
+          workspace_id?: string;
+          user_id?: string;
+          name?: string;
+          brief?: string;
+          aspect?: string;
+          status?: string;
+          timeline_json?: Json;
+          transcript_edits_json?: Json;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Relationships: [];
+      };
       automation_drafts: GeneratedTable<{
         id: string;
         workspace_id: string;
@@ -47,6 +89,15 @@ export type Database = {
         received_at: string;
         processed_at: string | null;
         error_code: string | null;
+      }>;
+      billing_waitlist: GeneratedTable<{
+        id: string;
+        user_id: string;
+        email: string;
+        plan_interest: string;
+        status: string;
+        created_at: string;
+        updated_at: string;
       }>;
       automation_rules: GeneratedTable<{
         id: string;
@@ -829,6 +880,127 @@ export type Database = {
         };
         Relationships: [];
       };
+      project_templates: {
+        Row: {
+          id: string;
+          workspace_id: string | null;
+          user_id: string | null;
+          slug: string;
+          name: string;
+          description: string;
+          aspect: string;
+          brief: string;
+          icon: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          workspace_id?: string | null;
+          user_id?: string | null;
+          slug: string;
+          name: string;
+          description: string;
+          aspect: string;
+          brief: string;
+          icon?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          workspace_id?: string | null;
+          user_id?: string | null;
+          slug?: string;
+          name?: string;
+          description?: string;
+          aspect?: string;
+          brief?: string;
+          icon?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      project_versions: {
+        Row: {
+          id: string;
+          project_id: string;
+          workspace_id: string;
+          user_id: string;
+          label: string;
+          kind: string;
+          summary: string;
+          timeline_json: Json;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          project_id: string;
+          workspace_id: string;
+          user_id: string;
+          label: string;
+          kind?: string;
+          summary?: string;
+          timeline_json: Json;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          project_id?: string;
+          workspace_id?: string;
+          user_id?: string;
+          label?: string;
+          kind?: string;
+          summary?: string;
+          timeline_json?: Json;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      support_requests: {
+        Row: {
+          id: string;
+          user_id: string | null;
+          name: string;
+          email: string;
+          topic: string;
+          message: string;
+          status: string;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string | null;
+          name: string;
+          email: string;
+          topic: string;
+          message: string;
+          status?: string;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string | null;
+          name?: string;
+          email?: string;
+          topic?: string;
+          message?: string;
+          status?: string;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
+      user_preferences: GeneratedTable<{
+        user_id: string;
+        workspace_id: string;
+        ai_plan_preview: boolean;
+        autosave_seconds: number;
+        snap_to_words: boolean;
+        low_resolution_preview: boolean;
+        notify_export_complete: boolean;
+        notify_ai_plan_complete: boolean;
+        notify_weekly_usage: boolean;
+        notify_product_updates: boolean;
+        updated_at: string;
+      }>;
       profiles: {
         Row: {
           id: string;

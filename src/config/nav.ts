@@ -72,4 +72,5 @@ export const appNav: NavItem[] = [
   { label: "Billing", to: "/app/billing" },
   { label: "Settings", to: "/app/settings" },
   { label: "Help", to: "/app/help" },
+  { label: "Feedback", to: "/app/feedback" },
 ];

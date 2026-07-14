@@ -1,102 +1,201 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Download, Trash2, RefreshCw, Copy } from "lucide-react";
+import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { Download, Film, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
+import { Button } from "@/components/ui/button";
 import { StatusDot } from "@/components/primitives/status-dot";
-
-type Job = {
-  id: string;
-  preset: string;
-  aspect: string;
-  state: "queued" | "preparing" | "rendering" | "uploading" | "complete" | "failed";
-  progress: number;
-  createdAt: string;
-  url?: string;
-};
-
-const initial: Job[] = [
-  { id: "e1", preset: "YouTube 1080p", aspect: "16:9", state: "complete", progress: 100, createdAt: new Date(Date.now() - 3600e3).toISOString(), url: "https://example.com/export/e1.mp4" },
-  { id: "e2", preset: "Reels 1080×1920", aspect: "9:16", state: "complete", progress: 100, createdAt: new Date(Date.now() - 7200e3).toISOString(), url: "https://example.com/export/e2.mp4" },
-];
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import {
+  deleteExport,
+  getExportDownload,
+  listProjectExportData,
+  requestClipExport,
+} from "@/services/exports/server";
+import { userFacingError } from "@/lib/user-facing-error";
 
 export const Route = createFileRoute("/_authenticated/app/projects/$projectId/exports")({
+  loader: ({ params }) => listProjectExportData({ data: { projectId: params.projectId } }),
   component: ExportsPage,
 });
-
 function ExportsPage() {
-  useParams({ from: "/_authenticated/app/projects/$projectId/exports" });
-  const [jobs, setJobs] = useState<Job[]>(initial);
-
-  useEffect(() => {
-    const t = setInterval(() => {
-      setJobs((prev) =>
-        prev.map((j) => {
-          if (j.state === "complete" || j.state === "failed") return j;
-          const nextProgress = Math.min(100, j.progress + 8 + Math.random() * 10);
-          const seq: Job["state"][] = ["queued", "preparing", "rendering", "uploading", "complete"];
-          const idx = seq.indexOf(j.state);
-          const advance = nextProgress > (idx + 1) * 22;
-          return {
-            ...j,
-            progress: nextProgress,
-            state: nextProgress >= 100 ? "complete" : advance ? seq[Math.min(idx + 1, seq.length - 2)] : j.state,
-            url: nextProgress >= 100 ? `https://example.com/export/${j.id}.mp4` : j.url,
-          };
-        }),
-      );
-    }, 900);
-    return () => clearInterval(t);
-  }, []);
-
-  function startExport(preset: string, aspect: string) {
-    setJobs((p) => [
-      { id: `e_${Date.now()}`, preset, aspect, state: "queued", progress: 0, createdAt: new Date().toISOString() },
-      ...p,
-    ]);
-  }
-
+  const { clips, exports } = Route.useLoaderData();
+  const router = useRouter();
+  const [busy, setBusy] = useState<string | null>(null);
+  const [message, setMessage] = useState<string | null>(null);
+  const date = new Intl.DateTimeFormat("en", {
+    dateStyle: "medium",
+    timeStyle: "short",
+    timeZone: "UTC",
+  });
+  const request = async (clip: { id: string; current_version_id: string }) => {
+    setBusy(clip.id);
+    setMessage(null);
+    try {
+      await requestClipExport({
+        data: {
+          clipId: clip.id,
+          clipVersionId: clip.current_version_id,
+          captionMode: "both",
+          idempotencyKey: crypto.randomUUID(),
+        },
+      });
+      setMessage("Export queued. Progress updates automatically as the worker renders it.");
+      toast.success("Export queued.");
+      await router.invalidate();
+    } catch (cause) {
+      const friendly = userFacingError(cause, "Export could not be queued.");
+      setMessage(friendly);
+      toast.error(friendly);
+    } finally {
+      setBusy(null);
+    }
+  };
   return (
     <div className="space-y-5">
-      <div className="flex flex-wrap items-center gap-2">
-        <button onClick={() => startExport("YouTube 1080p", "16:9")} className="rounded-md bg-ink px-3 py-2 text-sm font-medium text-surface-page">
-          Export · 16:9
-        </button>
-        <button onClick={() => startExport("Reels 1080×1920", "9:16")} className="rounded-md border border-line bg-surface-panel px-3 py-2 text-sm text-ink">
-          Export · 9:16
-        </button>
-        <button onClick={() => startExport("Square 1080", "1:1")} className="rounded-md border border-line bg-surface-panel px-3 py-2 text-sm text-ink">
-          Export · 1:1
-        </button>
-        <StatusDot variant="demo">Renders are simulated</StatusDot>
-      </div>
+      <section className="rounded-2xl border border-line bg-surface-panel p-5">
+        <h2 className="font-display text-lg text-ink">Export-ready clips</h2>
+        <p className="mt-1 text-sm text-ink-soft">
+          Each export is rendered by FFmpeg and delivered through a 5-minute private signed URL.
+        </p>
+        <div className="mt-4 grid gap-2">
+          {clips
+            .filter((clip) => clip.current_version_id)
+            .map((clip) => (
+              <div
+                key={clip.id}
+                className="flex flex-wrap items-center gap-3 rounded-xl border border-line bg-surface-raised p-3"
+              >
+                <Film className="h-4 w-4 text-ember" />
+                <span className="min-w-0 flex-1 truncate text-sm text-ink">{clip.title}</span>
+                <Button
+                  size="sm"
+                  onClick={() => void request(clip as { id: string; current_version_id: string })}
+                  loading={busy === clip.id}
+                  loadingText="Queuing…"
+                >
+                  Export MP4 + captions
+                </Button>
+              </div>
+            ))}
+          {clips.filter((clip) => clip.current_version_id).length === 0 && (
+            <p className="py-6 text-center text-sm text-ink-mute">
+              Process project media and save a clip version before exporting.
+            </p>
+          )}
+        </div>
+      </section>
+      <p role="status" aria-live="polite" className="min-h-5 text-sm text-ink-soft">
+        {message}
+      </p>
       <ul className="space-y-2">
-        {jobs.map((j) => (
-          <li key={j.id} className="rounded-xl border border-line bg-surface-panel p-4">
-            <div className="flex flex-wrap items-center justify-between gap-2">
-              <div>
-                <div className="text-sm font-medium text-ink">{j.preset}</div>
-                <div className="text-[11px] text-ink-mute">{j.aspect} · {new Date(j.createdAt).toLocaleString()}</div>
+        {exports.map((item) => (
+          <li key={item.id} className="rounded-xl border border-line bg-surface-panel p-4">
+            <div className="flex flex-wrap items-center gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="text-sm font-medium uppercase text-ink">
+                  {item.format} · {item.resolution}
+                </div>
+                <div className="mt-1 text-xs text-ink-mute">
+                  Created {date.format(new Date(item.created_at))}
+                  {item.size_bytes
+                    ? ` · ${(Number(item.size_bytes) / 1024 / 1024).toFixed(1)} MB`
+                    : ""}
+                </div>
               </div>
-              <div className="flex items-center gap-2">
-                <StatusDot variant={j.state === "complete" ? "success" : j.state === "failed" ? "danger" : "info"}>{j.state}</StatusDot>
-                {j.url && (
-                  <>
-                    <a href={j.url} className="inline-flex items-center gap-1 rounded-md border border-line bg-surface-page px-2 py-1 text-[11px] text-ink"><Download className="h-3 w-3" /> Download</a>
-                    <button onClick={() => navigator.clipboard?.writeText(j.url!)} className="inline-flex items-center gap-1 rounded-md border border-line bg-surface-page px-2 py-1 text-[11px] text-ink-soft"><Copy className="h-3 w-3" /> Copy link</button>
-                  </>
-                )}
-                {j.state === "failed" && (
-                  <button className="inline-flex items-center gap-1 rounded-md border border-line bg-surface-page px-2 py-1 text-[11px] text-ink-soft"><RefreshCw className="h-3 w-3" /> Retry</button>
-                )}
-                <button onClick={() => setJobs((p) => p.filter((x) => x.id !== j.id))} aria-label="Delete" className="rounded p-1 text-ink-mute hover:bg-surface-sunken"><Trash2 className="h-3.5 w-3.5" /></button>
-              </div>
+              <StatusDot
+                variant={
+                  item.status === "complete"
+                    ? "success"
+                    : item.status === "failed"
+                      ? "danger"
+                      : "info"
+                }
+              >
+                {item.status}
+              </StatusDot>
+              {item.status === "complete" && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={async () => {
+                    setBusy(item.id);
+                    try {
+                      const result = await getExportDownload({ data: { exportId: item.id } });
+                      window.location.assign(result.url);
+                    } catch (cause) {
+                      toast.error(userFacingError(cause, "The download link could not be created."));
+                    } finally {
+                      setBusy(null);
+                    }
+                  }}
+                  loading={busy === item.id}
+                  loadingText="Signing…"
+                >
+                  <Download />
+                  Download
+                </Button>
+              )}
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button size="icon" variant="ghost" aria-label="Delete export">
+                    <Trash2 />
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>Delete this export?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      The rendered file and export record will be permanently removed.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                    <AlertDialogAction
+                      className="bg-danger text-white"
+                      onClick={async (event) => {
+                        event.preventDefault();
+                        try {
+                          await deleteExport({ data: { exportId: item.id, confirmation: "DELETE" } });
+                          toast.success("Export deleted.");
+                          await router.invalidate();
+                        } catch (cause) {
+                          toast.error(userFacingError(cause, "The export could not be deleted."));
+                        }
+                      }}
+                    >
+                      Delete export
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
             </div>
-            {j.state !== "complete" && j.state !== "failed" && (
-              <div className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-sunken">
-                <div className="h-full bg-ember transition-all" style={{ width: `${j.progress}%` }} />
+            {!["complete", "failed"].includes(item.status) && (
+              <div
+                className="mt-3 h-1.5 overflow-hidden rounded-full bg-surface-sunken"
+                role="progressbar"
+                aria-label="Export rendering in progress"
+                aria-valuetext={item.status}
+              >
+                <div className="h-full w-1/2 animate-pulse bg-ember motion-reduce:animate-none" />
               </div>
             )}
           </li>
         ))}
+        {exports.length === 0 && (
+          <li className="rounded-xl border border-dashed border-line p-10 text-center text-sm text-ink-mute">
+            No exports requested yet.
+          </li>
+        )}
       </ul>
     </div>
   );

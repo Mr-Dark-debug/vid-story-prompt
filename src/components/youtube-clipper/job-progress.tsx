@@ -11,6 +11,7 @@ import {
   X,
 } from "lucide-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
+import { formatUtcDate } from "@/lib/format-date";
 import { cancelClipJob, type getClipJob } from "@/services/clipping/server";
 import { getExportDownload } from "@/services/exports/server";
 import { YouTubePublishPanel } from "./youtube-publish-panel";
@@ -76,7 +77,7 @@ export function JobProgress({
           </h1>
           <p className="mt-2 text-sm text-ink-soft">
             {job.completed_clip_count}/{job.requested_clip_count} previews ready · retained until{" "}
-            {new Date(job.retention_expires_at).toLocaleDateString()}
+            {formatUtcDate(job.retention_expires_at)}
           </p>
         </div>
         {!terminal && (
@@ -190,7 +191,7 @@ export function JobProgress({
                   </div>
                   <div className="mt-0.5 text-xs text-ink-mute">
                     {item.resolution} · {item.watermarked ? "Vidrial watermark" : "No watermark"} ·
-                    expires {new Date(item.expires_at).toLocaleDateString()}
+                    expires {formatUtcDate(item.expires_at)}
                   </div>
                 </div>
                 {item.status === "complete" ? (

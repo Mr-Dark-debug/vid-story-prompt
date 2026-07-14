@@ -7,7 +7,16 @@ export const Route = createFileRoute("/_authenticated/app/settings")({
   component: SettingsLayout,
 });
 
-const tabs: { to: "/app/settings" | "/app/settings/preferences" | "/app/settings/notifications" | "/app/settings/privacy" | "/app/settings/integrations"; label: string; end?: boolean }[] = [
+const tabs: {
+  to:
+    | "/app/settings"
+    | "/app/settings/preferences"
+    | "/app/settings/notifications"
+    | "/app/settings/privacy"
+    | "/app/settings/integrations";
+  label: string;
+  end?: boolean;
+}[] = [
   { to: "/app/settings", label: "Profile", end: true },
   { to: "/app/settings/preferences", label: "Preferences" },
   { to: "/app/settings/notifications", label: "Notifications" },
@@ -24,7 +33,15 @@ function SettingsLayout() {
         {tabs.map((t) => {
           const active = t.end ? pathname === t.to : pathname.startsWith(t.to);
           return (
-            <Link key={t.to} to={t.to} className={cn("border-b-2 px-3 py-2 text-sm text-ink-soft hover:text-ink", active ? "border-ember text-ink" : "border-transparent")}>
+            <Link
+              key={t.to}
+              to={t.to}
+              aria-current={active ? "page" : undefined}
+              className={cn(
+                "inline-flex min-h-11 items-center border-b-2 px-3 py-2 text-sm text-ink-soft hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember",
+                active ? "border-ember text-ink" : "border-transparent",
+              )}
+            >
               {t.label}
             </Link>
           );

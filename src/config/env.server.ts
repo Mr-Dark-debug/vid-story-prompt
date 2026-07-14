@@ -11,8 +11,11 @@ const serverEnvSchema = z.object({
   GOOGLE_OAUTH_TOKEN_ENCRYPTION_KEY: z.string().min(32).optional(),
   YOUTUBE_WEBHOOK_SECRET: z.string().min(32).optional(),
   TURNSTILE_SECRET_KEY: z.string().min(10).optional(),
+  VITE_TURNSTILE_SITE_KEY: z.string().min(10).optional(),
   VIDEO_WORKER_URL: z.string().url().optional(),
   WORKER_WAKE_SECRET: z.string().min(20).optional(),
+  OPENROUTER_API_KEY: z.string().min(10).optional(),
+  OPENROUTER_CLIP_MODEL: z.string().min(3).optional(),
 });
 
 export function getServerEnv() {
@@ -27,7 +30,10 @@ export function getServerEnv() {
     GOOGLE_OAUTH_TOKEN_ENCRYPTION_KEY: process.env.GOOGLE_OAUTH_TOKEN_ENCRYPTION_KEY,
     YOUTUBE_WEBHOOK_SECRET: process.env.YOUTUBE_WEBHOOK_SECRET,
     TURNSTILE_SECRET_KEY: process.env.TURNSTILE_SECRET_KEY,
+    VITE_TURNSTILE_SITE_KEY: process.env.VITE_TURNSTILE_SITE_KEY,
     VIDEO_WORKER_URL: process.env.VIDEO_WORKER_URL,
     WORKER_WAKE_SECRET: process.env.WORKER_WAKE_SECRET,
+    OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
+    OPENROUTER_CLIP_MODEL: process.env.OPENROUTER_CLIP_MODEL,
   });
 }

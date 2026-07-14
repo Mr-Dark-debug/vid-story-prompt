@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { toast } from "sonner";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import {
   ArrowUpRight,
@@ -11,6 +12,7 @@ import {
 } from "lucide-react";
 import { SiInstagram, SiTiktok, SiYoutube } from "react-icons/si";
 import { z } from "zod";
+import { userFacingError } from "@/lib/user-facing-error";
 import { StatusDot } from "@/components/primitives/status-dot";
 import {
   listYouTubeAutomationDrafts,
@@ -105,7 +107,9 @@ function Integrations() {
       await action();
       await router.invalidate();
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "The integration could not be updated.");
+      const friendly = userFacingError(cause, "The integration could not be updated.");
+      setError(friendly);
+      toast.error(friendly);
     } finally {
       setBusy(null);
     }
@@ -149,6 +153,7 @@ function Integrations() {
           ? "Automation saved. YouTube is verifying the channel subscription."
           : "Automation paused.",
       );
+      toast.success(automationEnabled ? "YouTube automation saved." : "YouTube automation paused.");
     });
   };
 
@@ -235,7 +240,7 @@ function Integrations() {
                   type="button"
                   onClick={() => void connect("channel_read")}
                   disabled={Boolean(busy)}
-                  className="inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-surface-page disabled:opacity-60"
+                  className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-surface-page disabled:opacity-60"
                 >
                   {busy === "channel_read" ? (
                     <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -251,7 +256,7 @@ function Integrations() {
                       type="button"
                       onClick={() => void connect("video_publish")}
                       disabled={Boolean(busy)}
-                      className="inline-flex items-center gap-2 rounded-xl bg-[#ff0033] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
+                      className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#ff0033] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
                     >
                       {busy === "video_publish" ? (
                         <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -269,10 +274,11 @@ function Integrations() {
                           return;
                         await disconnectYouTube();
                         setMessage("YouTube disconnected.");
+                        toast.success("YouTube disconnected.");
                       })
                     }
                     disabled={Boolean(busy)}
-                    className="inline-flex items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-ink disabled:opacity-60"
+                    className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-ink disabled:opacity-60"
                   >
                     <Unplug className="h-4 w-4" /> Disconnect
                   </button>
@@ -290,6 +296,11 @@ function Integrations() {
               External uploads create a draft awaiting the original source. Vidrial never downloads
               the YouTube playback stream.
             </p>
+            {!connected ? (
+              <p role="status" className="mt-4 rounded-xl border border-line bg-surface-panel px-4 py-3 text-sm text-ink-soft">
+                Connect YouTube to configure channel monitoring and publishing automation.
+              </p>
+            ) : null}
             <fieldset
               disabled={!connected || Boolean(busy)}
               className="mt-5 space-y-4 disabled:opacity-55"
@@ -368,7 +379,7 @@ function Integrations() {
               <button
                 type="button"
                 onClick={saveAutomation}
-                className="inline-flex items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-surface-page"
+                className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-surface-page"
               >
                 {busy === "automation" ? (
                   <LoaderCircle className="h-4 w-4 animate-spin" />

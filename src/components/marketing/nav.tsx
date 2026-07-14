@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Menu, X, ChevronDown } from "lucide-react";
 import { Logo } from "@/components/primitives/logo";
 import { brand } from "@/config/brand";
@@ -38,6 +38,7 @@ function DropTrigger({ label, items }: { label: string; items: NavItem[] }) {
 export function MarketingNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
+  const menuButton = useRef<HTMLButtonElement>(null);
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -45,6 +46,17 @@ export function MarketingNav() {
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
+
+  useEffect(() => {
+    if (!open) return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== "Escape") return;
+      setOpen(false);
+      window.requestAnimationFrame(() => menuButton.current?.focus());
+    };
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, [open]);
 
   return (
     <header
@@ -91,11 +103,12 @@ export function MarketingNav() {
           </Link>
         </div>
         <button
+          ref={menuButton}
           type="button"
           onClick={() => setOpen((o) => !o)}
           aria-expanded={open}
           aria-label="Toggle menu"
-          className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-line text-ink lg:hidden"
+          className="inline-flex h-11 w-11 items-center justify-center rounded-md border border-line text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember lg:hidden"
         >
           {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
         </button>
@@ -110,14 +123,14 @@ export function MarketingNav() {
               <Link
                 to="/login"
                 onClick={() => setOpen(false)}
-                className="flex-1 rounded-md border border-line px-3 py-2 text-center text-sm text-ink"
+                className="inline-flex min-h-11 flex-1 items-center justify-center rounded-md border border-line px-3 py-2 text-center text-sm text-ink"
               >
                 Log in
               </Link>
               <Link
                 to="/signup"
                 onClick={() => setOpen(false)}
-                className="flex-1 rounded-md bg-ink px-3 py-2 text-center text-sm text-surface-page"
+                className="inline-flex min-h-11 flex-1 items-center justify-center rounded-md bg-ink px-3 py-2 text-center text-sm text-surface-page"
               >
                 Start editing
               </Link>
@@ -158,7 +171,7 @@ function MobileSection({
             <Link
               to={it.to}
               onClick={onNavigate}
-              className="block rounded-md px-2 py-2 text-sm text-ink hover:bg-surface-sunken"
+              className="flex min-h-11 items-center rounded-md px-2 py-2 text-sm text-ink hover:bg-surface-sunken"
             >
               {it.label}
             </Link>

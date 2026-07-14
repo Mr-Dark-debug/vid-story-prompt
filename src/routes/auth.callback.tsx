@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { exchangeAuthCode } from "@/services/auth/server";
+import { userFacingError } from "@/lib/user-facing-error";
 
 const searchSchema = z.object({
   code: z.string().optional(),
@@ -30,8 +31,7 @@ export const Route = createFileRoute("/auth/callback")({
       throw redirect({
         to: "/login",
         search: {
-          authError:
-            cause instanceof Error ? cause.message : "The secure sign-in could not be completed.",
+          authError: userFacingError(cause, "The secure sign-in could not be completed."),
         } as never,
       });
     }

@@ -26,6 +26,7 @@ const jobInput = z.object({
   requestedClipCount: z.number().int().min(1).max(50),
   rightsAccepted: z.literal(true),
   idempotencyKey: z.string().uuid(),
+  projectId: z.string().uuid().optional(),
 });
 
 type RpcClient = {
@@ -58,6 +59,14 @@ export const createClipJob = createServerFn({ method: "POST" })
     });
     if (error || typeof jobId !== "string")
       throw new Error(error?.message ?? "The clipping job could not be created.");
+    if (data.projectId) {
+      const { error: projectError } = await getSupabaseServerClient()
+        .from("clip_jobs")
+        .update({ project_id: data.projectId })
+        .eq("id", jobId)
+        .eq("user_id", session.id);
+      if (projectError) throw new Error(`Project could not be linked: ${projectError.message}`);
+    }
     const workerWake = await wakeVideoWorker();
     return { jobId, workerWake };
   });
@@ -68,7 +77,7 @@ export const listClipJobs = createServerFn({ method: "GET" }).handler(async () =
   const { data, error } = await getSupabaseServerClient()
     .from("clip_jobs")
     .select(
-      "id,source_title,source_thumbnail_url,status,requested_clip_count,completed_clip_count,created_at,retention_expires_at,error_message",
+      "id,project_id,source_title,source_thumbnail_url,status,requested_clip_count,completed_clip_count,created_at,retention_expires_at,error_message",
     )
     .eq("workspace_id", session.workspaceId)
     .order("created_at", { ascending: false });

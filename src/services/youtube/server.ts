@@ -33,7 +33,9 @@ function enforceRateLimit() {
 async function verifyTurnstile(token: string | undefined) {
   const serverEnv = getServerEnv();
   const secret = serverEnv.TURNSTILE_SECRET_KEY;
-  if (!secret) return;
+  // Optional protection must be configured as a complete client/server pair.
+  // IP rate limiting remains active when the optional widget is disabled.
+  if (!secret || !serverEnv.VITE_TURNSTILE_SITE_KEY) return;
   if (!token) throw new Error("Complete the abuse-protection check and retry.");
   const requestIp = getRequestIP({ xForwardedFor: true });
   const body = new URLSearchParams({ secret, response: token });

@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { ArrowRight, Clock3, Plus, Scissors } from "lucide-react";
 import { AppPageHeader } from "@/components/app/layout";
 import { listClipJobs } from "@/services/clipping/server";
+import { formatUtcDateTime } from "@/lib/format-date";
 
 export const Route = createFileRoute("/_authenticated/app/youtube-clipper/")({
   loader: () => listClipJobs(),
@@ -80,7 +81,7 @@ function ClipperDashboard() {
                 </div>
                 <div className="mt-1 flex items-center gap-2 text-xs text-ink-mute">
                   <Clock3 className="h-3.5 w-3.5" />
-                  {new Date(job.created_at).toLocaleString()} · {job.completed_clip_count}/
+                  {formatUtcDateTime(job.created_at)} · {job.completed_clip_count}/
                   {job.requested_clip_count} clips
                 </div>
               </div>

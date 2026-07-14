@@ -3,6 +3,7 @@ import { useState, type FormEvent } from "react";
 import { z } from "zod";
 import { AuthField, AuthForm, AuthShell, GoogleAuthButton } from "@/components/auth/auth-shell";
 import { authService } from "@/services/auth";
+import { userFacingError } from "@/lib/user-facing-error";
 
 export const Route = createFileRoute("/signup")({
   validateSearch: z.object({ redirect: z.string().optional() }),
@@ -25,7 +26,7 @@ function SignupPage() {
       const { url } = await authService.googleSignIn(redirect);
       window.location.assign(url);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Google sign-up could not be started.");
+      setError(userFacingError(cause, "Google sign-up could not be started."));
       setBusy(false);
     }
   };
@@ -48,7 +49,7 @@ function SignupPage() {
           redirect?.startsWith("/") && !redirect.startsWith("//") ? redirect : "/app",
         );
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Account creation failed. Please retry.");
+      setError(userFacingError(cause, "Account creation failed. Please retry."));
     } finally {
       setBusy(false);
     }

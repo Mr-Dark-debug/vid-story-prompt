@@ -1,5 +1,7 @@
-import type { FormEvent, ReactNode } from "react";
+import { Eye, EyeOff } from "lucide-react";
+import { useId, useState, type FormEvent, type ReactNode } from "react";
 import { Logo } from "@/components/primitives/logo";
+import { Button } from "@/components/ui/button";
 
 export function AuthShell({
   eyebrow,
@@ -15,7 +17,11 @@ export function AuthShell({
   footer?: ReactNode;
 }) {
   return (
-    <main className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-surface-page px-5 py-14">
+    <main
+      id="main-content"
+      tabIndex={-1}
+      className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-surface-page px-5 py-14 outline-none"
+    >
       <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_18%_12%,var(--ember-soft),transparent_35%),radial-gradient(circle_at_82%_88%,var(--teal-soft),transparent_32%)]" />
       <div className="relative w-full max-w-md">
         <Logo className="mb-8 flex justify-center" />
@@ -26,9 +32,9 @@ export function AuthShell({
           <h1 className="mt-3 font-display text-3xl text-ink">{title}</h1>
           <p className="mt-2 text-sm leading-relaxed text-ink-soft">{lead}</p>
           <div className="mt-7">{children}</div>
-          {footer && (
+          {footer ? (
             <div className="mt-6 border-t border-line pt-5 text-sm text-ink-soft">{footer}</div>
-          )}
+          ) : null}
         </section>
         <p className="mt-5 text-center text-xs text-ink-mute">
           Private by default · Rights-respecting media workflows
@@ -51,18 +57,35 @@ export function AuthField({
   autoComplete?: string;
   minLength?: number;
 }) {
+  const password = type === "password";
+  const [visible, setVisible] = useState(false);
+  const inputId = useId();
   return (
-    <label className="grid gap-1.5 text-sm font-medium text-ink">
-      {label}
-      <input
-        required
-        name={name}
-        type={type}
-        autoComplete={autoComplete}
-        minLength={minLength}
-        className="h-11 rounded-xl border border-line bg-surface-page px-3.5 text-sm outline-none transition focus:border-ember focus:ring-2 focus:ring-ember/15"
-      />
-    </label>
+    <div className="grid gap-1.5 text-sm font-medium text-ink">
+      <label htmlFor={inputId}>{label}</label>
+      <span className="relative">
+        <input
+          id={inputId}
+          required
+          name={name}
+          type={password && visible ? "text" : type}
+          autoComplete={autoComplete}
+          minLength={minLength}
+          className="h-11 w-full rounded-xl border border-line bg-surface-page px-3.5 pr-12 text-sm outline-none transition focus:border-ember focus:ring-2 focus:ring-ember/15"
+        />
+        {password ? (
+          <button
+            type="button"
+            aria-label={visible ? "Hide password" : "Show password"}
+            aria-pressed={visible}
+            onClick={() => setVisible((value) => !value)}
+            className="absolute inset-y-0 right-0 flex w-11 items-center justify-center rounded-r-xl text-ink-mute hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+          >
+            {visible ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+          </button>
+        ) : null}
+      </span>
+    </div>
   );
 }
 
@@ -82,20 +105,22 @@ export function AuthForm({
   return (
     <form className="grid gap-4" onSubmit={onSubmit}>
       {children}
-      {error && (
+      {error ? (
         <div
           role="alert"
           className="rounded-xl border border-danger/25 bg-danger/5 px-3.5 py-3 text-sm text-danger"
         >
           {error}
         </div>
-      )}
-      <button
-        disabled={busy}
-        className="mt-1 h-11 rounded-xl bg-ink px-4 text-sm font-semibold text-surface-page transition hover:bg-ink/90 disabled:cursor-wait disabled:opacity-60"
+      ) : null}
+      <Button
+        type="submit"
+        loading={busy}
+        loadingText="Please wait…"
+        className="mt-1 h-11 rounded-xl bg-ink text-surface-page hover:bg-ink/90"
       >
-        {busy ? "Please wait…" : submitLabel}
-      </button>
+        {submitLabel}
+      </Button>
     </form>
   );
 }
@@ -111,15 +136,17 @@ export function GoogleAuthButton({
 }) {
   return (
     <>
-      <button
+      <Button
         type="button"
-        disabled={busy}
+        variant="outline"
+        loading={busy}
+        loadingText="Opening Google…"
         onClick={onClick}
-        className="flex h-11 w-full items-center justify-center gap-3 rounded-xl border border-line bg-surface-page px-4 text-sm font-semibold text-ink transition hover:border-ink/30 hover:bg-surface-sunken disabled:cursor-wait disabled:opacity-60"
+        className="h-11 w-full rounded-xl bg-surface-page text-ink hover:border-ink/30 hover:bg-surface-sunken"
       >
         <GoogleMark />
-        {busy ? "Opening Google…" : label}
-      </button>
+        {label}
+      </Button>
       <div className="my-5 flex items-center gap-3 text-[11px] font-medium uppercase tracking-[0.14em] text-ink-mute">
         <span className="h-px flex-1 bg-line" />
         or continue with email

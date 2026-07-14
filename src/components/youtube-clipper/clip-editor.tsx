@@ -5,6 +5,7 @@ import { TimelineView } from "@/components/editor/timeline";
 import { useTimeline } from "@/domain/timeline/store";
 import { saveClipVersion, type getClipForEditor } from "@/services/clipping/server";
 import { requestClipExport } from "@/services/exports/server";
+import { formatUtcDateTime } from "@/lib/format-date";
 
 type EditorData = Awaited<ReturnType<typeof getClipForEditor>>;
 export function ClipEditor({ data }: { data: EditorData }) {
@@ -250,7 +251,7 @@ export function ClipEditor({ data }: { data: EditorData }) {
                   key={version.id}
                   className="rounded-lg border border-line px-3 py-2 text-xs text-ink-soft"
                 >
-                  Version {version.version_number} · {new Date(version.created_at).toLocaleString()}
+                  Version {version.version_number} · {formatUtcDateTime(version.created_at)}
                 </div>
               ))}
             </div>

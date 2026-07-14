@@ -3,6 +3,7 @@ import { useState, type FormEvent } from "react";
 import { z } from "zod";
 import { AuthField, AuthForm, AuthShell, GoogleAuthButton } from "@/components/auth/auth-shell";
 import { authService } from "@/services/auth";
+import { userFacingError } from "@/lib/user-facing-error";
 
 export const Route = createFileRoute("/login")({
   validateSearch: z.object({ redirect: z.string().optional(), authError: z.string().optional() }),
@@ -25,7 +26,7 @@ function LoginPage() {
       const { url } = await authService.googleSignIn(redirect);
       window.location.assign(url);
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "Google sign-in could not be started.");
+      setError(userFacingError(cause, "Google sign-in could not be started."));
       setBusy(false);
     }
   };
@@ -38,9 +39,7 @@ function LoginPage() {
       await authService.login(String(form.get("email")), String(form.get("password")));
       window.location.assign(redirect?.startsWith("/") ? redirect : "/app");
     } catch (cause) {
-      setError(
-        cause instanceof Error ? cause.message : "Sign-in failed. Check your details and retry.",
-      );
+      setError(userFacingError(cause, "Sign-in failed. Check your details and retry."));
       setBusy(false);
     }
   };
@@ -65,7 +64,7 @@ function LoginPage() {
           role="alert"
           className="mb-4 rounded-xl border border-danger/25 bg-danger/5 px-3.5 py-3 text-sm text-danger"
         >
-          {authError}
+          {userFacingError(authError, "The secure sign-in could not be completed.")}
         </div>
       )}
       <AuthForm submitLabel="Log in" busy={busy} error={error} onSubmit={submit}>

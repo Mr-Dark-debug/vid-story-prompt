@@ -1,92 +1,124 @@
-import { createFileRoute, useParams } from "@tanstack/react-router";
-import { useEffect, useMemo, useState } from "react";
-import { loadProjects, type MockProject, type TranscriptWord } from "@/mock/seed";
-import { StatusDot } from "@/components/primitives/status-dot";
+import { createFileRoute } from "@tanstack/react-router";
+import { Save } from "lucide-react";
+import { useMemo, useState } from "react";
+import { Button } from "@/components/ui/button";
 import { Callout } from "@/components/primitives/section";
 import { cn } from "@/lib/utils";
+import { getProjectTranscript, saveProjectTranscriptEdits } from "@/services/projects/server";
 
 export const Route = createFileRoute("/_authenticated/app/projects/$projectId/transcript")({
+  loader: ({ params }) => getProjectTranscript({ data: { projectId: params.projectId } }),
   component: TranscriptPage,
 });
-
 function TranscriptPage() {
-  const { projectId } = useParams({ from: "/_authenticated/app/projects/$projectId/transcript" });
-  const [project, setProject] = useState<MockProject | null>(null);
-  const [showExplainer, setShowExplainer] = useState(true);
-  const [words, setWords] = useState<TranscriptWord[]>([]);
-  useEffect(() => {
-    const p = loadProjects().find((x) => x.id === projectId) ?? null;
-    setProject(p);
-    setWords(p?.transcript ?? []);
-  }, [projectId]);
-  const byLine = useMemo(() => {
-    const groups: TranscriptWord[][] = [];
-    let cur: TranscriptWord[] = [];
-    for (const w of words) {
-      cur.push(w);
-      if (w.silence) {
-        groups.push(cur);
-        cur = [];
-      }
+  const { words, edits } = Route.useLoaderData();
+  const { projectId } = Route.useParams();
+  const initial =
+    edits &&
+    typeof edits === "object" &&
+    !Array.isArray(edits) &&
+    Array.isArray((edits as { excludedIds?: unknown }).excludedIds)
+      ? (edits as { excludedIds: string[] }).excludedIds
+      : [];
+  const [excluded, setExcluded] = useState<string[]>(initial);
+  const [saving, setSaving] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+  const groups = useMemo(() => {
+    const result: Array<{ speaker: string; words: typeof words }> = [];
+    for (const word of words) {
+      const last = result.at(-1);
+      if (!last || last.speaker !== word.speaker_key)
+        result.push({ speaker: word.speaker_key || "Speaker", words: [word] });
+      else last.words.push(word);
     }
-    if (cur.length) groups.push(cur);
-    return groups;
+    return result;
   }, [words]);
-  if (!project) return null;
-  const kept = words.filter((w) => !w.excluded && !w.silence).length;
-  const excluded = words.filter((w) => w.excluded && !w.silence).length;
-  function toggleExclude(id: string) {
-    setWords((ws) => ws.map((w) => (w.id === id ? { ...w, excluded: !w.excluded } : w)));
-  }
+  const save = async () => {
+    setSaving(true);
+    setMessage(null);
+    try {
+      await saveProjectTranscriptEdits({ data: { projectId, excludedIds: excluded } });
+      setMessage("Transcript edit decisions saved to the project.");
+    } catch (cause) {
+      setMessage(cause instanceof Error ? cause.message : "Transcript edits could not be saved.");
+    } finally {
+      setSaving(false);
+    }
+  };
+  if (words.length === 0)
+    return (
+      <Callout tone="info" title="Transcript not ready">
+        Start a processing job from the Media tab. The transcript will appear here as soon as the
+        worker finishes transcription.
+      </Callout>
+    );
   return (
     <div className="grid gap-4 lg:grid-cols-[1fr_260px]">
       <div className="space-y-3">
-        {showExplainer && (
-          <Callout tone="info" title="Editing text vs excluding from the timeline">
-            Click a word to <strong>exclude</strong> it from the exported edit. To rewrite spoken text, use the Edit text mode (coming soon).{" "}
-            <button className="underline" onClick={() => setShowExplainer(false)}>Got it</button>
-          </Callout>
-        )}
+        <Callout tone="info" title="Non-destructive text editing">
+          Select a word to exclude it from future timeline operations. The original transcript
+          remains unchanged.
+        </Callout>
         <div className="rounded-2xl border border-line bg-surface-panel p-5 leading-8">
-          {byLine.map((line, i) => {
-            const speaker = line[0]?.speaker ?? "";
-            return (
-              <div key={i} className="mb-4">
-                <div className="mb-1 text-[11px] uppercase tracking-[0.14em] text-ink-mute">{speaker}</div>
-                <p className="flex flex-wrap gap-x-1 gap-y-1">
-                  {line.map((w) =>
-                    w.silence ? (
-                      <span key={w.id} className="text-ink-mute">·</span>
-                    ) : (
-                      <button
-                        key={w.id}
-                        onClick={() => toggleExclude(w.id)}
-                        className={cn(
-                          "rounded px-1 text-sm",
-                          w.excluded ? "text-ink-mute line-through" : "text-ink hover:bg-surface-sunken",
-                          w.filler && "italic",
-                        )}
-                      >
-                        {w.text}
-                      </button>
-                    ),
-                  )}
-                </p>
-              </div>
-            );
-          })}
+          {groups.map((group, index) => (
+            <div key={`${group.speaker}-${index}`} className="mb-5">
+              <h2 className="mb-1 text-[11px] uppercase tracking-[.14em] text-ink-mute">
+                {group.speaker}
+              </h2>
+              <p className="flex flex-wrap gap-1">
+                {group.words.map((word) => {
+                  const removed = excluded.includes(word.id);
+                  return (
+                    <button
+                      key={word.id}
+                      type="button"
+                      onClick={() =>
+                        setExcluded((items) =>
+                          removed ? items.filter((id) => id !== word.id) : [...items, word.id],
+                        )
+                      }
+                      aria-pressed={removed}
+                      title={`${Number(word.start_seconds).toFixed(1)} seconds`}
+                      className={cn(
+                        "min-h-10 rounded px-2 text-sm focus-visible:ring-2 focus-visible:ring-ember",
+                        removed ? "text-ink-mute line-through" : "text-ink hover:bg-surface-sunken",
+                      )}
+                    >
+                      {word.text}
+                    </button>
+                  );
+                })}
+              </p>
+            </div>
+          ))}
         </div>
       </div>
       <aside className="space-y-3">
         <div className="rounded-xl border border-line bg-surface-panel p-4 text-sm">
-          <div className="font-display text-ink">Transcript summary</div>
-          <div className="mt-2 grid grid-cols-2 gap-2 text-[12px] text-ink-soft">
-            <span>Kept</span><span className="text-right text-ink">{kept}</span>
-            <span>Excluded</span><span className="text-right text-ink">{excluded}</span>
-            <span>Speakers</span><span className="text-right text-ink">{Array.from(new Set(words.map((w) => w.speaker))).length}</span>
-          </div>
+          <h2 className="font-display text-ink">Transcript summary</h2>
+          <dl className="mt-2 grid grid-cols-2 gap-2 text-xs">
+            <dt className="text-ink-soft">Words</dt>
+            <dd className="text-right tabular-nums">{words.length}</dd>
+            <dt className="text-ink-soft">Excluded</dt>
+            <dd className="text-right tabular-nums">{excluded.length}</dd>
+            <dt className="text-ink-soft">Speakers</dt>
+            <dd className="text-right tabular-nums">
+              {new Set(words.map((word) => word.speaker_key)).size}
+            </dd>
+          </dl>
         </div>
-        <StatusDot variant="demo">Transcript edits apply on save</StatusDot>
+        <Button
+          className="w-full"
+          onClick={() => void save()}
+          loading={saving}
+          loadingText="Saving…"
+        >
+          <Save />
+          Save transcript edits
+        </Button>
+        <p role="status" aria-live="polite" className="text-xs text-ink-soft">
+          {message}
+        </p>
       </aside>
     </div>
   );
