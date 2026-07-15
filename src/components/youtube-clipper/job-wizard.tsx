@@ -604,8 +604,7 @@ function ConnectorSourceStep(props: {
               <div className="mt-5">
                 <h4 className="text-sm font-semibold text-ink">Original media to process</h4>
                 <p className="mt-1 text-xs leading-5 text-ink-mute">
-                  YouTube supplies metadata and an official preview—not the audiovisual file. Attach
-                  your authorised original.
+                  YouTube supplies metadata and an official preview. For processing, attach an authorised original or provide an owner-controlled HTTPS media URL. Server-side authorised provider downloads may be used only with explicit rights attestation and worker-side safeguards.
                 </p>
                 <div className="mt-3">
                   <SourceUpload key="youtube" onUploaded={props.setUploaded} />

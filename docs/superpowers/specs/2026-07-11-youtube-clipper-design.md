@@ -2,7 +2,7 @@
 
 ## Scope
 
-YouTube Clipper extends the existing Vidrial TanStack Start application. It preserves the marketing site, authenticated shell, editor prototype, design tokens, route conventions, and reusable components. The first production version accepts authorised local uploads, owner-controlled HTTPS media URLs, and YouTube URLs for official metadata and ownership verification. It never downloads YouTube media through unofficial means.
+YouTube Clipper extends the existing Vidrial TanStack Start application. It preserves the marketing site, authenticated shell, editor prototype, design tokens, route conventions, and reusable components. The first production version accepts authorised local uploads, owner-controlled HTTPS media URLs, and YouTube URLs for official metadata and ownership verification. Where original media is required, use an authorised attachment, an owner-controlled direct-media URL, or a server-side authorised provider download performed under explicit rights attestation and worker-side safeguards.
 
 ## Architecture
 
