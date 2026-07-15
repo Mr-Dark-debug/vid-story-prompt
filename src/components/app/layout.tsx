@@ -301,7 +301,10 @@ function SidebarContent({
         {collapsed ? <TooltipContent side="right">New project</TooltipContent> : null}
       </Tooltip>
 
-      <nav className="mt-4 min-h-0 flex-1 space-y-5 overflow-y-auto" aria-label="Primary">
+      <nav
+        className="scrollbar-hidden mt-4 min-h-0 flex-1 space-y-5 overflow-y-auto"
+        aria-label="Primary"
+      >
         {appNavGroups.map((group) => (
           <div key={group.label}>
             {!collapsed ? (
@@ -325,8 +328,7 @@ function SidebarContent({
                     onClick={onNavigate}
                     className={cn(
                       "flex min-h-10 items-center gap-2.5 rounded-md px-3 text-sm text-ink-soft transition-colors hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember",
-                      active &&
-                        "bg-surface-sunken font-medium text-ink shadow-[inset_3px_0_0_var(--color-ember)]",
+                      active && "bg-surface-sunken font-medium text-ink",
                       collapsed && "justify-center px-0",
                     )}
                   >

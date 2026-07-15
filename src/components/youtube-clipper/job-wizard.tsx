@@ -1,24 +1,25 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import {
+  CalendarDays,
   Check,
   ChevronLeft,
   ChevronRight,
+  Eye,
   FileVideo,
+  Heart,
   Link2,
-  ShieldCheck,
+  MonitorPlay,
   Youtube,
 } from "lucide-react";
 import { SourceUpload, type UploadedSource } from "./source-upload";
-import { TurnstileWidget } from "@/components/security/turnstile";
-import { getPublicEnv } from "@/config/env";
 import { getYouTubeMetadata } from "@/services/youtube/server";
+import { parseYouTubeVideoId } from "@/services/youtube/parser";
 import { createClipJob } from "@/services/clipping/server";
-import { beginYouTubeConnection } from "@/services/youtube/oauth.server";
 import { attachSourceToAutomationDraft } from "@/services/youtube/automation.server";
 
 type YouTubeMetadata = Awaited<ReturnType<typeof getYouTubeMetadata>>;
-const steps = ["Video source", "Rights & source", "Clip preferences", "Review"];
+const steps = ["Video source", "Clip preferences", "Review"];
 
 export function JobWizard({
   initialYoutube = "",
@@ -30,7 +31,6 @@ export function JobWizard({
   initialDraft?: string;
 }) {
   const navigate = useNavigate();
-  const turnstileSiteKey = getPublicEnv().VITE_TURNSTILE_SITE_KEY;
   const [step, setStep] = useState(0);
   const [sourceMode, setSourceMode] = useState<"youtube" | "upload" | "direct">(
     initialSource === "upload" ? "upload" : "youtube",
@@ -51,76 +51,77 @@ export function JobWizard({
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
 
   useEffect(() => {
-    if (!initialYoutube || turnstileSiteKey) return;
-    let active = true;
-    setBusy(true);
-    setError(null);
-    getYouTubeMetadata({ data: { url: initialYoutube } })
-      .then((value) => {
-        if (active) setMetadata(value);
-      })
-      .catch((cause) => {
-        if (active)
-          setError(cause instanceof Error ? cause.message : "YouTube details are unavailable.");
-      })
-      .finally(() => {
-        if (active) setBusy(false);
-      });
-    return () => {
-      active = false;
-    };
-  }, [initialYoutube, turnstileSiteKey]);
-  const analyseYoutube = async () => {
-    if (turnstileSiteKey && !turnstileToken) {
-      setError("Complete the abuse-protection check before retrieving YouTube details.");
+    if (sourceMode !== "youtube" || !youtubeUrl.trim()) return;
+    let videoId: string;
+    try {
+      videoId = parseYouTubeVideoId(youtubeUrl);
+    } catch {
       return;
     }
+    if (metadata?.videoId === videoId) return;
+    let active = true;
+    const timer = window.setTimeout(() => {
+      setBusy(true);
+      setError(null);
+      void getYouTubeMetadata({ data: { url: youtubeUrl } })
+        .then((value) => {
+          if (active) setMetadata(value);
+        })
+        .catch((cause) => {
+          if (active)
+            setError(cause instanceof Error ? cause.message : "YouTube details are unavailable.");
+        })
+        .finally(() => {
+          if (active) setBusy(false);
+        });
+    }, 500);
+    return () => {
+      active = false;
+      window.clearTimeout(timer);
+    };
+  }, [metadata?.videoId, sourceMode, youtubeUrl]);
+
+  const analyseYoutube = async () => {
     setBusy(true);
     setError(null);
     try {
-      setMetadata(
-        await getYouTubeMetadata({
-          data: { turnstileToken: turnstileToken ?? undefined, url: youtubeUrl },
-        }),
-      );
+      const value = await getYouTubeMetadata({ data: { url: youtubeUrl } });
+      setMetadata(value);
+      return value;
     } catch (cause) {
       setError(cause instanceof Error ? cause.message : "YouTube details are unavailable.");
+      return null;
     } finally {
       setBusy(false);
-      if (turnstileSiteKey) {
-        setTurnstileToken(null);
-        setTurnstileResetKey((value) => value + 1);
-      }
     }
   };
-  const next = () => {
-    if (step === 0 && sourceMode === "youtube" && !metadata) {
-      setError("Retrieve the YouTube details before continuing.");
-      return;
-    }
+
+  const next = async () => {
+    if (step === 0 && sourceMode === "youtube" && !metadata && !(await analyseYoutube())) return;
     if (step === 0 && sourceMode === "direct" && (!directUrl || directDuration <= 0)) {
       setError("Add the authorised HTTPS media URL and its expected duration.");
       return;
     }
-    if (step === 1 && !rights) {
+    if (step === 0 && sourceMode !== "direct" && !uploaded) {
+      setError("Add the source media file before continuing.");
+      return;
+    }
+    if (step === 0 && !rights) {
       setError("Confirm your rights before creating a processing job.");
       return;
     }
-    if (step === 1 && sourceMode !== "direct" && !uploaded) {
-      setError("Upload the authorised original media file before continuing.");
-      return;
-    }
     setError(null);
-    setStep((value) => Math.min(3, value + 1));
+    setStep((value) => Math.min(2, value + 1));
   };
   const submit = async () => {
     setBusy(true);
     setError(null);
     try {
+      if (!rights) throw new Error("Confirm your rights before creating a processing job.");
+      if (sourceMode !== "direct" && !uploaded)
+        throw new Error("Add the source media file before creating the job.");
       if (initialDraft && uploaded) {
         const automated = await attachSourceToAutomationDraft({
           data: {
@@ -184,7 +185,7 @@ export function JobWizard({
 
   return (
     <div>
-      <ol className="mb-8 grid grid-cols-4 gap-2">
+      <ol className="mb-8 grid grid-cols-3 gap-2">
         {steps.map((label, index) => (
           <li key={label} className="min-w-0">
             <div className={`h-1 rounded-full ${index <= step ? "bg-ember" : "bg-line"}`} />
@@ -200,53 +201,28 @@ export function JobWizard({
         {step === 0 && (
           <SourceStep
             mode={sourceMode}
-            setMode={setSourceMode}
+            setMode={(mode) => {
+              setSourceMode(mode);
+              setUploaded(null);
+              setError(null);
+            }}
             youtubeUrl={youtubeUrl}
-            setYoutubeUrl={setYoutubeUrl}
-            analyse={analyseYoutube}
+            setYoutubeUrl={(value) => {
+              setYoutubeUrl(value);
+              setMetadata(null);
+            }}
             busy={busy}
             metadata={metadata}
             directUrl={directUrl}
             setDirectUrl={setDirectUrl}
             directDuration={directDuration}
             setDirectDuration={setDirectDuration}
-            setTurnstileToken={setTurnstileToken}
-            turnstileReady={!turnstileSiteKey || Boolean(turnstileToken)}
-            turnstileResetKey={turnstileResetKey}
-            turnstileSiteKey={turnstileSiteKey}
+            setUploaded={setUploaded}
+            rights={rights}
+            setRights={setRights}
           />
         )}
         {step === 1 && (
-          <div>
-            <h2 className="font-display text-2xl text-ink">Rights and source file</h2>
-            <p className="mt-2 text-sm text-ink-soft">
-              A connected YouTube account can verify management, but the official API does not
-              provide the original media file.
-            </p>
-            {sourceMode !== "direct" && (
-              <div className="mt-5">
-                <SourceUpload onUploaded={setUploaded} />
-              </div>
-            )}
-            <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-line bg-surface-raised p-4">
-              <input
-                type="checkbox"
-                checked={rights}
-                onChange={(event) => setRights(event.target.checked)}
-                className="mt-0.5 h-4 w-4 accent-[var(--ember)]"
-              />
-              <span>
-                <span className="block text-sm font-medium text-ink">
-                  I own this content or have permission to upload, edit and export it.
-                </span>
-                <span className="mt-1 block text-xs text-ink-mute">
-                  Acceptance is stored with the job, statement version and policy version.
-                </span>
-              </span>
-            </label>
-          </div>
-        )}
-        {step === 2 && (
           <Preferences
             requestedClips={requestedClips}
             setRequestedClips={setRequestedClips}
@@ -262,7 +238,7 @@ export function JobWizard({
             setInstruction={setInstruction}
           />
         )}
-        {step === 3 && (
+        {step === 2 && (
           <Review
             metadata={metadata}
             uploaded={uploaded}
@@ -292,13 +268,15 @@ export function JobWizard({
             <ChevronLeft className="h-4 w-4" />
             Back
           </button>
-          {step < 3 ? (
+          {step < 2 ? (
             <button
               type="button"
-              onClick={next}
-              className="inline-flex items-center gap-1.5 rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-surface-page"
+              disabled={busy}
+              aria-busy={busy || undefined}
+              onClick={() => void next()}
+              className="inline-flex items-center gap-1.5 rounded-lg bg-ink px-4 py-2 text-sm font-semibold text-surface-page hover:bg-ink/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember disabled:cursor-wait disabled:opacity-60"
             >
-              Continue
+              {step === 0 && sourceMode === "youtube" && busy ? "Loading details…" : "Continue"}
               <ChevronRight className="h-4 w-4" />
             </button>
           ) : (
@@ -323,25 +301,22 @@ function SourceStep(props: {
   setMode: (mode: "youtube" | "upload" | "direct") => void;
   youtubeUrl: string;
   setYoutubeUrl: (value: string) => void;
-  analyse: () => void;
   busy: boolean;
   metadata: YouTubeMetadata | null;
   directUrl: string;
   setDirectUrl: (value: string) => void;
   directDuration: number;
   setDirectDuration: (value: number) => void;
-  setTurnstileToken: (token: string | null) => void;
-  turnstileReady: boolean;
-  turnstileResetKey: number;
-  turnstileSiteKey?: string;
+  setUploaded: (value: UploadedSource) => void;
+  rights: boolean;
+  setRights: (value: boolean) => void;
 }) {
-  const [connectionError, setConnectionError] = useState<string | null>(null);
   const modes = [
     {
       key: "youtube" as const,
       icon: Youtube,
       title: "YouTube URL",
-      body: "Official details and ownership state",
+      body: "Public details without connecting an account",
     },
     {
       key: "upload" as const,
@@ -360,16 +335,17 @@ function SourceStep(props: {
     <div>
       <h2 className="font-display text-2xl text-ink">Choose the video source</h2>
       <p className="mt-2 text-sm text-ink-soft">
-        Google Drive is planned. YouTube connection verifies management when OAuth credentials are
-        configured.
+        Paste a YouTube link to load its public details automatically. A YouTube account connection
+        is not required for clipping.
       </p>
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
         {modes.map((mode) => (
           <button
             key={mode.key}
             type="button"
+            aria-pressed={props.mode === mode.key}
             onClick={() => props.setMode(mode.key)}
-            className={`rounded-2xl border p-4 text-left ${props.mode === mode.key ? "border-ember bg-ember-soft/40" : "border-line bg-surface-raised"}`}
+            className={`rounded-2xl border p-4 text-left transition-colors hover:border-line-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember ${props.mode === mode.key ? "border-ember bg-ember-soft/40" : "border-line bg-surface-raised"}`}
           >
             <mode.icon className="h-5 w-5 text-ember" />
             <div className="mt-4 text-sm font-semibold text-ink">{mode.title}</div>
@@ -379,111 +355,195 @@ function SourceStep(props: {
       </div>
       {props.mode === "youtube" && (
         <div className="mt-5">
-          <div className="flex gap-2">
+          <label className="grid gap-1.5 text-xs font-medium text-ink" htmlFor="youtube-source-url">
+            YouTube video link
             <input
+              id="youtube-source-url"
+              name="youtubeSourceUrl"
+              type="url"
+              autoComplete="off"
+              spellCheck={false}
               value={props.youtubeUrl}
               onChange={(event) => props.setYoutubeUrl(event.target.value)}
               placeholder="https://youtube.com/watch?v=…"
-              className="h-11 min-w-0 flex-1 rounded-xl border border-line bg-surface-page px-3 text-sm outline-none focus:border-ember"
+              className="h-12 min-w-0 rounded-xl border border-line bg-surface-page px-4 text-sm font-normal outline-none focus:border-ember focus-visible:ring-2 focus-visible:ring-ember/20"
             />
-            <button
-              type="button"
-              disabled={props.busy || !props.turnstileReady}
-              onClick={props.analyse}
-              className="rounded-xl bg-ink px-4 text-sm font-semibold text-surface-page"
-            >
-              Retrieve details
-            </button>
+          </label>
+          <div className="mt-2 flex min-h-5 items-center justify-between gap-3 text-xs text-ink-mute">
+            <span>Details load after a valid link is pasted.</span>
+            {props.busy ? <span role="status">Loading video details…</span> : null}
           </div>
-          {props.turnstileSiteKey && (
-            <TurnstileWidget
-              action="youtube_metadata"
-              onToken={props.setTurnstileToken}
-              resetKey={props.turnstileResetKey}
-              siteKey={props.turnstileSiteKey}
-            />
-          )}
           {props.metadata && (
-            <div className="mt-4 flex gap-4 rounded-xl border border-line p-3">
-              <img
-                src={props.metadata.thumbnailUrl}
-                alt=""
-                className="w-32 rounded-lg object-cover"
-              />
-              <div>
-                <div className="text-sm font-semibold text-ink">{props.metadata.title}</div>
-                <div className="mt-1 text-xs text-ink-mute">
-                  {props.metadata.channelTitle} · {Math.ceil(props.metadata.durationSeconds / 60)}{" "}
-                  min
-                </div>
-                <div className="mt-2 inline-flex items-center gap-1 text-xs text-warning">
-                  <ShieldCheck className="h-3.5 w-3.5" />
-                  Ownership unknown · source file required
-                </div>
-                <button
-                  type="button"
-                  onClick={async () => {
-                    setConnectionError(null);
-                    try {
-                      const connection = await beginYouTubeConnection({
-                        data: {
-                          capability: "channel_read",
-                          returnTo: "/app/youtube-clipper/new",
-                        },
-                      });
-                      window.location.assign(connection.url);
-                    } catch (cause) {
-                      setConnectionError(
-                        cause instanceof Error
-                          ? cause.message
-                          : "YouTube connection is unavailable.",
-                      );
-                    }
-                  }}
-                  className="mt-3 rounded-lg border border-line px-3 py-1.5 text-xs font-medium text-ink"
-                >
-                  Connect YouTube for automation
-                </button>
-                <p className="mt-2 max-w-md text-[11px] leading-relaxed text-ink-mute">
-                  Optional. You do not need to connect YouTube to clip an authorised upload or
-                  owner-controlled media URL.
-                </p>
-                {connectionError && <p className="mt-2 text-xs text-danger">{connectionError}</p>}
+            <article className="mt-4 overflow-hidden rounded-2xl border border-line bg-surface-raised sm:grid sm:grid-cols-[minmax(15rem,2fr)_3fr]">
+              <div className="relative aspect-video bg-surface-sunken">
+                <img
+                  src={props.metadata.thumbnailUrl}
+                  alt={`Thumbnail for ${props.metadata.title}`}
+                  width={480}
+                  height={270}
+                  className="h-full w-full object-cover"
+                />
+                <span className="absolute bottom-2 right-2 rounded bg-black/85 px-1.5 py-0.5 text-[11px] font-semibold tabular-nums text-white">
+                  {formatDuration(props.metadata.durationSeconds)}
+                </span>
               </div>
-            </div>
+              <div className="min-w-0 p-4 sm:p-5">
+                <div className="flex items-start gap-3">
+                  <span className="mt-0.5 grid h-8 w-8 shrink-0 place-items-center rounded-full bg-[#ff0033] text-white">
+                    <Youtube className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0">
+                    <h3 className="line-clamp-2 text-sm font-semibold leading-5 text-ink sm:text-base">
+                      {props.metadata.title}
+                    </h3>
+                    <p className="mt-1 truncate text-xs text-ink-mute">
+                      {props.metadata.channelTitle}
+                    </p>
+                  </div>
+                </div>
+                <dl className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+                  <MetadataStat
+                    icon={Eye}
+                    label="Views"
+                    value={formatCount(props.metadata.viewCount)}
+                  />
+                  <MetadataStat
+                    icon={Heart}
+                    label="Likes"
+                    value={
+                      props.metadata.likeCount ? formatCount(props.metadata.likeCount) : "Hidden"
+                    }
+                  />
+                  <MetadataStat
+                    icon={MonitorPlay}
+                    label="Quality"
+                    value={`${props.metadata.definition.toUpperCase()} · ${props.metadata.dimension.toUpperCase()}`}
+                  />
+                  <MetadataStat
+                    icon={CalendarDays}
+                    label="Published"
+                    value={formatPublishedDate(props.metadata.publishedAt)}
+                  />
+                </dl>
+                <div className="mt-4 rounded-lg bg-surface-sunken px-3 py-2 text-xs leading-5 text-ink-soft">
+                  Public video details loaded. Add the media file below so Vidrial can process the
+                  clips without requesting access to your YouTube account.
+                </div>
+              </div>
+            </article>
           )}
         </div>
       )}
-      {props.mode === "upload" && (
-        <p className="mt-5 rounded-xl bg-info/5 px-4 py-3 text-sm text-ink-soft">
-          You’ll choose and upload the original file in the next step.
-        </p>
-      )}
+      {props.mode !== "direct" ? (
+        <div className="mt-5">
+          <div className="mb-3">
+            <h3 className="text-sm font-semibold text-ink">
+              {props.mode === "youtube" ? "Media file to process" : "Upload your video"}
+            </h3>
+            <p className="mt-1 text-xs leading-5 text-ink-mute">
+              {props.mode === "youtube"
+                ? "YouTube provides public details, not the media file required for editing."
+                : "The file stays private to your workspace."}
+            </p>
+          </div>
+          <SourceUpload key={props.mode} onUploaded={props.setUploaded} />
+        </div>
+      ) : null}
       {props.mode === "direct" && (
         <div className="mt-5 grid gap-3 sm:grid-cols-[1fr_180px]">
-          <input
-            type="url"
-            value={props.directUrl}
-            onChange={(event) => props.setDirectUrl(event.target.value)}
-            placeholder="https://media.example.com/source.mp4"
-            className="h-11 rounded-xl border border-line bg-surface-page px-3 text-sm outline-none focus:border-ember"
-          />
-          <input
-            type="number"
-            min="1"
-            value={props.directDuration || ""}
-            onChange={(event) => props.setDirectDuration(Number(event.target.value))}
-            placeholder="Expected seconds"
-            className="h-11 rounded-xl border border-line bg-surface-page px-3 text-sm outline-none focus:border-ember"
-          />
+          <label className="grid gap-1.5 text-xs font-medium text-ink">
+            Direct HTTPS media URL
+            <input
+              type="url"
+              name="directMediaUrl"
+              autoComplete="off"
+              spellCheck={false}
+              value={props.directUrl}
+              onChange={(event) => props.setDirectUrl(event.target.value)}
+              placeholder="https://media.example.com/source.mp4…"
+              className="h-11 rounded-xl border border-line bg-surface-page px-3 text-sm font-normal outline-none focus:border-ember focus-visible:ring-2 focus-visible:ring-ember/20"
+            />
+          </label>
+          <label className="grid gap-1.5 text-xs font-medium text-ink">
+            Expected duration
+            <input
+              type="number"
+              name="directMediaDuration"
+              min="1"
+              inputMode="numeric"
+              value={props.directDuration || ""}
+              onChange={(event) => props.setDirectDuration(Number(event.target.value))}
+              placeholder="Seconds…"
+              className="h-11 rounded-xl border border-line bg-surface-page px-3 text-sm font-normal outline-none focus:border-ember focus-visible:ring-2 focus-visible:ring-ember/20"
+            />
+          </label>
           <p className="text-xs text-ink-mute sm:col-span-2">
             The worker resolves DNS, rejects private networks, revalidates redirects, streams within
             limits, then runs FFprobe on a local isolated file.
           </p>
         </div>
       )}
+      <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-line bg-surface-raised p-4 focus-within:ring-2 focus-within:ring-ember">
+        <input
+          type="checkbox"
+          checked={props.rights}
+          onChange={(event) => props.setRights(event.target.checked)}
+          className="mt-0.5 h-4 w-4 accent-[var(--ember)]"
+        />
+        <span>
+          <span className="block text-sm font-medium text-ink">
+            I own this content or have permission to upload, edit, and export it.
+          </span>
+          <span className="mt-1 block text-xs leading-5 text-ink-mute">
+            This confirmation is stored with the clipping job and policy version.
+          </span>
+        </span>
+      </label>
     </div>
   );
+}
+
+function MetadataStat({
+  icon: Icon,
+  label,
+  value,
+}: {
+  icon: typeof Eye;
+  label: string;
+  value: string;
+}) {
+  return (
+    <div className="min-w-0 rounded-lg border border-line bg-surface-panel px-2.5 py-2">
+      <dt className="flex items-center gap-1 text-[10px] uppercase tracking-wide text-ink-mute">
+        <Icon className="h-3 w-3" />
+        {label}
+      </dt>
+      <dd className="mt-1 truncate font-medium tabular-nums text-ink">{value}</dd>
+    </div>
+  );
+}
+
+function formatCount(value: string) {
+  return new Intl.NumberFormat(undefined, { notation: "compact", maximumFractionDigits: 1 }).format(
+    Number(value),
+  );
+}
+
+function formatDuration(seconds: number) {
+  const hours = Math.floor(seconds / 3600);
+  const minutes = Math.floor((seconds % 3600) / 60);
+  const remaining = Math.floor(seconds % 60);
+  return hours > 0
+    ? `${hours}:${String(minutes).padStart(2, "0")}:${String(remaining).padStart(2, "0")}`
+    : `${minutes}:${String(remaining).padStart(2, "0")}`;
+}
+
+function formatPublishedDate(value: string) {
+  return new Intl.DateTimeFormat(undefined, {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+  }).format(new Date(value));
 }
 
 function Preferences(props: {

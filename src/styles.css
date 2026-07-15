@@ -201,6 +201,16 @@
 }
 
 @layer base {
+  html,
+  body {
+    scrollbar-width: none;
+  }
+
+  html::-webkit-scrollbar,
+  body::-webkit-scrollbar {
+    display: none;
+  }
+
   * {
     border-color: var(--color-border);
   }
@@ -231,6 +241,14 @@
     background: var(--ember-soft);
     color: var(--ember-ink);
   }
+}
+
+.scrollbar-hidden {
+  scrollbar-width: none;
+}
+
+.scrollbar-hidden::-webkit-scrollbar {
+  display: none;
 }
 
 .skip-link {

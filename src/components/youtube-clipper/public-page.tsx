@@ -17,8 +17,6 @@ import {
 } from "lucide-react";
 import { MarketingLayout } from "@/components/marketing/layout";
 import { Container, Eyebrow, Section, SectionHeader } from "@/components/primitives/section";
-import { TurnstileWidget } from "@/components/security/turnstile";
-import { getPublicEnv } from "@/config/env";
 import { userFacingError } from "@/lib/user-facing-error";
 import { getYouTubeMetadata } from "@/services/youtube/server";
 
@@ -87,28 +85,19 @@ export function YouTubeClipperPublicPage() {
   const [metadata, setMetadata] = useState<Metadata | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const turnstileSiteKey = getPublicEnv().VITE_TURNSTILE_SITE_KEY;
-  const [turnstileToken, setTurnstileToken] = useState<string | null>(null);
-  const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const analyse = async (event: FormEvent) => {
     event.preventDefault();
     setLoading(true);
     setError(null);
     setMetadata(null);
     try {
-      setMetadata(
-        await getYouTubeMetadata({ data: { url, turnstileToken: turnstileToken ?? undefined } }),
-      );
+      setMetadata(await getYouTubeMetadata({ data: { url } }));
     } catch (cause) {
       setError(
         userFacingError(cause, "Video details could not be retrieved. Check the URL and retry."),
       );
     } finally {
       setLoading(false);
-      if (turnstileSiteKey) {
-        setTurnstileToken(null);
-        setTurnstileResetKey((value) => value + 1);
-      }
     }
   };
   return (
@@ -145,23 +134,13 @@ export function YouTubeClipperPublicPage() {
             />
             <button
               aria-busy={loading || undefined}
-              disabled={loading || Boolean(turnstileSiteKey && !turnstileToken)}
+              disabled={loading}
               className="flex min-h-12 w-full touch-manipulation items-center justify-center gap-2 rounded-xl bg-ink px-5 text-sm font-semibold text-surface-page transition-colors hover:bg-ink/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
             >
               {loading ? "Retrieving details…" : "Analyse video"}
               <ArrowRight className="h-4 w-4" />
             </button>
           </form>
-          {turnstileSiteKey ? (
-            <div className="mx-auto mt-3 flex max-w-3xl justify-end">
-              <TurnstileWidget
-                action="youtube_metadata"
-                siteKey={turnstileSiteKey}
-                resetKey={turnstileResetKey}
-                onToken={setTurnstileToken}
-              />
-            </div>
-          ) : null}
           <div className="mx-auto mt-4 flex max-w-3xl flex-col items-center justify-between gap-3 text-xs text-ink-mute sm:flex-row">
             <Link
               to="/login"

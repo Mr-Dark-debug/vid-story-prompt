@@ -69,7 +69,7 @@ export function TurnstileWidget({
   resetKey,
   siteKey,
 }: {
-  action: "signup" | "youtube_metadata";
+  action: "signup";
   appearance?: "always" | "interaction-only";
   onToken: (token: string | null) => void;
   resetKey: number;

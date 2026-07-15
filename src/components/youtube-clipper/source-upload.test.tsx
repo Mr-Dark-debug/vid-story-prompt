@@ -9,7 +9,7 @@ import { SourceUpload } from "./source-upload";
 describe("source upload", () => {
   it("advertises accepted sources and resumable boundary", () => {
     render(<SourceUpload onUploaded={vi.fn()} />);
-    expect(screen.getByText("Choose the authorised original")).toBeInTheDocument();
+    expect(screen.getByText("Choose a video file")).toBeInTheDocument();
     expect(screen.getByText(/MP4, MOV, MKV, WebM or M4V/)).toBeInTheDocument();
   });
 });

@@ -120,7 +120,7 @@ export function SourceUpload({
           <span className="flex h-11 w-11 items-center justify-center rounded-full bg-ember-soft text-ember-ink">
             <Upload className="h-5 w-5" />
           </span>
-          <span className="text-sm font-medium text-ink">Choose the authorised original</span>
+          <span className="text-sm font-medium text-ink">Choose a video file</span>
           <span className="text-xs text-ink-mute">MP4, MOV, MKV, WebM or M4V · up to 10 GB</span>
           <input
             className="sr-only"

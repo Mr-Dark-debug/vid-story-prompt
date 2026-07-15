@@ -2,7 +2,7 @@ import { getRequestIP } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { getServerEnv } from "@/config/env.server";
 
-export const turnstileActions = ["signup", "youtube_metadata"] as const;
+export const turnstileActions = ["signup"] as const;
 export type TurnstileAction = (typeof turnstileActions)[number];
 
 const turnstileResponseSchema = z.object({
@@ -55,8 +55,7 @@ export async function verifyTurnstile(token: string | undefined, action: Turnsti
   } catch {
     throw new Error("Security verification could not be reached. Please retry.");
   }
-  if (!response.ok)
-    throw new Error("Security verification could not be completed. Please retry.");
+  if (!response.ok) throw new Error("Security verification could not be completed. Please retry.");
 
   let result: unknown;
   try {

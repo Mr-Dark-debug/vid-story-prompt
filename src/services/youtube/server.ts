@@ -3,7 +3,6 @@ import { createServerFn } from "@tanstack/react-start";
 import { getRequestIP } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { getServerEnv } from "@/config/env.server";
-import { verifyTurnstile } from "@/services/security/turnstile.server";
 import { parseIsoDuration, parseYouTubeVideoId } from "./parser";
 
 const hits = new Map<string, number[]>();
@@ -15,6 +14,10 @@ type PublicMetadata = {
   publishedAt: string;
   durationSeconds: number;
   thumbnailUrl: string;
+  viewCount: string;
+  likeCount: string | null;
+  definition: "hd" | "sd";
+  dimension: "2d" | "3d";
   availability: string;
   embeddable: boolean;
   ownership: "unknown";
@@ -43,7 +46,15 @@ const youtubeResponseSchema = z.object({
         liveBroadcastContent: z.string(),
         thumbnails: z.record(z.object({ url: z.string().url() })),
       }),
-      contentDetails: z.object({ duration: z.string() }),
+      contentDetails: z.object({
+        duration: z.string(),
+        definition: z.enum(["hd", "sd"]).default("sd"),
+        dimension: z.enum(["2d", "3d"]).default("2d"),
+      }),
+      statistics: z.object({
+        viewCount: z.string().regex(/^\d+$/),
+        likeCount: z.string().regex(/^\d+$/).optional(),
+      }),
       status: z.object({
         privacyStatus: z.string(),
         uploadStatus: z.string(),
@@ -62,7 +73,7 @@ export async function fetchYouTubeMetadataById(videoId: string): Promise<PublicM
   const params = new URLSearchParams({
     id: videoId,
     key: apiKey,
-    part: "snippet,contentDetails,status",
+    part: "snippet,contentDetails,status,statistics",
   });
   const response = await fetch(`https://www.googleapis.com/youtube/v3/videos?${params}`, {
     signal: AbortSignal.timeout(10_000),
@@ -95,6 +106,10 @@ export async function fetchYouTubeMetadataById(videoId: string): Promise<PublicM
     publishedAt: video.snippet.publishedAt,
     durationSeconds,
     thumbnailUrl: thumbnail?.url ?? `https://i.ytimg.com/vi/${videoId}/hqdefault.jpg`,
+    viewCount: video.statistics.viewCount,
+    likeCount: video.statistics.likeCount ?? null,
+    definition: video.contentDetails.definition,
+    dimension: video.contentDetails.dimension,
     availability: video.status.privacyStatus,
     embeddable: video.status.embeddable ?? true,
     ownership: "unknown",
@@ -104,10 +119,9 @@ export async function fetchYouTubeMetadataById(videoId: string): Promise<PublicM
 }
 
 export const getYouTubeMetadata = createServerFn({ method: "POST" })
-  .validator(z.object({ url: z.string().url().max(2048), turnstileToken: z.string().optional() }))
+  .validator(z.object({ url: z.string().url().max(2048) }))
   .handler(async ({ data }) => {
     enforceRateLimit();
-    await verifyTurnstile(data.turnstileToken, "youtube_metadata");
     const videoId = parseYouTubeVideoId(data.url);
     return fetchYouTubeMetadataById(videoId);
   });
