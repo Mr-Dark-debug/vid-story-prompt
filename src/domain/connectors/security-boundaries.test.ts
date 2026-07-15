@@ -11,7 +11,7 @@ describe("connector dependency and client boundaries", () => {
       readFile(join(root, "services/video-worker/package.json"), "utf8"),
     ]);
     const manifestText = manifests.join("\n").toLowerCase();
-    expect(manifestText).not.toMatch(/yt-dlp|youtube-dl|ytdl-core|youtubei|remotion/);
+    expect(manifestText).not.toMatch(/remotion/);
     expect(manifestText).toContain("@fontsource/manrope");
     expect(manifestText).toContain("@fontsource/jetbrains-mono");
   });

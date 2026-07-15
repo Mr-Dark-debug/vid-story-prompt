@@ -92,10 +92,6 @@ Use terms such as:
 
 Do not add:
 
-* `yt-dlp`
-* YouTube stream scraping
-* Browser automation that extracts media URLs
-* Unofficial YouTube downloading services
 * Signature-cipher circumvention
 * Hidden generic downloading endpoints
 
@@ -111,6 +107,7 @@ A YouTube URL may be used for:
 * Displaying an official embedded player
 * Verifying that a connected account manages the source channel
 * Retrieving captions only where the connected account has the required editing permission
+* downloading the video source from the any  3rd party tool possible 
 
 The source media for processing must come from:
 
