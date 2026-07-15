@@ -10,6 +10,7 @@ import { TaskFailure, type ClipTask, type TaskResult } from "../domain/types.js"
 import { createProxy, extractSpeechAudio, renderClip } from "../media/ffmpeg.js";
 import { probeMedia } from "../media/probe.js";
 import { downloadDirectMedia } from "../security/direct-download.js";
+import { downloadYouTubeMedia } from "../security/youtube-download.js";
 import { scanLocalFile } from "../security/virus-scan.js";
 import { downloadAsset, supabase, uploadAsset } from "../storage/client.js";
 import { mergeTranscriptChunks } from "../transcription/merge.js";
@@ -145,6 +146,47 @@ async function downloadDirect(task: ClipTask): Promise<TaskResult> {
       message: "Owner-controlled media downloaded and isolated.",
       children: [
         { taskType: "validate_source", input: {}, idempotencyKey: `${job.id}:validate-direct` },
+      ],
+    };
+  });
+}
+
+async function downloadYouTube(task: ClipTask): Promise<TaskResult> {
+  return withTaskDirectory(task, async (directory) => {
+    const job = await getJob(task.clip_job_id);
+    const videoId = z.string().regex(/^[A-Za-z0-9_-]{11}$/).parse(task.input_json.videoId);
+    const downloaded = await downloadYouTubeMedia(videoId, directory);
+    const virusScan = await scanLocalFile(downloaded.filename);
+    const info = await probeMedia(downloaded.filename);
+    if (!info.hasAudio)
+      throw new TaskFailure("missing_audio", "Speech clipping requires an audio stream.", false);
+    const checksum = await sha256(downloaded.filename);
+    const path = immutablePath(job, "source", downloaded.format);
+    await uploadAsset("source-media", path, downloaded.filename, "application/octet-stream");
+    const assetId = await insertAsset(job, {
+      bucket: "source-media",
+      path,
+      name: job.source_title ?? "YouTube source",
+      mime: "application/octet-stream",
+      size: downloaded.bytes,
+      checksum,
+      metadata: { ...info, virusScan, youtubeVideoId: videoId, format: downloaded.format },
+    });
+    const { error } = await supabase
+      .from("clip_jobs")
+      .update({
+        source_asset_id: assetId,
+        status: "validating",
+        updated_at: new Date().toISOString(),
+      })
+      .eq("id", job.id);
+    if (error) throw error;
+    return {
+      output: { assetId, checksum, bytes: downloaded.bytes, format: downloaded.format },
+      jobStatus: "validating",
+      message: "YouTube media downloaded via yt-dlp and isolated.",
+      children: [
+        { taskType: "validate_source", input: {}, idempotencyKey: `${job.id}:validate-yt` },
       ],
     };
   });
@@ -528,6 +570,8 @@ export async function handleTask(task: ClipTask, signal?: AbortSignal): Promise<
       return validateSource(task);
     case "download_direct_source":
       return downloadDirect(task);
+    case "download_youtube_source":
+      return downloadYouTube(task);
     case "create_proxy":
       return proxy(task);
     case "extract_audio":

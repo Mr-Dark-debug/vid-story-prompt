@@ -3,6 +3,7 @@ export type ClipSourceType =
   | "direct_owned_media_url"
   | "youtube_metadata"
   | "youtube_connected_channel"
+  | "youtube_download"
   | "google_drive";
 
 export const clipJobStatuses = [
@@ -20,7 +21,7 @@ export const taskStatuses = [
 export type TaskStatus = (typeof taskStatuses)[number];
 
 export const clipTaskTypes = [
-  "validate_source", "download_direct_source", "create_proxy", "extract_audio", "detect_scenes",
+  "validate_source", "download_direct_source", "download_youtube_source", "create_proxy", "extract_audio", "detect_scenes",
   "split_audio", "transcribe_chunk", "merge_transcript", "generate_candidate_windows",
   "score_candidate_window", "merge_candidates", "render_clip_preview", "render_clip_export",
   "render_batch_export", "delete_expired_assets",
