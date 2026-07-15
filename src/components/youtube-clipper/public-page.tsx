@@ -280,7 +280,7 @@ function ClipDemo() {
       <div className="overflow-hidden rounded-3xl border border-line bg-[#171817] text-white shadow-[0_35px_100px_-55px_rgba(32,28,24,.7)]">
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 px-5 py-4">
           <div className="flex items-center gap-3">
-            <span className="rounded-full bg-ember px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider">
+            <span className="rounded-full bg-ember px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-ink">
               Demo
             </span>
             <span className="text-sm font-medium">The discipline of making things · 38:12</span>
@@ -515,8 +515,14 @@ function PlanComparison() {
             className="grid gap-2 border-t border-line px-5 py-4 text-sm sm:grid-cols-[1.4fr_1fr_1fr] sm:gap-0"
           >
             <span className="font-medium text-ink">{row[0]}</span>
-            <span className="text-ink-soft"><span className="font-medium text-ink sm:hidden">Free: </span>{row[1]}</span>
-            <span className="text-ink-soft"><span className="font-medium text-ink sm:hidden">Creator & Pro: </span>{row[2]}</span>
+            <span className="text-ink-soft">
+              <span className="font-medium text-ink sm:hidden">Free: </span>
+              {row[1]}
+            </span>
+            <span className="text-ink-soft">
+              <span className="font-medium text-ink sm:hidden">Creator & Pro: </span>
+              {row[2]}
+            </span>
           </div>
         ))}
       </div>

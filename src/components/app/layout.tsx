@@ -174,11 +174,11 @@ export function AppLayout() {
       >
         <div
           className={cn(
-            "mb-4 flex min-h-11 items-center",
-            collapsed ? "justify-center" : "justify-between gap-2",
+            "mb-4 flex items-center",
+            collapsed ? "min-h-24 flex-col justify-center gap-1" : "min-h-11 justify-between gap-2",
           )}
         >
-          {!collapsed ? <Logo to="/app" /> : null}
+          <Logo to="/app" variant={collapsed ? "mark" : "lockup"} />
           <Button
             variant="ghost"
             size="icon"

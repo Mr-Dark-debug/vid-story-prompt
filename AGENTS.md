@@ -1,4 +1,5 @@
 <!-- LOVABLE:BEGIN -->
+
 > [!IMPORTANT]
 > This project is connected to [Lovable](https://lovable.dev). Avoid rewriting
 > published git history force pushing, or rebasing/amending/squashing commits
@@ -7,6 +8,7 @@
 >
 > Commits you push to the connected branch sync back to Lovable and show up in
 > the editor, so keep the branch in a working state.
+
 <!-- LOVABLE:END -->
 
 # Vidrial engineering rules
@@ -37,6 +39,14 @@ Vidrial turns authorised source media into explainable, editable video work. The
 - Direct URLs are downloaded through DNS/IP/redirect/size/timeout controls before a local path reaches FFmpeg.
 - Final output uses immutable render manifests, licensed container fonts and server-side captions/watermarks.
 - Never log secrets, raw access tokens, private source URLs, transcripts or filenames to product analytics.
+
+## Brand identity
+
+- Read `docs/BRANDIDENTITY.md` before changing logos, colours, typography, navigation branding, authentication branding, or marketing presentation.
+- Use `src/components/primitives/logo.tsx` for every product logo. The PNGs in `docs/` are designer references with baked checkerboards and must not be embedded directly in the application.
+- Use the semantic tokens in `src/styles.css`. Vidrial Charcoal, Medium, Cool, and Coral are the approved palette; coral is a controlled accent, not a substitute for semantic status colours.
+- Museum Sans requires licensed webfont files. Until they are supplied, use the documented Manrope fallback and do not download or commit an unlicensed copy.
+- Preserve the mark geometry, clear space, contrast, minimum sizes, and approved dark/light treatments documented in `docs/BRANDIDENTITY.md`.
 
 ## Quality and completion
 

@@ -130,7 +130,9 @@ export function MarketingNav() {
       )}
       <div className="border-b border-line/50 bg-ember-soft/50">
         <div className="mx-auto flex max-w-6xl items-center justify-center gap-3 px-5 py-1.5 text-[12px] text-ember-ink sm:px-8">
-          <span className="hidden sm:inline">•</span>
+          <span className="hidden sm:inline" aria-hidden>
+            •
+          </span>
           <span>{brand.announcement.text}</span>
           <Link to={brand.announcement.href} className="font-medium underline underline-offset-2">
             {brand.announcement.cta}

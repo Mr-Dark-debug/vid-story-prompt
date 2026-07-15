@@ -22,10 +22,10 @@ export function AuthShell({
       tabIndex={-1}
       className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-surface-page px-5 py-14 outline-none"
     >
-      <div className="pointer-events-none absolute inset-0 opacity-60 [background-image:radial-gradient(circle_at_18%_12%,var(--ember-soft),transparent_35%),radial-gradient(circle_at_82%_88%,var(--teal-soft),transparent_32%)]" />
+      <div className="pointer-events-none absolute inset-0 opacity-75 [background-image:radial-gradient(circle_at_18%_12%,var(--coral-soft),transparent_34%),radial-gradient(circle_at_82%_88%,var(--teal-soft),transparent_30%)]" />
       <div className="relative w-full max-w-md">
         <Logo className="mb-8 flex justify-center" />
-        <section className="rounded-3xl border border-line bg-surface-panel p-7 shadow-[0_28px_80px_-44px_rgba(56,39,26,.42)] sm:p-9">
+        <section className="rounded-3xl border border-line bg-surface-panel p-7 shadow-[0_28px_80px_-44px_rgba(29,29,27,.32)] sm:p-9">
           <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ember-ink">
             {eyebrow}
           </div>

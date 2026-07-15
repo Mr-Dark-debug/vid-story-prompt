@@ -306,7 +306,7 @@ export function JobWizard({
               type="button"
               disabled={busy}
               onClick={submit}
-              className="inline-flex items-center gap-2 rounded-lg bg-ember px-4 py-2 text-sm font-semibold text-white disabled:opacity-60"
+              className="inline-flex items-center gap-2 rounded-lg bg-ember px-4 py-2 text-sm font-semibold text-ink disabled:opacity-60"
             >
               {busy ? "Creating job…" : "Create clipping job"}
               <Check className="h-4 w-4" />

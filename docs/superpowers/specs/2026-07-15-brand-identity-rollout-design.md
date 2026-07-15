@@ -53,12 +53,12 @@ The link receives the accessible name; decorative logo SVGs remain hidden from a
 
 Canonical colours sampled from the board:
 
-| Token | Hex | Role |
-| --- | --- | --- |
-| Vidrial Charcoal | `#1D1D1B` | Primary text, dark surfaces, dark logo |
-| Vidrial Medium | `#787C7F` | Secondary text and functional neutral |
-| Vidrial Cool | `#B5BCC4` | Dividers, cool supporting fields, inactive states |
-| Vidrial Coral | `#EF8668` | Primary action, focus, selection, controlled emphasis |
+| Token            | Hex       | Role                                                  |
+| ---------------- | --------- | ----------------------------------------------------- |
+| Vidrial Charcoal | `#1D1D1B` | Primary text, dark surfaces, dark logo                |
+| Vidrial Medium   | `#787C7F` | Secondary text and functional neutral                 |
+| Vidrial Cool     | `#B5BCC4` | Dividers, cool supporting fields, inactive states     |
+| Vidrial Coral    | `#EF8668` | Primary action, focus, selection, controlled emphasis |
 
 White and near-white may be used as supporting canvas colours. Existing semantic success, warning, danger, and info colours remain functional and must not be replaced by brand coral when that would obscure meaning. Existing semantic token names such as `ember` can remain as compatibility aliases, but documentation and new code refer to their brand roles rather than the retired visual name.
 
