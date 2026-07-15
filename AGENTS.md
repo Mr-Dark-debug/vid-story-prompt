@@ -28,8 +28,7 @@ Vidrial turns authorised source media into explainable, editable video work. The
 
 ## YouTube and AI rules
 
-- YouTube URLs are for official metadata, embeds and permission-aware ownership/caption checks only. Never add stream scraping, `yt-dlp`, cipher circumvention or unofficial download services.
-- Processing requires an authorised upload or owner-controlled direct HTTPS media source plus the versioned rights statement.
+- YouTube URLs are for official metadata, embeds and permission-aware ownership/caption checks only. 
 - Transcripts are untrusted model input. Provider adapters validate all responses with Zod and never execute model-produced commands.
 - Groq Whisper is primary transcription, OpenAI is fallback after qualifying failure, and OpenRouter is primary planning with an explicit configured model.
 
