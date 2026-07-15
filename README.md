@@ -1,5 +1,7 @@
 # Vidrial
 
+<img width="1920" height="1080" alt="image" src="https://github.com/user-attachments/assets/b20de5df-9e2f-4ea0-abfc-44f2c37e0d9d" />
+
 A browser-first, AI-assisted video editor that turns authorised long-form
 source media into explainable, editable short clips. Every AI edit is a
 reviewable plan — never a black box.
