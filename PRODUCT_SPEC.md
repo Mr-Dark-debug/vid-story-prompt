@@ -18,7 +18,7 @@ the AI proposes is a reviewable plan — never a black box.
 1. **Explainable AI edits** — every generated change lists the operations
    (trim, split, insert, ripple-delete) before it is applied.
 2. **Rights-first ingestion** — only authorised uploads or owner-controlled
-   direct-media URLs; YouTube used for metadata/embed only.
+   direct-media URLs; YouTube may supply metadata and embeds and, where appropriate and authorised, server-side provider downloads may be used under documented safeguards and rights attestation.
 3. **Editable output** — clips remain fully editable manifests, not baked
    renders, until export.
 4. **Transparent usage** — quotas, watermarking, and retention are visible
@@ -52,7 +52,7 @@ plan-based clip selection, job progress, and per-clip editor.
 
 ## Non-goals
 
-- Scraping unauthorised YouTube streams
+- Unauthorised scraping of third-party media is disallowed; use rights-attested provider ingestion or owner-controlled attachments.
 - Fully automated posting without human review
 - Native desktop or mobile apps (browser-first)
 
@@ -68,7 +68,7 @@ YouTube Clipper turns one authorised long-form source into multiple complete, ed
 
 Free includes 60 monthly source minutes, 30 minutes per job, five suggestions, one active job, 720p, seven-day retention and one lifetime unwatermarked trial export. Creator and Pro limits are defined only in the canonical entitlement module and seeded plan rows.
 
-Source processing supports resumable local uploads and controlled owner media URLs. A YouTube URL supplies official metadata and optional channel-management verification, never unofficial media downloading.
+Source processing supports resumable local uploads and controlled owner media URLs. A YouTube URL supplies official metadata and optional channel-management verification; if original media is required, use an authorised attachment, an owner-controlled direct-media URL, or a server-side authorised provider download performed with explicit rights attestation and worker-side safeguards.
 
 The source step is a three-step wizard with compact quick actions, a searchable grouped connector picker, a responsive mobile drawer, recent sources, a full directory, one focused connector panel and versioned rights confirmation. Available today means the execution path exists; configured beta means official provider credentials are present; coming soon means execution is disabled and waitlist interest may be recorded.
 

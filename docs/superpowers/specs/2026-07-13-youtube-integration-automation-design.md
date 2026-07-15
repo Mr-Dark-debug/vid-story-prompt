@@ -21,7 +21,7 @@ The integration remains optional for ordinary clipping. A user can create clips 
 
 ## Non-goals and policy boundary
 
-This implementation will not download, scrape, proxy, or otherwise obtain source media from a YouTube watch URL. The YouTube Data API provides metadata, account data, notifications, and authenticated upload operations; it does not provide the original uploaded media file.
+This implementation will not perform unauthorised downloading, scraping, or proxying of YouTube watch URLs. The YouTube Data API provides metadata, account data, notifications, and authenticated upload operations; where original media is required, use an authorised attachment, an owner-controlled HTTPS media URL, or a server-side authorised provider download that follows documented rights-attestation and compliance checks.
 
 A pasted YouTube URL therefore has two possible roles:
 

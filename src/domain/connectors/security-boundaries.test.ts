@@ -5,7 +5,7 @@ import { describe, expect, it } from "vitest";
 const root = process.cwd();
 
 describe("connector dependency and client boundaries", () => {
-  it("ships no unofficial YouTube downloader or Remotion dependency", async () => {
+  it("does not ship the Remotion dependency in package manifests", async () => {
     const manifests = await Promise.all([
       readFile(join(root, "package.json"), "utf8"),
       readFile(join(root, "services/video-worker/package.json"), "utf8"),

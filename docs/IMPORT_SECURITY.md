@@ -8,7 +8,7 @@ Remote media, metadata, filenames, URLs, RSS XML, captions, and transcripts are 
 
 Direct media and RSS fetching require HTTPS. Before each connection and redirect, the server resolves the hostname and rejects loopback, link-local, private, carrier-grade NAT, reserved, multicast, and metadata-service address ranges. Fetches use bounded redirects, connection/read timeouts, size ceilings, streaming byte accounting, and MIME/media validation. The RSS parser is bounded to 2 MB and does not resolve XML entities.
 
-Direct links must identify an owner-controlled media file. HLS playlists and arbitrary webpage extraction are not currently advertised as executable. YouTube stream URLs, signature deciphering, cookies, proxy rotation, and unofficial download tools are prohibited.
+Direct links must identify an owner-controlled media file. HLS playlists and arbitrary webpage extraction are not currently advertised as executable. Techniques such as signature deciphering, cookie-based scraping, proxy rotation, and unofficial extraction tools are not supported; server-side authorised provider downloads may be used when accompanied by explicit rights attestation, provider verification, and worker-side safeguards.
 
 ## OAuth provider controls
 
