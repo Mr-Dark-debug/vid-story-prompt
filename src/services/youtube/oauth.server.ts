@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import { createServerFn } from "@tanstack/react-start";
+import { createServerFn, createServerOnlyFn } from "@tanstack/react-start";
 import { deleteCookie, getCookie, setCookie } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { getServerEnv } from "@/config/env.server";
@@ -20,6 +20,10 @@ const CAPABILITY_COOKIE = `${COOKIE_PREFIX}.capability`;
 const RETURN_COOKIE = `${COOKIE_PREFIX}.return`;
 const READ_SCOPE = "https://www.googleapis.com/auth/youtube.readonly";
 const UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload";
+const randomToken = createServerOnlyFn((bytes: number) => randomBytes(bytes).toString("base64url"));
+const sha256Base64Url = createServerOnlyFn((value: string) =>
+  createHash("sha256").update(value).digest("base64url"),
+);
 
 function googleConfig() {
   const env = getServerEnv();
@@ -55,7 +59,7 @@ const channelResponseSchema = z.object({
       id: z.string(),
       snippet: z.object({
         title: z.string(),
-        thumbnails: z.record(z.object({ url: z.string().url() })).optional(),
+        thumbnails: z.record(z.string(), z.object({ url: z.string().url() })).optional(),
       }),
       contentDetails: z
         .object({ relatedPlaylists: z.object({ uploads: z.string().optional() }) })
@@ -75,9 +79,9 @@ export const beginYouTubeConnection = createServerFn({ method: "POST" })
     const session = await getCurrentSession();
     if (!session) throw new Error("Log in before connecting YouTube.");
     const config = googleConfig();
-    const state = randomBytes(32).toString("base64url");
-    const verifier = randomBytes(48).toString("base64url");
-    const challenge = createHash("sha256").update(verifier).digest("base64url");
+    const state = randomToken(32);
+    const verifier = randomToken(48);
+    const challenge = sha256Base64Url(verifier);
     const options = cookieOptions(config.PUBLIC_APP_URL);
     setCookie(STATE_COOKIE, state, options);
     setCookie(VERIFIER_COOKIE, verifier, options);

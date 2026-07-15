@@ -52,3 +52,11 @@ Vidrial turns authorised source media into explainable, editable video work. The
 Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, worker type/tests and relevant Playwright/Supabase integration tests. Do not edit `src/routeTree.gen.ts`; regenerate it through TanStack Router. Do not fabricate provider, worker, deployment or integration success. Document missing credentials/runtime verification explicitly. Preserve unrelated code and keep every commit buildable.
 
 Never force-push, rebase, amend or squash published Lovable commits.
+
+## Connector rules
+
+- `src/domain/connectors/registry.ts` is the product catalog source of truth. UI code must not maintain independent connector lists.
+- Import, publishing and automation capabilities are separate permission boundaries. A connection for one never grants another silently.
+- OAuth uses PKCE, signed state, exact callbacks and encrypted server-only tokens. Provider tokens and permanent object-store credentials never enter browser responses.
+- Coming-soon connectors remain non-executable and may only record waitlist interest. Never simulate OAuth, connection, import progress or provider success.
+- YouTube audiovisual streams are never downloaded or scraped. YouTube supplies official metadata, embeds, owned-channel automation and publishing; rendering requires an explicit authorised source attachment.

@@ -72,4 +72,12 @@ describe("job wizard", () => {
     expect(screen.getByText("1.2M")).toBeInTheDocument();
     expect(screen.getByText("HD · 2D")).toBeInTheDocument();
   });
+
+  it("switches to the selected direct source form without losing the three-step flow", () => {
+    render(<JobWizard />);
+    fireEvent.click(screen.getByRole("button", { name: "Paste media link" }));
+    expect(screen.getByLabelText("Owner-controlled HTTPS media URL")).toBeInTheDocument();
+    expect(screen.getByText(/protected downloader/i)).toBeInTheDocument();
+    expect(screen.getByText(/I own this content or have permission/)).toBeInTheDocument();
+  });
 });

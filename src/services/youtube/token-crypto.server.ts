@@ -5,16 +5,17 @@ import {
   randomBytes,
   timingSafeEqual,
 } from "node:crypto";
+import { createServerOnlyFn } from "@tanstack/react-start";
 
 const VERSION = "v1";
 const IV_BYTES = 12;
 const TAG_BYTES = 16;
 
-function keyFrom(material: string) {
+const keyFrom = createServerOnlyFn((material: string) => {
   return createHash("sha256").update(material).digest();
-}
+});
 
-export function encryptSecret(value: string, keyMaterial: string) {
+export const encryptSecret = createServerOnlyFn((value: string, keyMaterial: string) => {
   const iv = randomBytes(IV_BYTES);
   const cipher = createCipheriv("aes-256-gcm", keyFrom(keyMaterial), iv);
   const encrypted = Buffer.concat([cipher.update(value, "utf8"), cipher.final()]);
@@ -24,9 +25,9 @@ export function encryptSecret(value: string, keyMaterial: string) {
     cipher.getAuthTag().toString("base64url"),
     encrypted.toString("base64url"),
   ].join(".");
-}
+});
 
-export function decryptSecret(envelope: string, keyMaterial: string) {
+export const decryptSecret = createServerOnlyFn((envelope: string, keyMaterial: string) => {
   if (envelope.startsWith(`${VERSION}.`)) {
     const parts = envelope.split(".");
     if (parts.length !== 4) throw new Error("The encrypted token envelope is invalid.");
@@ -56,16 +57,18 @@ export function decryptSecret(envelope: string, keyMaterial: string) {
     decipher.update(legacy.subarray(IV_BYTES + TAG_BYTES)),
     decipher.final(),
   ]).toString("utf8");
-}
+});
 
-export function secureTextEqual(left: string, right: string) {
+export const secureTextEqual = createServerOnlyFn((left: string, right: string) => {
   const a = Buffer.from(left);
   const b = Buffer.from(right);
   return a.length === b.length && timingSafeEqual(a, b);
-}
+});
 
-export function safeReturnPath(value: string | undefined, fallback = "/app/settings/integrations") {
-  return value?.startsWith("/") && !value.startsWith("//") && !value.includes("\\")
-    ? value
-    : fallback;
-}
+export const safeReturnPath = createServerOnlyFn(
+  (value: string | undefined, fallback = "/app/settings/integrations") => {
+    return value?.startsWith("/") && !value.startsWith("//") && !value.includes("\\")
+      ? value
+      : fallback;
+  },
+);

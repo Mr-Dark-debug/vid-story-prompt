@@ -9,6 +9,11 @@ const sourceType = z.enum([
   "direct_owned_media_url",
   "youtube_metadata",
   "youtube_connected_channel",
+  "google_drive",
+  "dropbox",
+  "onedrive",
+  "rss",
+  "s3",
 ]);
 const jobInput = z.object({
   sourceType,
@@ -16,13 +21,15 @@ const jobInput = z.object({
   sourceIdentifier: z.string().max(255).nullable(),
   sourceDurationSeconds: z.number().int().positive(),
   sourceAssetId: z.string().uuid().nullable(),
+  connectorId: z.string().min(1).max(80).optional(),
+  connectorImportId: z.string().uuid().nullable().optional(),
   sourceMetadata: z.object({
     title: z.string().max(500).optional(),
     channelId: z.string().max(255).optional(),
     channelTitle: z.string().max(500).optional(),
     thumbnailUrl: z.string().url().optional(),
   }),
-  settings: z.record(z.unknown()),
+  settings: z.record(z.string(), z.unknown()),
   requestedClipCount: z.number().int().min(1).max(50),
   rightsAccepted: z.literal(true),
   idempotencyKey: z.string().uuid(),
@@ -34,6 +41,14 @@ type RpcClient = {
     name: string,
     args: Record<string, unknown>,
   ) => Promise<{ data: unknown; error: { message: string } | null }>;
+};
+
+type AttachmentClient = {
+  from(table: string): {
+    insert(
+      values: Record<string, unknown> | Record<string, unknown>[],
+    ): PromiseLike<{ error: { message: string } | null }>;
+  };
 };
 
 export const createClipJob = createServerFn({ method: "POST" })
@@ -66,6 +81,38 @@ export const createClipJob = createServerFn({ method: "POST" })
         .eq("id", jobId)
         .eq("user_id", session.id);
       if (projectError) throw new Error(`Project could not be linked: ${projectError.message}`);
+    }
+    if (data.sourceAssetId) {
+      const attachments: Record<string, unknown>[] = [
+        {
+          clip_job_id: jobId,
+          connector_id: data.connectorId ?? data.sourceType,
+          connector_import_id: data.connectorImportId ?? null,
+          media_asset_id: data.sourceAssetId,
+          youtube_video_id: null,
+          relationship: "primary",
+          match_confidence: 1,
+          match_reason: "Explicitly selected by the user",
+        },
+      ];
+      if (data.sourceType === "youtube_metadata" && data.sourceIdentifier) {
+        attachments.push({
+          clip_job_id: jobId,
+          connector_id: "youtube",
+          connector_import_id: null,
+          media_asset_id: null,
+          youtube_video_id: data.sourceIdentifier,
+          relationship: "metadata",
+          match_confidence: 1,
+          match_reason: "User attached the original file to this YouTube metadata record",
+        });
+      }
+      const attachmentClient = getSupabaseServerClient() as unknown as AttachmentClient;
+      const { error: attachmentError } = await attachmentClient
+        .from("source_attachments")
+        .insert(attachments);
+      if (attachmentError)
+        throw new Error(`Source provenance could not be recorded: ${attachmentError.message}`);
     }
     const workerWake = await wakeVideoWorker();
     return { jobId, workerWake };

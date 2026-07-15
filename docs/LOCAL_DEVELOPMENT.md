@@ -7,3 +7,5 @@
 5. Run the web app with `npm run dev` and the worker with `npm run worker:dev`.
 
 FFmpeg/FFprobe and Docker were not available on the original Windows audit host. Worker media integration tests therefore require Docker or local FFmpeg before they can be verified there.
+
+For connector development, apply all migrations and configure only the provider being tested. Register these exact callbacks: `/auth/connectors/google_drive/callback`, `/auth/connectors/dropbox/callback`, and `/auth/connectors/onedrive/callback`. Browsing can be tested without spending source minutes. A remote import requires the worker and the private `source-media` bucket. Never use production provider accounts in automated tests.

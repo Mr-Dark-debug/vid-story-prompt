@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { toast } from "sonner";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import {
@@ -23,15 +23,29 @@ import {
   disconnectYouTube,
   getYouTubeConnection,
 } from "@/services/youtube/oauth.server";
+import {
+  getPublicConnectorCatalog,
+  joinConnectorWaitlist,
+  listConnectorWaitlist,
+} from "@/services/connectors/server";
+import {
+  beginConnectorConnection,
+  type OAuthConnectorId,
+} from "@/services/connectors/oauth.server";
+import type { PublicConnectorDefinition } from "@/domain/connectors/types";
+import { ConnectorIcon } from "@/components/connectors/connector-icon";
+import { AvailabilityBadge } from "@/components/connectors/availability-badge";
 
 export const Route = createFileRoute("/_authenticated/app/settings/integrations")({
   validateSearch: z.object({ youtubeError: z.string().max(240).optional() }),
   loader: async () => {
-    const [connection, drafts] = await Promise.all([
+    const [connection, drafts, catalog, waitlist] = await Promise.all([
       getYouTubeConnection(),
       listYouTubeAutomationDrafts(),
+      getPublicConnectorCatalog(),
+      listConnectorWaitlist(),
     ]);
-    return { connection, drafts };
+    return { connection, drafts, catalog, waitlist };
   },
   component: Integrations,
 });
@@ -76,7 +90,12 @@ type Draft = {
 };
 
 function Integrations() {
-  const data = Route.useLoaderData() as { connection: Connection | null; drafts: Draft[] };
+  const data = Route.useLoaderData() as {
+    connection: Connection | null;
+    drafts: Draft[];
+    catalog: PublicConnectorDefinition[];
+    waitlist: { connectorId: string; createdAt: string }[];
+  };
   const search = Route.useSearch();
   const router = useRouter();
   const [busy, setBusy] = useState<string | null>(null);
@@ -159,6 +178,27 @@ function Integrations() {
 
   return (
     <div className="space-y-6">
+      <ConnectorSettingsOverview
+        catalog={data.catalog}
+        waitlist={data.waitlist.map((item) => item.connectorId)}
+        onNotify={(connectorId) =>
+          run(`waitlist:${connectorId}`, async () => {
+            await joinConnectorWaitlist({ data: { connectorId } });
+            setMessage(
+              "Connector interest saved. We’ll notify you when its authorised integration is ready.",
+            );
+          })
+        }
+        onConnect={(connectorId) =>
+          run(`connect:${connectorId}`, async () => {
+            const result = await beginConnectorConnection({
+              data: { connectorId, returnTo: "/app/settings/integrations" },
+            });
+            window.location.assign(result.url);
+          })
+        }
+        busy={busy}
+      />
       <section className="overflow-hidden rounded-3xl border border-line bg-surface-panel">
         <div className="grid gap-0 lg:grid-cols-[1.15fr_.85fr]">
           <div className="p-6 sm:p-8">
@@ -297,7 +337,10 @@ function Integrations() {
               the YouTube playback stream.
             </p>
             {!connected ? (
-              <p role="status" className="mt-4 rounded-xl border border-line bg-surface-panel px-4 py-3 text-sm text-ink-soft">
+              <p
+                role="status"
+                className="mt-4 rounded-xl border border-line bg-surface-panel px-4 py-3 text-sm text-ink-soft"
+              >
                 Connect YouTube to configure channel monitoring and publishing automation.
               </p>
             ) : null}
@@ -455,6 +498,204 @@ function Integrations() {
         </div>
       )}
     </div>
+  );
+}
+
+function ConnectorSettingsOverview({
+  catalog,
+  waitlist,
+  onNotify,
+  onConnect,
+  busy,
+}: {
+  catalog: PublicConnectorDefinition[];
+  waitlist: string[];
+  onNotify: (connectorId: string) => Promise<void>;
+  onConnect: (connectorId: OAuthConnectorId) => Promise<void>;
+  busy: string | null;
+}) {
+  const connected = catalog.filter((connector) => connector.connected);
+  const importSources = catalog.filter(
+    (connector) =>
+      connector.availability === "available" &&
+      connector.id !== "youtube" &&
+      connector.category !== "developer_automation",
+  );
+  const setupRequired = catalog.filter((connector) => connector.availability === "beta");
+  const planned = catalog.filter((connector) => connector.availability === "coming_soon");
+  const developer = catalog.filter((connector) => connector.category === "developer_automation");
+  const publishing = ["youtube", "instagram", "facebook", "tiktok", "linkedin", "x"]
+    .map((id) => catalog.find((connector) => connector.id === id))
+    .filter((connector): connector is PublicConnectorDefinition => Boolean(connector));
+
+  const card = (connector: PublicConnectorDefinition, action?: "import" | "notify" | "connect") => (
+    <article key={connector.id} className="rounded-2xl border border-line bg-surface-raised p-4">
+      <div className="flex items-start gap-3">
+        <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-sunken text-ink-soft">
+          <ConnectorIcon icon={connector.icon} />
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="flex flex-wrap items-center gap-2">
+            <h3 className="text-sm font-semibold text-ink">{connector.label}</h3>
+            {connector.connected ? (
+              <StatusDot variant="success">Connected</StatusDot>
+            ) : (
+              <AvailabilityBadge availability={connector.availability} compact />
+            )}
+          </div>
+          <p className="mt-1 line-clamp-2 text-xs leading-5 text-ink-mute">
+            {connector.description}
+          </p>
+        </div>
+      </div>
+      {action === "import" ? (
+        <Link
+          to="/app/youtube-clipper/new"
+          search={{ source: connector.id }}
+          className="mt-4 inline-flex text-xs font-semibold text-ember-ink"
+        >
+          Use source
+        </Link>
+      ) : null}
+      {action === "notify" ? (
+        <button
+          type="button"
+          disabled={waitlist.includes(connector.id) || Boolean(busy)}
+          onClick={() => void onNotify(connector.id)}
+          className="mt-4 inline-flex text-xs font-semibold text-ember-ink disabled:text-ink-mute"
+        >
+          {waitlist.includes(connector.id)
+            ? "Interest recorded"
+            : busy === `waitlist:${connector.id}`
+              ? "Saving…"
+              : "Notify me"}
+        </button>
+      ) : null}
+      {action === "connect" ? (
+        <button
+          type="button"
+          disabled={Boolean(busy)}
+          onClick={() => void onConnect(connector.id as OAuthConnectorId)}
+          className="mt-4 inline-flex text-xs font-semibold text-ember-ink disabled:text-ink-mute"
+        >
+          {busy === `connect:${connector.id}`
+            ? "Opening provider…"
+            : connector.connected
+              ? "Reconnect"
+              : "Connect account"}
+        </button>
+      ) : null}
+    </article>
+  );
+
+  return (
+    <section className="rounded-3xl border border-line bg-surface-panel p-6 sm:p-8">
+      <div className="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-[.16em] text-ember-ink">
+            Source connections
+          </p>
+          <h1 className="mt-2 font-display text-2xl text-ink">Integrations</h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-ink-soft">
+            Import sources, publishing destinations, automation, and developer connections remain
+            separate permission boundaries.
+          </p>
+        </div>
+        <Link
+          to="/app/youtube-clipper/new"
+          className="rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-surface-page"
+        >
+          Import media
+        </Link>
+      </div>
+
+      <div className="mt-7 space-y-7">
+        <SettingsGroup
+          title="Connected sources"
+          description="Provider tokens stay encrypted server-side and never enter the browser bundle."
+        >
+          {connected.length ? (
+            connected.map((connector) => card(connector))
+          ) : (
+            <EmptyConnectorRow>
+              There are no connected source accounts. Local upload, direct HTTPS links, and public
+              RSS do not require a connection.
+            </EmptyConnectorRow>
+          )}
+        </SettingsGroup>
+        <SettingsGroup
+          title="Available sources"
+          description="These source paths can start an honest import in the current application."
+        >
+          {importSources.map((connector) => card(connector, "import"))}
+        </SettingsGroup>
+        <SettingsGroup
+          title="Provider beta setup"
+          description="Adapters are catalogued, but execution remains disabled until credentials and provider verification are complete."
+        >
+          {setupRequired
+            .slice(0, 6)
+            .map((connector) =>
+              card(
+                connector,
+                connector.configured &&
+                  ["google_drive", "dropbox", "onedrive"].includes(connector.id)
+                  ? "connect"
+                  : "notify",
+              ),
+            )}
+        </SettingsGroup>
+        <SettingsGroup
+          title="Publishing destinations"
+          description="Publishing always requires a separate connection and a final user review."
+        >
+          {publishing.map((connector) =>
+            card(connector, connector.availability === "coming_soon" ? "notify" : undefined),
+          )}
+        </SettingsGroup>
+        <SettingsGroup
+          title="Developer integrations"
+          description="Signed webhook delivery, scoped API keys, retries, and delivery logs must ship before these become available."
+        >
+          {developer.map((connector) => card(connector, "notify"))}
+        </SettingsGroup>
+        <SettingsGroup
+          title="Coming soon"
+          description={`${planned.length} planned connectors are visible without fake OAuth or simulated connection state.`}
+        >
+          {planned
+            .filter((connector) => connector.category !== "developer_automation")
+            .slice(0, 6)
+            .map((connector) => card(connector, "notify"))}
+        </SettingsGroup>
+      </div>
+    </section>
+  );
+}
+
+function SettingsGroup({
+  title,
+  description,
+  children,
+}: {
+  title: string;
+  description: string;
+  children: ReactNode;
+}) {
+  return (
+    <div>
+      <h2 className="text-sm font-semibold text-ink">{title}</h2>
+      <p className="mt-1 text-xs leading-5 text-ink-mute">{description}</p>
+      <div className="mt-3 grid gap-3 md:grid-cols-2 xl:grid-cols-3">{children}</div>
+    </div>
+  );
+}
+
+function EmptyConnectorRow({ children }: { children: ReactNode }) {
+  return (
+    <p className="rounded-2xl border border-dashed border-line px-4 py-5 text-xs leading-5 text-ink-mute md:col-span-2 xl:col-span-3">
+      {children}
+    </p>
   );
 }
 

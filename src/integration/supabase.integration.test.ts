@@ -5,6 +5,8 @@ import { z } from "zod";
 import type { Database } from "@/lib/supabase/database.types";
 
 type RpcClient = { rpc(name: string, args: Record<string, unknown>): Promise<{ data: unknown; error: { message: string } | null }> };
+type LooseQuery = PromiseLike<{ data: Record<string, unknown>[] | null; error: { message: string } | null }> & { select(columns?: string): LooseQuery; insert(value: Record<string, unknown>): LooseQuery; eq(column: string, value: unknown): LooseQuery };
+type LooseClient = { from(table: string): LooseQuery };
 const callRpc = (client: SupabaseClient<Database>, name: string, args: Record<string, unknown>) =>
   (client as unknown as RpcClient).rpc(name, args);
 
@@ -116,6 +118,14 @@ suite(
         .eq("id", userA)
         .single();
       expect(profile?.plan_key).toBe("free");
+    });
+    it("isolates connector waitlists across workspaces", async () => {
+      const own = clientA as unknown as LooseClient;
+      const foreign = clientB as unknown as LooseClient;
+      const { error } = await own.from("connector_waitlist").insert({ workspace_id: workspaceA, user_id: userA, connector_id: "twitch" });
+      expect(error).toBeNull();
+      const { data } = await foreign.from("connector_waitlist").select("connector_id").eq("workspace_id", workspaceA);
+      expect(data).toEqual([]);
     });
     it("prevents signed URLs for another workspace", async () => {
       objectPath = `${workspaceA}/${userA}/${jobId}/artifact/test.txt`;

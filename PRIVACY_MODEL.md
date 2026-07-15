@@ -73,3 +73,7 @@ Private media is never placed in public buckets. Signed URLs expire after five m
 Rights attestations retain the user/workspace/job, source identifier, statement/policy versions and acceptance time. Feature-specific plain IP retention is not used; the anonymous metadata limiter hashes an address in process memory and does not persist it. Product analytics receives consented event names and coarse duration/size buckets, never source media, transcripts, filenames or private URLs.
 
 Media retention is seven, thirty or ninety days by plan. Immediate deletion cancels work and queues private-object removal. Legally necessary billing and audit records may remain without media content.
+
+Connector access and refresh tokens use AES-256-GCM envelopes and are readable only by trusted server/worker code. Browser-safe connection views omit token columns. OAuth state stores only a SHA-256 state hash and encrypted PKCE verifier, expires after ten minutes and is single-use. Disconnect clears local token material and calls provider revocation where the provider offers it.
+
+Remote asset names and URLs are operational data, not analytics properties. Provider download URLs remain server/worker-side. Imported media becomes ordinary private workspace media and follows the user's storage and retention policy after provider authorization is revoked.
