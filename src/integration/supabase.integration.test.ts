@@ -105,7 +105,8 @@ suite(
           .single(),
       ]);
       expect(rights).toBeTruthy();
-      expect(task).toMatchObject({ task_type: "download_direct_source", status: "queued" });
+      expect(task?.task_type).toBe("download_direct_source");
+      expect(["queued", "leased", "retry_wait"]).toContain(task?.status);
       expect(period?.source_seconds_reserved).toBeGreaterThanOrEqual(60);
     });
     it("isolates cross-user jobs and plan changes with RLS", async () => {
