@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { Download, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
+import { SettingsSection } from "@/components/settings/settings-ui";
 import { Button } from "@/components/ui/button";
 import {
   AlertDialog,
@@ -49,79 +50,82 @@ function Privacy() {
     }
   };
   return (
-    <div className="max-w-2xl space-y-4">
-      <section className="rounded-2xl border border-line bg-surface-panel p-6">
-        <h2 className="font-display text-lg text-ink">Your data</h2>
-        <p className="mt-1 text-sm text-ink-soft">
-          Download a machine-readable copy of your profile, projects, media metadata, clipping jobs,
-          versions, exports and integration settings.
-        </p>
-        <Button
-          className="mt-4"
-          variant="outline"
-          onClick={() => void download()}
-          loading={exporting}
-          loadingText="Preparing export…"
-        >
-          <Download />
-          Download my data
-        </Button>
-      </section>
-      <section className="rounded-2xl border border-danger/30 bg-danger/5 p-6">
-        <h2 className="font-display text-lg text-ink">Delete account</h2>
-        <p className="mt-1 text-sm text-ink-soft">
-          This removes stored media, exports, projects, OAuth connections and the authentication
-          account. This action cannot be undone.
-        </p>
-        <AlertDialog>
-          <AlertDialogTrigger asChild>
-            <Button className="mt-4" variant="destructive">
-              <Trash2 />
-              Delete my account
-            </Button>
-          </AlertDialogTrigger>
-          <AlertDialogContent>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Permanently delete your Vidrial account?</AlertDialogTitle>
-              <AlertDialogDescription>
-                Type DELETE to confirm. Your session will stop working immediately after deletion.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <label className="grid gap-1.5 text-sm text-ink">
-              Confirmation
-              <input
-                autoComplete="off"
-                value={confirmation}
-                onChange={(event) => setConfirmation(event.target.value)}
-                className="min-h-11 rounded-md border border-line bg-surface-page px-3"
-              />
-            </label>
-            <AlertDialogFooter>
-              <AlertDialogCancel>Cancel</AlertDialogCancel>
-              <AlertDialogAction
-                disabled={confirmation !== "DELETE" || deleting}
-                className="bg-danger text-white"
-                onClick={async (event) => {
-                  event.preventDefault();
-                  setDeleting(true);
-                  setMessage(null);
-                  try {
-                    await deleteMyAccount({ data: { confirmation: "DELETE" } });
-                    window.location.assign("/");
-                  } catch (cause) {
-                    const friendly = userFacingError(cause, "Account deletion failed. Try again.");
-                    setMessage(friendly);
-                    toast.error(friendly);
-                    setDeleting(false);
-                  }
-                }}
-              >
-                {deleting ? "Deleting…" : "Delete account permanently"}
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-        </AlertDialog>
-      </section>
+    <div className="space-y-5">
+      <SettingsSection
+        title="Your data"
+        description="Download a machine-readable copy of your profile, projects, media metadata, clipping jobs, versions, exports, and integration settings."
+      >
+        <div className="py-4">
+          <Button
+            variant="outline"
+            onClick={() => void download()}
+            loading={exporting}
+            loadingText="Preparing export…"
+          >
+            <Download />
+            Download my data
+          </Button>
+        </div>
+      </SettingsSection>
+      <SettingsSection
+        tone="danger"
+        title="Delete account"
+        description="Permanently remove stored media, exports, projects, OAuth connections, and your authentication account. This cannot be undone."
+      >
+        <div className="py-4">
+          <AlertDialog>
+            <AlertDialogTrigger asChild>
+              <Button variant="destructive">
+                <Trash2 />
+                Delete my account
+              </Button>
+            </AlertDialogTrigger>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Permanently delete your Vidrial account?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Type DELETE to confirm. Your session will stop working immediately after deletion.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <label className="grid gap-1.5 text-sm text-ink">
+                Confirmation
+                <input
+                  autoComplete="off"
+                  value={confirmation}
+                  onChange={(event) => setConfirmation(event.target.value)}
+                  className="min-h-11 rounded-md border border-line bg-surface-page px-3"
+                />
+              </label>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancel</AlertDialogCancel>
+                <AlertDialogAction
+                  disabled={confirmation !== "DELETE" || deleting}
+                  className="bg-danger text-white"
+                  onClick={async (event) => {
+                    event.preventDefault();
+                    setDeleting(true);
+                    setMessage(null);
+                    try {
+                      await deleteMyAccount({ data: { confirmation: "DELETE" } });
+                      window.location.assign("/");
+                    } catch (cause) {
+                      const friendly = userFacingError(
+                        cause,
+                        "Account deletion failed. Try again.",
+                      );
+                      setMessage(friendly);
+                      toast.error(friendly);
+                      setDeleting(false);
+                    }
+                  }}
+                >
+                  {deleting ? "Deleting…" : "Delete account permanently"}
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+        </div>
+      </SettingsSection>
       <p role="status" aria-live="polite" className="min-h-5 text-sm text-ink-soft">
         {message}
       </p>

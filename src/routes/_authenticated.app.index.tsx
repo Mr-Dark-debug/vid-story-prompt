@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Clock, FolderKanban, Scissors } from "lucide-react";
+import { ArrowRight, Clock, FolderKanban, Scissors, UploadCloud } from "lucide-react";
 import { AppPageHeader } from "@/components/app/layout";
 import { StatusDot } from "@/components/primitives/status-dot";
 import { UsageMeter } from "@/components/primitives/usage-meter";
@@ -28,6 +28,10 @@ function Dashboard() {
       60,
   );
   const limit = Math.ceil(Number(usage.period.source_seconds_limit) / 60);
+  const assetCount = projects.reduce((total, project) => total + project.assetCount, 0);
+  const completedJobs = jobs.filter(
+    (job) => job.status === "ready" || job.status === "completed",
+  ).length;
   return (
     <div>
       <AppPageHeader
@@ -43,6 +47,26 @@ function Dashboard() {
           </Link>
         }
       />
+      <div className="mb-7 grid gap-3 sm:grid-cols-3">
+        <SummaryCard
+          icon={FolderKanban}
+          label="Projects"
+          value={projects.length}
+          detail="In this workspace"
+        />
+        <SummaryCard
+          icon={UploadCloud}
+          label="Media assets"
+          value={assetCount}
+          detail="Across all projects"
+        />
+        <SummaryCard
+          icon={Scissors}
+          label="Ready clips"
+          value={completedJobs}
+          detail={`${jobs.length} clipping jobs total`}
+        />
+      </div>
       <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
         <section>
           <div className="mb-3 flex items-center justify-between">
@@ -71,12 +95,21 @@ function Dashboard() {
                 </div>
               </Link>
             ))}
-            <Link
-              to="/app/projects/new"
-              className="flex min-h-[180px] items-center justify-center rounded-2xl border border-dashed border-line bg-surface-panel p-6 text-sm text-ink-soft hover:border-ember"
-            >
-              + Create your first project
-            </Link>
+            {projects.length === 0 ? (
+              <div className="col-span-full rounded-2xl border border-dashed border-line bg-surface-panel px-6 py-12 text-center">
+                <FolderKanban className="mx-auto h-8 w-8 text-ink-mute" />
+                <h3 className="mt-4 font-display text-lg text-ink">Create your first project</h3>
+                <p className="mx-auto mt-2 max-w-sm text-sm leading-6 text-ink-soft">
+                  Bring authorised media into a private workspace and keep every edit explainable.
+                </p>
+                <Link
+                  to="/app/projects/new"
+                  className="mt-5 inline-flex min-h-10 items-center rounded-md bg-ink px-4 text-sm font-medium text-surface-page"
+                >
+                  New project
+                </Link>
+              </div>
+            ) : null}
           </div>
         </section>
         <aside className="space-y-4">
@@ -98,10 +131,7 @@ function Dashboard() {
               Clipping jobs
             </h2>
             <div className="mt-3 text-3xl font-display text-ink">{jobs.length}</div>
-            <p className="text-sm text-ink-soft">
-              {jobs.filter((job) => job.status === "ready" || job.status === "completed").length}{" "}
-              ready or completed
-            </p>
+            <p className="text-sm text-ink-soft">{completedJobs} ready or completed</p>
             <Link to="/app/youtube-clipper" className="mt-4 inline-flex text-sm text-ember-ink">
               Open clipping jobs <ArrowRight className="ml-1 h-4 w-4" />
             </Link>
@@ -109,5 +139,30 @@ function Dashboard() {
         </aside>
       </div>
     </div>
+  );
+}
+
+function SummaryCard({
+  icon: Icon,
+  label,
+  value,
+  detail,
+}: {
+  icon: typeof FolderKanban;
+  label: string;
+  value: number;
+  detail: string;
+}) {
+  return (
+    <section className="rounded-xl border border-line bg-surface-panel p-4">
+      <div className="flex items-center justify-between gap-3">
+        <span className="text-sm text-ink-soft">{label}</span>
+        <span className="grid h-8 w-8 place-items-center rounded-lg bg-surface-sunken text-ember-ink">
+          <Icon className="h-4 w-4" />
+        </span>
+      </div>
+      <div className="mt-3 font-display text-2xl text-ink">{value}</div>
+      <p className="mt-1 text-xs text-ink-mute">{detail}</p>
+    </section>
   );
 }

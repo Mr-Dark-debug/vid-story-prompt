@@ -1,4 +1,4 @@
-import { Eye, EyeOff } from "lucide-react";
+import { Check, Eye, EyeOff, ShieldCheck, Sparkles } from "lucide-react";
 import { useId, useState, type FormEvent, type ReactNode } from "react";
 import { Logo } from "@/components/primitives/logo";
 import { Button } from "@/components/ui/button";
@@ -20,25 +20,66 @@ export function AuthShell({
     <main
       id="main-content"
       tabIndex={-1}
-      className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-surface-page px-5 py-14 outline-none"
+      className="relative flex min-h-dvh items-center justify-center overflow-hidden bg-surface-sunken px-4 py-6 outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-ember sm:px-6 lg:py-10"
     >
-      <div className="pointer-events-none absolute inset-0 opacity-75 [background-image:radial-gradient(circle_at_18%_12%,var(--coral-soft),transparent_34%),radial-gradient(circle_at_82%_88%,var(--teal-soft),transparent_30%)]" />
-      <div className="relative w-full max-w-md">
-        <Logo className="mb-8 flex justify-center" />
-        <section className="rounded-3xl border border-line bg-surface-panel p-7 shadow-[0_28px_80px_-44px_rgba(29,29,27,.32)] sm:p-9">
-          <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ember-ink">
-            {eyebrow}
+      <div className="pointer-events-none absolute inset-0 opacity-70 [background-image:radial-gradient(circle_at_15%_10%,var(--coral-soft),transparent_30%),radial-gradient(circle_at_85%_90%,var(--teal-soft),transparent_28%)]" />
+      <div className="relative grid w-full max-w-6xl overflow-hidden rounded-[1.75rem] border border-line bg-surface-panel shadow-[0_32px_90px_-42px_rgba(29,29,27,.38)] lg:min-h-[44rem] lg:grid-cols-[.88fr_1.12fr]">
+        <aside className="relative hidden overflow-hidden bg-ink p-10 text-surface-page lg:flex lg:flex-col">
+          <div className="pointer-events-none absolute inset-0 opacity-80 [background-image:radial-gradient(circle_at_15%_15%,rgba(255,111,89,.42),transparent_31%),radial-gradient(circle_at_80%_78%,rgba(71,148,150,.28),transparent_33%)]" />
+          <div className="pointer-events-none absolute -bottom-24 -right-28 h-80 w-80 rounded-full border border-white/10" />
+          <div className="pointer-events-none absolute -bottom-8 -right-14 h-52 w-52 rounded-full border border-white/10" />
+          <Logo className="relative" tone="light" />
+          <div className="relative my-auto max-w-md py-16">
+            <div className="mb-5 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/10">
+              <Sparkles className="h-5 w-5 text-ember" />
+            </div>
+            <h2 className="text-balance font-display text-4xl leading-[1.08] tracking-[-0.025em] text-white">
+              From source footage to an explainable first cut.
+            </h2>
+            <p className="mt-5 max-w-sm text-sm leading-6 text-white/65">
+              Build editable video work with transparent AI plans, controlled media access, and a
+              workflow designed around your rights.
+            </p>
+            <ul className="mt-8 space-y-3 text-sm text-white/80">
+              {[
+                "Review AI decisions before applying edits",
+                "Keep source media private by default",
+                "Move from transcript to export in one workspace",
+              ].map((item) => (
+                <li className="flex items-center gap-3" key={item}>
+                  <span className="grid h-5 w-5 place-items-center rounded-full bg-ember/20 text-ember">
+                    <Check className="h-3 w-3" />
+                  </span>
+                  {item}
+                </li>
+              ))}
+            </ul>
           </div>
-          <h1 className="mt-3 font-display text-3xl text-ink">{title}</h1>
-          <p className="mt-2 text-sm leading-relaxed text-ink-soft">{lead}</p>
-          <div className="mt-7">{children}</div>
-          {footer ? (
-            <div className="mt-6 border-t border-line pt-5 text-sm text-ink-soft">{footer}</div>
-          ) : null}
+          <p className="relative flex items-center gap-2 text-xs text-white/50">
+            <ShieldCheck className="h-4 w-4" />
+            Rights-respecting media workflows
+          </p>
+        </aside>
+        <section className="flex items-center px-6 py-9 sm:px-10 lg:px-16 lg:py-12">
+          <div className="mx-auto w-full max-w-md">
+            <Logo className="mb-10 lg:hidden" />
+            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-ember-ink">
+              {eyebrow}
+            </div>
+            <h1 className="mt-3 text-balance font-display text-3xl tracking-[-0.02em] text-ink sm:text-4xl">
+              {title}
+            </h1>
+            <p className="mt-3 text-sm leading-6 text-ink-soft">{lead}</p>
+            <div className="mt-8">{children}</div>
+            {footer ? (
+              <div className="mt-7 border-t border-line pt-5 text-sm text-ink-soft">{footer}</div>
+            ) : null}
+            <p className="mt-6 flex items-center gap-2 text-xs text-ink-mute lg:hidden">
+              <ShieldCheck className="h-4 w-4" />
+              Private by default · Rights-respecting workflows
+            </p>
+          </div>
         </section>
-        <p className="mt-5 text-center text-xs text-ink-mute">
-          Private by default · Rights-respecting media workflows
-        </p>
       </div>
     </main>
   );
