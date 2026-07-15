@@ -59,4 +59,3 @@ Never force-push, rebase, amend or squash published Lovable commits.
 - Import, publishing and automation capabilities are separate permission boundaries. A connection for one never grants another silently.
 - OAuth uses PKCE, signed state, exact callbacks and encrypted server-only tokens. Provider tokens and permanent object-store credentials never enter browser responses.
 - Coming-soon connectors remain non-executable and may only record waitlist interest. Never simulate OAuth, connection, import progress or provider success.
-- YouTube audiovisual streams are never downloaded or scraped. YouTube supplies official metadata, embeds, owned-channel automation and publishing; rendering requires an explicit authorised source attachment.
