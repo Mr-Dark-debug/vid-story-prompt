@@ -9,7 +9,11 @@ import {
   FileVideo,
   Heart,
   Link2,
+  LoaderCircle,
   MonitorPlay,
+  Podcast,
+  ShieldCheck,
+  Search,
   Youtube,
 } from "lucide-react";
 import { SourceUpload, type UploadedSource } from "./source-upload";
@@ -17,27 +21,68 @@ import { getYouTubeMetadata } from "@/services/youtube/server";
 import { parseYouTubeVideoId } from "@/services/youtube/parser";
 import { createClipJob } from "@/services/clipping/server";
 import { attachSourceToAutomationDraft } from "@/services/youtube/automation.server";
+import { resolvePodcastFeed } from "@/services/connectors/rss.server";
+import { CONNECTOR_REGISTRY, getConnector } from "@/domain/connectors/registry";
+import type {
+  ConnectorDefinition,
+  PublicConnectorDefinition,
+  RemoteMediaAsset,
+} from "@/domain/connectors/types";
+import { SourcePicker } from "@/components/connectors/source-picker";
+import { ComingSoonConnectorPanel } from "@/components/connectors/coming-soon-connector-panel";
+import { AvailabilityBadge } from "@/components/connectors/availability-badge";
+import { ConnectorIcon } from "@/components/connectors/connector-icon";
+import {
+  browseConnectorAssets,
+  cancelConnectorImport,
+  createConnectorImport,
+  getConnectorImportProgress,
+} from "@/services/connectors/assets.server";
 
 type YouTubeMetadata = Awaited<ReturnType<typeof getYouTubeMetadata>>;
+type PodcastFeed = Awaited<ReturnType<typeof resolvePodcastFeed>>;
 const steps = ["Video source", "Clip preferences", "Review"];
 
 export function JobWizard({
   initialYoutube = "",
   initialSource = "",
   initialDraft,
+  connectors,
 }: {
   initialYoutube?: string;
   initialSource?: string;
   initialDraft?: string;
+  connectors?: PublicConnectorDefinition[];
 }) {
   const navigate = useNavigate();
+  const runtimeConnectors: PublicConnectorDefinition[] =
+    connectors ??
+    CONNECTOR_REGISTRY.map((connector) => ({
+      ...connector,
+      connected: false,
+      configured: connector.availability === "available",
+      executable: connector.availability === "available",
+    }));
   const [step, setStep] = useState(0);
-  const [sourceMode, setSourceMode] = useState<"youtube" | "upload" | "direct">(
-    initialSource === "upload" ? "upload" : "youtube",
-  );
+  const initialConnector =
+    initialSource === "upload"
+      ? "local_upload"
+      : initialSource === "direct"
+        ? "direct_url"
+        : (getConnector(initialSource)?.id ?? "youtube");
+  const [sourceMode, setSourceMode] = useState(initialConnector);
   const [youtubeUrl, setYoutubeUrl] = useState(initialYoutube);
   const [directUrl, setDirectUrl] = useState("");
   const [directDuration, setDirectDuration] = useState(0);
+  const [rssUrl, setRssUrl] = useState("");
+  const [podcastFeed, setPodcastFeed] = useState<PodcastFeed | null>(null);
+  const [remoteAsset, setRemoteAsset] = useState<RemoteMediaAsset | null>(null);
+  const [connectorImportId, setConnectorImportId] = useState<string | null>(null);
+  const [importProgress, setImportProgress] = useState<{
+    status: string;
+    bytesTransferred: number;
+    bytesTotal: number | null;
+  } | null>(null);
   const [metadata, setMetadata] = useState<YouTubeMetadata | null>(null);
   const [uploaded, setUploaded] = useState<UploadedSource | null>(null);
   const [rights, setRights] = useState(false);
@@ -99,12 +144,74 @@ export function JobWizard({
   };
 
   const next = async () => {
+    const connector = runtimeConnectors.find((item) => item.id === sourceMode);
+    if (!connector || !connector.executable) {
+      setError(`${connector?.label ?? "This source"} cannot import media in this deployment yet.`);
+      return;
+    }
+    if (step === 0 && ["google_drive", "dropbox", "onedrive"].includes(sourceMode)) {
+      if (!remoteAsset) {
+        setError(`Choose an authorised file from ${connector.label}.`);
+        return;
+      }
+      if (!uploaded) {
+        setBusy(true);
+        setError(null);
+        try {
+          const created = await createConnectorImport({
+            data: {
+              connectorId: sourceMode as "google_drive" | "dropbox" | "onedrive",
+              asset: {
+                id: remoteAsset.id,
+                name: remoteAsset.name,
+                kind: remoteAsset.kind as "video" | "audio",
+                mimeType: remoteAsset.mimeType,
+                sizeBytes: remoteAsset.sizeBytes,
+                durationSeconds: remoteAsset.durationSeconds,
+              },
+              idempotencyKey: crypto.randomUUID(),
+            },
+          });
+          setConnectorImportId(created.importId);
+          for (;;) {
+            const progress = await getConnectorImportProgress({
+              data: { importId: created.importId },
+            });
+            setImportProgress(progress);
+            if (progress.status === "ready" && progress.assetId) {
+              if (!progress.durationSeconds)
+                throw new Error("The imported file has no verified duration.");
+              setUploaded({
+                assetId: progress.assetId,
+                filename: progress.filename,
+                durationSeconds: progress.durationSeconds,
+              });
+              break;
+            }
+            if (["failed", "cancelled"].includes(progress.status))
+              throw new Error(progress.errorMessage ?? `The connector import ${progress.status}.`);
+            await new Promise((resolve) => window.setTimeout(resolve, 1000));
+          }
+        } catch (cause) {
+          setError(
+            cause instanceof Error ? cause.message : "The connector import could not be completed.",
+          );
+          setBusy(false);
+          return;
+        }
+        setBusy(false);
+      }
+    }
     if (step === 0 && sourceMode === "youtube" && !metadata && !(await analyseYoutube())) return;
-    if (step === 0 && sourceMode === "direct" && (!directUrl || directDuration <= 0)) {
+    if (
+      step === 0 &&
+      ["direct_url", "other", "rss"].includes(sourceMode) &&
+      (!directUrl || directDuration <= 0)
+    ) {
       setError("Add the authorised HTTPS media URL and its expected duration.");
       return;
     }
-    if (step === 0 && sourceMode !== "direct" && !uploaded) {
+    if (step === 0 && ["youtube", "local_upload"].includes(sourceMode) && !uploaded) {
       setError("Add the source media file before continuing.");
       return;
     }
@@ -120,7 +227,7 @@ export function JobWizard({
     setError(null);
     try {
       if (!rights) throw new Error("Confirm your rights before creating a processing job.");
-      if (sourceMode !== "direct" && !uploaded)
+      if (["youtube", "local_upload"].includes(sourceMode) && !uploaded)
         throw new Error("Add the source media file before creating the job.");
       if (initialDraft && uploaded) {
         const automated = await attachSourceToAutomationDraft({
@@ -142,19 +249,29 @@ export function JobWizard({
         throw new Error("Source duration is required for plan and usage enforcement.");
       const result = await createClipJob({
         data: {
-          sourceType:
-            sourceMode === "direct"
-              ? "direct_owned_media_url"
-              : sourceMode === "youtube"
-                ? "youtube_metadata"
-                : "local_upload",
-          sourceUrl:
-            sourceMode === "direct" ? directUrl : sourceMode === "youtube" ? youtubeUrl : null,
-          sourceIdentifier: metadata?.videoId ?? null,
+          sourceType: ["direct_url", "other", "rss"].includes(sourceMode)
+            ? "direct_owned_media_url"
+            : sourceMode === "youtube"
+              ? "youtube_metadata"
+              : ((["google_drive", "dropbox", "onedrive"].includes(sourceMode)
+                  ? sourceMode
+                  : "local_upload") as "google_drive" | "dropbox" | "onedrive" | "local_upload"),
+          sourceUrl: ["direct_url", "other", "rss"].includes(sourceMode)
+            ? directUrl
+            : sourceMode === "youtube"
+              ? youtubeUrl
+              : null,
+          sourceIdentifier: metadata?.videoId ?? remoteAsset?.id ?? null,
           sourceDurationSeconds: sourceDuration,
           sourceAssetId: uploaded?.assetId ?? null,
+          connectorId: sourceMode,
+          connectorImportId,
           sourceMetadata: {
-            title: metadata?.title ?? uploaded?.filename ?? "Authorised source",
+            title:
+              metadata?.title ??
+              podcastFeed?.episodes.find((episode) => episode.enclosureUrl === directUrl)?.title ??
+              uploaded?.filename ??
+              "Authorised source",
             channelId: metadata?.channelId,
             channelTitle: metadata?.channelTitle,
             thumbnailUrl: metadata?.thumbnailUrl,
@@ -199,11 +316,19 @@ export function JobWizard({
       </ol>
       <div className="rounded-3xl border border-line bg-surface-panel p-5 sm:p-7">
         {step === 0 && (
-          <SourceStep
+          <ConnectorSourceStep
+            connectors={runtimeConnectors}
             mode={sourceMode}
-            setMode={(mode) => {
-              setSourceMode(mode);
+            setMode={(connector) => {
+              setSourceMode(connector.id);
               setUploaded(null);
+              setMetadata(null);
+              setPodcastFeed(null);
+              setDirectUrl("");
+              setDirectDuration(0);
+              setRemoteAsset(null);
+              setConnectorImportId(null);
+              setImportProgress(null);
               setError(null);
             }}
             youtubeUrl={youtubeUrl}
@@ -217,6 +342,18 @@ export function JobWizard({
             setDirectUrl={setDirectUrl}
             directDuration={directDuration}
             setDirectDuration={setDirectDuration}
+            rssUrl={rssUrl}
+            setRssUrl={setRssUrl}
+            podcastFeed={podcastFeed}
+            setPodcastFeed={setPodcastFeed}
+            remoteAsset={remoteAsset}
+            setRemoteAsset={setRemoteAsset}
+            connectorImportId={connectorImportId}
+            importProgress={importProgress}
+            cancelImport={async () => {
+              if (!connectorImportId) return;
+              await cancelConnectorImport({ data: { importId: connectorImportId } });
+            }}
             setUploaded={setUploaded}
             rights={rights}
             setRights={setRights}
@@ -258,7 +395,7 @@ export function JobWizard({
             {error}
           </div>
         )}
-        <div className="mt-7 flex justify-between border-t border-line pt-5">
+        <div className="sticky -bottom-5 z-10 mt-7 flex justify-between border-t border-line bg-surface-panel/95 pt-5 pb-1 backdrop-blur sm:static sm:bg-transparent sm:pb-0 sm:backdrop-blur-none">
           <button
             type="button"
             disabled={step === 0}
@@ -292,6 +429,567 @@ export function JobWizard({
           )}
         </div>
       </div>
+    </div>
+  );
+}
+
+function ConnectorSourceStep(props: {
+  connectors: PublicConnectorDefinition[];
+  mode: string;
+  setMode: (connector: ConnectorDefinition) => void;
+  youtubeUrl: string;
+  setYoutubeUrl: (value: string) => void;
+  busy: boolean;
+  metadata: YouTubeMetadata | null;
+  directUrl: string;
+  setDirectUrl: (value: string) => void;
+  directDuration: number;
+  setDirectDuration: (value: number) => void;
+  rssUrl: string;
+  setRssUrl: (value: string) => void;
+  podcastFeed: PodcastFeed | null;
+  setPodcastFeed: (value: PodcastFeed | null) => void;
+  remoteAsset: RemoteMediaAsset | null;
+  setRemoteAsset: (value: RemoteMediaAsset | null) => void;
+  connectorImportId: string | null;
+  importProgress: { status: string; bytesTransferred: number; bytesTotal: number | null } | null;
+  cancelImport: () => Promise<void>;
+  setUploaded: (value: UploadedSource) => void;
+  rights: boolean;
+  setRights: (value: boolean) => void;
+}) {
+  const connector =
+    props.connectors.find((item) => item.id === props.mode) ??
+    props.connectors.find((item) => item.id === "youtube")!;
+  const [rssBusy, setRssBusy] = useState(false);
+  const [rssError, setRssError] = useState<string | null>(null);
+
+  const loadFeed = async () => {
+    setRssBusy(true);
+    setRssError(null);
+    try {
+      const feed = await resolvePodcastFeed({ data: { url: props.rssUrl } });
+      props.setPodcastFeed(feed);
+    } catch (cause) {
+      setRssError(
+        cause instanceof Error ? cause.message : "The podcast feed could not be resolved.",
+      );
+    } finally {
+      setRssBusy(false);
+    }
+  };
+
+  return (
+    <div>
+      <h2 className="font-display text-2xl text-ink">Choose the video source</h2>
+      <p className="mt-2 text-sm text-ink-soft">
+        Pick an authorised source. Availability and original-file requirements are shown before you
+        connect or import.
+      </p>
+      <div className="mt-5">
+        <SourcePicker
+          connectors={props.connectors}
+          connectedIds={props.connectors.filter((item) => item.connected).map((item) => item.id)}
+          value={connector.id}
+          onChange={props.setMode}
+        />
+      </div>
+
+      {!connector.executable ? (
+        <ComingSoonConnectorPanel connector={connector} />
+      ) : (
+        <section className="mt-5 rounded-2xl border border-line bg-surface-raised p-4 sm:p-5">
+          <header className="flex items-start gap-3 border-b border-line pb-4">
+            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-sunken text-ink-soft">
+              <ConnectorIcon icon={connector.icon} />
+            </span>
+            <div className="min-w-0 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h3 className="text-base font-semibold text-ink">{connector.label}</h3>
+                <AvailabilityBadge availability={connector.availability} />
+                {connector.requiresOriginalSource ? (
+                  <span className="rounded-full border border-line px-2 py-0.5 text-[10px] font-semibold text-ink-mute">
+                    Original file required
+                  </span>
+                ) : null}
+              </div>
+              <p className="mt-1 text-xs leading-5 text-ink-mute">{connector.description}</p>
+            </div>
+          </header>
+
+          {connector.id === "youtube" ? (
+            <div className="mt-4">
+              <label
+                className="grid gap-1.5 text-xs font-medium text-ink"
+                htmlFor="youtube-source-url"
+              >
+                YouTube video link
+                <input
+                  id="youtube-source-url"
+                  name="youtubeSourceUrl"
+                  type="url"
+                  autoComplete="off"
+                  spellCheck={false}
+                  value={props.youtubeUrl}
+                  onChange={(event) => props.setYoutubeUrl(event.target.value)}
+                  placeholder="https://youtube.com/watch?v=…"
+                  className="h-12 min-w-0 rounded-xl border border-line bg-surface-page px-4 text-sm font-normal outline-none focus:border-ember focus-visible:ring-2 focus-visible:ring-ember/20"
+                />
+              </label>
+              <div className="mt-2 flex min-h-5 flex-wrap items-center justify-between gap-2 text-xs text-ink-mute">
+                <span>Official details load after a valid link is pasted.</span>
+                <a href="/app/settings/integrations" className="font-semibold text-ember-ink">
+                  Connect channel for playlists and automation
+                </a>
+                {props.busy ? <span role="status">Loading video details…</span> : null}
+              </div>
+              {props.metadata ? (
+                <article className="mt-4 overflow-hidden rounded-2xl border border-line bg-surface-panel sm:grid sm:grid-cols-[minmax(15rem,2fr)_3fr]">
+                  <div className="aspect-video bg-surface-sunken">
+                    {props.metadata.embeddable ? (
+                      <iframe
+                        title={`YouTube preview for ${props.metadata.title}`}
+                        src={`https://www.youtube-nocookie.com/embed/${props.metadata.videoId}`}
+                        className="h-full w-full"
+                        loading="lazy"
+                        allow="accelerometer; encrypted-media; picture-in-picture"
+                        allowFullScreen
+                      />
+                    ) : (
+                      <img
+                        src={props.metadata.thumbnailUrl}
+                        alt={`Thumbnail for ${props.metadata.title}`}
+                        width={480}
+                        height={270}
+                        className="h-full w-full object-cover"
+                      />
+                    )}
+                  </div>
+                  <div className="min-w-0 p-4 sm:p-5">
+                    <h4 className="line-clamp-2 text-sm font-semibold leading-5 text-ink sm:text-base">
+                      {props.metadata.title}
+                    </h4>
+                    <p className="mt-1 truncate text-xs text-ink-mute">
+                      {props.metadata.channelTitle}
+                    </p>
+                    <dl className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
+                      <MetadataStat
+                        icon={Eye}
+                        label="Views"
+                        value={formatCount(props.metadata.viewCount)}
+                      />
+                      <MetadataStat
+                        icon={Heart}
+                        label="Likes"
+                        value={
+                          props.metadata.likeCount
+                            ? formatCount(props.metadata.likeCount)
+                            : "Hidden"
+                        }
+                      />
+                      <MetadataStat
+                        icon={MonitorPlay}
+                        label="Quality"
+                        value={`${props.metadata.definition.toUpperCase()} · ${props.metadata.dimension.toUpperCase()}`}
+                      />
+                      <MetadataStat
+                        icon={CalendarDays}
+                        label="Published"
+                        value={formatPublishedDate(props.metadata.publishedAt)}
+                      />
+                    </dl>
+                  </div>
+                </article>
+              ) : null}
+              <div className="mt-5">
+                <h4 className="text-sm font-semibold text-ink">Original media to process</h4>
+                <p className="mt-1 text-xs leading-5 text-ink-mute">
+                  YouTube supplies metadata and an official preview—not the audiovisual file. Attach
+                  your authorised original.
+                </p>
+                <div className="mt-3">
+                  <SourceUpload key="youtube" onUploaded={props.setUploaded} />
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {connector.id === "local_upload" ? (
+            <div className="mt-4">
+              <SourceUpload key="local_upload" onUploaded={props.setUploaded} />
+              <p className="mt-2 text-xs text-ink-mute">
+                The current processing pipeline accepts MP4, MOV, MKV, WebM, and M4V source video.
+                Audio-only and transcript attachments remain catalogued but are not presented as
+                executable until their render path is verified.
+              </p>
+            </div>
+          ) : null}
+
+          {["direct_url", "other"].includes(connector.id) ? (
+            <div className="mt-4 grid gap-3 sm:grid-cols-[1fr_180px]">
+              <label className="grid gap-1.5 text-xs font-medium text-ink">
+                Owner-controlled HTTPS media URL
+                <input
+                  type="url"
+                  name="directMediaUrl"
+                  autoComplete="off"
+                  spellCheck={false}
+                  value={props.directUrl}
+                  onChange={(event) => props.setDirectUrl(event.target.value)}
+                  placeholder="https://media.example.com/source.mp4"
+                  className="h-11 rounded-xl border border-line bg-surface-page px-3 text-sm font-normal outline-none focus:border-ember focus-visible:ring-2 focus-visible:ring-ember/20"
+                />
+              </label>
+              <label className="grid gap-1.5 text-xs font-medium text-ink">
+                Expected duration
+                <input
+                  type="number"
+                  name="directMediaDuration"
+                  min="1"
+                  inputMode="numeric"
+                  value={props.directDuration || ""}
+                  onChange={(event) => props.setDirectDuration(Number(event.target.value))}
+                  placeholder="Seconds"
+                  className="h-11 rounded-xl border border-line bg-surface-page px-3 text-sm font-normal outline-none focus:border-ember focus-visible:ring-2 focus-visible:ring-ember/20"
+                />
+              </label>
+              <p className="flex items-start gap-2 text-xs leading-5 text-ink-mute sm:col-span-2">
+                <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0" />
+                The worker resolves DNS, rejects private networks, revalidates every redirect,
+                bounds size and time, and only passes an isolated local file to FFprobe.
+              </p>
+            </div>
+          ) : null}
+
+          {connector.id === "rss" ? (
+            <div className="mt-4">
+              <label className="grid gap-1.5 text-xs font-medium text-ink">
+                Podcast episode, RSS, Atom, or Apple Podcasts URL
+                <div className="flex gap-2">
+                  <input
+                    type="url"
+                    value={props.rssUrl}
+                    onChange={(event) => {
+                      props.setRssUrl(event.target.value);
+                      props.setPodcastFeed(null);
+                    }}
+                    placeholder="https://example.com/feed.xml"
+                    className="h-11 min-w-0 flex-1 rounded-xl border border-line bg-surface-page px-3 text-sm font-normal outline-none focus:border-ember"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void loadFeed()}
+                    disabled={rssBusy || !props.rssUrl}
+                    className="inline-flex shrink-0 items-center gap-2 rounded-xl bg-ink px-4 text-sm font-semibold text-surface-page disabled:opacity-50"
+                  >
+                    {rssBusy ? (
+                      <LoaderCircle className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Podcast className="h-4 w-4" />
+                    )}{" "}
+                    Load feed
+                  </button>
+                </div>
+              </label>
+              {rssError ? (
+                <p role="alert" className="mt-2 text-xs text-danger">
+                  {rssError}
+                </p>
+              ) : null}
+              {props.podcastFeed ? (
+                <div className="mt-4">
+                  <div className="flex items-center gap-3 rounded-xl bg-surface-sunken p-3">
+                    {props.podcastFeed.artworkUrl ? (
+                      <img
+                        src={props.podcastFeed.artworkUrl}
+                        alt=""
+                        className="h-12 w-12 rounded-lg object-cover"
+                      />
+                    ) : (
+                      <span className="grid h-12 w-12 place-items-center rounded-lg bg-surface-panel">
+                        <Podcast className="h-5 w-5" />
+                      </span>
+                    )}
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold text-ink">
+                        {props.podcastFeed.title}
+                      </p>
+                      <p className="text-xs text-ink-mute">
+                        {props.podcastFeed.episodes.length} recent public enclosures
+                      </p>
+                    </div>
+                  </div>
+                  <div className="mt-3 max-h-72 space-y-2 overflow-y-auto">
+                    {props.podcastFeed.episodes.map((episode) => (
+                      <button
+                        key={episode.id}
+                        type="button"
+                        onClick={() => {
+                          props.setDirectUrl(episode.enclosureUrl);
+                          props.setDirectDuration(episode.durationSeconds ?? 0);
+                        }}
+                        className={`flex w-full items-start gap-3 rounded-xl border p-3 text-left ${props.directUrl === episode.enclosureUrl ? "border-ember bg-ember-soft/30" : "border-line bg-surface-page"}`}
+                      >
+                        <span className="min-w-0 flex-1">
+                          <span className="line-clamp-2 text-sm font-medium text-ink">
+                            {episode.title}
+                          </span>
+                          <span className="mt-1 block text-xs text-ink-mute">
+                            {episode.publishedAt
+                              ? formatPublishedDate(episode.publishedAt)
+                              : "Date unavailable"}
+                            {episode.durationSeconds
+                              ? ` · ${formatDuration(episode.durationSeconds)}`
+                              : " · duration required"}
+                          </span>
+                        </span>
+                        {props.directUrl === episode.enclosureUrl ? (
+                          <Check className="h-4 w-4 shrink-0 text-ember-ink" />
+                        ) : null}
+                      </button>
+                    ))}
+                  </div>
+                  {props.directUrl && props.directDuration <= 0 ? (
+                    <label className="mt-3 grid gap-1.5 text-xs font-medium text-ink">
+                      Expected episode duration
+                      <input
+                        type="number"
+                        min="1"
+                        inputMode="numeric"
+                        value={props.directDuration || ""}
+                        onChange={(event) => props.setDirectDuration(Number(event.target.value))}
+                        className="h-10 rounded-xl border border-line bg-surface-page px-3 text-sm font-normal"
+                      />
+                    </label>
+                  ) : null}
+                </div>
+              ) : null}
+            </div>
+          ) : null}
+
+          {["google_drive", "dropbox", "onedrive"].includes(connector.id) ? (
+            <CloudAssetBrowser
+              connector={connector}
+              selected={props.remoteAsset}
+              onSelect={props.setRemoteAsset}
+              importProgress={props.importProgress}
+              importing={Boolean(props.connectorImportId)}
+              onCancel={props.cancelImport}
+            />
+          ) : null}
+        </section>
+      )}
+
+      {connector.executable ? (
+        <label className="mt-5 flex cursor-pointer items-start gap-3 rounded-2xl border border-line bg-surface-raised p-4 focus-within:ring-2 focus-within:ring-ember">
+          <input
+            type="checkbox"
+            checked={props.rights}
+            onChange={(event) => props.setRights(event.target.checked)}
+            className="mt-0.5 h-4 w-4 accent-[var(--ember)]"
+          />
+          <span>
+            <span className="block text-sm font-medium text-ink">
+              I own this content or have permission to upload, edit, and export it.
+            </span>
+            <span className="mt-1 block text-xs leading-5 text-ink-mute">
+              This confirmation is stored with the clipping job and policy version.
+            </span>
+          </span>
+        </label>
+      ) : null}
+    </div>
+  );
+}
+
+function CloudAssetBrowser({
+  connector,
+  selected,
+  onSelect,
+  importProgress,
+  importing,
+  onCancel,
+}: {
+  connector: PublicConnectorDefinition;
+  selected: RemoteMediaAsset | null;
+  onSelect: (asset: RemoteMediaAsset | null) => void;
+  importProgress: { status: string; bytesTransferred: number; bytesTotal: number | null } | null;
+  importing: boolean;
+  onCancel: () => Promise<void>;
+}) {
+  const [query, setQuery] = useState("");
+  const [sharedWithMe, setSharedWithMe] = useState(false);
+  const [assets, setAssets] = useState<RemoteMediaAsset[]>([]);
+  const [cursor, setCursor] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const load = async (nextCursor?: string) => {
+    setLoading(true);
+    setError(null);
+    try {
+      const result = await browseConnectorAssets({
+        data: {
+          connectorId: connector.id as "google_drive" | "dropbox" | "onedrive",
+          query: query || undefined,
+          cursor: nextCursor,
+          sharedWithMe: connector.id === "google_drive" ? sharedWithMe : undefined,
+        },
+      });
+      setAssets((current) => (nextCursor ? [...current, ...result.assets] : result.assets));
+      setCursor(result.nextCursor);
+    } catch (cause) {
+      setError(
+        cause instanceof Error ? cause.message : `${connector.label} files could not be loaded.`,
+      );
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (!connector.connected) {
+    return (
+      <div className="mt-4 rounded-xl border border-line bg-surface-panel p-4">
+        <h4 className="text-sm font-semibold text-ink">Connect {connector.label}</h4>
+        <p className="mt-1 text-xs leading-5 text-ink-mute">
+          Authorize read-only file access in Settings. Provider tokens stay encrypted on the server.
+        </p>
+        <a
+          href="/app/settings/integrations"
+          className="mt-3 inline-flex rounded-lg bg-ink px-3 py-2 text-xs font-semibold text-surface-page"
+        >
+          Open connection settings
+        </a>
+      </div>
+    );
+  }
+
+  const percent = importProgress?.bytesTotal
+    ? Math.min(100, Math.round((importProgress.bytesTransferred / importProgress.bytesTotal) * 100))
+    : null;
+  return (
+    <div className="mt-4">
+      <div className="flex flex-col gap-2 sm:flex-row">
+        <label className="flex h-11 min-w-0 flex-1 items-center gap-2 rounded-xl border border-line bg-surface-page px-3">
+          <Search className="h-4 w-4 text-ink-mute" />
+          <span className="sr-only">Search {connector.label}</span>
+          <input
+            type="search"
+            value={query}
+            onChange={(event) => setQuery(event.target.value)}
+            onKeyDown={(event) => {
+              if (event.key === "Enter") {
+                event.preventDefault();
+                void load();
+              }
+            }}
+            placeholder={`Search ${connector.label}`}
+            className="min-w-0 flex-1 bg-transparent text-sm outline-none"
+          />
+        </label>
+        <button
+          type="button"
+          onClick={() => void load()}
+          disabled={loading || importing}
+          className="inline-flex h-11 items-center justify-center gap-2 rounded-xl bg-ink px-4 text-sm font-semibold text-surface-page disabled:opacity-50"
+        >
+          {loading ? (
+            <LoaderCircle className="h-4 w-4 animate-spin" />
+          ) : (
+            <Search className="h-4 w-4" />
+          )}{" "}
+          Browse files
+        </button>
+      </div>
+      {connector.id === "google_drive" ? (
+        <label className="mt-3 inline-flex items-center gap-2 text-xs text-ink-soft">
+          <input
+            type="checkbox"
+            checked={sharedWithMe}
+            onChange={(event) => setSharedWithMe(event.target.checked)}
+            className="accent-[var(--ember)]"
+          />
+          Shared with me
+        </label>
+      ) : null}
+      {error ? (
+        <p role="alert" className="mt-3 text-xs text-danger">
+          {error}
+        </p>
+      ) : null}
+      {assets.length ? (
+        <div className="mt-4 max-h-80 space-y-2 overflow-y-auto">
+          {assets.map((asset) => (
+            <button
+              key={asset.id}
+              type="button"
+              disabled={importing}
+              onClick={() => onSelect(asset)}
+              className={`flex w-full items-center gap-3 rounded-xl border p-3 text-left disabled:opacity-60 ${selected?.id === asset.id ? "border-ember bg-ember-soft/30" : "border-line bg-surface-page"}`}
+            >
+              {asset.thumbnailUrl ? (
+                <img
+                  src={asset.thumbnailUrl}
+                  alt=""
+                  className="h-12 w-16 rounded-lg object-cover"
+                />
+              ) : (
+                <span className="grid h-12 w-16 place-items-center rounded-lg bg-surface-sunken">
+                  <FileVideo className="h-5 w-5 text-ink-mute" />
+                </span>
+              )}
+              <span className="min-w-0 flex-1">
+                <span className="block truncate text-sm font-medium text-ink">{asset.name}</span>
+                <span className="mt-1 block text-xs text-ink-mute">
+                  {asset.kind === "audio" ? "Audio" : "Video"}
+                  {asset.durationSeconds ? ` · ${formatDuration(asset.durationSeconds)}` : ""}
+                  {asset.sizeBytes ? ` · ${formatBytes(asset.sizeBytes)}` : ""}
+                </span>
+              </span>
+              {selected?.id === asset.id ? (
+                <Check className="h-4 w-4 shrink-0 text-ember-ink" />
+              ) : null}
+            </button>
+          ))}
+          {cursor ? (
+            <button
+              type="button"
+              onClick={() => void load(cursor)}
+              disabled={loading}
+              className="w-full rounded-xl border border-line py-2.5 text-xs font-semibold text-ink-soft"
+            >
+              Load more
+            </button>
+          ) : null}
+        </div>
+      ) : null}
+      {importProgress ? (
+        <div className="mt-4 rounded-xl border border-line bg-surface-panel p-4">
+          <div className="flex items-center justify-between gap-3 text-xs">
+            <span className="font-semibold capitalize text-ink">
+              {importProgress.status.replaceAll("_", " ")}
+            </span>
+            <span className="text-ink-mute">
+              {percent === null ? formatBytes(importProgress.bytesTransferred) : `${percent}%`}
+            </span>
+          </div>
+          <div className="mt-2 h-1.5 overflow-hidden rounded-full bg-surface-sunken">
+            <div
+              className="h-full rounded-full bg-ember transition-[width]"
+              style={{ width: `${percent ?? 20}%` }}
+            />
+          </div>
+          {!["ready", "failed", "cancelled"].includes(importProgress.status) ? (
+            <button
+              type="button"
+              onClick={() => void onCancel()}
+              className="mt-3 text-xs font-semibold text-danger"
+            >
+              Cancel import
+            </button>
+          ) : null}
+        </div>
+      ) : null}
     </div>
   );
 }
@@ -536,6 +1234,13 @@ function formatDuration(seconds: number) {
   return hours > 0
     ? `${hours}:${String(minutes).padStart(2, "0")}:${String(remaining).padStart(2, "0")}`
     : `${minutes}:${String(remaining).padStart(2, "0")}`;
+}
+
+function formatBytes(bytes: number) {
+  if (bytes < 1024) return `${bytes} B`;
+  if (bytes < 1024 ** 2) return `${Math.round(bytes / 1024)} KB`;
+  if (bytes < 1024 ** 3) return `${(bytes / 1024 ** 2).toFixed(1)} MB`;
+  return `${(bytes / 1024 ** 3).toFixed(1)} GB`;
 }
 
 function formatPublishedDate(value: string) {

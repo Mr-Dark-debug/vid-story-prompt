@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
-import { brand } from "@/config/brand";
-import { cn } from "@/lib/utils";
+import { brand } from "../../config/brand";
+import { cn } from "../../lib/utils";
 
 export type LogoTone = "dark" | "light" | "current";
 export type LogoVariant = "lockup" | "mark";

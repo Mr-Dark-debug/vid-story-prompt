@@ -59,9 +59,12 @@ import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenti
 import { Route as AuthenticatedAppHelpRouteImport } from './routes/_authenticated.app.help'
 import { Route as AuthenticatedAppFeedbackRouteImport } from './routes/_authenticated.app.feedback'
 import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authenticated.app.billing'
+import { Route as AuthenticatedAppAutomationsRouteImport } from './routes/_authenticated.app.automations'
 import { Route as AuthenticatedAppYoutubeClipperIndexRouteImport } from './routes/_authenticated.app.youtube-clipper.index'
 import { Route as AuthenticatedAppSettingsIndexRouteImport } from './routes/_authenticated.app.settings.index'
 import { Route as AuthenticatedAppProjectsIndexRouteImport } from './routes/_authenticated.app.projects.index'
+import { Route as AuthenticatedAppAutomationsIndexRouteImport } from './routes/_authenticated.app.automations.index'
+import { Route as AuthConnectorsConnectorIdCallbackRouteImport } from './routes/auth.connectors.$connectorId.callback'
 import { Route as AuthenticatedAppYoutubeClipperNewRouteImport } from './routes/_authenticated.app.youtube-clipper.new'
 import { Route as AuthenticatedAppSettingsPrivacyRouteImport } from './routes/_authenticated.app.settings.privacy'
 import { Route as AuthenticatedAppSettingsPreferencesRouteImport } from './routes/_authenticated.app.settings.preferences'
@@ -69,6 +72,8 @@ import { Route as AuthenticatedAppSettingsNotificationsRouteImport } from './rou
 import { Route as AuthenticatedAppSettingsIntegrationsRouteImport } from './routes/_authenticated.app.settings.integrations'
 import { Route as AuthenticatedAppProjectsNewRouteImport } from './routes/_authenticated.app.projects.new'
 import { Route as AuthenticatedAppProjectsProjectIdRouteImport } from './routes/_authenticated.app.projects.$projectId'
+import { Route as AuthenticatedAppAutomationsNewRouteImport } from './routes/_authenticated.app.automations.new'
+import { Route as AuthenticatedAppAutomationsAutomationIdRouteImport } from './routes/_authenticated.app.automations.$automationId'
 import { Route as AuthenticatedAppProjectsProjectIdIndexRouteImport } from './routes/_authenticated.app.projects.$projectId.index'
 import { Route as AuthenticatedAppYoutubeClipperJobsJobIdRouteImport } from './routes/_authenticated.app.youtube-clipper.jobs.$jobId'
 import { Route as AuthenticatedAppProjectsProjectIdVersionsRouteImport } from './routes/_authenticated.app.projects.$projectId.versions'
@@ -331,6 +336,12 @@ const AuthenticatedAppBillingRoute = AuthenticatedAppBillingRouteImport.update({
   path: '/billing',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const AuthenticatedAppAutomationsRoute =
+  AuthenticatedAppAutomationsRouteImport.update({
+    id: '/automations',
+    path: '/automations',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppYoutubeClipperIndexRoute =
   AuthenticatedAppYoutubeClipperIndexRouteImport.update({
     id: '/',
@@ -348,6 +359,18 @@ const AuthenticatedAppProjectsIndexRoute =
     id: '/projects/',
     path: '/projects/',
     getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppAutomationsIndexRoute =
+  AuthenticatedAppAutomationsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAppAutomationsRoute,
+  } as any)
+const AuthConnectorsConnectorIdCallbackRoute =
+  AuthConnectorsConnectorIdCallbackRouteImport.update({
+    id: '/auth/connectors/$connectorId/callback',
+    path: '/auth/connectors/$connectorId/callback',
+    getParentRoute: () => rootRouteImport,
   } as any)
 const AuthenticatedAppYoutubeClipperNewRoute =
   AuthenticatedAppYoutubeClipperNewRouteImport.update({
@@ -390,6 +413,18 @@ const AuthenticatedAppProjectsProjectIdRoute =
     id: '/projects/$projectId',
     path: '/projects/$projectId',
     getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppAutomationsNewRoute =
+  AuthenticatedAppAutomationsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAppAutomationsRoute,
+  } as any)
+const AuthenticatedAppAutomationsAutomationIdRoute =
+  AuthenticatedAppAutomationsAutomationIdRouteImport.update({
+    id: '/$automationId',
+    path: '/$automationId',
+    getParentRoute: () => AuthenticatedAppAutomationsRoute,
   } as any)
 const AuthenticatedAppProjectsProjectIdIndexRoute =
   AuthenticatedAppProjectsProjectIdIndexRouteImport.update({
@@ -479,6 +514,7 @@ export interface FileRoutesByFullPath {
   '/use-cases/short-form': typeof UseCasesShortFormRoute
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/use-cases/': typeof UseCasesIndexRoute
+  '/app/automations': typeof AuthenticatedAppAutomationsRouteWithChildren
   '/app/billing': typeof AuthenticatedAppBillingRoute
   '/app/feedback': typeof AuthenticatedAppFeedbackRoute
   '/app/help': typeof AuthenticatedAppHelpRoute
@@ -490,6 +526,8 @@ export interface FileRoutesByFullPath {
   '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
   '/app/': typeof AuthenticatedAppIndexRoute
+  '/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
+  '/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
   '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
@@ -497,6 +535,8 @@ export interface FileRoutesByFullPath {
   '/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
   '/app/settings/privacy': typeof AuthenticatedAppSettingsPrivacyRoute
   '/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
+  '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
+  '/app/automations/': typeof AuthenticatedAppAutomationsIndexRoute
   '/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
   '/app/settings/': typeof AuthenticatedAppSettingsIndexRoute
   '/app/youtube-clipper/': typeof AuthenticatedAppYoutubeClipperIndexRoute
@@ -555,12 +595,16 @@ export interface FileRoutesByTo {
   '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
   '/app': typeof AuthenticatedAppIndexRoute
+  '/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
+  '/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
   '/app/settings/notifications': typeof AuthenticatedAppSettingsNotificationsRoute
   '/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
   '/app/settings/privacy': typeof AuthenticatedAppSettingsPrivacyRoute
   '/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
+  '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
+  '/app/automations': typeof AuthenticatedAppAutomationsIndexRoute
   '/app/projects': typeof AuthenticatedAppProjectsIndexRoute
   '/app/settings': typeof AuthenticatedAppSettingsIndexRoute
   '/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperIndexRoute
@@ -614,6 +658,7 @@ export interface FileRoutesById {
   '/use-cases/short-form': typeof UseCasesShortFormRoute
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/use-cases/': typeof UseCasesIndexRoute
+  '/_authenticated/app/automations': typeof AuthenticatedAppAutomationsRouteWithChildren
   '/_authenticated/app/billing': typeof AuthenticatedAppBillingRoute
   '/_authenticated/app/feedback': typeof AuthenticatedAppFeedbackRoute
   '/_authenticated/app/help': typeof AuthenticatedAppHelpRoute
@@ -625,6 +670,8 @@ export interface FileRoutesById {
   '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
+  '/_authenticated/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
+  '/_authenticated/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
   '/_authenticated/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   '/_authenticated/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/_authenticated/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
@@ -632,6 +679,8 @@ export interface FileRoutesById {
   '/_authenticated/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
   '/_authenticated/app/settings/privacy': typeof AuthenticatedAppSettingsPrivacyRoute
   '/_authenticated/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
+  '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
+  '/_authenticated/app/automations/': typeof AuthenticatedAppAutomationsIndexRoute
   '/_authenticated/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
   '/_authenticated/app/settings/': typeof AuthenticatedAppSettingsIndexRoute
   '/_authenticated/app/youtube-clipper/': typeof AuthenticatedAppYoutubeClipperIndexRoute
@@ -685,6 +734,7 @@ export interface FileRouteTypes {
     | '/use-cases/short-form'
     | '/use-cases/youtube'
     | '/use-cases/'
+    | '/app/automations'
     | '/app/billing'
     | '/app/feedback'
     | '/app/help'
@@ -696,6 +746,8 @@ export interface FileRouteTypes {
     | '/api/youtube/webhook'
     | '/auth/youtube/callback'
     | '/app/'
+    | '/app/automations/$automationId'
+    | '/app/automations/new'
     | '/app/projects/$projectId'
     | '/app/projects/new'
     | '/app/settings/integrations'
@@ -703,6 +755,8 @@ export interface FileRouteTypes {
     | '/app/settings/preferences'
     | '/app/settings/privacy'
     | '/app/youtube-clipper/new'
+    | '/auth/connectors/$connectorId/callback'
+    | '/app/automations/'
     | '/app/projects/'
     | '/app/settings/'
     | '/app/youtube-clipper/'
@@ -761,12 +815,16 @@ export interface FileRouteTypes {
     | '/api/youtube/webhook'
     | '/auth/youtube/callback'
     | '/app'
+    | '/app/automations/$automationId'
+    | '/app/automations/new'
     | '/app/projects/new'
     | '/app/settings/integrations'
     | '/app/settings/notifications'
     | '/app/settings/preferences'
     | '/app/settings/privacy'
     | '/app/youtube-clipper/new'
+    | '/auth/connectors/$connectorId/callback'
+    | '/app/automations'
     | '/app/projects'
     | '/app/settings'
     | '/app/youtube-clipper'
@@ -819,6 +877,7 @@ export interface FileRouteTypes {
     | '/use-cases/short-form'
     | '/use-cases/youtube'
     | '/use-cases/'
+    | '/_authenticated/app/automations'
     | '/_authenticated/app/billing'
     | '/_authenticated/app/feedback'
     | '/_authenticated/app/help'
@@ -830,6 +889,8 @@ export interface FileRouteTypes {
     | '/api/youtube/webhook'
     | '/auth/youtube/callback'
     | '/_authenticated/app/'
+    | '/_authenticated/app/automations/$automationId'
+    | '/_authenticated/app/automations/new'
     | '/_authenticated/app/projects/$projectId'
     | '/_authenticated/app/projects/new'
     | '/_authenticated/app/settings/integrations'
@@ -837,6 +898,8 @@ export interface FileRouteTypes {
     | '/_authenticated/app/settings/preferences'
     | '/_authenticated/app/settings/privacy'
     | '/_authenticated/app/youtube-clipper/new'
+    | '/auth/connectors/$connectorId/callback'
+    | '/_authenticated/app/automations/'
     | '/_authenticated/app/projects/'
     | '/_authenticated/app/settings/'
     | '/_authenticated/app/youtube-clipper/'
@@ -880,6 +943,7 @@ export interface RootRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
   ApiYoutubeWebhookRoute: typeof ApiYoutubeWebhookRoute
   AuthYoutubeCallbackRoute: typeof AuthYoutubeCallbackRoute
+  AuthConnectorsConnectorIdCallbackRoute: typeof AuthConnectorsConnectorIdCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -1234,6 +1298,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppBillingRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/automations': {
+      id: '/_authenticated/app/automations'
+      path: '/automations'
+      fullPath: '/app/automations'
+      preLoaderRoute: typeof AuthenticatedAppAutomationsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/youtube-clipper/': {
       id: '/_authenticated/app/youtube-clipper/'
       path: '/'
@@ -1254,6 +1325,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/projects/'
       preLoaderRoute: typeof AuthenticatedAppProjectsIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/automations/': {
+      id: '/_authenticated/app/automations/'
+      path: '/'
+      fullPath: '/app/automations/'
+      preLoaderRoute: typeof AuthenticatedAppAutomationsIndexRouteImport
+      parentRoute: typeof AuthenticatedAppAutomationsRoute
+    }
+    '/auth/connectors/$connectorId/callback': {
+      id: '/auth/connectors/$connectorId/callback'
+      path: '/auth/connectors/$connectorId/callback'
+      fullPath: '/auth/connectors/$connectorId/callback'
+      preLoaderRoute: typeof AuthConnectorsConnectorIdCallbackRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/youtube-clipper/new': {
       id: '/_authenticated/app/youtube-clipper/new'
@@ -1303,6 +1388,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/projects/$projectId'
       preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdRouteImport
       parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/automations/new': {
+      id: '/_authenticated/app/automations/new'
+      path: '/new'
+      fullPath: '/app/automations/new'
+      preLoaderRoute: typeof AuthenticatedAppAutomationsNewRouteImport
+      parentRoute: typeof AuthenticatedAppAutomationsRoute
+    }
+    '/_authenticated/app/automations/$automationId': {
+      id: '/_authenticated/app/automations/$automationId'
+      path: '/$automationId'
+      fullPath: '/app/automations/$automationId'
+      preLoaderRoute: typeof AuthenticatedAppAutomationsAutomationIdRouteImport
+      parentRoute: typeof AuthenticatedAppAutomationsRoute
     }
     '/_authenticated/app/projects/$projectId/': {
       id: '/_authenticated/app/projects/$projectId/'
@@ -1362,6 +1461,26 @@ declare module '@tanstack/react-router' {
     }
   }
 }
+
+interface AuthenticatedAppAutomationsRouteChildren {
+  AuthenticatedAppAutomationsAutomationIdRoute: typeof AuthenticatedAppAutomationsAutomationIdRoute
+  AuthenticatedAppAutomationsNewRoute: typeof AuthenticatedAppAutomationsNewRoute
+  AuthenticatedAppAutomationsIndexRoute: typeof AuthenticatedAppAutomationsIndexRoute
+}
+
+const AuthenticatedAppAutomationsRouteChildren: AuthenticatedAppAutomationsRouteChildren =
+  {
+    AuthenticatedAppAutomationsAutomationIdRoute:
+      AuthenticatedAppAutomationsAutomationIdRoute,
+    AuthenticatedAppAutomationsNewRoute: AuthenticatedAppAutomationsNewRoute,
+    AuthenticatedAppAutomationsIndexRoute:
+      AuthenticatedAppAutomationsIndexRoute,
+  }
+
+const AuthenticatedAppAutomationsRouteWithChildren =
+  AuthenticatedAppAutomationsRoute._addFileChildren(
+    AuthenticatedAppAutomationsRouteChildren,
+  )
 
 interface AuthenticatedAppSettingsRouteChildren {
   AuthenticatedAppSettingsIntegrationsRoute: typeof AuthenticatedAppSettingsIntegrationsRoute
@@ -1443,6 +1562,7 @@ const AuthenticatedAppProjectsProjectIdRouteWithChildren =
   )
 
 interface AuthenticatedAppRouteChildren {
+  AuthenticatedAppAutomationsRoute: typeof AuthenticatedAppAutomationsRouteWithChildren
   AuthenticatedAppBillingRoute: typeof AuthenticatedAppBillingRoute
   AuthenticatedAppFeedbackRoute: typeof AuthenticatedAppFeedbackRoute
   AuthenticatedAppHelpRoute: typeof AuthenticatedAppHelpRoute
@@ -1458,6 +1578,8 @@ interface AuthenticatedAppRouteChildren {
 }
 
 const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
+  AuthenticatedAppAutomationsRoute:
+    AuthenticatedAppAutomationsRouteWithChildren,
   AuthenticatedAppBillingRoute: AuthenticatedAppBillingRoute,
   AuthenticatedAppFeedbackRoute: AuthenticatedAppFeedbackRoute,
   AuthenticatedAppHelpRoute: AuthenticatedAppHelpRoute,
@@ -1559,6 +1681,8 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCallbackRoute: AuthCallbackRoute,
   ApiYoutubeWebhookRoute: ApiYoutubeWebhookRoute,
   AuthYoutubeCallbackRoute: AuthYoutubeCallbackRoute,
+  AuthConnectorsConnectorIdCallbackRoute:
+    AuthConnectorsConnectorIdCallbackRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

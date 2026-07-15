@@ -1,5 +1,6 @@
 import { execa } from "execa";
 import { env } from "../config/env.js";
+import { probeMedia } from "./probe.js";
 
 export async function extractSpeechAudio(source: string, output: string, signal?: AbortSignal) {
   await execa(
@@ -25,14 +26,18 @@ export async function extractSpeechAudio(source: string, output: string, signal?
   );
 }
 export async function createProxy(source: string, output: string, signal?: AbortSignal) {
+  const { hasVideo } = await probeMedia(source);
+  const input = hasVideo
+    ? ["-i", source]
+    : ["-f", "lavfi", "-i", "color=c=#1f2024:s=1280x720:r=30", "-i", source];
   await execa(
     env.FFMPEG_PATH,
     [
       "-hide_banner",
       "-nostdin",
       "-y",
-      "-i",
-      source,
+      ...input,
+      ...(hasVideo ? [] : ["-map", "0:v:0", "-map", "1:a:0", "-shortest"]),
       "-vf",
       "scale='min(1280,iw)':-2",
       "-c:v",
@@ -67,6 +72,7 @@ export async function renderClip(
   },
   signal?: AbortSignal,
 ) {
+  const { hasVideo } = await probeMedia(input.source);
   const filters = [
     `scale=${input.width}:${input.height}:force_original_aspect_ratio=decrease`,
     `pad=${input.width}:${input.height}:(ow-iw)/2:(oh-ih)/2:black`,
@@ -88,10 +94,22 @@ export async function renderClip(
       "-hide_banner",
       "-nostdin",
       "-y",
-      "-ss",
-      String(input.start),
-      "-i",
-      input.source,
+      ...(hasVideo
+        ? ["-ss", String(input.start), "-i", input.source]
+        : [
+            "-f",
+            "lavfi",
+            "-i",
+            `color=c=#1f2024:s=${input.width}x${input.height}:r=30`,
+            "-ss",
+            String(input.start),
+            "-i",
+            input.source,
+            "-map",
+            "0:v:0",
+            "-map",
+            "1:a:0",
+          ]),
       "-t",
       String(input.duration),
       "-vf",
@@ -110,6 +128,7 @@ export async function renderClip(
       "160k",
       "-movflags",
       "+faststart",
+      ...(hasVideo ? [] : ["-shortest"]),
       input.output,
     ],
     { timeout: 60 * 60_000, cancelSignal: signal },

@@ -9,3 +9,5 @@ YouTube OAuth uses incremental permissions. Channel connection requests read-onl
 Completed exports can be uploaded through the external worker with YouTube's resumable upload protocol. Publishing defaults to private and records scheduled, uploading, processing, published, reconnect-required, cancelled, or failed state in Supabase.
 
 Recoverable UI states name a specific retry, resume, re-authenticate, replace-source or upgrade action. Progress reports uploaded bytes, successful transcript chunks and completed previews rather than invented percentages.
+
+YouTube is one connector in the shared source picker. It remains metadata-only for ingestion: Vidrial may display the official privacy-enhanced embed and verify a connected channel, but it never resolves or downloads a playback stream. Every YouTube clipping job records both the YouTube metadata attachment and the explicitly selected original media attachment.

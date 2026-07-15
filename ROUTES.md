@@ -87,3 +87,11 @@ prefixes are layout/pathless routes.
 - `/login`, `/signup`, `/verify-email`, `/forgot-password`, `/reset-password` — Supabase Auth flows with redirect preservation.
 
 File routes follow `src/routes/README.md`. `src/routeTree.gen.ts` is generated only.
+
+The current clipping wizard has three steps: source (including rights), clip preferences and review.
+
+- `/app/automations` — verified automation rules and the trigger directory.
+- `/app/automations/new` — source-trigger selection with honest availability.
+- `/app/automations/:automationId` — automation rule details.
+- `/auth/connectors/:connectorId/callback` — exact PKCE callback for Google Drive, Dropbox and OneDrive.
+- `/app/settings/integrations` — connected sources, available sources, provider beta setup, publishing, developer and coming-soon connections.

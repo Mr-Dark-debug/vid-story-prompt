@@ -37,6 +37,18 @@ export const env = z
       (value) => (value === "" ? undefined : value),
       z.string().min(32).optional(),
     ),
+    CONNECTOR_TOKEN_ENCRYPTION_KEY: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.string().min(32).optional(),
+    ),
+    CLAMAV_PATH: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.string().min(1).optional(),
+    ),
+    VIRUS_SCAN_REQUIRED: z
+      .enum(["true", "false"])
+      .default("false")
+      .transform((value) => value === "true"),
     LOG_LEVEL: z.string().default("info"),
   })
   .parse(process.env);

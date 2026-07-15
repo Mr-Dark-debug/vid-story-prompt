@@ -44,7 +44,7 @@ const youtubeResponseSchema = z.object({
         channelTitle: z.string(),
         publishedAt: z.string(),
         liveBroadcastContent: z.string(),
-        thumbnails: z.record(z.object({ url: z.string().url() })),
+        thumbnails: z.record(z.string(), z.object({ url: z.string().url() })),
       }),
       contentDetails: z.object({
         duration: z.string(),

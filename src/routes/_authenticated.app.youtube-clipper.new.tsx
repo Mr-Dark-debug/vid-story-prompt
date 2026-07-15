@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { z } from "zod";
 import { AppPageHeader } from "@/components/app/layout";
 import { JobWizard } from "@/components/youtube-clipper/job-wizard";
+import { getPublicConnectorCatalog } from "@/services/connectors/server";
 
 export const Route = createFileRoute("/_authenticated/app/youtube-clipper/new")({
   validateSearch: z.object({
@@ -9,11 +10,13 @@ export const Route = createFileRoute("/_authenticated/app/youtube-clipper/new")(
     source: z.string().optional(),
     draft: z.string().uuid().optional(),
   }),
+  loader: () => getPublicConnectorCatalog(),
   component: NewClipJob,
 });
 
 function NewClipJob() {
   const search = Route.useSearch();
+  const connectors = Route.useLoaderData();
   return (
     <div className="mx-auto max-w-4xl">
       <AppPageHeader
@@ -22,6 +25,7 @@ function NewClipJob() {
         description="You stay in control of the source, the selected moments and every edit."
       />
       <JobWizard
+        connectors={connectors}
         initialYoutube={search.youtube}
         initialSource={search.source}
         initialDraft={search.draft}

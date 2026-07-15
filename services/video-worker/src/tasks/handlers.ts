@@ -10,6 +10,7 @@ import { TaskFailure, type ClipTask, type TaskResult } from "../domain/types.js"
 import { createProxy, extractSpeechAudio, renderClip } from "../media/ffmpeg.js";
 import { probeMedia } from "../media/probe.js";
 import { downloadDirectMedia } from "../security/direct-download.js";
+import { scanLocalFile } from "../security/virus-scan.js";
 import { downloadAsset, supabase, uploadAsset } from "../storage/client.js";
 import { mergeTranscriptChunks } from "../transcription/merge.js";
 import { transcribeWithFallback } from "../transcription/providers.js";
@@ -41,22 +42,20 @@ async function insertAsset(
   },
 ) {
   const id = randomUUID();
-  const { error } = await supabase
-    .from("media_assets")
-    .insert({
-      id,
-      workspace_id: job.workspace_id,
-      user_id: job.user_id,
-      source_type: job.source_type,
-      storage_bucket: input.bucket,
-      storage_path: input.path,
-      display_name: input.name,
-      mime_type: input.mime,
-      size_bytes: input.size,
-      checksum_sha256: input.checksum,
-      status: input.status ?? "ready",
-      metadata_json: input.metadata ?? {},
-    });
+  const { error } = await supabase.from("media_assets").insert({
+    id,
+    workspace_id: job.workspace_id,
+    user_id: job.user_id,
+    source_type: job.source_type,
+    storage_bucket: input.bucket,
+    storage_path: input.path,
+    display_name: input.name,
+    mime_type: input.mime,
+    size_bytes: input.size,
+    checksum_sha256: input.checksum,
+    status: input.status ?? "ready",
+    metadata_json: input.metadata ?? {},
+  });
   if (error) throw error;
   return id;
 }
@@ -64,6 +63,7 @@ async function insertAsset(
 async function validateSource(task: ClipTask): Promise<TaskResult> {
   return withTaskDirectory(task, async (directory) => {
     const { job, asset, target } = await downloadJobSource(task.clip_job_id, directory);
+    const virusScan = await scanLocalFile(target);
     const info = await probeMedia(target);
     if (!info.hasAudio)
       throw new TaskFailure("missing_audio", "Speech clipping requires an audio stream.", false);
@@ -88,7 +88,7 @@ async function validateSource(task: ClipTask): Promise<TaskResult> {
         audio_codec: info.audioCodec,
         has_audio: info.hasAudio,
         status: "ready",
-        metadata_json: info,
+        metadata_json: { ...info, virusScan },
         updated_at: new Date().toISOString(),
       })
       .eq("id", asset.id);
@@ -114,6 +114,7 @@ async function downloadDirect(task: ClipTask): Promise<TaskResult> {
     const url = z.string().url().parse(task.input_json.url);
     const target = join(directory, "direct-source");
     const downloaded = await downloadDirectMedia(url, target);
+    const virusScan = await scanLocalFile(target);
     const info = await probeMedia(target);
     if (!info.hasAudio)
       throw new TaskFailure("missing_audio", "Speech clipping requires an audio stream.", false);
@@ -127,7 +128,7 @@ async function downloadDirect(task: ClipTask): Promise<TaskResult> {
       mime: "application/octet-stream",
       size: (await stat(target)).size,
       checksum,
-      metadata: { ...info, finalUrlOrigin: new URL(downloaded.finalUrl).origin },
+      metadata: { ...info, virusScan, finalUrlOrigin: new URL(downloaded.finalUrl).origin },
     });
     const { error } = await supabase
       .from("clip_jobs")
@@ -491,6 +492,12 @@ async function preview(task: ClipTask): Promise<TaskResult> {
 async function detectScenes(task: ClipTask): Promise<TaskResult> {
   return withTaskDirectory(task, async (directory) => {
     const { target } = await downloadJobSource(task.clip_job_id, directory);
+    const info = await probeMedia(target);
+    if (!info.hasVideo)
+      return {
+        output: { sceneTimestamps: [] },
+        message: "Audio-only source does not require scene detection.",
+      };
     const { stderr } = await execa(
       env.FFMPEG_PATH,
       [

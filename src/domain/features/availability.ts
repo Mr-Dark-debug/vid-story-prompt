@@ -1,0 +1,46 @@
+export type FeatureState = "available" | "beta" | "planned";
+
+export const CLIPPING_FEATURES = {
+  aiMomentDiscovery: "available",
+  promptMomentSearch: "available",
+  completeThoughtDetection: "available",
+  hookStrength: "available",
+  standaloneClarity: "available",
+  transcriptEditor: "available",
+  captionCorrection: "available",
+  animatedCaptionPresets: "beta",
+  fillerWordRemoval: "planned",
+  longSilenceRemoval: "beta",
+  subjectTracking: "planned",
+  multiSpeakerLayouts: "planned",
+  customFonts: "planned",
+  brandColours: "beta",
+  bRoll: "planned",
+  aiImageBRoll: "planned",
+  aiVideoBRoll: "planned",
+  aiVoiceover: "planned",
+  translation: "planned",
+  dubbing: "planned",
+  timelineRearrangement: "available",
+  clipDuplication: "planned",
+  export720p: "available",
+  export1080p: "available",
+  export2k: "planned",
+  export4k: "available",
+  export60fps: "available",
+  srtExport: "planned",
+  vttExport: "planned",
+  mp4Export: "available",
+  zipExport: "available",
+  premiereXml: "planned",
+  davinciXml: "planned",
+  directPublishing: "available",
+  scheduling: "available",
+  teamCollaboration: "beta",
+  comments: "available",
+  versionHistory: "available",
+} as const satisfies Record<string, FeatureState>;
+
+export function featureIsExecutable(feature: keyof typeof CLIPPING_FEATURES) {
+  return CLIPPING_FEATURES[feature] === "available";
+}

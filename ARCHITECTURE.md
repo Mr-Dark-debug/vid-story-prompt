@@ -83,3 +83,9 @@ TanStack Start serves the marketing and authenticated application on Vercel/Lova
 Job creation atomically checks workspace, plan, usage and concurrency; records rights; reserves usage; creates a task; and writes an outbox event. PGMQ wakes a portable worker while `job_tasks` remains authoritative for leases, retries, recovery and idempotency. The worker streams immutable artifacts through isolated temp directories and executes FFmpeg with argument arrays.
 
 See `docs/adr/0001-external-video-worker.md` for the worker placement decision.
+
+## Connector platform
+
+The typed registry in `src/domain/connectors` drives source discovery, search, grouping and honest availability. OAuth and provider API calls live under `src/services/connectors`; React only receives serialisable definitions, safe account metadata and remote asset records. `oauth_connections` remains the encrypted token source of truth and `connector_connections` is its token-free security-invoker view.
+
+Remote imports use `connector_imports` plus independently leased `connector_tasks`. The worker obtains provider tokens only from the encrypted server store, streams an officially authorised asset into an isolated directory, bounds transfer size/time, validates MIME and FFprobe output, writes an immutable private object and attaches the resulting `media_asset`. Clip usage is still reserved only when the user confirms a clipping job.
