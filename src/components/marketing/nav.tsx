@@ -10,7 +10,9 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { MarketingAccountActions } from "./account-actions";
 import { cn } from "@/lib/utils";
+import { useSessionState } from "@/services/auth";
 
 function DropTrigger({ label, items }: { label: string; items: NavItem[] }) {
   return (
@@ -39,6 +41,7 @@ export function MarketingNav() {
   const [scrolled, setScrolled] = useState(false);
   const [open, setOpen] = useState(false);
   const menuButton = useRef<HTMLButtonElement>(null);
+  const { user, isLoading } = useSessionState();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -89,18 +92,7 @@ export function MarketingNav() {
           </nav>
         </div>
         <div className="hidden items-center gap-2 lg:flex">
-          <Link
-            to="/login"
-            className="rounded-md px-3 py-2 text-sm text-ink-soft transition-colors hover:text-ink"
-          >
-            Log in
-          </Link>
-          <Link
-            to="/signup"
-            className="inline-flex items-center rounded-md bg-ink px-3.5 py-2 text-sm font-medium text-surface-page shadow-sm transition-transform hover:-translate-y-px focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-          >
-            Start editing
-          </Link>
+          <MarketingAccountActions user={user} isLoading={isLoading} />
         </div>
         <button
           ref={menuButton}
@@ -117,24 +109,22 @@ export function MarketingNav() {
         <div className="lg:hidden">
           <div className="border-t border-line bg-surface-panel px-5 py-4 sm:px-8">
             <MobileSection label="Product" items={productMenu} onNavigate={() => setOpen(false)} />
-            <MobileSection label="Use cases" items={useCasesMenu} onNavigate={() => setOpen(false)} />
-            <MobileSection label="Resources" items={resourcesMenu} onNavigate={() => setOpen(false)} />
-            <div className="mt-4 flex gap-2 border-t border-line pt-4">
-              <Link
-                to="/login"
-                onClick={() => setOpen(false)}
-                className="inline-flex min-h-11 flex-1 items-center justify-center rounded-md border border-line px-3 py-2 text-center text-sm text-ink"
-              >
-                Log in
-              </Link>
-              <Link
-                to="/signup"
-                onClick={() => setOpen(false)}
-                className="inline-flex min-h-11 flex-1 items-center justify-center rounded-md bg-ink px-3 py-2 text-center text-sm text-surface-page"
-              >
-                Start editing
-              </Link>
-            </div>
+            <MobileSection
+              label="Use cases"
+              items={useCasesMenu}
+              onNavigate={() => setOpen(false)}
+            />
+            <MobileSection
+              label="Resources"
+              items={resourcesMenu}
+              onNavigate={() => setOpen(false)}
+            />
+            <MarketingAccountActions
+              user={user}
+              isLoading={isLoading}
+              mobile
+              onNavigate={() => setOpen(false)}
+            />
           </div>
         </div>
       )}

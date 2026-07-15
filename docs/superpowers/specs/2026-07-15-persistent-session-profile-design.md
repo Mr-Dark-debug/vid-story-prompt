@@ -45,4 +45,3 @@ The workspace sidebar uses the shared Avatar component to render the Google imag
 4. Run typecheck, lint, unit/integration tests, production build, worker checks, and relevant Playwright tests.
 5. Deploy the database migration and application.
 6. In production, verify login, refresh, a newly opened tab, `/login` while authenticated, canonical home navigation, alternate production aliases, name/avatar rendering, and explicit logout.
-

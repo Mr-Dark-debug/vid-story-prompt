@@ -1,12 +1,21 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
 import { AuthField, AuthForm, AuthShell, GoogleAuthButton } from "@/components/auth/auth-shell";
 import { authService } from "@/services/auth";
 import { userFacingError } from "@/lib/user-facing-error";
+import { getCurrentSession } from "@/services/auth/server";
+
+function safeAuthenticatedDestination(value?: string) {
+  return value?.startsWith("/") && !value.startsWith("//") ? value : "/app";
+}
 
 export const Route = createFileRoute("/login")({
   validateSearch: z.object({ redirect: z.string().optional(), authError: z.string().optional() }),
+  beforeLoad: async ({ search }) => {
+    if (await getCurrentSession())
+      throw redirect({ href: safeAuthenticatedDestination(search.redirect) });
+  },
   head: () => ({
     meta: [{ title: "Log in — Vidrial" }],
     links: [{ rel: "canonical", href: "/login" }],

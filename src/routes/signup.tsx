@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect } from "@tanstack/react-router";
 import { useState, type FormEvent } from "react";
 import { z } from "zod";
 import { AuthField, AuthForm, AuthShell, GoogleAuthButton } from "@/components/auth/auth-shell";
@@ -6,9 +6,18 @@ import { TurnstileWidget } from "@/components/security/turnstile";
 import { getPublicEnv } from "@/config/env";
 import { authService } from "@/services/auth";
 import { userFacingError } from "@/lib/user-facing-error";
+import { getCurrentSession } from "@/services/auth/server";
+
+function safeAuthenticatedDestination(value?: string) {
+  return value?.startsWith("/") && !value.startsWith("//") ? value : "/app";
+}
 
 export const Route = createFileRoute("/signup")({
   validateSearch: z.object({ redirect: z.string().optional() }),
+  beforeLoad: async ({ search }) => {
+    if (await getCurrentSession())
+      throw redirect({ href: safeAuthenticatedDestination(search.redirect) });
+  },
   head: () => ({
     meta: [{ title: "Sign up — Vidrial" }],
     links: [{ rel: "canonical", href: "/signup" }],

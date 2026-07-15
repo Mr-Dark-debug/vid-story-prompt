@@ -11,7 +11,7 @@ Create a Web application OAuth client and configure these production redirect UR
 
 ```text
 https://vifcdussqjhvhurxzdwq.supabase.co/auth/v1/callback
-https://vid-story-prompt-prashant-project.vercel.app/auth/youtube/callback
+https://vid-story-prompt.vercel.app/auth/youtube/callback
 ```
 
 For local development, also allow:
@@ -35,8 +35,7 @@ Under Authentication → Sign In / Providers → Google:
 Set the Site URL to the production application URL and allow these redirects:
 
 ```text
-https://vid-story-prompt-prashant-project.vercel.app/**
-https://vid-story-prompt-mr-dark-debug-prashant-project.vercel.app/**
+https://vid-story-prompt.vercel.app/**
 http://localhost:3000/**
 ```
 
@@ -63,5 +62,7 @@ YOUTUBE_API_KEY
 ```
 
 `GOOGLE_OAUTH_TOKEN_ENCRYPTION_KEY` must contain at least 32 random characters. Store all server-only values as encrypted hosting secrets. Never commit them or prefix them with `VITE_`.
+
+Set `PUBLIC_APP_URL=https://vid-story-prompt.vercel.app`. Production requests received on another Vercel alias are redirected to this canonical origin before the application renders so the Supabase session cookie stays on one hostname.
 
 When changing the production hostname, update Google redirect URIs, Supabase Site URL/redirect allowlist, `PUBLIC_APP_URL`, and then redeploy.

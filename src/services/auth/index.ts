@@ -11,6 +11,7 @@ import {
 } from "./server";
 
 export type User = NonNullable<Awaited<ReturnType<typeof getCurrentSession>>>;
+export type SessionState = { user: User | null; isLoading: boolean };
 
 export const authService = {
   current: getCurrentSession,
@@ -22,24 +23,21 @@ export const authService = {
     turnstileToken?: string,
     redirect?: string,
   ) => signup({ data: { email, password, displayName, turnstileToken, redirect } }),
-  googleSignIn: (
-    intent: "login" | "signup",
-    redirect?: string,
-    turnstileToken?: string,
-  ) => beginGoogleSignIn({ data: { intent, redirect, turnstileToken } }),
+  googleSignIn: (intent: "login" | "signup", redirect?: string, turnstileToken?: string) =>
+    beginGoogleSignIn({ data: { intent, redirect, turnstileToken } }),
   requestPasswordReset: (email: string) => requestPasswordReset({ data: { email } }),
   resetPassword: (password: string) => resetPassword({ data: { password } }),
   logout: () => logout(),
 };
 
-export function useSession() {
-  const [user, setUser] = useState<User | null>(null);
+export function useSessionState() {
+  const [state, setState] = useState<SessionState>({ user: null, isLoading: true });
   useEffect(() => {
     let active = true;
     const refresh = () => {
       getCurrentSession()
-        .then((session) => active && setUser(session))
-        .catch(() => active && setUser(null));
+        .then((session) => active && setState({ user: session, isLoading: false }))
+        .catch(() => active && setState({ user: null, isLoading: false }));
     };
     refresh();
     const { data } = getSupabaseBrowserClient().auth.onAuthStateChange(() => refresh());
@@ -48,5 +46,9 @@ export function useSession() {
       data.subscription.unsubscribe();
     };
   }, []);
-  return user;
+  return state;
+}
+
+export function useSession() {
+  return useSessionState().user;
 }

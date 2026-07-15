@@ -21,6 +21,7 @@ import { toast } from "sonner";
 import { appNav } from "@/config/nav";
 import { Logo } from "@/components/primitives/logo";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import {
   Sheet,
   SheetContent,
@@ -65,25 +66,51 @@ export function AppLayout() {
     if (!user?.workspaceId) return;
     let active = true;
     let channel: ReturnType<ReturnType<typeof getSupabaseBrowserClient>["channel"]> | undefined;
-    void getAccountPreferences().then((preferences) => {
-      if (!active) return;
-      const notifyOnce = (key: string, message: string) => {
-        if (seenNotifications.current.has(key)) return;
-        seenNotifications.current.add(key);
-        toast.success(message);
-      };
-      channel = getSupabaseBrowserClient()
-        .channel(`workspace-notifications-${user.id}`)
-        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "exports", filter: `workspace_id=eq.${user.workspaceId}` }, (payload) => {
-          const item = payload.new as { id?: string; status?: string };
-          if (preferences.notifications.exportComplete && item.id && item.status === "complete") notifyOnce(`export-${item.id}`, "Your export is ready to download.");
-        })
-        .on("postgres_changes", { event: "UPDATE", schema: "public", table: "clip_jobs", filter: `workspace_id=eq.${user.workspaceId}` }, (payload) => {
-          const item = payload.new as { id?: string; status?: string };
-          if (preferences.notifications.aiPlanComplete && item.id && ["ready", "completed"].includes(item.status ?? "")) notifyOnce(`job-${item.id}`, "Your clip analysis is ready to review.");
-        })
-        .subscribe();
-    }).catch(() => undefined);
+    void getAccountPreferences()
+      .then((preferences) => {
+        if (!active) return;
+        const notifyOnce = (key: string, message: string) => {
+          if (seenNotifications.current.has(key)) return;
+          seenNotifications.current.add(key);
+          toast.success(message);
+        };
+        channel = getSupabaseBrowserClient()
+          .channel(`workspace-notifications-${user.id}`)
+          .on(
+            "postgres_changes",
+            {
+              event: "UPDATE",
+              schema: "public",
+              table: "exports",
+              filter: `workspace_id=eq.${user.workspaceId}`,
+            },
+            (payload) => {
+              const item = payload.new as { id?: string; status?: string };
+              if (preferences.notifications.exportComplete && item.id && item.status === "complete")
+                notifyOnce(`export-${item.id}`, "Your export is ready to download.");
+            },
+          )
+          .on(
+            "postgres_changes",
+            {
+              event: "UPDATE",
+              schema: "public",
+              table: "clip_jobs",
+              filter: `workspace_id=eq.${user.workspaceId}`,
+            },
+            (payload) => {
+              const item = payload.new as { id?: string; status?: string };
+              if (
+                preferences.notifications.aiPlanComplete &&
+                item.id &&
+                ["ready", "completed"].includes(item.status ?? "")
+              )
+                notifyOnce(`job-${item.id}`, "Your clip analysis is ready to review.");
+            },
+          )
+          .subscribe();
+      })
+      .catch(() => undefined);
     return () => {
       active = false;
       if (channel) void getSupabaseBrowserClient().removeChannel(channel);
@@ -236,12 +263,21 @@ function SidebarContent({
 
       <div className="mt-auto border-t border-line pt-4">
         <div className={cn("flex items-center gap-3", collapsed && "flex-col")}>
-          <div
-            aria-hidden
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-ember-soft font-display text-sm text-ember-ink"
+          <Avatar
+            aria-label={`${user?.name || "Your account"} profile`}
+            className="h-10 w-10 border border-line bg-ember-soft"
           >
-            {(user?.name || user?.email || "A").slice(0, 1).toUpperCase()}
-          </div>
+            {user?.avatarUrl ? (
+              <AvatarImage
+                src={user.avatarUrl}
+                alt={`${user.name} profile photo`}
+                referrerPolicy="no-referrer"
+              />
+            ) : null}
+            <AvatarFallback className="bg-ember-soft font-display text-sm text-ember-ink">
+              {(user?.name || user?.email || "A").slice(0, 1).toUpperCase()}
+            </AvatarFallback>
+          </Avatar>
           {!collapsed ? (
             <div className="min-w-0 flex-1">
               <div className="truncate text-sm font-medium text-ink">

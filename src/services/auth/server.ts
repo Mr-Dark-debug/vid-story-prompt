@@ -4,6 +4,7 @@ import { getServerEnv } from "@/config/env.server";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { verifyTurnstile } from "@/services/security/turnstile.server";
 import { logAuthFailure } from "./diagnostics";
+import { resolveAuthProfile } from "./profile";
 
 const credentialsSchema = z.object({
   email: z.string().email().max(320),
@@ -46,16 +47,12 @@ export const getCurrentSession = createServerFn({ method: "GET" }).handler(async
       .limit(1)
       .maybeSingle(),
   ]);
+  const resolvedProfile = resolveAuthProfile(data.user, profile);
   return {
     id: data.user.id,
     email: data.user.email ?? "",
-    name:
-      profile?.display_name ??
-      data.user.user_metadata.display_name ??
-      data.user.user_metadata.full_name ??
-      data.user.email?.split("@")[0] ??
-      "Your account",
-    avatarUrl: profile?.avatar_url ?? null,
+    name: resolvedProfile.name,
+    avatarUrl: resolvedProfile.avatarUrl,
     plan: profile?.plan_key ?? "free",
     workspaceId: membership?.workspace_id ?? null,
     workspaceRole: membership?.role ?? null,
