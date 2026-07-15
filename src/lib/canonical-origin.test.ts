@@ -3,7 +3,7 @@ import { canonicalProductionRedirect } from "./canonical-origin";
 
 const options = {
   isProduction: true,
-  publicAppUrl: "https://vid-story-prompt.vercel.app",
+  publicAppUrl: "https://vidrial.vercel.app",
 };
 
 describe("canonicalProductionRedirect", () => {
@@ -15,14 +15,26 @@ describe("canonicalProductionRedirect", () => {
 
     expect(response?.status).toBe(308);
     expect(response?.headers.get("location")).toBe(
-      "https://vid-story-prompt.vercel.app/app/projects?view=grid",
+      "https://vidrial.vercel.app/app/projects?view=grid",
     );
   });
 
   it("does not redirect the canonical origin", () => {
     expect(
-      canonicalProductionRedirect(new Request("https://vid-story-prompt.vercel.app/app"), options),
+      canonicalProductionRedirect(new Request("https://vidrial.vercel.app/app"), options),
     ).toBeNull();
+  });
+
+  it("redirects the previous production alias to the canonical origin", () => {
+    const response = canonicalProductionRedirect(
+      new Request("https://vid-story-prompt.vercel.app/app/youtube-clipper/new"),
+      options,
+    );
+
+    expect(response?.status).toBe(308);
+    expect(response?.headers.get("location")).toBe(
+      "https://vidrial.vercel.app/app/youtube-clipper/new",
+    );
   });
 
   it("does not redirect preview or local environments", () => {
