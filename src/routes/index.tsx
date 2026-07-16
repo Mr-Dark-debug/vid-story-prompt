@@ -24,7 +24,7 @@ import { StatusDot } from "@/components/primitives/status-dot";
 import { HeroEditor } from "@/components/marketing/hero-editor";
 import { PromptComposer } from "@/components/marketing/prompt-composer";
 import { MediaSearchDemo } from "@/components/marketing/media-search";
-import { TimelineRibbon } from "@/components/primitives/timeline-ribbon";
+import { ConnectorPathMarquee } from "@/components/marketing/connector-path-marquee";
 import { CTAButton, FinalCTA } from "@/components/marketing/page-shell";
 
 export const Route = createFileRoute("/")({
@@ -72,9 +72,7 @@ function Hero() {
           <h1 className="mt-5 font-display text-[2.6rem] font-medium leading-[1.02] tracking-tight text-ink sm:text-[3.6rem]">
             {brand.headline}
           </h1>
-          <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-soft">
-            {brand.promise}
-          </p>
+          <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-soft">{brand.promise}</p>
           <div className="mt-7 flex flex-wrap gap-3">
             <CTAButton to="/signup">
               Start a project <ArrowRight className="h-4 w-4" />
@@ -90,7 +88,7 @@ function Hero() {
         <HeroEditor />
       </div>
       <div className="mt-14">
-        <TimelineRibbon />
+        <ConnectorPathMarquee />
       </div>
     </Section>
   );
@@ -142,9 +140,21 @@ function Principles() {
 
 function Workflow() {
   const steps = [
-    { n: "01", t: "Add your footage", d: "Drag video, audio, images and subtitles into a project." },
-    { n: "02", t: "Let us analyse it", d: "Transcription, scenes, speakers and tags — private to you." },
-    { n: "03", t: "Describe the video", d: "One prompt, or a full editing brief. Selection is optional." },
+    {
+      n: "01",
+      t: "Add your footage",
+      d: "Drag video, audio, images and subtitles into a project.",
+    },
+    {
+      n: "02",
+      t: "Let us analyse it",
+      d: "Transcription, scenes, speakers and tags — private to you.",
+    },
+    {
+      n: "03",
+      t: "Describe the video",
+      d: "One prompt, or a full editing brief. Selection is optional.",
+    },
     { n: "04", t: "Review, edit, export", d: "Accept the plan you want. Change the rest by hand." },
   ];
   return (
@@ -156,10 +166,7 @@ function Workflow() {
       />
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
         {steps.map((s, i) => (
-          <div
-            key={s.n}
-            className="relative rounded-2xl border border-line bg-surface-panel p-6"
-          >
+          <div key={s.n} className="relative rounded-2xl border border-line bg-surface-panel p-6">
             <div className="font-mono text-xs text-ember-ink">{s.n}</div>
             <div className="mt-3 font-display text-lg text-ink">{s.t}</div>
             <div className="mt-1 text-sm text-ink-soft">{s.d}</div>
@@ -268,7 +275,8 @@ function AssetsFirst() {
             Use what you already filmed.
           </h2>
           <p className="mt-4 max-w-md text-ink-soft">
-            Vidrial searches your project before suggesting stock or generated footage. Your story should look like your story.
+            Vidrial searches your project before suggesting stock or generated footage. Your story
+            should look like your story.
           </p>
         </div>
         <MediaSearchDemo />
@@ -331,7 +339,8 @@ function ManualControl() {
             Ask for the first cut. Keep control of the final one.
           </h2>
           <p className="mt-4 max-w-md text-ink-soft">
-            The transcript, the timeline and the AI editor all modify the same project. Change any of them and the others stay in sync.
+            The transcript, the timeline and the AI editor all modify the same project. Change any
+            of them and the others stay in sync.
           </p>
         </div>
         <div className="grid grid-cols-3 gap-3">
@@ -385,7 +394,12 @@ function UseCases() {
 function PricingPreview() {
   const plans = [
     { name: "Free", price: "$0", note: "3 projects · 60 source minutes" },
-    { name: "Creator", price: "$18", note: "600 minutes · captions · no watermark", featured: true },
+    {
+      name: "Creator",
+      price: "$18",
+      note: "600 minutes · captions · no watermark",
+      featured: true,
+    },
     { name: "Pro", price: "$39", note: "1,800 minutes · 4K · priority" },
   ];
   return (
@@ -400,7 +414,9 @@ function PricingPreview() {
           <div
             key={p.name}
             className={`rounded-2xl border p-6 ${
-              p.featured ? "border-ember bg-surface-panel ring-2 ring-ember/20" : "border-line bg-surface-panel"
+              p.featured
+                ? "border-ember bg-surface-panel ring-2 ring-ember/20"
+                : "border-line bg-surface-panel"
             }`}
           >
             <div className="flex items-center justify-between">
@@ -426,9 +442,21 @@ function PricingPreview() {
 
 function SecurityBlock() {
   const items = [
-    { i: ShieldCheck, t: "Private by default", d: "Projects only you (and people you invite) can see." },
-    { i: Scissors, t: "Customer-controlled deletion", d: "Delete individual projects or your entire account." },
-    { i: Captions, t: "No training on your uploads", d: "Unless you explicitly opt in — off by default." },
+    {
+      i: ShieldCheck,
+      t: "Private by default",
+      d: "Projects only you (and people you invite) can see.",
+    },
+    {
+      i: Scissors,
+      t: "Customer-controlled deletion",
+      d: "Delete individual projects or your entire account.",
+    },
+    {
+      i: Captions,
+      t: "No training on your uploads",
+      d: "Unless you explicitly opt in — off by default.",
+    },
     { i: Music4, t: "Clear retention", d: "You choose how long we keep media around." },
   ];
   return (

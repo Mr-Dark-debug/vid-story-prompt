@@ -46,7 +46,30 @@ describe("SelectField", () => {
     const trigger = screen.getByRole("combobox");
     trigger.focus();
     fireEvent.keyDown(trigger, { key: "ArrowDown" });
-    const locked = screen.getByRole("option", { name: /10 clips\s*Creator/ });
+    const locked = screen.getByRole("menuitemradio", { name: /10 clips\s*Creator/ });
     expect(locked).toHaveAttribute("data-disabled");
+  });
+
+  it("keeps controlled form submission behavior", () => {
+    const onValueChange = vi.fn();
+    const { container } = render(
+      <SelectField
+        label="Requested clips"
+        name="clipCount"
+        value="5"
+        onValueChange={onValueChange}
+        options={[
+          { value: "5", label: "5 clips" },
+          { value: "10", label: "10 clips" },
+        ]}
+      />,
+    );
+
+    expect(container.querySelector('input[name="clipCount"]')).toHaveValue("5");
+    const trigger = screen.getByRole("combobox");
+    trigger.focus();
+    fireEvent.keyDown(trigger, { key: "ArrowDown" });
+    fireEvent.click(screen.getByRole("menuitemradio", { name: "10 clips" }));
+    expect(onValueChange).toHaveBeenCalledWith("10");
   });
 });
