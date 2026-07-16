@@ -19,7 +19,7 @@ import {
 } from "lucide-react";
 import { brand } from "@/config/brand";
 import { MarketingLayout } from "@/components/marketing/layout";
-import { Container, Section, SectionHeader, Eyebrow } from "@/components/primitives/section";
+import { Container, Section, SectionHeader } from "@/components/primitives/section";
 import { StatusDot } from "@/components/primitives/status-dot";
 import { HeroEditor } from "@/components/marketing/hero-editor";
 import { PromptComposer } from "@/components/marketing/prompt-composer";
@@ -68,8 +68,8 @@ function Hero() {
     <Section className="pt-10 sm:pt-16">
       <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_1fr]">
         <div>
-          <Eyebrow>{brand.tagline}</Eyebrow>
-          <h1 className="mt-5 font-display text-[2.6rem] font-medium leading-[1.02] tracking-tight text-ink sm:text-[3.6rem]">
+
+          <h1 className="font-display text-[2.6rem] font-medium leading-[1.02] tracking-tight text-ink sm:text-[3.6rem]">
             {brand.headline}
           </h1>
           <p className="mt-5 max-w-xl text-lg leading-relaxed text-ink-soft">{brand.promise}</p>
@@ -270,8 +270,8 @@ function AssetsFirst() {
     <Section className="border-t border-line bg-surface-raised">
       <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.1fr]">
         <div>
-          <Eyebrow>Uploaded assets first</Eyebrow>
-          <h2 className="mt-4 font-display text-3xl leading-tight text-ink sm:text-4xl">
+
+          <h2 className="font-display text-3xl leading-tight text-ink sm:text-4xl">
             Use what you already filmed.
           </h2>
           <p className="mt-4 max-w-md text-ink-soft">
@@ -334,8 +334,8 @@ function ManualControl() {
     <Section className="border-t border-line bg-surface-raised">
       <div className="grid gap-8 lg:grid-cols-2">
         <div>
-          <Eyebrow>Manual control</Eyebrow>
-          <h2 className="mt-4 font-display text-3xl leading-tight text-ink sm:text-4xl">
+
+          <h2 className="font-display text-3xl leading-tight text-ink sm:text-4xl">
             Ask for the first cut. Keep control of the final one.
           </h2>
           <p className="mt-4 max-w-md text-ink-soft">

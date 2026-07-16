@@ -1,4 +1,4 @@
-import { Check, Eye, EyeOff, ShieldCheck, Sparkles } from "lucide-react";
+import { Check, Eye, EyeOff } from "lucide-react";
 import { useId, useState, type FormEvent, type ReactNode } from "react";
 import { Logo } from "@/components/primitives/logo";
 import { Button } from "@/components/ui/button";
@@ -28,9 +28,6 @@ export function AuthShell({
         <div className="pointer-events-none absolute -bottom-8 -right-14 h-52 w-52 rounded-full border border-white/10" />
         <Logo className="relative" tone="light" />
         <div className="relative my-auto max-w-md py-16">
-          <div className="mb-5 inline-flex h-10 w-10 items-center justify-center rounded-xl border border-white/15 bg-white/10">
-            <Sparkles className="h-5 w-5 text-ember" />
-          </div>
           <h2 className="text-balance font-display text-4xl leading-[1.08] tracking-[-0.025em] text-white">
             From source footage to an explainable first cut.
           </h2>
@@ -53,10 +50,6 @@ export function AuthShell({
             ))}
           </ul>
         </div>
-        <p className="relative flex items-center gap-2 text-xs text-white/50">
-          <ShieldCheck className="h-4 w-4" />
-          Rights-respecting media workflows
-        </p>
       </aside>
       <section className="relative flex min-h-dvh items-center overflow-hidden bg-surface-page px-6 py-10 sm:px-10 lg:px-16 lg:py-12 xl:px-24">
         <div className="pointer-events-none absolute inset-0 opacity-35 [background-image:radial-gradient(circle_at_85%_10%,var(--coral-soft),transparent_26%),radial-gradient(circle_at_15%_90%,var(--teal-soft),transparent_24%)]" />
@@ -73,10 +66,7 @@ export function AuthShell({
           {footer ? (
             <div className="mt-7 border-t border-line pt-5 text-sm text-ink-soft">{footer}</div>
           ) : null}
-          <p className="mt-6 flex items-center gap-2 text-xs text-ink-mute lg:hidden">
-            <ShieldCheck className="h-4 w-4" />
-            Private by default · Rights-respecting workflows
-          </p>
+
         </div>
       </section>
     </main>

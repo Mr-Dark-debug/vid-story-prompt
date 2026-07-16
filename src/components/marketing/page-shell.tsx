@@ -1,9 +1,9 @@
 import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
-import { Container, Eyebrow } from "@/components/primitives/section";
+import { Container } from "@/components/primitives/section";
 
 export function MarketingPageHero({
-  eyebrow,
+  eyebrow: _eyebrow,
   title,
   lead,
   actions,
@@ -16,8 +16,7 @@ export function MarketingPageHero({
   return (
     <section className="border-b border-line bg-gradient-to-b from-surface-page to-surface-raised">
       <Container className="py-16 sm:py-24">
-        {eyebrow && <Eyebrow>{eyebrow}</Eyebrow>}
-        <h1 className="mt-4 max-w-3xl font-display text-4xl font-medium leading-[1.05] tracking-tight text-ink sm:text-5xl">
+        <h1 className="max-w-3xl font-display text-4xl font-medium leading-[1.05] tracking-tight text-ink sm:text-5xl">
           {title}
         </h1>
         {lead && <p className="mt-5 max-w-2xl text-lg leading-relaxed text-ink-soft">{lead}</p>}

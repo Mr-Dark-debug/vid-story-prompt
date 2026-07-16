@@ -21,13 +21,9 @@ export function Section({
   );
 }
 
-export function Eyebrow({ children }: { children: ReactNode }) {
-  return (
-    <span className="inline-flex items-center gap-2 rounded-full border border-line bg-surface-panel px-3 py-1 text-xs font-medium uppercase tracking-[0.14em] text-ink-soft">
-      <span className="h-1.5 w-1.5 rounded-full bg-ember" />
-      {children}
-    </span>
-  );
+/** @deprecated Eyebrow capsule removed — kept as a no-op export so existing imports compile. */
+export function Eyebrow(_props: { children: ReactNode }) {
+  return null;
 }
 
 export function SectionHeader({
@@ -43,11 +39,6 @@ export function SectionHeader({
 }) {
   return (
     <div className={cn("mb-10 max-w-2xl", align === "center" && "mx-auto text-center")}>
-      {eyebrow && (
-        <div className="mb-4">
-          <Eyebrow>{eyebrow}</Eyebrow>
-        </div>
-      )}
       <h2 className="font-display text-3xl font-medium leading-[1.1] tracking-tight text-ink sm:text-4xl">
         {title}
       </h2>
