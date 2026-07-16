@@ -32,6 +32,7 @@ const uuid = z.string().uuid();
 async function insertAsset(
   job: Awaited<ReturnType<typeof getJob>>,
   input: {
+    id?: string;
     bucket: string;
     path: string;
     name: string;
@@ -42,7 +43,7 @@ async function insertAsset(
     metadata?: Record<string, unknown>;
   },
 ) {
-  const id = randomUUID();
+  const id = input.id ?? randomUUID();
   const { error } = await supabase.from("media_assets").insert({
     id,
     workspace_id: job.workspace_id,
@@ -151,19 +152,173 @@ async function downloadDirect(task: ClipTask): Promise<TaskResult> {
   });
 }
 
-async function downloadYouTube(task: ClipTask): Promise<TaskResult> {
+async function assertYouTubeAcquisitionAllowed(job: Awaited<ReturnType<typeof getJob>>) {
+  if (!["youtube_metadata", "youtube_connected_channel"].includes(job.source_type)) {
+    throw new TaskFailure(
+      "invalid_source_type",
+      "This job is not eligible for YouTube acquisition.",
+      false,
+    );
+  }
+  const [{ data: attestation, error: attestationError }, { data: profile, error: profileError }] =
+    await Promise.all([
+      supabase.from("rights_attestations").select("id").eq("clip_job_id", job.id).maybeSingle(),
+      supabase.from("profiles").select("plan_key").eq("id", job.user_id).maybeSingle(),
+    ]);
+  if (attestationError || !attestation) {
+    throw new TaskFailure(
+      "rights_attestation_required",
+      "YouTube acquisition requires a recorded rights attestation.",
+      false,
+    );
+  }
+  if (profileError || !profile?.plan_key) {
+    throw new TaskFailure(
+      "plan_unavailable",
+      "The workspace plan could not be verified for YouTube acquisition.",
+      true,
+    );
+  }
+  const { data: plan, error: planError } = await supabase
+    .from("plans")
+    .select("active,max_source_seconds_per_job")
+    .eq("key", profile.plan_key)
+    .maybeSingle();
+  if (planError) {
+    throw new TaskFailure(
+      "plan_unavailable",
+      "The workspace plan could not be verified for YouTube acquisition.",
+      true,
+    );
+  }
+  if (
+    !plan?.active ||
+    Number(job.source_duration_seconds) <= 0 ||
+    Number(job.source_duration_seconds) > Number(plan.max_source_seconds_per_job)
+  ) {
+    throw new TaskFailure(
+      "plan_limit_exceeded",
+      "This YouTube source exceeds the workspace plan limits.",
+      false,
+    );
+  }
+}
+
+async function attachYouTubeAsset(
+  job: Awaited<ReturnType<typeof getJob>>,
+  task: ClipTask,
+  assetId: string,
+  videoId: string,
+) {
+  const { data: updatedJob, error: jobError } = await supabase
+    .from("clip_jobs")
+    .update({
+      source_asset_id: assetId,
+      status: "validating",
+      updated_at: new Date().toISOString(),
+    })
+    .eq("id", job.id)
+    .not("status", "in", '("cancelled","expiring","expired")')
+    .select("id")
+    .maybeSingle();
+  if (jobError) throw jobError;
+  if (!updatedJob) {
+    throw new TaskFailure("cancelled", "The YouTube acquisition job was cancelled.", false);
+  }
+  const { error: attachmentError } = await supabase.from("source_attachments").upsert({
+    id: task.id,
+    clip_job_id: job.id,
+    connector_id: "youtube",
+    connector_import_id: null,
+    media_asset_id: assetId,
+    youtube_video_id: videoId,
+    relationship: "primary",
+    match_confidence: 1,
+    match_reason: "Rights-attested server acquisition",
+  });
+  if (attachmentError) throw attachmentError;
+}
+
+async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<TaskResult> {
   return withTaskDirectory(task, async (directory) => {
     const job = await getJob(task.clip_job_id);
-    const videoId = z.string().regex(/^[A-Za-z0-9_-]{11}$/).parse(task.input_json.videoId);
-    const downloaded = await downloadYouTubeMedia(videoId, directory);
+    const videoId = z
+      .string()
+      .regex(/^[A-Za-z0-9_-]{11}$/)
+      .parse(task.input_json.videoId);
+    await assertYouTubeAcquisitionAllowed(job);
+
+    if (job.source_asset_id) {
+      await attachYouTubeAsset(job, task, job.source_asset_id, videoId);
+      return {
+        output: { assetId: job.source_asset_id, recovered: true },
+        jobStatus: "validating",
+        message: "Existing YouTube source acquisition recovered safely.",
+        children: [
+          { taskType: "validate_source", input: {}, idempotencyKey: `${job.id}:validate-yt` },
+        ],
+      };
+    }
+
+    const { data: existingAsset, error: existingAssetError } = await supabase
+      .from("media_assets")
+      .select("id")
+      .eq("id", task.id)
+      .maybeSingle();
+    if (existingAssetError) throw existingAssetError;
+    if (existingAsset) {
+      await attachYouTubeAsset(job, task, existingAsset.id, videoId);
+      return {
+        output: { assetId: existingAsset.id, recovered: true },
+        jobStatus: "validating",
+        message: "Interrupted YouTube source acquisition recovered safely.",
+        children: [
+          { taskType: "validate_source", input: {}, idempotencyKey: `${job.id}:validate-yt` },
+        ],
+      };
+    }
+
+    const cancellation = new AbortController();
+    const downloadSignal = signal
+      ? AbortSignal.any([signal, cancellation.signal])
+      : cancellation.signal;
+    const cancellationPoll = setInterval(() => {
+      void supabase
+        .from("clip_jobs")
+        .select("status")
+        .eq("id", job.id)
+        .maybeSingle()
+        .then(({ data }) => {
+          if (data && ["cancelled", "expiring", "expired"].includes(data.status)) {
+            cancellation.abort();
+          }
+        });
+    }, 2_000);
+    let downloaded: Awaited<ReturnType<typeof downloadYouTubeMedia>>;
+    try {
+      downloaded = await downloadYouTubeMedia(
+        videoId,
+        directory,
+        Number(job.source_duration_seconds),
+        downloadSignal,
+      );
+    } catch (error) {
+      if (cancellation.signal.aborted) {
+        throw new TaskFailure("cancelled", "The YouTube acquisition job was cancelled.", false);
+      }
+      throw error;
+    } finally {
+      clearInterval(cancellationPoll);
+    }
     const virusScan = await scanLocalFile(downloaded.filename);
     const info = await probeMedia(downloaded.filename);
     if (!info.hasAudio)
       throw new TaskFailure("missing_audio", "Speech clipping requires an audio stream.", false);
     const checksum = await sha256(downloaded.filename);
-    const path = immutablePath(job, "source", downloaded.format);
+    const path = `${job.workspace_id}/${job.user_id}/${job.id}/source/${task.id}.${downloaded.format}`;
     await uploadAsset("source-media", path, downloaded.filename, "application/octet-stream");
     const assetId = await insertAsset(job, {
+      id: task.id,
       bucket: "source-media",
       path,
       name: job.source_title ?? "YouTube source",
@@ -172,15 +327,7 @@ async function downloadYouTube(task: ClipTask): Promise<TaskResult> {
       checksum,
       metadata: { ...info, virusScan, youtubeVideoId: videoId, format: downloaded.format },
     });
-    const { error } = await supabase
-      .from("clip_jobs")
-      .update({
-        source_asset_id: assetId,
-        status: "validating",
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", job.id);
-    if (error) throw error;
+    await attachYouTubeAsset(job, task, assetId, videoId);
     return {
       output: { assetId, checksum, bytes: downloaded.bytes, format: downloaded.format },
       jobStatus: "validating",
@@ -571,7 +718,7 @@ export async function handleTask(task: ClipTask, signal?: AbortSignal): Promise<
     case "download_direct_source":
       return downloadDirect(task);
     case "download_youtube_source":
-      return downloadYouTube(task);
+      return downloadYouTube(task, signal);
     case "create_proxy":
       return proxy(task);
     case "extract_audio":

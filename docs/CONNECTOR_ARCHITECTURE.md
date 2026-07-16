@@ -24,7 +24,7 @@ Vidrial connectors are an authorised-source layer around the existing clipping p
 
 Browser code uses the publishable Supabase key only. OAuth credentials, provider tokens, service-role access, remote provider requests, direct downloads, DNS checks, malware scanning, FFmpeg, and signed storage operations stay in server or worker code.
 
-YouTube is a metadata, embed, connected-channel, automation, and publishing integration. It is not a source-media downloader. A YouTube clipping job requires an original authorised attachment unless the original came from Vidrial publishing provenance.
+YouTube supports metadata, embed, connected-channel, automation, publishing, and a server-only acquisition path. A clipping job created from an eligible public or unlisted URL queues the isolated worker only after versioned rights confirmation and plan enforcement. yt-dlp never enters browser code and cannot receive cookies, proxy settings, provider credentials, or arbitrary arguments from a request.
 
 ## Availability semantics
 

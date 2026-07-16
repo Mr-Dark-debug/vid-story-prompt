@@ -29,7 +29,6 @@ import { ConnectorIcon } from "./connector-icon";
 import { AvailabilityBadge } from "./availability-badge";
 
 const RECENT_KEY = "vidrial.recent-connectors.v1";
-const quickIds = ["local_upload", "youtube", "google_drive", "direct_url"] as const;
 const filters: { id: ConnectorFilter; label: string }[] = [
   { id: "all", label: "All" },
   { id: "connected", label: "Connected" },
@@ -87,16 +86,16 @@ export function SourcePicker({
   const trigger = (
     <button
       type="button"
-      aria-label="Choose source"
+      aria-label="Choose video source"
       aria-expanded={open}
       className="flex min-h-14 w-full items-center gap-3 rounded-2xl border border-line bg-surface-page px-4 text-left shadow-sm transition-colors hover:border-line-strong focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
     >
       <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-surface-sunken text-ink-soft">
-        <ConnectorIcon icon={selected.icon} />
+        <ConnectorIcon connectorId={selected.id} icon={selected.icon} />
       </span>
       <span className="min-w-0 flex-1">
         <span className="block text-[11px] font-semibold uppercase tracking-[.12em] text-ink-mute">
-          Choose source
+          Choose video source
         </span>
         <span className="mt-0.5 block truncate text-sm font-semibold text-ink">
           {selected.label}
@@ -109,46 +108,13 @@ export function SourcePicker({
 
   return (
     <div>
-      <div className="grid grid-cols-2 gap-2 sm:grid-cols-4">
-        {quickIds.map((id) => {
-          const connector = connectors.find((item) => item.id === id) ?? getConnector(id)!;
-          return (
-            <button
-              key={id}
-              type="button"
-              aria-pressed={connector.id === selected.id}
-              onClick={() => choose(connector)}
-              className={cn(
-                "group min-w-0 rounded-2xl border p-3 text-left transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember",
-                connector.id === selected.id
-                  ? "border-ember bg-ember-soft/40"
-                  : "border-line bg-surface-raised hover:border-line-strong",
-              )}
-            >
-              <span className="flex items-start justify-between gap-2">
-                <ConnectorIcon
-                  icon={connector.icon}
-                  className={connector.id === selected.id ? "text-ember-ink" : "text-ink-soft"}
-                />
-                {connector.availability !== "available" ? (
-                  <AvailabilityBadge availability={connector.availability} compact />
-                ) : null}
-              </span>
-              <span className="mt-3 block truncate text-xs font-semibold text-ink sm:text-sm">
-                {connector.label}
-              </span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="mt-4">
+      <div>
         {mobile ? (
           <Drawer open={open} onOpenChange={setOpen}>
             <div onClick={() => setOpen(true)}>{trigger}</div>
             <DrawerContent className="max-h-[86vh] rounded-t-3xl border-line bg-surface-page">
               <DrawerHeader className="border-b border-line text-left">
-                <DrawerTitle className="text-ink">Choose source</DrawerTitle>
+                <DrawerTitle className="text-ink">Choose video source</DrawerTitle>
                 <DrawerDescription>Search every available and planned connector.</DrawerDescription>
               </DrawerHeader>
               <PickerList
@@ -307,7 +273,7 @@ function PickerGroup({
           className="flex w-full items-center gap-3 rounded-xl px-2 py-2.5 text-left hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
         >
           <span className="grid h-9 w-9 shrink-0 place-items-center rounded-xl border border-line bg-surface-raised text-ink-soft">
-            <ConnectorIcon icon={connector.icon} />
+            <ConnectorIcon connectorId={connector.id} icon={connector.icon} />
           </span>
           <span className="min-w-0 flex-1">
             <span className="flex items-center gap-2 text-sm font-medium text-ink">
@@ -408,7 +374,7 @@ function SourceDirectory({
               >
                 <span className="flex items-start justify-between gap-3">
                   <span className="grid h-10 w-10 place-items-center rounded-xl bg-surface-sunken text-ink-soft">
-                    <ConnectorIcon icon={connector.icon} />
+                    <ConnectorIcon connectorId={connector.id} icon={connector.icon} />
                   </span>
                   <AvailabilityBadge availability={connector.availability} />
                 </span>

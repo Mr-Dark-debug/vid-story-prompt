@@ -25,6 +25,7 @@ export const env = z
     DIRECT_DOWNLOAD_CONNECT_TIMEOUT_MS: z.coerce.number().int().positive().default(10_000),
     DIRECT_DOWNLOAD_READ_TIMEOUT_MS: z.coerce.number().int().positive().default(300_000),
     DIRECT_DOWNLOAD_REDIRECT_LIMIT: z.coerce.number().int().min(0).max(8).default(4),
+    YTDLP_PATH: z.string().min(1).default("yt-dlp"),
     YTDLP_TIMEOUT_MS: z.coerce.number().int().positive().default(600_000),
     GROQ_API_KEY: optionalSecret,
     GROQ_TRANSCRIPTION_MODEL: z.string().default("whisper-large-v3-turbo"),

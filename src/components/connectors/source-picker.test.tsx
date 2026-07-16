@@ -13,7 +13,9 @@ describe("source picker", () => {
     const onChange = vi.fn();
     render(<SourcePicker value="youtube" onChange={onChange} connectedIds={["google_drive"]} />);
 
-    fireEvent.click(screen.getByRole("button", { name: "Choose source" }));
+    expect(screen.queryByRole("button", { name: "Paste media link" })).not.toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Choose video source" }));
     fireEvent.change(screen.getByLabelText("Search sources"), {
       target: { value: "podcast audio" },
     });
@@ -25,10 +27,16 @@ describe("source picker", () => {
     );
   });
 
-  it("keeps the four compact quick actions directly selectable", () => {
+  it("keeps every connector selectable from the single searchable picker", () => {
     const onChange = vi.fn();
     render(<SourcePicker value="youtube" onChange={onChange} />);
-    fireEvent.click(screen.getByRole("button", { name: "Paste media link" }));
+
+    fireEvent.click(screen.getByRole("button", { name: "Choose video source" }));
+    fireEvent.change(screen.getByLabelText("Search sources"), {
+      target: { value: "Paste media link" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: /Paste media link/ }));
+
     expect(onChange).toHaveBeenCalledWith(expect.objectContaining({ id: "direct_url" }));
   });
 });

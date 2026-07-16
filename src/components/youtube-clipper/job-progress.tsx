@@ -18,6 +18,7 @@ import { YouTubePublishPanel } from "./youtube-publish-panel";
 
 type JobData = Awaited<ReturnType<typeof getClipJob>>;
 const stages = [
+  "awaiting_source",
   "queued",
   "validating",
   "creating_proxy",
@@ -111,7 +112,7 @@ export function JobProgress({
             Progress uses completed work, not estimated percentages
           </span>
         </div>
-        <div className="mt-5 grid grid-cols-4 gap-1 sm:grid-cols-9">
+        <div className="mt-5 grid grid-cols-4 gap-1 sm:grid-cols-10">
           {stages.map((stage, index) => (
             <div key={stage}>
               <div

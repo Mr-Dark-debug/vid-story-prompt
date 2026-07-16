@@ -8,7 +8,8 @@ describe("connector catalog", () => {
     expect(new Set(CONNECTOR_REGISTRY.map((item) => item.id)).size).toBe(CONNECTOR_REGISTRY.length);
     expect(CONNECTOR_REGISTRY.find((item) => item.id === "youtube")).toMatchObject({
       availability: "available",
-      requiresOriginalSource: true,
+      requiresOriginalSource: false,
+      capabilities: expect.arrayContaining(["metadata", "download_original"]),
     });
     expect(CONNECTOR_REGISTRY.find((item) => item.id === "tiktok")).toMatchObject({
       availability: "coming_soon",

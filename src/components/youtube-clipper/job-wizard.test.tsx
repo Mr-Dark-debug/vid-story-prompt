@@ -27,6 +27,12 @@ import { JobWizard } from "./job-wizard";
 afterEach(() => cleanup());
 
 describe("job wizard", () => {
+  const chooseSource = (name: string) => {
+    fireEvent.click(screen.getByRole("button", { name: "Choose video source" }));
+    fireEvent.change(screen.getByLabelText("Search sources"), { target: { value: name } });
+    fireEvent.click(screen.getByRole("button", { name: new RegExp(name, "i") }));
+  };
+
   it("keeps rights confirmation in the source step", async () => {
     render(<JobWizard initialSource="upload" />);
 
@@ -73,11 +79,51 @@ describe("job wizard", () => {
     expect(screen.getByText("HD · 2D")).toBeInTheDocument();
   });
 
+  it("continues from an attested YouTube URL without a local upload", async () => {
+    vi.mocked(getYouTubeMetadata).mockResolvedValue({
+      videoId: "dQw4w9WgXcQ",
+      title: "Worker acquisition source",
+      channelId: "channel-id",
+      channelTitle: "Example channel",
+      publishedAt: "2025-01-01T00:00:00Z",
+      durationSeconds: 180,
+      thumbnailUrl: "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+      viewCount: "1200000",
+      likeCount: "45000",
+      definition: "hd",
+      dimension: "2d",
+      availability: "public",
+      embeddable: true,
+      ownership: "unknown",
+    });
+
+    render(<JobWizard />);
+    fireEvent.change(screen.getByLabelText("YouTube video link"), {
+      target: { value: "https://youtube.com/watch?v=dQw4w9WgXcQ" },
+    });
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    expect(await screen.findByRole("heading", { name: "Clip preferences" })).toBeInTheDocument();
+    expect(screen.queryByRole("button", { name: "Complete mock upload" })).not.toBeInTheDocument();
+  });
+
   it("switches to the selected direct source form without losing the three-step flow", () => {
     render(<JobWizard />);
-    fireEvent.click(screen.getByRole("button", { name: "Paste media link" }));
+    chooseSource("Paste media link");
     expect(screen.getByLabelText("Owner-controlled HTTPS media URL")).toBeInTheDocument();
     expect(screen.getByText(/protected downloader/i)).toBeInTheDocument();
     expect(screen.getByText(/I own this content or have permission/)).toBeInTheDocument();
+  });
+
+  it("routes a pasted YouTube link to the YouTube connector before retrieval", () => {
+    render(<JobWizard />);
+    chooseSource("Paste media link");
+
+    fireEvent.change(screen.getByLabelText("Owner-controlled HTTPS media URL"), {
+      target: { value: "https://youtu.be/dQw4w9WgXcQ" },
+    });
+
+    expect(screen.getByLabelText("YouTube video link")).toHaveValue("https://youtu.be/dQw4w9WgXcQ");
   });
 });

@@ -24,7 +24,7 @@ export function ComingSoonConnectorPanel({ connector }: { connector: ConnectorDe
       <div className="p-5 sm:p-6">
         <div className="flex items-start gap-4">
           <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl bg-surface-sunken text-ink-soft">
-            <ConnectorIcon icon={connector.icon} />
+            <ConnectorIcon connectorId={connector.id} icon={connector.icon} />
           </span>
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-center gap-2">

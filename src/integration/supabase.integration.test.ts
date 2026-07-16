@@ -109,6 +109,40 @@ suite(
       expect(["queued", "leased", "retry_wait"]).toContain(task?.status);
       expect(period?.source_seconds_reserved).toBeGreaterThanOrEqual(60);
     });
+    it("queues YouTube acquisition when an attested job has no uploaded asset", async () => {
+      const videoId = "dQw4w9WgXcQ";
+      const { data, error } = await callRpc(clientA, "create_clip_job", {
+        p_workspace_id: workspaceA,
+        p_source_type: "youtube_metadata",
+        p_source_url: `https://www.youtube.com/watch?v=${videoId}`,
+        p_source_identifier: videoId,
+        p_source_duration_seconds: 90,
+        p_source_asset_id: null,
+        p_source_metadata: { title: "YouTube acquisition integration source" },
+        p_settings: {},
+        p_requested_clip_count: 1,
+        p_attestation_version: "youtube-clipper-rights-v1",
+        p_policy_version: "vidrial-content-policy-v1",
+        p_request_metadata: { client: "integration" },
+        p_idempotency_key: crypto.randomUUID(),
+      });
+      expect(error).toBeNull();
+      const youtubeJobId = z.string().uuid().parse(data);
+      const [{ data: rights }, { data: task }] = await Promise.all([
+        admin.from("rights_attestations").select("id").eq("clip_job_id", youtubeJobId).single(),
+        admin
+          .from("job_tasks")
+          .select("task_type,status,input_json")
+          .eq("clip_job_id", youtubeJobId)
+          .single(),
+      ]);
+      expect(rights).toBeTruthy();
+      expect(task).toMatchObject({
+        task_type: "download_youtube_source",
+        input_json: { videoId },
+      });
+      expect(["queued", "leased", "retry_wait"]).toContain(task?.status);
+    });
     it("isolates cross-user jobs and plan changes with RLS", async () => {
       const { data: foreign } = await clientB.from("clip_jobs").select("id").eq("id", jobId);
       expect(foreign).toEqual([]);

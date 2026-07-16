@@ -111,9 +111,9 @@ export function YouTubeClipperPublicPage() {
               Turn one long video into clips worth watching.
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-ink-soft sm:text-lg">
-              Add an authorised YouTube video or upload the original file. Vidrial finds complete
-              moments, reframes the video, creates captions and gives you editable clips for Shorts,
-              Reels and TikTok.
+              Add an eligible YouTube video and confirm you have the right to use it. Vidrial
+              acquires the media securely, finds complete moments, reframes the video, creates
+              captions and gives you editable clips for Shorts, Reels and TikTok.
             </p>
           </div>
           <form
@@ -231,8 +231,9 @@ function MetadataCard({ metadata, sourceUrl }: { metadata: Metadata; sourceUrl: 
           </span>
         </div>
         <p className="mt-3 text-xs leading-relaxed text-ink-soft">
-          Your YouTube link is used to retrieve video details and verify the source. To create
-          downloadable clips, provide the original file or another authorised media source.
+          Your YouTube link is used to retrieve video details. After you confirm your rights,
+          Vidrial can securely acquire eligible public or unlisted media for clipping without a
+          separate upload.
         </p>
         <Link
           to="/login"
@@ -429,7 +430,7 @@ function Workflow() {
     {
       icon: Film,
       title: "Add the source",
-      body: "Paste a YouTube URL for details, then provide the authorised original media.",
+      body: "Paste an eligible YouTube URL so Vidrial can retrieve its details and acquire the media securely.",
     },
     {
       icon: ShieldCheck,
@@ -519,9 +520,9 @@ function RightsSection() {
             Authorised media in. Private artifacts out.
           </h2>
           <p className="mt-4 text-ink-soft">
-            A YouTube link retrieves official details and can verify channel management. It does not
-            give Vidrial the original media. Processing requires your file or another
-            owner-controlled media source.
+            A YouTube link retrieves official details. After a versioned rights confirmation,
+            eligible public or unlisted media is acquired by the private worker and stored behind
+            workspace access controls.
           </p>
         </div>
         <div className="grid gap-3">

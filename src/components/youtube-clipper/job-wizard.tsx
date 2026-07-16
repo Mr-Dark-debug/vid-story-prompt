@@ -23,6 +23,7 @@ import { createClipJob } from "@/services/clipping/server";
 import { attachSourceToAutomationDraft } from "@/services/youtube/automation.server";
 import { resolvePodcastFeed } from "@/services/connectors/rss.server";
 import { CONNECTOR_REGISTRY, getConnector } from "@/domain/connectors/registry";
+import { detectUrlSource } from "@/domain/connectors/url-resolver";
 import type {
   ConnectorDefinition,
   PublicConnectorDefinition,
@@ -211,7 +212,7 @@ export function JobWizard({
       setError("Add the authorised HTTPS media URL and its expected duration.");
       return;
     }
-    if (step === 0 && ["youtube", "local_upload"].includes(sourceMode) && !uploaded) {
+    if (step === 0 && sourceMode === "local_upload" && !uploaded) {
       setError("Add the source media file before continuing.");
       return;
     }
@@ -227,7 +228,7 @@ export function JobWizard({
     setError(null);
     try {
       if (!rights) throw new Error("Confirm your rights before creating a processing job.");
-      if (["youtube", "local_upload"].includes(sourceMode) && !uploaded)
+      if (sourceMode === "local_upload" && !uploaded)
         throw new Error("Add the source media file before creating the job.");
       if (initialDraft && uploaded) {
         const automated = await attachSourceToAutomationDraft({
@@ -464,6 +465,22 @@ function ConnectorSourceStep(props: {
   const [rssBusy, setRssBusy] = useState(false);
   const [rssError, setRssError] = useState<string | null>(null);
 
+  const routeSourceUrl = (value: string) => {
+    const detected = detectUrlSource(value);
+    if (!detected.valid || ["direct_url", "other"].includes(detected.connectorId)) {
+      props.setDirectUrl(value);
+      return;
+    }
+    const detectedConnector = props.connectors.find((item) => item.id === detected.connectorId);
+    if (!detectedConnector) {
+      props.setDirectUrl(value);
+      return;
+    }
+    props.setMode(detectedConnector);
+    if (detected.connectorId === "youtube") props.setYoutubeUrl(value);
+    if (detected.connectorId === "rss") props.setRssUrl(value);
+  };
+
   const loadFeed = async () => {
     setRssBusy(true);
     setRssError(null);
@@ -501,7 +518,7 @@ function ConnectorSourceStep(props: {
         <section className="mt-5 rounded-2xl border border-line bg-surface-raised p-4 sm:p-5">
           <header className="flex items-start gap-3 border-b border-line pb-4">
             <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-sunken text-ink-soft">
-              <ConnectorIcon icon={connector.icon} />
+              <ConnectorIcon connectorId={connector.id} icon={connector.icon} />
             </span>
             <div className="min-w-0 flex-1">
               <div className="flex flex-wrap items-center gap-2">
@@ -601,13 +618,17 @@ function ConnectorSourceStep(props: {
                   </div>
                 </article>
               ) : null}
-              <div className="mt-5">
-                <h4 className="text-sm font-semibold text-ink">Original media to process</h4>
-                <p className="mt-1 text-xs leading-5 text-ink-mute">
-                  YouTube supplies metadata and an official preview. For processing, attach an authorised original or provide an owner-controlled HTTPS media URL. Server-side authorised provider downloads may be used only with explicit rights attestation and worker-side safeguards.
-                </p>
-                <div className="mt-3">
-                  <SourceUpload key="youtube" onUploaded={props.setUploaded} />
+              <div className="mt-5 flex items-start gap-3 rounded-xl border border-line bg-surface-page p-4">
+                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-ember-ink" />
+                <div>
+                  <h4 className="text-sm font-semibold text-ink">Ready for secure worker import</h4>
+                  <p className="mt-1 text-xs leading-5 text-ink-mute">
+                    After you confirm your rights, Vidrial sends this URL to the isolated video
+                    worker. The worker uses a bounded yt-dlp process, validates the downloaded media
+                    with FFprobe, stores it privately, and then starts clipping. Private,
+                    age-restricted, live, oversized, or unavailable videos stop with an actionable
+                    error.
+                  </p>
                 </div>
               </div>
             </div>
@@ -634,7 +655,7 @@ function ConnectorSourceStep(props: {
                   autoComplete="off"
                   spellCheck={false}
                   value={props.directUrl}
-                  onChange={(event) => props.setDirectUrl(event.target.value)}
+                  onChange={(event) => routeSourceUrl(event.target.value)}
                   placeholder="https://media.example.com/source.mp4"
                   className="h-11 rounded-xl border border-line bg-surface-page px-3 text-sm font-normal outline-none focus:border-ember focus-visible:ring-2 focus-visible:ring-ember/20"
                 />

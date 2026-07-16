@@ -2,11 +2,12 @@
 
 ## 2026-07-15 — multi-source connectors
 
-- Replaced the three-card source selector with quick actions, grouped search, recent sources, responsive picker/directory and focused connector panels.
+- Replaced the duplicated source tiles with one grouped searchable picker, provider marks, recent sources, a responsive picker/directory and focused connector panels.
 - Added the central connector, publishing and feature registries plus reusable coming-soon waitlist behavior.
 - Added connector definitions, token-free connection view, imports, source attachments, OAuth state, audit, waitlist, automation deduplication and leased import-task migrations with workspace RLS.
 - Added official PKCE and browse adapters for Google Drive, Dropbox and OneDrive, plus bounded RSS/Atom and Apple Podcasts feed resolution.
 - Added worker-side authorised provider streaming, progress, cancellation, retries, checksum/FFprobe validation and immutable private storage.
+- Added rights-attested YouTube acquisition through a pinned, checksum-verified yt-dlp worker path so eligible URLs no longer require a browser upload.
 - Added integration settings and automation routes while keeping unverified providers visibly non-executable.
 
 All notable changes to Vidrial are documented here. Format follows

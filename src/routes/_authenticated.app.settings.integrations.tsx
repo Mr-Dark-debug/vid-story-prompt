@@ -532,7 +532,7 @@ function ConnectorSettingsOverview({
     <article key={connector.id} className="rounded-2xl border border-line bg-surface-raised p-4">
       <div className="flex items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-sunken text-ink-soft">
-          <ConnectorIcon icon={connector.icon} />
+          <ConnectorIcon connectorId={connector.id} icon={connector.icon} />
         </span>
         <div className="min-w-0 flex-1">
           <div className="flex flex-wrap items-center gap-2">
