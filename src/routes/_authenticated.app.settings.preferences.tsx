@@ -9,6 +9,7 @@ import {
   SettingRow,
 } from "@/components/settings/settings-ui";
 import { Button } from "@/components/ui/button";
+import { SelectField } from "@/components/ui/select-field";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -88,20 +89,21 @@ function Preferences() {
           description="Choose how frequently active editor changes are saved."
           htmlFor="autosave-seconds"
         >
-          <select
-            id="autosave-seconds"
-            value={values.autosaveSeconds}
-            onChange={(event) =>
-              setValues((current) => ({ ...current, autosaveSeconds: Number(event.target.value) }))
+          <SelectField
+            className="min-w-40"
+            label="Autosave interval"
+            value={String(values.autosaveSeconds)}
+            onValueChange={(value) =>
+              setValues((current) => ({ ...current, autosaveSeconds: Number(value) }))
             }
-            className="min-h-11 rounded-md border border-line bg-surface-page px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ember"
-          >
-            <option value={0}>Off</option>
-            <option value={15}>15 seconds</option>
-            <option value={30}>30 seconds</option>
-            <option value={60}>1 minute</option>
-            <option value={120}>2 minutes</option>
-          </select>
+            options={[
+              { value: "0", label: "Off" },
+              { value: "15", label: "15 seconds" },
+              { value: "30", label: "30 seconds" },
+              { value: "60", label: "1 minute" },
+              { value: "120", label: "2 minutes" },
+            ]}
+          />
         </SettingRow>
       </SettingsSection>
       <SettingsSaveBar>

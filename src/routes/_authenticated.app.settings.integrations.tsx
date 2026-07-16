@@ -35,17 +35,20 @@ import {
 import type { PublicConnectorDefinition } from "@/domain/connectors/types";
 import { ConnectorIcon } from "@/components/connectors/connector-icon";
 import { AvailabilityBadge } from "@/components/connectors/availability-badge";
+import { SelectField } from "@/components/ui/select-field";
+import { getClipJobCreationContext } from "@/services/clipping/server";
 
 export const Route = createFileRoute("/_authenticated/app/settings/integrations")({
   validateSearch: z.object({ youtubeError: z.string().max(240).optional() }),
   loader: async () => {
-    const [connection, drafts, catalog, waitlist] = await Promise.all([
+    const [connection, drafts, catalog, waitlist, creationContext] = await Promise.all([
       getYouTubeConnection(),
       listYouTubeAutomationDrafts(),
       getPublicConnectorCatalog(),
       listConnectorWaitlist(),
+      getClipJobCreationContext(),
     ]);
-    return { connection, drafts, catalog, waitlist };
+    return { connection, drafts, catalog, waitlist, creationContext };
   },
   component: Integrations,
 });
@@ -95,6 +98,7 @@ function Integrations() {
     drafts: Draft[];
     catalog: PublicConnectorDefinition[];
     waitlist: { connectorId: string; createdAt: string }[];
+    creationContext: Awaited<ReturnType<typeof getClipJobCreationContext>>;
   };
   const search = Route.useSearch();
   const router = useRouter();
@@ -357,54 +361,55 @@ function Integrations() {
                   className="h-4 w-4 accent-[var(--ember)]"
                 />
               </label>
-              <label className="grid gap-1.5 text-xs font-medium text-ink">
-                When a new upload appears
-                <select
-                  value={sourceBehavior}
-                  onChange={(event) => setSourceBehavior(event.target.value)}
-                  className="h-10 rounded-xl border border-line bg-surface-panel px-3 text-sm font-normal"
-                >
-                  <option value="create_draft">Create draft and request source</option>
-                  <option value="start_when_source_exists">
-                    Start when a mapped source exists
-                  </option>
-                </select>
-              </label>
-              <label className="grid gap-1.5 text-xs font-medium text-ink">
-                Clips per upload
-                <input
-                  type="number"
-                  min="1"
-                  max="50"
-                  value={requestedClips}
-                  onChange={(event) => setRequestedClips(Number(event.target.value))}
-                  className="h-10 rounded-xl border border-line bg-surface-panel px-3 text-sm font-normal"
-                />
-              </label>
-              <label className="grid gap-1.5 text-xs font-medium text-ink">
-                After clips are ready
-                <select
-                  value={publishingBehavior}
-                  onChange={(event) => setPublishingBehavior(event.target.value)}
-                  className="h-10 rounded-xl border border-line bg-surface-panel px-3 text-sm font-normal"
-                >
-                  <option value="do_not_publish">Do not publish automatically</option>
-                  <option value="queue_for_review">Queue for review</option>
-                  <option value="schedule_approved">Schedule approved clips</option>
-                </select>
-              </label>
-              <label className="grid gap-1.5 text-xs font-medium text-ink">
-                Default YouTube privacy
-                <select
-                  value={defaultPrivacy}
-                  onChange={(event) => setDefaultPrivacy(event.target.value)}
-                  className="h-10 rounded-xl border border-line bg-surface-panel px-3 text-sm font-normal"
-                >
-                  <option value="private">Private</option>
-                  <option value="unlisted">Unlisted</option>
-                  <option value="public">Public</option>
-                </select>
-              </label>
+              <SelectField
+                label="When a new upload appears"
+                value={sourceBehavior}
+                onValueChange={setSourceBehavior}
+                disabled={!connected || Boolean(busy)}
+                options={[
+                  { value: "create_draft", label: "Create draft and request source" },
+                  { value: "start_when_source_exists", label: "Start when a mapped source exists" },
+                ]}
+              />
+              <SelectField
+                label="Clips per upload"
+                value={String(requestedClips)}
+                onValueChange={(value) => setRequestedClips(Number(value))}
+                disabled={!connected || Boolean(busy)}
+                options={[1, 2, 3, 4, 5, 10, 20, 50].map((count) => ({
+                  value: String(count),
+                  label: `${count} ${count === 1 ? "clip" : "clips"}`,
+                  badge: count > 20 ? "Pro" : count > 5 ? "Creator" : undefined,
+                  disabled: count > data.creationContext.entitlement.maxClipsPerJob,
+                  description:
+                    count > data.creationContext.entitlement.maxClipsPerJob
+                      ? `Available on ${count > 20 ? "Pro" : "Creator"}`
+                      : undefined,
+                }))}
+                hint={`${data.creationContext.entitlement.maxClipsPerJob} clips per upload on ${data.creationContext.plan}.`}
+              />
+              <SelectField
+                label="After clips are ready"
+                value={publishingBehavior}
+                onValueChange={setPublishingBehavior}
+                disabled={!connected || Boolean(busy)}
+                options={[
+                  { value: "do_not_publish", label: "Do not publish automatically" },
+                  { value: "queue_for_review", label: "Queue for review" },
+                  { value: "schedule_approved", label: "Schedule approved clips" },
+                ]}
+              />
+              <SelectField
+                label="Default YouTube privacy"
+                value={defaultPrivacy}
+                onValueChange={setDefaultPrivacy}
+                disabled={!connected || Boolean(busy)}
+                options={[
+                  { value: "private", label: "Private" },
+                  { value: "unlisted", label: "Unlisted" },
+                  { value: "public", label: "Public" },
+                ]}
+              />
               {sourceBehavior === "start_when_source_exists" && (
                 <label className="flex items-start gap-3 text-xs leading-relaxed text-ink-soft">
                   <input

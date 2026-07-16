@@ -6,6 +6,7 @@ import { useTimeline } from "@/domain/timeline/store";
 import { saveClipVersion, type getClipForEditor } from "@/services/clipping/server";
 import { requestClipExport } from "@/services/exports/server";
 import { formatUtcDateTime } from "@/lib/format-date";
+import { SelectField } from "@/components/ui/select-field";
 
 type EditorData = Awaited<ReturnType<typeof getClipForEditor>>;
 export function ClipEditor({ data }: { data: EditorData }) {
@@ -200,30 +201,23 @@ export function ClipEditor({ data }: { data: EditorData }) {
           </section>
           <section className="mt-6 border-t border-line pt-5">
             <h2 className="font-display text-lg text-ink">Crop</h2>
-            <label className="mt-3 grid gap-1 text-xs text-ink-mute">
-              Aspect ratio
-              <select
-                value={aspect}
-                onChange={(event) => setAspect(event.target.value as typeof aspect)}
-                className={field}
-              >
-                {["9:16", "1:1", "16:9"].map((value) => (
-                  <option key={value}>{value}</option>
-                ))}
-              </select>
-            </label>
-            <label className="mt-3 grid gap-1 text-xs text-ink-mute">
-              Layout
-              <select
-                value={cropMode}
-                onChange={(event) => setCropMode(event.target.value as typeof cropMode)}
-                className={field}
-              >
-                {["fit", "fill", "centre", "blur", "manual"].map((value) => (
-                  <option key={value}>{value}</option>
-                ))}
-              </select>
-            </label>
+            <SelectField
+              className="mt-3"
+              label="Aspect ratio"
+              value={aspect}
+              onValueChange={(value) => setAspect(value as typeof aspect)}
+              options={["9:16", "1:1", "16:9"].map((value) => ({ value, label: value }))}
+            />
+            <SelectField
+              className="mt-3"
+              label="Layout"
+              value={cropMode}
+              onValueChange={(value) => setCropMode(value as typeof cropMode)}
+              options={["fit", "fill", "centre", "blur", "manual"].map((value) => ({
+                value,
+                label: value.charAt(0).toUpperCase() + value.slice(1),
+              }))}
+            />
             <div className="mt-3 rounded-lg border border-warning/30 bg-warning/5 p-3 text-xs text-ink-soft">
               Safe-area overlay is visible in preview. Centre crop is not presented as AI tracking.
             </div>

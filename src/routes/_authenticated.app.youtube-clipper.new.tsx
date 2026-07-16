@@ -3,6 +3,7 @@ import { z } from "zod";
 import { AppPageHeader } from "@/components/app/layout";
 import { JobWizard } from "@/components/youtube-clipper/job-wizard";
 import { getPublicConnectorCatalog } from "@/services/connectors/server";
+import { getClipJobCreationContext } from "@/services/clipping/server";
 
 export const Route = createFileRoute("/_authenticated/app/youtube-clipper/new")({
   validateSearch: z.object({
@@ -10,13 +11,19 @@ export const Route = createFileRoute("/_authenticated/app/youtube-clipper/new")(
     source: z.string().optional(),
     draft: z.string().uuid().optional(),
   }),
-  loader: () => getPublicConnectorCatalog(),
+  loader: async () => {
+    const [connectors, creationContext] = await Promise.all([
+      getPublicConnectorCatalog(),
+      getClipJobCreationContext(),
+    ]);
+    return { connectors, creationContext };
+  },
   component: NewClipJob,
 });
 
 function NewClipJob() {
   const search = Route.useSearch();
-  const connectors = Route.useLoaderData();
+  const { connectors, creationContext } = Route.useLoaderData();
   return (
     <div className="mx-auto max-w-4xl">
       <AppPageHeader
@@ -26,6 +33,7 @@ function NewClipJob() {
       />
       <JobWizard
         connectors={connectors}
+        creationContext={creationContext}
         initialYoutube={search.youtube}
         initialSource={search.source}
         initialDraft={search.draft}

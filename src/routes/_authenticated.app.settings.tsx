@@ -3,6 +3,7 @@ import { Bell, Plug, Settings2, Shield, UserRound } from "lucide-react";
 import { AppPageHeader } from "@/components/app/layout";
 import { settingsNavItems } from "@/config/app-navigation";
 import { cn } from "@/lib/utils";
+import { SelectField } from "@/components/ui/select-field";
 
 export const Route = createFileRoute("/_authenticated/app/settings")({
   head: () => ({ meta: [{ title: "Settings — Vidrial" }] }),
@@ -23,21 +24,16 @@ function SettingsLayout() {
         description="Manage your identity, workflow defaults, notifications, integrations, and data."
       />
       <div className="mb-5 lg:hidden">
-        <label className="grid gap-1.5 text-sm font-medium text-ink" htmlFor="settings-section">
-          Settings section
-          <select
-            id="settings-section"
-            value={activePath}
-            onChange={(event) => void navigate({ to: event.target.value as never })}
-            className="min-h-11 rounded-md border border-line bg-surface-panel px-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ember"
-          >
-            {settingsNavItems.map((item) => (
-              <option value={item.to} key={item.to}>
-                {item.label}
-              </option>
-            ))}
-          </select>
-        </label>
+        <SelectField
+          label="Settings section"
+          value={activePath}
+          onValueChange={(value) => void navigate({ to: value as never })}
+          options={settingsNavItems.map((item) => ({
+            value: item.to,
+            label: item.label,
+            description: item.description,
+          }))}
+        />
       </div>
       <div className="grid items-start gap-8 lg:grid-cols-[14rem_minmax(0,1fr)]">
         <nav

@@ -1,8 +1,11 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowRight, Clock3, Plus, Scissors } from "lucide-react";
+import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
+import { ArrowRight, Clock3, Plus, Scissors, Trash2 } from "lucide-react";
+import { useState } from "react";
 import { AppPageHeader } from "@/components/app/layout";
-import { listClipJobs } from "@/services/clipping/server";
+import { deleteClipJob, listClipJobs } from "@/services/clipping/server";
 import { formatUtcDateTime } from "@/lib/format-date";
+import { ResilientThumbnail } from "@/components/media/resilient-thumbnail";
+import { ConfirmationDialog, StatusDialog } from "@/components/ui/status-dialog";
 
 export const Route = createFileRoute("/_authenticated/app/youtube-clipper/")({
   loader: () => listClipJobs(),
@@ -21,6 +24,29 @@ type ClipJobSummary = {
 
 function ClipperDashboard() {
   const jobs = Route.useLoaderData();
+  const router = useRouter();
+  const [deleteTarget, setDeleteTarget] = useState<ClipJobSummary | null>(null);
+  const [deleting, setDeleting] = useState(false);
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  const confirmDelete = async () => {
+    if (!deleteTarget) return;
+    setDeleting(true);
+    try {
+      await deleteClipJob({ data: { jobId: deleteTarget.id } });
+      setDeleteTarget(null);
+      await router.invalidate();
+    } catch (cause) {
+      setDeleteTarget(null);
+      setDeleteError(
+        cause instanceof Error
+          ? cause.message.replaceAll("_", " ")
+          : "The clipping job could not be deleted.",
+      );
+    } finally {
+      setDeleting(false);
+    }
+  };
 
   return (
     <div>
@@ -58,41 +84,74 @@ function ClipperDashboard() {
       ) : (
         <div className="grid gap-3">
           {jobs.map((job: ClipJobSummary) => (
-            <Link
+            <article
               key={job.id}
-              to="/app/youtube-clipper/jobs/$jobId"
-              params={{ jobId: job.id }}
-              className="flex items-center gap-4 rounded-2xl border border-line bg-surface-panel p-4 hover:border-line-strong"
+              className="flex items-center gap-3 rounded-2xl border border-line bg-surface-panel p-3 transition hover:border-line-strong sm:gap-4 sm:p-4"
             >
-              {job.source_thumbnail_url ? (
-                <img
-                  src={job.source_thumbnail_url}
-                  alt=""
-                  className="h-16 w-28 rounded-lg object-cover"
-                />
-              ) : (
-                <div className="flex h-16 w-28 items-center justify-center rounded-lg bg-surface-sunken">
-                  <Scissors className="h-5 w-5 text-ink-mute" />
-                </div>
-              )}
+              <ResilientThumbnail
+                src={job.source_thumbnail_url}
+                alt={`Thumbnail for ${job.source_title ?? "clipping job"}`}
+                className="h-16 w-24 shrink-0 rounded-lg sm:w-28"
+              />
               <div className="min-w-0 flex-1">
-                <div className="truncate font-medium text-ink">
+                <Link
+                  to="/app/youtube-clipper/jobs/$jobId"
+                  params={{ jobId: job.id }}
+                  className="block truncate font-medium text-ink hover:text-ember-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+                >
                   {job.source_title ?? "Untitled source"}
-                </div>
+                </Link>
                 <div className="mt-1 flex items-center gap-2 text-xs text-ink-mute">
                   <Clock3 className="h-3.5 w-3.5" />
                   {formatUtcDateTime(job.created_at)} · {job.completed_clip_count}/
                   {job.requested_clip_count} clips
                 </div>
               </div>
-              <span className="rounded-full bg-surface-sunken px-3 py-1 text-xs font-medium capitalize text-ink-soft">
+              <span className="hidden rounded-full bg-surface-sunken px-3 py-1 text-xs font-medium capitalize text-ink-soft sm:inline-flex">
                 {job.status.replaceAll("_", " ")}
               </span>
-              <ArrowRight className="h-4 w-4 text-ink-mute" />
-            </Link>
+              <button
+                type="button"
+                aria-label={`Delete ${job.source_title ?? "clipping job"}`}
+                onClick={() => setDeleteTarget(job)}
+                className="grid h-11 w-11 shrink-0 place-items-center rounded-xl text-ink-mute transition hover:bg-danger/5 hover:text-danger focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-danger"
+              >
+                <Trash2 className="h-4 w-4" />
+              </button>
+              <Link
+                to="/app/youtube-clipper/jobs/$jobId"
+                params={{ jobId: job.id }}
+                aria-label={`Open ${job.source_title ?? "clipping job"}`}
+                className="hidden h-11 w-11 shrink-0 place-items-center rounded-xl text-ink-mute hover:bg-surface-sunken hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember sm:grid"
+              >
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </article>
           ))}
         </div>
       )}
+      <ConfirmationDialog
+        open={Boolean(deleteTarget)}
+        onOpenChange={(open) => {
+          if (!open && !deleting) setDeleteTarget(null);
+        }}
+        title="Delete this clipping job?"
+        description="Its clips, exports, and private source assets will be queued for permanent deletion. This cannot be undone."
+        confirmLabel="Delete job"
+        destructive
+        busy={deleting}
+        onConfirm={confirmDelete}
+      />
+      <StatusDialog
+        open={Boolean(deleteError)}
+        onOpenChange={(open) => {
+          if (!open) setDeleteError(null);
+        }}
+        variant="error"
+        title="The job could not be deleted"
+        description={deleteError ?? "Try again in a moment."}
+        primaryAction={{ label: "Try again" }}
+      />
     </div>
   );
 }

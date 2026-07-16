@@ -6,6 +6,7 @@ import { Container, Section } from "@/components/primitives/section";
 import { MarketingPageHero } from "@/components/marketing/page-shell";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
+import { SelectField } from "@/components/ui/select-field";
 import { submitSupportRequest } from "@/services/support/server";
 import { userFacingError } from "@/lib/user-facing-error";
 
@@ -31,6 +32,7 @@ export const Route = createFileRoute("/contact")({
 function ContactPage() {
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busy, setBusy] = useState(false);
+  const [topic, setTopic] = useState("general");
   return (
     <MarketingLayout>
       <MarketingPageHero
@@ -78,22 +80,18 @@ function ContactPage() {
               className="sr-only"
               aria-hidden="true"
             />
-            <div>
-              <label htmlFor="topic" className="mb-1.5 block text-sm text-ink">
-                Topic
-              </label>
-              <select
-                id="topic"
-                name="topic"
-                defaultValue="general"
-                className="w-full rounded-md border border-line bg-surface-panel px-3 py-2 text-sm"
-              >
-                <option value="general">General</option>
-                <option value="billing">Billing</option>
-                <option value="partnership">Partnership</option>
-                <option value="trust">Trust & safety</option>
-              </select>
-            </div>
+            <SelectField
+              label="Topic"
+              name="topic"
+              value={topic}
+              onValueChange={setTopic}
+              options={[
+                { value: "general", label: "General" },
+                { value: "billing", label: "Billing" },
+                { value: "partnership", label: "Partnership" },
+                { value: "trust", label: "Trust & safety" },
+              ]}
+            />
             <div>
               <label htmlFor="message" className="mb-1.5 block text-sm text-ink">
                 Message

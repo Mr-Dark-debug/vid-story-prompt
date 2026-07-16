@@ -4,6 +4,7 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { Callout } from "@/components/primitives/section";
 import { Button } from "@/components/ui/button";
+import { SelectField } from "@/components/ui/select-field";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -84,18 +85,16 @@ function Overview() {
               className="min-h-11 rounded-md border border-line bg-surface-page px-3 outline-none focus-visible:ring-2 focus-visible:ring-ember"
             />
           </label>
-          <label className="grid gap-1.5 text-sm text-ink">
-            Default aspect ratio
-            <select
-              value={aspect}
-              onChange={(event) => setAspect(event.target.value as typeof aspect)}
-              className="min-h-11 rounded-md border border-line bg-surface-page px-3 outline-none focus-visible:ring-2 focus-visible:ring-ember"
-            >
-              <option value="16:9">16:9 landscape</option>
-              <option value="9:16">9:16 vertical</option>
-              <option value="1:1">1:1 square</option>
-            </select>
-          </label>
+          <SelectField
+            label="Default aspect ratio"
+            value={aspect}
+            onValueChange={(value) => setAspect(value as typeof aspect)}
+            options={[
+              { value: "16:9", label: "16:9 landscape" },
+              { value: "9:16", label: "9:16 vertical" },
+              { value: "1:1", label: "1:1 square" },
+            ]}
+          />
           <label className="grid gap-1.5 text-sm text-ink">
             Editing brief
             <textarea

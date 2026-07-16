@@ -47,6 +47,19 @@ describe("job wizard", () => {
     expect(await screen.findByRole("heading", { name: "Clip preferences" })).toBeInTheDocument();
   });
 
+  it("uses a tier-aware clip dropdown instead of a numeric input", async () => {
+    render(<JobWizard initialSource="upload" />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Complete mock upload" }));
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: /continue/i }));
+
+    const picker = await screen.findByRole("combobox", { name: "Requested clips" });
+    expect(picker).toHaveTextContent("5 clips");
+    expect(screen.getByText(/Free includes up to 5 clips per job/)).toBeInTheDocument();
+    expect(screen.queryByRole("spinbutton", { name: "Requested clips" })).not.toBeInTheDocument();
+  });
+
   it("retrieves YouTube details through Continue without CAPTCHA or OAuth", async () => {
     vi.mocked(getYouTubeMetadata).mockResolvedValue({
       videoId: "dQw4w9WgXcQ",
@@ -75,8 +88,12 @@ describe("job wizard", () => {
     expect(screen.queryByText(/security verification/i)).not.toBeInTheDocument();
     expect(screen.queryByText(/connect youtube/i)).not.toBeInTheDocument();
     await waitFor(() => expect(screen.getByText("A useful video")).toBeInTheDocument());
-    expect(screen.getByText("1.2M")).toBeInTheDocument();
-    expect(screen.getByText("HD · 2D")).toBeInTheDocument();
+    expect(screen.getByAltText("Thumbnail for A useful video")).toHaveAttribute(
+      "src",
+      "https://i.ytimg.com/vi/dQw4w9WgXcQ/hqdefault.jpg",
+    );
+    expect(screen.queryByText("1.2M")).not.toBeInTheDocument();
+    expect(screen.queryByText(/ready for secure worker import/i)).not.toBeInTheDocument();
   });
 
   it("continues from an attested YouTube URL without a local upload", async () => {

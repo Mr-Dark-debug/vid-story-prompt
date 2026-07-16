@@ -33,6 +33,16 @@ import { SourcePicker } from "@/components/connectors/source-picker";
 import { ComingSoonConnectorPanel } from "@/components/connectors/coming-soon-connector-panel";
 import { AvailabilityBadge } from "@/components/connectors/availability-badge";
 import { ConnectorIcon } from "@/components/connectors/connector-icon";
+import { ResilientThumbnail } from "@/components/media/resilient-thumbnail";
+import { SelectField, type SelectFieldOption } from "@/components/ui/select-field";
+import { StatusDialog } from "@/components/ui/status-dialog";
+import {
+  PLAN_ENTITLEMENTS,
+  evaluateJobEntitlement,
+  type PlanEntitlement,
+  type PlanKey,
+} from "@/domain/clipping/entitlements";
+import { presentJobError, type JobErrorPresentation } from "./job-error";
 import {
   browseConnectorAssets,
   cancelConnectorImport,
@@ -49,11 +59,19 @@ export function JobWizard({
   initialSource = "",
   initialDraft,
   connectors,
+  creationContext,
 }: {
   initialYoutube?: string;
   initialSource?: string;
   initialDraft?: string;
   connectors?: PublicConnectorDefinition[];
+  creationContext?: {
+    plan: PlanKey;
+    entitlement: PlanEntitlement;
+    activeJobs: number;
+    reservedSeconds: number;
+    committedSeconds: number;
+  };
 }) {
   const navigate = useNavigate();
   const runtimeConnectors: PublicConnectorDefinition[] =
@@ -64,6 +82,13 @@ export function JobWizard({
       configured: connector.availability === "available",
       executable: connector.availability === "available",
     }));
+  const context = creationContext ?? {
+    plan: "free" as const,
+    entitlement: PLAN_ENTITLEMENTS.free,
+    activeJobs: 0,
+    reservedSeconds: 0,
+    committedSeconds: 0,
+  };
   const [step, setStep] = useState(0);
   const initialConnector =
     initialSource === "upload"
@@ -97,6 +122,7 @@ export function JobWizard({
   );
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState<JobErrorPresentation | null>(null);
 
   useEffect(() => {
     if (sourceMode !== "youtube" || !youtubeUrl.trim()) return;
@@ -224,8 +250,8 @@ export function JobWizard({
     setStep((value) => Math.min(2, value + 1));
   };
   const submit = async () => {
-    setBusy(true);
     setError(null);
+    setSubmitError(null);
     try {
       if (!rights) throw new Error("Confirm your rights before creating a processing job.");
       if (sourceMode === "local_upload" && !uploaded)
@@ -248,6 +274,21 @@ export function JobWizard({
         uploaded?.durationSeconds || metadata?.durationSeconds || directDuration;
       if (!sourceDuration)
         throw new Error("Source duration is required for plan and usage enforcement.");
+      const entitlementCheck = evaluateJobEntitlement({
+        plan: context.plan,
+        sourceSeconds: sourceDuration,
+        requestedClips,
+        activeJobs: context.activeJobs,
+        reservedSeconds: context.reservedSeconds,
+        committedSeconds: context.committedSeconds,
+      });
+      if (!entitlementCheck.allowed) {
+        setSubmitError(
+          presentJobError(new Error(entitlementCheck.reason), context.plan, context.entitlement),
+        );
+        return;
+      }
+      setBusy(true);
       const result = await createClipJob({
         data: {
           sourceType: ["direct_url", "other", "rss"].includes(sourceMode)
@@ -296,7 +337,7 @@ export function JobWizard({
       });
       await navigate({ to: "/app/youtube-clipper/jobs/$jobId", params: { jobId: result.jobId } });
     } catch (cause) {
-      setError(cause instanceof Error ? cause.message : "The job could not be created.");
+      setSubmitError(presentJobError(cause, context.plan, context.entitlement));
       setBusy(false);
     }
   };
@@ -374,6 +415,8 @@ export function JobWizard({
             setCaptionPreset={setCaptionPreset}
             instruction={instruction}
             setInstruction={setInstruction}
+            plan={context.plan}
+            entitlement={context.entitlement}
           />
         )}
         {step === 2 && (
@@ -386,6 +429,8 @@ export function JobWizard({
             requestedClips={requestedClips}
             durationRange={durationRange}
             captionPreset={captionPreset}
+            plan={context.plan}
+            entitlement={context.entitlement}
           />
         )}
         {error && (
@@ -430,6 +475,30 @@ export function JobWizard({
           )}
         </div>
       </div>
+      <StatusDialog
+        open={Boolean(submitError)}
+        onOpenChange={(open) => {
+          if (!open) setSubmitError(null);
+        }}
+        variant={submitError?.variant ?? "error"}
+        title={submitError?.title ?? "The clipping job could not be created"}
+        description={submitError?.description ?? "Check the source and try again."}
+        primaryAction={
+          submitError?.kind === "clip-limit"
+            ? {
+                label: `Use ${context.entitlement.maxClipsPerJob} clips`,
+                onClick: () => setRequestedClips(context.entitlement.maxClipsPerJob),
+              }
+            : submitError?.upgrade
+              ? { label: "View upgrade options", href: "/app/billing" }
+              : { label: "Try again" }
+        }
+        secondaryAction={
+          submitError?.kind === "clip-limit" && submitError.upgrade
+            ? { label: "View upgrade options", href: "/app/billing" }
+            : undefined
+        }
+      />
     </div>
   );
 }
@@ -516,26 +585,28 @@ function ConnectorSourceStep(props: {
         <ComingSoonConnectorPanel connector={connector} />
       ) : (
         <section className="mt-5 rounded-2xl border border-line bg-surface-raised p-4 sm:p-5">
-          <header className="flex items-start gap-3 border-b border-line pb-4">
-            <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-sunken text-ink-soft">
-              <ConnectorIcon connectorId={connector.id} icon={connector.icon} />
-            </span>
-            <div className="min-w-0 flex-1">
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-base font-semibold text-ink">{connector.label}</h3>
-                <AvailabilityBadge availability={connector.availability} />
-                {connector.requiresOriginalSource ? (
-                  <span className="rounded-full border border-line px-2 py-0.5 text-[10px] font-semibold text-ink-mute">
-                    Original file required
-                  </span>
-                ) : null}
+          {connector.id !== "youtube" ? (
+            <header className="flex items-start gap-3 border-b border-line pb-4">
+              <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-sunken text-ink-soft">
+                <ConnectorIcon connectorId={connector.id} icon={connector.icon} />
+              </span>
+              <div className="min-w-0 flex-1">
+                <div className="flex flex-wrap items-center gap-2">
+                  <h3 className="text-base font-semibold text-ink">{connector.label}</h3>
+                  <AvailabilityBadge availability={connector.availability} />
+                  {connector.requiresOriginalSource ? (
+                    <span className="rounded-full border border-line px-2 py-0.5 text-[10px] font-semibold text-ink-mute">
+                      Original file required
+                    </span>
+                  ) : null}
+                </div>
+                <p className="mt-1 text-xs leading-5 text-ink-mute">{connector.description}</p>
               </div>
-              <p className="mt-1 text-xs leading-5 text-ink-mute">{connector.description}</p>
-            </div>
-          </header>
+            </header>
+          ) : null}
 
           {connector.id === "youtube" ? (
-            <div className="mt-4">
+            <div>
               <label
                 className="grid gap-1.5 text-xs font-medium text-ink"
                 htmlFor="youtube-source-url"
@@ -554,83 +625,31 @@ function ConnectorSourceStep(props: {
                 />
               </label>
               <div className="mt-2 flex min-h-5 flex-wrap items-center justify-between gap-2 text-xs text-ink-mute">
-                <span>Official details load after a valid link is pasted.</span>
-                <a href="/app/settings/integrations" className="font-semibold text-ember-ink">
-                  Connect channel for playlists and automation
-                </a>
                 {props.busy ? <span role="status">Loading video details…</span> : null}
               </div>
               {props.metadata ? (
-                <article className="mt-4 overflow-hidden rounded-2xl border border-line bg-surface-panel sm:grid sm:grid-cols-[minmax(15rem,2fr)_3fr]">
-                  <div className="aspect-video bg-surface-sunken">
-                    {props.metadata.embeddable ? (
-                      <iframe
-                        title={`YouTube preview for ${props.metadata.title}`}
-                        src={`https://www.youtube-nocookie.com/embed/${props.metadata.videoId}`}
-                        className="h-full w-full"
-                        loading="lazy"
-                        allow="accelerometer; encrypted-media; picture-in-picture"
-                        allowFullScreen
-                      />
-                    ) : (
-                      <img
-                        src={props.metadata.thumbnailUrl}
-                        alt={`Thumbnail for ${props.metadata.title}`}
-                        width={480}
-                        height={270}
-                        className="h-full w-full object-cover"
-                      />
-                    )}
+                <article className="mt-4 flex min-w-0 gap-3 rounded-2xl border border-line bg-surface-panel p-3 sm:items-center">
+                  <div className="relative aspect-video w-32 shrink-0 overflow-hidden rounded-xl bg-surface-sunken sm:w-44">
+                    <ResilientThumbnail
+                      src={props.metadata.thumbnailUrl}
+                      fallbackSrc={`https://i.ytimg.com/vi/${props.metadata.videoId}/hqdefault.jpg`}
+                      alt={`Thumbnail for ${props.metadata.title}`}
+                      className="h-full w-full"
+                    />
+                    <span className="absolute bottom-1.5 right-1.5 rounded bg-black/80 px-1.5 py-0.5 text-[10px] font-semibold tabular-nums text-white">
+                      {formatDuration(props.metadata.durationSeconds)}
+                    </span>
                   </div>
-                  <div className="min-w-0 p-4 sm:p-5">
-                    <h4 className="line-clamp-2 text-sm font-semibold leading-5 text-ink sm:text-base">
+                  <div className="min-w-0 flex-1">
+                    <h4 className="line-clamp-2 text-sm font-semibold leading-5 text-ink">
                       {props.metadata.title}
                     </h4>
                     <p className="mt-1 truncate text-xs text-ink-mute">
                       {props.metadata.channelTitle}
                     </p>
-                    <dl className="mt-4 grid grid-cols-2 gap-2 text-xs sm:grid-cols-4">
-                      <MetadataStat
-                        icon={Eye}
-                        label="Views"
-                        value={formatCount(props.metadata.viewCount)}
-                      />
-                      <MetadataStat
-                        icon={Heart}
-                        label="Likes"
-                        value={
-                          props.metadata.likeCount
-                            ? formatCount(props.metadata.likeCount)
-                            : "Hidden"
-                        }
-                      />
-                      <MetadataStat
-                        icon={MonitorPlay}
-                        label="Quality"
-                        value={`${props.metadata.definition.toUpperCase()} · ${props.metadata.dimension.toUpperCase()}`}
-                      />
-                      <MetadataStat
-                        icon={CalendarDays}
-                        label="Published"
-                        value={formatPublishedDate(props.metadata.publishedAt)}
-                      />
-                    </dl>
                   </div>
                 </article>
               ) : null}
-              <div className="mt-5 flex items-start gap-3 rounded-xl border border-line bg-surface-page p-4">
-                <ShieldCheck className="mt-0.5 h-5 w-5 shrink-0 text-ember-ink" />
-                <div>
-                  <h4 className="text-sm font-semibold text-ink">Ready for secure worker import</h4>
-                  <p className="mt-1 text-xs leading-5 text-ink-mute">
-                    After you confirm your rights, Vidrial sends this URL to the isolated video
-                    worker. The worker uses a bounded yt-dlp process, validates the downloaded media
-                    with FFprobe, stores it privately, and then starts clipping. Private,
-                    age-restricted, live, oversized, or unavailable videos stop with an actionable
-                    error.
-                  </p>
-                </div>
-              </div>
             </div>
           ) : null}
 
@@ -1284,9 +1303,11 @@ function Preferences(props: {
   setCaptionPreset: (value: string) => void;
   instruction: string;
   setInstruction: (value: string) => void;
+  plan: PlanKey;
+  entitlement: PlanEntitlement;
 }) {
-  const field =
-    "h-11 rounded-xl border border-line bg-surface-page px-3 text-sm text-ink outline-none focus:border-ember";
+  const simpleOptions = (values: readonly string[]): SelectFieldOption[] =>
+    values.map((value) => ({ value, label: value }));
   return (
     <div>
       <h2 className="font-display text-2xl text-ink">Clip preferences</h2>
@@ -1294,76 +1315,50 @@ function Preferences(props: {
         These guide selection and remain editable after processing.
       </p>
       <div className="mt-5 grid gap-4 sm:grid-cols-2">
-        <label className="grid gap-1.5 text-xs font-medium text-ink">
-          Source language
-          <select
-            value={props.language}
-            onChange={(event) => props.setLanguage(event.target.value)}
-            className={field}
-          >
-            <option value="auto">Detect automatically</option>
-            <option>English</option>
-            <option>German</option>
-            <option>Spanish</option>
-          </select>
-        </label>
-        <label className="grid gap-1.5 text-xs font-medium text-ink">
-          Content type
-          <select
-            value={props.contentType}
-            onChange={(event) => props.setContentType(event.target.value)}
-            className={field}
-          >
-            {[
-              "Podcast",
-              "Interview",
-              "Educational",
-              "Commentary",
-              "Tutorial",
-              "Vlog",
-              "Product demo",
-              "Livestream",
-              "Other",
-            ].map((value) => (
-              <option key={value}>{value}</option>
-            ))}
-          </select>
-        </label>
-        <label className="grid gap-1.5 text-xs font-medium text-ink">
-          Preferred duration
-          <select
-            value={props.durationRange}
-            onChange={(event) => props.setDurationRange(event.target.value)}
-            className={field}
-          >
-            {["15–30 seconds", "30–60 seconds", "60–90 seconds"].map((value) => (
-              <option key={value}>{value}</option>
-            ))}
-          </select>
-        </label>
-        <label className="grid gap-1.5 text-xs font-medium text-ink">
-          Requested clips
-          <input
-            type="number"
-            min="1"
-            max="5"
-            value={props.requestedClips}
-            onChange={(event) => props.setRequestedClips(Number(event.target.value))}
-            className={field}
-          />
-        </label>
-        <label className="grid gap-1.5 text-xs font-medium text-ink">
-          Caption preset
-          <select
-            value={props.captionPreset}
-            onChange={(event) => props.setCaptionPreset(event.target.value)}
-            className={field}
-          >
-            <option>Clean editorial</option>
-            <option>Bold active word</option>
-            <option>Minimal subtitle</option>
-          </select>
-        </label>
+        <SelectField
+          label="Source language"
+          value={props.language}
+          onValueChange={props.setLanguage}
+          options={[
+            { value: "auto", label: "Detect automatically" },
+            ...simpleOptions(["English", "German", "Spanish"]),
+          ]}
+        />
+        <SelectField
+          label="Content type"
+          value={props.contentType}
+          onValueChange={props.setContentType}
+          options={simpleOptions([
+            "Podcast",
+            "Interview",
+            "Educational",
+            "Commentary",
+            "Tutorial",
+            "Vlog",
+            "Product demo",
+            "Livestream",
+            "Other",
+          ])}
+        />
+        <SelectField
+          label="Preferred duration"
+          value={props.durationRange}
+          onValueChange={props.setDurationRange}
+          options={simpleOptions(["15–30 seconds", "30–60 seconds", "60–90 seconds"])}
+        />
+        <SelectField
+          label="Requested clips"
+          value={String(props.requestedClips)}
+          onValueChange={(value) => props.setRequestedClips(Number(value))}
+          options={clipCountOptions(props.entitlement)}
+          hint={`${planName(props.plan)} includes up to ${props.entitlement.maxClipsPerJob} clips per job. Locked options show what higher tiers unlock.`}
+        />
+        <SelectField
+          label="Caption preset"
+          value={props.captionPreset}
+          onValueChange={props.setCaptionPreset}
+          options={simpleOptions(["Clean editorial", "Bold active word", "Minimal subtitle"])}
+        />
         <div className="rounded-xl border border-line bg-surface-raised px-4 py-3 text-xs text-ink-soft">
           <div className="font-medium text-ink">Target output</div>
           <div className="mt-1">Shorts · Reels · TikTok · 9:16</div>
@@ -1382,6 +1377,23 @@ function Preferences(props: {
   );
 }
 
+function clipCountOptions(entitlement: PlanEntitlement): SelectFieldOption[] {
+  return [1, 2, 3, 4, 5, 10, 20, 50].map((count) => ({
+    value: String(count),
+    label: `${count} ${count === 1 ? "clip" : "clips"}`,
+    badge: count > 20 ? "Pro" : count > 5 ? "Creator" : undefined,
+    description:
+      count > entitlement.maxClipsPerJob
+        ? `Available on ${count > 20 ? "Pro" : "Creator"}`
+        : undefined,
+    disabled: count > entitlement.maxClipsPerJob,
+  }));
+}
+
+function planName(plan: PlanKey) {
+  return plan.charAt(0).toUpperCase() + plan.slice(1);
+}
+
 function Review({
   metadata,
   uploaded,
@@ -1391,6 +1403,8 @@ function Review({
   requestedClips,
   durationRange,
   captionPreset,
+  plan,
+  entitlement,
 }: {
   metadata: YouTubeMetadata | null;
   uploaded: UploadedSource | null;
@@ -1400,6 +1414,8 @@ function Review({
   requestedClips: number;
   durationRange: string;
   captionPreset: string;
+  plan: PlanKey;
+  entitlement: PlanEntitlement;
 }) {
   const rows = [
     ["Source", metadata?.title ?? uploaded?.filename ?? directUrl],
@@ -1407,9 +1423,12 @@ function Review({
     ["Estimated usage", `${Math.ceil(sourceSeconds / 60)} source minutes`],
     ["Requested results", `${requestedClips} clips · ${durationRange}`],
     ["Captions", captionPreset],
-    ["Free export", "720p · one trial without watermark"],
-    ["Retention", "7 days on Free"],
-    ["Queue", "Standard priority"],
+    [
+      "Export",
+      `${entitlement.maxExport.height}p${entitlement.watermarkRequired ? " · watermark after the first trial export" : " · no watermark"}`,
+    ],
+    ["Retention", `${entitlement.retentionDays} days on ${planName(plan)}`],
+    ["Queue", entitlement.priority > 10 ? "Priority processing" : "Standard priority"],
   ];
   return (
     <div>

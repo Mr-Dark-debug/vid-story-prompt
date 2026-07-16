@@ -3,6 +3,7 @@ import { useMemo, useState } from "react";
 import { Search } from "lucide-react";
 import { AppPageHeader } from "@/components/app/layout";
 import { StatusDot } from "@/components/primitives/status-dot";
+import { SelectField } from "@/components/ui/select-field";
 import { listProjects } from "@/services/projects/server";
 
 export const Route = createFileRoute("/_authenticated/app/projects/")({
@@ -58,17 +59,16 @@ function Projects() {
             className="min-h-11 w-full rounded-md border border-line bg-surface-panel pl-10 pr-3 text-sm outline-none focus-visible:ring-2 focus-visible:ring-ember"
           />
         </label>
-        <label>
-          <span className="sr-only">Sort projects</span>
-          <select
-            value={sort}
-            onChange={(event) => setSort(event.target.value as "updated" | "name")}
-            className="min-h-11 rounded-md border border-line bg-surface-panel px-3 text-sm"
-          >
-            <option value="updated">Recently updated</option>
-            <option value="name">Name (A–Z)</option>
-          </select>
-        </label>
+        <SelectField
+          className="w-48"
+          label="Sort projects"
+          value={sort}
+          onValueChange={(value) => setSort(value as "updated" | "name")}
+          options={[
+            { value: "updated", label: "Recently updated" },
+            { value: "name", label: "Name (A–Z)" },
+          ]}
+        />
       </div>
       <div className="overflow-x-auto rounded-2xl border border-line bg-surface-panel">
         <table className="w-full min-w-[620px] text-sm">

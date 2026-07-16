@@ -4,6 +4,7 @@ import { CalendarClock, Check, LoaderCircle, Send } from "lucide-react";
 import { SiYoutube } from "react-icons/si";
 import { beginYouTubeConnection } from "@/services/youtube/oauth.server";
 import { createYouTubePublishingJob } from "@/services/youtube/publishing.server";
+import { SelectField } from "@/components/ui/select-field";
 
 type ExportItem = { id: string; status: string; export_type: string };
 type Connection = {
@@ -141,20 +142,15 @@ export function YouTubePublishPanel({
       ) : (
         <div className="grid gap-6 p-5 lg:grid-cols-[1fr_.8fr]">
           <div className="grid gap-4">
-            <label className="grid gap-1.5 text-xs font-medium text-ink">
-              Video export
-              <select
-                value={exportId}
-                onChange={(event) => setExportId(event.target.value)}
-                className="h-11 rounded-xl border border-line bg-surface-page px-3 text-sm font-normal"
-              >
-                {completed.map((item) => (
-                  <option key={item.id} value={item.id}>
-                    {item.export_type.replaceAll("_", " ")}
-                  </option>
-                ))}
-              </select>
-            </label>
+            <SelectField
+              label="Video export"
+              value={exportId}
+              onValueChange={setExportId}
+              options={completed.map((item) => ({
+                value: item.id,
+                label: item.export_type.replaceAll("_", " "),
+              }))}
+            />
             <label className="grid gap-1.5 text-xs font-medium text-ink">
               YouTube title
               <input
@@ -176,18 +172,16 @@ export function YouTubePublishPanel({
             </label>
           </div>
           <div className="grid content-start gap-4">
-            <label className="grid gap-1.5 text-xs font-medium text-ink">
-              Privacy
-              <select
-                value={privacy}
-                onChange={(event) => setPrivacy(event.target.value as typeof privacy)}
-                className="h-11 rounded-xl border border-line bg-surface-page px-3 text-sm font-normal"
-              >
-                <option value="private">Private</option>
-                <option value="unlisted">Unlisted</option>
-                <option value="public">Public</option>
-              </select>
-            </label>
+            <SelectField
+              label="Privacy"
+              value={privacy}
+              onValueChange={(value) => setPrivacy(value as typeof privacy)}
+              options={[
+                { value: "private", label: "Private" },
+                { value: "unlisted", label: "Unlisted" },
+                { value: "public", label: "Public" },
+              ]}
+            />
             <fieldset className="rounded-xl border border-line bg-surface-raised px-4 py-3">
               <legend className="px-1 text-xs font-medium text-ink">Audience</legend>
               <div className="mt-1 flex flex-wrap gap-4 text-sm text-ink">

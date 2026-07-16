@@ -3,6 +3,7 @@ import { z } from "zod";
 import { getSupabaseServerClient } from "@/lib/supabase/server";
 import { getCurrentSession } from "@/services/auth/server";
 import { wakeVideoWorker } from "@/services/worker/server";
+import { getPlanEntitlement, type PlanKey } from "@/domain/clipping/entitlements";
 
 const sourceType = z.enum([
   "local_upload",
@@ -50,6 +51,35 @@ type AttachmentClient = {
     ): PromiseLike<{ error: { message: string } | null }>;
   };
 };
+
+export const getClipJobCreationContext = createServerFn({ method: "GET" }).handler(async () => {
+  const session = await getCurrentSession();
+  if (!session?.workspaceId) throw new Error("Your workspace session expired.");
+  const planKey: PlanKey =
+    session.plan === "creator" || session.plan === "pro" ? session.plan : "free";
+  const supabase = getSupabaseServerClient();
+  const [{ data: period }, { count: activeJobs }] = await Promise.all([
+    supabase
+      .from("usage_periods")
+      .select("source_seconds_reserved,source_seconds_committed")
+      .eq("workspace_id", session.workspaceId)
+      .order("period_start", { ascending: false })
+      .limit(1)
+      .maybeSingle(),
+    supabase
+      .from("clip_jobs")
+      .select("id", { count: "exact", head: true })
+      .eq("workspace_id", session.workspaceId)
+      .not("status", "in", '("completed","failed","cancelled","expiring","expired")'),
+  ]);
+  return {
+    plan: planKey,
+    entitlement: getPlanEntitlement(planKey),
+    activeJobs: activeJobs ?? 0,
+    reservedSeconds: Number(period?.source_seconds_reserved ?? 0),
+    committedSeconds: Number(period?.source_seconds_committed ?? 0),
+  };
+});
 
 export const createClipJob = createServerFn({ method: "POST" })
   .validator(jobInput)
@@ -127,6 +157,7 @@ export const listClipJobs = createServerFn({ method: "GET" }).handler(async () =
       "id,project_id,source_title,source_thumbnail_url,status,requested_clip_count,completed_clip_count,created_at,retention_expires_at,error_message",
     )
     .eq("workspace_id", session.workspaceId)
+    .not("status", "in", '("expiring","expired")')
     .order("created_at", { ascending: false });
   if (error) throw new Error(error.message);
   return data;
@@ -176,6 +207,22 @@ export const cancelClipJob = createServerFn({ method: "POST" })
       .eq("id", data.jobId)
       .not("status", "in", '("completed","expired")');
     if (error) throw new Error(error.message);
+    return { ok: true };
+  });
+
+export const deleteClipJob = createServerFn({ method: "POST" })
+  .validator(z.object({ jobId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const session = await getCurrentSession();
+    if (!session?.workspaceId) throw new Error("Your workspace session expired.");
+    const client = getSupabaseServerClient() as unknown as RpcClient;
+    const { data: deleted, error } = await client.rpc("request_job_deletion", {
+      p_job_id: data.jobId,
+    });
+    if (error || deleted !== true) {
+      throw new Error(error?.message ?? "The clipping job could not be deleted.");
+    }
+    await wakeVideoWorker();
     return { ok: true };
   });
 
