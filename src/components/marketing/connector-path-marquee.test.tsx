@@ -7,11 +7,8 @@ import { ConnectorPathMarquee } from "./connector-path-marquee";
 afterEach(cleanup);
 
 describe("ConnectorPathMarquee", () => {
-  it("renders the complete active connector set from the registry", () => {
+  it("renders two complete connector rows moving in opposite directions", () => {
     const { container } = render(<ConnectorPathMarquee />);
-    const renderedIds = Array.from(
-      container.querySelectorAll<HTMLElement>("[data-connector-id]"),
-    ).map((item) => item.dataset.connectorId);
     const expectedIds = CONNECTOR_REGISTRY.filter(
       (connector) =>
         connector.availability !== "coming_soon" &&
@@ -19,11 +16,22 @@ describe("ConnectorPathMarquee", () => {
         connector.id !== "direct_link" &&
         connector.id !== "other",
     ).map((connector) => connector.id);
+    const rows = Array.from(container.querySelectorAll<HTMLElement>("[data-marquee-row]"));
 
-    expect(renderedIds).toEqual([...expectedIds, ...expectedIds]);
-    expect(renderedIds).toContain("youtube");
-    expect(renderedIds).toContain("google_drive");
-    expect(renderedIds).not.toContain("upload");
+    expect(rows).toHaveLength(2);
+    expect(rows.map((row) => row.dataset.marqueeDirection)).toEqual(["normal", "reverse"]);
+    expect(rows[1]).toHaveAttribute("aria-hidden", "true");
+
+    for (const row of rows) {
+      const renderedIds = Array.from(row.querySelectorAll<HTMLElement>("[data-connector-id]")).map(
+        (item) => item.dataset.connectorId,
+      );
+
+      expect(renderedIds).toEqual([...expectedIds, ...expectedIds]);
+      expect(renderedIds).toContain("youtube");
+      expect(renderedIds).toContain("google_drive");
+      expect(renderedIds).not.toContain("upload");
+    }
 
     const marquee = screen.getByTestId("connector-path-marquee");
     expect(marquee).toHaveClass("w-[100dvw]");
