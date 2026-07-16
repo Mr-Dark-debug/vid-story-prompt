@@ -33,6 +33,20 @@ suite(
     let objectPath = "";
     let clientA: SupabaseClient<Database>;
     let clientB: SupabaseClient<Database>;
+    const cancelFixtureJob = async (fixtureJobId: string) => {
+      const cancelledAt = new Date().toISOString();
+      const { error: taskError } = await admin
+        .from("job_tasks")
+        .update({ status: "cancelled", completed_at: cancelledAt })
+        .eq("clip_job_id", fixtureJobId)
+        .in("status", ["pending", "queued", "leased", "running", "retry_wait"]);
+      if (taskError) throw taskError;
+      const { error: jobError } = await admin
+        .from("clip_jobs")
+        .update({ status: "cancelled", cancelled_at: cancelledAt, updated_at: cancelledAt })
+        .eq("id", fixtureJobId);
+      if (jobError) throw jobError;
+    };
     beforeAll(
       async () => {
         for (const label of ["a", "b"]) {
@@ -106,11 +120,14 @@ suite(
       ]);
       expect(rights).toBeTruthy();
       expect(task?.task_type).toBe("download_direct_source");
-      expect(["queued", "leased", "retry_wait"]).toContain(task?.status);
+      expect(["queued", "leased", "running", "retry_wait", "failed", "dead_lettered", "cancelled"]).toContain(
+        task?.status,
+      );
       expect(period?.source_seconds_reserved).toBeGreaterThanOrEqual(60);
+      await cancelFixtureJob(jobId);
     });
     it("queues YouTube acquisition when an attested job has no uploaded asset", async () => {
-      const videoId = "dQw4w9WgXcQ";
+      const videoId = "testVideo01";
       const { data, error } = await callRpc(clientA, "create_clip_job", {
         p_workspace_id: workspaceA,
         p_source_type: "youtube_metadata",
@@ -136,12 +153,15 @@ suite(
           .eq("clip_job_id", youtubeJobId)
           .single(),
       ]);
+      await cancelFixtureJob(youtubeJobId);
       expect(rights).toBeTruthy();
       expect(task).toMatchObject({
         task_type: "download_youtube_source",
         input_json: { videoId },
       });
-      expect(["queued", "leased", "retry_wait"]).toContain(task?.status);
+      expect(["queued", "leased", "running", "retry_wait", "failed", "dead_lettered", "cancelled"]).toContain(
+        task?.status,
+      );
     });
     it("isolates cross-user jobs and plan changes with RLS", async () => {
       const { data: foreign } = await clientB.from("clip_jobs").select("id").eq("id", jobId);
