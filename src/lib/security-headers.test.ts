@@ -16,5 +16,11 @@ describe("withSecurityHeaders", () => {
     expect(secured.headers.get("content-security-policy")).toContain(
       "https://challenges.cloudflare.com",
     );
+    expect(secured.headers.get("content-security-policy")).toContain(
+      "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://vercel.live",
+    );
+    expect(secured.headers.get("content-security-policy")).toContain(
+      "wss://ws-us3.pusher.com",
+    );
   });
 });
