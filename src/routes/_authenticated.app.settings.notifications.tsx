@@ -1,5 +1,5 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { Save } from "lucide-react";
+
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -78,7 +78,6 @@ function Notifications() {
       </SettingsSection>
       <SettingsSaveBar>
         <Button onClick={() => void save()} loading={saving} loadingText="Saving…">
-          <Save />
           Save notifications
         </Button>
       </SettingsSaveBar>

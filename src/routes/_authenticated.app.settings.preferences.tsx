@@ -1,5 +1,5 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { RotateCcw, Save } from "lucide-react";
+
 import { useState } from "react";
 import { toast } from "sonner";
 import {
@@ -110,7 +110,6 @@ function Preferences() {
         <AlertDialog>
           <AlertDialogTrigger asChild>
             <Button variant="outline">
-              <RotateCcw />
               Reset defaults
             </Button>
           </AlertDialogTrigger>
@@ -149,7 +148,6 @@ function Preferences() {
           </AlertDialogContent>
         </AlertDialog>
         <Button onClick={() => void save()} loading={saving} loadingText="Saving…">
-          <Save />
           Save preferences
         </Button>
       </SettingsSaveBar>

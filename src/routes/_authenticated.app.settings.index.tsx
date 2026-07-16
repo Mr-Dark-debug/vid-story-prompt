@@ -1,5 +1,5 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { Save, ShieldCheck } from "lucide-react";
+import { ShieldCheck } from "lucide-react";
 import { useState } from "react";
 import { SettingsSaveBar, SettingsSection } from "@/components/settings/settings-ui";
 import { Button } from "@/components/ui/button";
@@ -77,7 +77,6 @@ function Profile() {
       </SettingsSection>
       <SettingsSaveBar status={message}>
         <Button type="submit" loading={busy} loadingText="Saving…">
-          <Save />
           Save profile
         </Button>
       </SettingsSaveBar>

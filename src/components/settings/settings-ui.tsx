@@ -85,7 +85,7 @@ export function SettingsToggle({
 
 export function SettingsSaveBar({ children, status }: { children: ReactNode; status?: ReactNode }) {
   return (
-    <div className="sticky bottom-3 z-10 mt-5 flex min-h-14 items-center justify-between gap-3 rounded-xl border border-line bg-surface-panel/95 px-4 py-2 shadow-lg backdrop-blur">
+    <div className="sticky bottom-3 z-10 mt-6 flex min-h-14 items-center justify-between gap-3 py-2">
       <div role="status" aria-live="polite" className="text-sm text-ink-soft">
         {status}
       </div>
