@@ -20,18 +20,20 @@
 ### Task 1: Full-bleed connector composition
 
 **Files:**
+
 - Modify: `src/components/marketing/connector-path-marquee.tsx`
 - Test: `src/components/marketing/connector-path-marquee.test.tsx`
 
 **Interfaces:**
+
 - Consumes: `CONNECTOR_REGISTRY`, `ConnectorIcon`, and `MarqueeAlongSvgPath`.
 - Produces: the unchanged `ConnectorPathMarquee` component API.
 
 - [ ] Update the focused test to expect one complete active connector set.
 - [ ] Break the section out to `100dvw` with a centred negative translation.
-- [ ] Apply a two-sided 9% CSS mask and an over-wide path canvas.
+- [ ] Intersect a two-sided 9% mask with a 7% top/bottom mask and use an over-wide path canvas.
 - [ ] Replace the path with an off-canvas curve whose loop centre is near 68%.
-- [ ] Set `repeat={1}` and responsive 48px/60px tiles.
+- [ ] Set `repeat={2}` on the full-viewport path and use responsive 48px/60px tiles for medium, even spacing.
 - [ ] Run `npm test -- --run src/components/marketing/connector-path-marquee.test.tsx` and expect PASS.
 - [ ] Run `npm run typecheck`, `npm run lint`, `npm test`, `npm run build`, and worker verification; expect zero errors.
 - [ ] Commit, push `main`, and confirm the Git-backed Vercel production deployment is Ready.

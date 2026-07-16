@@ -11,17 +11,33 @@ const displayedConnectors = CONNECTOR_REGISTRY.filter(
 );
 
 const path =
-  "M1 209.434C58.5872 255.935 387.926 325.938 482.583 209.434C600.905 63.8051 525.516 -43.2211 427.332 19.9613C329.149 83.1436 352.902 242.723 515.041 267.302C644.752 286.966 943.56 181.94 995 156.5";
+  "M-120 215C20 285 430 325 650 215C800 65 710-55 855 15C1000 85 930 250 730 270C900 305 1160 210 1320 150";
+
+const horizontalFade =
+  "linear-gradient(to right, transparent 0%, black 9%, black 91%, transparent 100%)";
+const verticalFade =
+  "linear-gradient(to bottom, transparent 0%, black 7%, black 93%, transparent 100%)";
+const marqueeMask = `${horizontalFade}, ${verticalFade}`;
 
 export function ConnectorPathMarquee() {
   return (
-    <section aria-labelledby="connector-marquee-title" className="relative">
+    <section
+      aria-labelledby="connector-marquee-title"
+      data-testid="connector-path-marquee"
+      className="relative left-1/2 w-[100dvw] -translate-x-1/2 overflow-hidden"
+      style={{
+        maskImage: marqueeMask,
+        maskComposite: "intersect",
+        WebkitMaskImage: marqueeMask,
+        WebkitMaskComposite: "source-in",
+      }}
+    >
       <h2 id="connector-marquee-title" className="sr-only">
         Import from the tools you already use
       </h2>
       <MarqueeAlongSvgPath
         path={path}
-        viewBox="0 0 996 330"
+        viewBox="0 0 1200 360"
         baseVelocity={8}
         slowdownOnHover
         slowDownFactor={0.2}
@@ -29,7 +45,7 @@ export function ConnectorPathMarquee() {
         dragSensitivity={0.1}
         grabCursor
         repeat={2}
-        className="h-56 w-full sm:h-[20.625rem]"
+        className="h-60 w-full sm:h-[22rem]"
       >
         {displayedConnectors.map((connector) => (
           <div
@@ -37,13 +53,13 @@ export function ConnectorPathMarquee() {
             data-connector-id={connector.id}
             role="img"
             aria-label={connector.label}
-            className="flex h-14 w-14 select-none items-center justify-center rounded-2xl border border-line bg-surface-panel shadow-sm transition duration-300 ease-out hover:z-20 hover:scale-150 hover:border-line-strong hover:shadow-lg sm:h-16 sm:w-16"
+            className="flex h-12 w-12 select-none items-center justify-center rounded-2xl border border-line bg-surface-panel shadow-sm transition duration-300 ease-out hover:z-20 hover:scale-150 hover:border-line-strong hover:shadow-lg sm:h-[3.75rem] sm:w-[3.75rem]"
             title={connector.label}
           >
             <ConnectorIcon
               connectorId={connector.id}
               icon={connector.icon}
-              className="h-7 w-7 text-ink sm:h-8 sm:w-8"
+              className="h-6 w-6 text-ink sm:h-7 sm:w-7"
             />
           </div>
         ))}
