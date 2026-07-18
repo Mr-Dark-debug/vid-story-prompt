@@ -27,6 +27,12 @@ The Blueprint deploys `vidrial-warp-proxy` as a private service in Frankfurt and
 
 The worker receives the service's Render-managed private hostname and connects to port `8080`. If WARP registration or the user-space tunnel fails, the container fails health and the worker fails closed instead of silently using direct egress.
 
+For Render Hobby workspaces without billing enabled, the video-worker image also
+includes the same pinned user-space client as a loopback-only fallback. It
+activates only when no operator, explicit WARP, or private-service proxy is
+configured. Once `WARP_PROXY_HOST` is present, the separate private service
+takes precedence and the embedded process stays off.
+
 ## Operations and limits
 
 - Review and accept Cloudflare's applicable terms before deploying this image for an organization.

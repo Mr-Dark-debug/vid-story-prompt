@@ -15,6 +15,13 @@ YouTube acquisition uses one server-only proxy selection for both yt-dlp's `--pr
 3. `WARP_PROXY_HOST` plus `WARP_PROXY_PORT` — Render private-service wiring.
 4. direct egress only when no proxy is configured; this is degraded in production and normal for local development.
 
+The production Docker image adds a loopback-only embedded WARP fallback for
+workspaces where Render cannot provision a private service yet. It starts only
+when the first three settings are absent, binds its proxy to `127.0.0.1`, and
+fails container startup if protected egress cannot be established. A configured
+operator proxy or private sidecar always wins, so migrating to the persistent
+sidecar requires no application change.
+
 A job with `forceProxy=true` fails closed if no proxy exists. A configured proxy that cannot pass the Cloudflare trace check also fails readiness; the worker never silently falls back to direct egress.
 
 On startup the worker checks Cloudflare trace and, when `YTDLP_STARTUP_PROBE=true`, runs a bounded yt-dlp format probe for the controlled public test video. The protected `GET /health/proxy` endpoint requires the worker bearer secret. It returns operator diagnostics including egress/WARP state, but the TanStack server maps that response to a sanitized health status before browser code sees it. Proxy URLs, credentials, and egress IPs never enter browser responses.
