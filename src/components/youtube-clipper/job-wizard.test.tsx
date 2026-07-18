@@ -4,6 +4,14 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
 vi.mock("@/services/youtube/server", () => ({ getYouTubeMetadata: vi.fn() }));
 vi.mock("@/services/clipping/server", () => ({ createClipJob: vi.fn() }));
+vi.mock("@/services/worker/server", () => ({
+  getWorkerEgressHealth: vi.fn().mockResolvedValue({
+    checkedAt: "2026-07-18T21:00:00.000Z",
+    message: "Protected worker egress is healthy.",
+    status: "healthy",
+    tier: "render_warp",
+  }),
+}));
 vi.mock("./source-upload", () => ({
   SourceUpload: ({ onUploaded }: { onUploaded: (source: unknown) => void }) => (
     <button
@@ -129,6 +137,14 @@ describe("job wizard", () => {
     render(<JobWizard />);
     expect(screen.getAllByTestId("wizard-step-surface")).toHaveLength(1);
     expect(screen.getByTestId("youtube-source-fields")).not.toHaveClass("bg-surface-raised");
+  });
+
+  it("surfaces worker egress health in the active YouTube source step", async () => {
+    render(<JobWizard />);
+
+    expect(
+      await screen.findByRole("status", { name: "Worker egress: Healthy" }),
+    ).toBeInTheDocument();
   });
 
   it("switches to the selected direct source form without losing the three-step flow", () => {

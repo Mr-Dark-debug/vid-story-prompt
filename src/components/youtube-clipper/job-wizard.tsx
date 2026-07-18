@@ -614,6 +614,9 @@ function ConnectorSourceStep(props: {
 
           {connector.id === "youtube" ? (
             <div>
+              <div className="mb-4">
+                <WorkerEgressBadge />
+              </div>
               <label
                 className="grid gap-1.5 text-xs font-medium text-ink"
                 htmlFor="youtube-source-url"
