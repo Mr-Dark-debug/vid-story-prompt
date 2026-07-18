@@ -125,6 +125,12 @@ describe("job wizard", () => {
     expect(screen.queryByRole("button", { name: "Complete mock upload" })).not.toBeInTheDocument();
   });
 
+  it("keeps the YouTube fields on the single wizard surface", () => {
+    render(<JobWizard />);
+    expect(screen.getAllByTestId("wizard-step-surface")).toHaveLength(1);
+    expect(screen.getByTestId("youtube-source-fields")).not.toHaveClass("bg-surface-raised");
+  });
+
   it("switches to the selected direct source form without losing the three-step flow", () => {
     render(<JobWizard />);
     chooseSource("Paste media link");

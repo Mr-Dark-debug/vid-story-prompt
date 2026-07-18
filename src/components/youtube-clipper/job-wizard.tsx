@@ -356,7 +356,10 @@ export function JobWizard({
           </li>
         ))}
       </ol>
-      <div className="rounded-3xl border border-line bg-surface-panel p-5 sm:p-7">
+      <div
+        data-testid="wizard-step-surface"
+        className="rounded-3xl border border-line bg-surface-panel p-5 sm:p-7"
+      >
         {step === 0 && (
           <ConnectorSourceStep
             connectors={runtimeConnectors}
@@ -584,7 +587,10 @@ function ConnectorSourceStep(props: {
       {!connector.executable ? (
         <ComingSoonConnectorPanel connector={connector} />
       ) : (
-        <section className="mt-5 rounded-2xl border border-line bg-surface-raised p-4 sm:p-5">
+        <section
+          data-testid={connector.id === "youtube" ? "youtube-source-fields" : undefined}
+          className="mt-6"
+        >
           {connector.id !== "youtube" ? (
             <header className="flex items-start gap-3 border-b border-line pb-4">
               <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-surface-sunken text-ink-soft">
@@ -1314,7 +1320,10 @@ function Preferences(props: {
       <p className="mt-2 text-sm text-ink-soft">
         These guide selection and remain editable after processing.
       </p>
-      <div className="mt-5 grid gap-4 sm:grid-cols-2">
+      <div
+        data-testid="preferences-grid"
+        className="mt-5 grid items-stretch gap-4 sm:grid-cols-2 sm:[grid-auto-rows:minmax(5.75rem,auto)] sm:[&>*]:h-full"
+      >
         <SelectField
           label="Source language"
           value={props.language}
@@ -1359,9 +1368,11 @@ function Preferences(props: {
           onValueChange={props.setCaptionPreset}
           options={simpleOptions(["Clean editorial", "Bold active word", "Minimal subtitle"])}
         />
-        <div className="rounded-xl border border-line bg-surface-raised px-4 py-3 text-xs text-ink-soft">
-          <div className="font-medium text-ink">Target output</div>
-          <div className="mt-1">Shorts · Reels · TikTok · 9:16</div>
+        <div className="grid min-w-0 gap-1.5">
+          <div className="text-xs font-medium text-ink">Target output</div>
+          <div className="flex h-11 items-center rounded-xl border border-line bg-surface-raised px-3 text-sm text-ink-soft">
+            Shorts · Reels · TikTok · 9:16
+          </div>
         </div>
         <label className="grid gap-1.5 text-xs font-medium text-ink sm:col-span-2">
           Additional instruction
@@ -1441,7 +1452,7 @@ function Review({
         {rows.map(([label, value]) => (
           <div
             key={label}
-            className="grid grid-cols-[150px_1fr] border-b border-line px-4 py-3 last:border-0"
+            className="grid min-h-14 gap-1 border-b border-line px-4 py-3 last:border-0 sm:grid-cols-[minmax(9rem,0.35fr)_1fr] sm:items-center sm:gap-4"
           >
             <dt className="text-xs font-medium text-ink-mute">{label}</dt>
             <dd className="text-sm text-ink">{value}</dd>
