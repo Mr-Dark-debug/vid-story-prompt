@@ -380,15 +380,15 @@ Expected: badge states, copy, no secret fields, and force-proxy action pass.
 
 - Consumes: central connector registry and `WorkerEgressBadge`.
 
-- [ ] **Step 1: Add copy assertions.**
+- [x] **Step 1: Add copy assertions.**
 
 Require headings `Connect YouTube account` and `Clip a YouTube URL`, plus copy that OAuth is optional and does not enable downloads.
 
-- [ ] **Step 2: Update connector and failure copy.**
+- [x] **Step 2: Update connector and failure copy.**
 
 For provider challenge/403, use truthful network-block copy and immediately offer same-job original upload. For private, age, or region restrictions, explain that protected egress does not bypass them.
 
-- [ ] **Step 3: Verify responsive behavior.**
+- [x] **Step 3: Verify responsive behavior.**
 
 At 360px, actions wrap vertically or within container width; no horizontal overflow or fixed-width metadata cards.
 
@@ -405,15 +405,15 @@ At 360px, actions wrap vertically or within container width; no horizontal overf
 - Modify: `.env.example`
 - Append: `docs/superpowers/plans/2026-07-18-youtube-egress-warp.md`
 
-- [ ] **Step 1: Document proxy precedence and fail-closed behavior.**
+- [x] **Step 1: Document proxy precedence and fail-closed behavior.**
 
 Include operator override, explicit WARP URL, Render host wiring, development direct mode, health endpoint authentication, startup probe, and how to diagnose each status.
 
-- [ ] **Step 2: Document OAuth and recovery boundaries.**
+- [x] **Step 2: Document OAuth and recovery boundaries.**
 
 State that OAuth is for official Data API capabilities, not yt-dlp login. Explain same-job authorised-source recovery and no double charging.
 
-- [ ] **Step 3: Record residual risks and verified evidence.**
+- [x] **Step 3: Record residual risks and verified evidence.**
 
 Document WARP blocking risk, Cloudflare availability/limits, paid Render private compute, no age/region/private bypass, GPL correction, missing local Docker, and `YTDLP_PROXY_URL`/authorised-source escape hatches.
 
@@ -446,23 +446,23 @@ Expected: every available check exits 0.
 
 Use the configured local/remote tooling only after confirming the target project. Apply migrations in order, regenerate types, and verify RLS/RPC behavior. Never print service-role secrets.
 
-- [ ] **Step 3: Run Playwright/browser verification.**
+- [x] **Step 3: Run Playwright/browser verification.**
 
 Verify the connector dialog, badge states, same-job recovery, force-proxy retry, realtime refresh, and no 360px horizontal overflow. Do not solve CAPTCHAs or fabricate YouTube success.
 
-- [ ] **Step 4: Commit normal history and push only after checks pass.**
+- [x] **Step 4: Commit normal history and push only after checks pass.**
 
 Stage only this task's files plus the pre-existing authorised-recovery work that was audited and completed. Preserve unrelated `AGENTS.md` changes. Use normal commits; no amend/rebase/force push.
 
-- [ ] **Step 5: Verify Vercel and Render deployments.**
+- [x] **Step 5: Verify Vercel and Render deployments.**
 
 Confirm Vercel production/preview build, Render WARP private service health, worker readiness, and protected egress probe. If Render cannot run the WARP daemon or requires unavailable billing/capabilities, report the exact external blocker.
 
-- [ ] **Step 6: Run a controlled production job.**
+- [x] **Step 6: Run a controlled production job.**
 
 Reuse the previously failing controlled video `XzXM7V7t4ts` only if the user owns or is authorised to process it; otherwise use an authorised test video. Confirm the event stream records a safe proxy tier and the job either completes or transitions to same-job authorised-source recovery. For an exact-section task, confirm `sectionApplied=true` and actual reduced transfer; do not infer it from configuration alone.
 
-- [ ] **Step 7: Append final worklog results.**
+- [x] **Step 7: Append final worklog results.**
 
 Record exact command outcomes, migration/deploy revisions, job ID/URL when safe, production health, screenshots/artifacts, unresolved external blockers, and residual risks.
 
@@ -472,3 +472,7 @@ Record exact command outcomes, migration/deploy revisions, job ID/URL when safe,
 - 2026-07-18: Replaced the initial official-daemon container design after current upstream evidence confirmed that pattern requires `NET_ADMIN`, which Render Blueprints cannot grant. The shipped Alpine image builds the MIT-licensed `shahradelahi/cloudflare-warp` user-space proxy at pinned commit `b59fab9526e8a76a12b31b02cfc24fbef603f5cd`; Docker remains unavailable locally, so its image smoke test is pending the Render build.
 - 2026-07-18: Applied remote Supabase migrations `20260718230000_authorised_source_recovery.sql` and `20260718231500_youtube_proxy_tiers.sql`. Post-apply `supabase db lint` returned no errors and only the two unrelated existing unused-variable warnings in `request_job_deletion` and `complete_connector_task`. Live schema types regenerated successfully after making the generator preserve nullable columns and the existing typed automation RPC.
 - 2026-07-18: Local verification passed: app typecheck, worker typecheck, 180 app tests (6 skipped), 51 worker tests, app build, worker build, and ESLint with zero errors (seven existing Fast Refresh warnings). Focused additions cover proxy precedence/fail-closed behavior, subprocess proxy environment, WARP trace and yt-dlp health, protected endpoint authentication, partial section arguments, 403 classification, browser-safe health mapping, badge states, and authorised-source recovery copy.
+- 2026-07-19: Applied the two migrations to the linked Supabase production project, regenerated live database types, and confirmed post-apply lint has no errors. Vercel production deployment `dpl_7XVBJYvvQatqjx64gNDsVosfei9U` is `READY` for commit `b226d8a`, with `vidrial.vercel.app` attached.
+- 2026-07-19: Render rejected the private-sidecar Blueprint until billing is added (`starter` compute plus a 1 GB disk). To keep the default path free, the worker image now includes the same pinned MIT user-space WARP client as a loopback-only fallback; a configured operator proxy or Render private-service host still takes precedence. Render built and deployed revision `b226d8a`. Startup logged `proxy=ok tier=embedded_warp`, the protected yt-dlp readiness probe logged `configured:true, tier:warp`, `/readyz` returned `ready`, and `/healthz` returned revision `b226d8a` with status `ok`.
+- 2026-07-19: Production Chrome verification passed for truthful YouTube connector copy, the active wizard's green `Worker egress: Healthy` badge, same-job authorised-source recovery, and 360 px layout with `scrollWidth === clientWidth === 360`. Evidence was saved to `C:/Users/ASUS_LAP/.codex/visualizations/2026/07/18/019f76f9-c579-77f0-947f-86895b184353/youtube-warp-retry.png`.
+- 2026-07-19: Controlled production retries for jobs `3af7525d-6ec8-4c71-9ddb-5daacb9f2cad` (`CXSvKcLovAk`) and `e9fae8a0-a9d0-49d3-b10b-2c7f9d2df912` (`XzXM7V7t4ts`) both leased and used `proxyTier=warp`, but YouTube returned `provider_auth_challenge` for both. Each job transitioned safely to `awaiting_authorised_source`, preserved its settings and usage reservation, and displayed the audited `Egress: warp` event. This proves the shipped WARP tunnel and escalation path work but also confirms the documented residual risk: Cloudflare egress is blocked for these videos. End-to-end clip production therefore still requires either an authorised original attached to the same job or an operator-approved residential proxy supplied through `YTDLP_PROXY_URL`; no success was fabricated. Exact-section production transfer was not claimed because these jobs never passed acquisition, while command construction remains unit-tested.
