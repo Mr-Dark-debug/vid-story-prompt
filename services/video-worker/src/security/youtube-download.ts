@@ -19,6 +19,8 @@ export function buildYouTubeDownloadArgs(
   videoId: string,
   directory: string,
   maximumDurationSeconds: number,
+  strategy: "standard" | "web-safari" | "mweb-pot" = "standard",
+  potProviderUrl?: string,
 ): string[] {
   if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) {
     throw new TaskFailure("invalid_video_id", "The YouTube video ID is malformed.", false);
@@ -29,7 +31,7 @@ export function buildYouTubeDownloadArgs(
 
   const durationBound = Math.ceil(maximumDurationSeconds * 1.05 + 5);
   const output = join(directory, "yt-source.%(ext)s");
-  return [
+  const args = [
     "--no-playlist",
     "--no-overwrites",
     "--restrict-filenames",
@@ -57,8 +59,101 @@ export function buildYouTubeDownloadArgs(
     "--print",
     "after_move:filepath",
     "--no-post-overwrites",
-    `https://www.youtube.com/watch?v=${videoId}`,
   ];
+
+  if (strategy === "web-safari") {
+    args.push("--extractor-args", "youtube:player_client=web_safari");
+  }
+  if (strategy === "mweb-pot") {
+    if (!potProviderUrl) {
+      throw new TaskFailure(
+        "provider_configuration_error",
+        "The YouTube proof-of-origin provider is not configured.",
+        false,
+      );
+    }
+    const provider = new URL(potProviderUrl);
+    if (!/^https?:$/.test(provider.protocol) || provider.username || provider.password) {
+      throw new TaskFailure(
+        "provider_configuration_error",
+        "The YouTube proof-of-origin provider URL is invalid.",
+        false,
+      );
+    }
+    args.push(
+      "--extractor-args",
+      "youtube:player_client=mweb",
+      "--extractor-args",
+      `youtubepot-bgutilhttp:base_url=${provider.toString().replace(/\/$/, "")}`,
+    );
+  }
+
+  args.push(`https://www.youtube.com/watch?v=${videoId}`);
+  return args;
+}
+
+export function classifyYouTubeDownloadFailure(input: string) {
+  const message = input.toLowerCase();
+  if (message.includes("private video") || message.includes("video is private")) {
+    return new TaskFailure("video_private", "This YouTube video is private.", false);
+  }
+  if (message.includes("age-restricted") || message.includes("age restricted")) {
+    return new TaskFailure(
+      "video_age_restricted",
+      "This YouTube video is age-restricted and cannot be imported.",
+      false,
+    );
+  }
+  if (
+    message.includes("sign in to confirm") ||
+    message.includes("not a bot") ||
+    message.includes("proof of origin") ||
+    message.includes("po token")
+  ) {
+    return new TaskFailure(
+      "provider_auth_challenge",
+      "YouTube temporarily challenged the video worker. Vidrial will retry.",
+      true,
+    );
+  }
+  if (message.includes("http error 429") || message.includes("too many requests")) {
+    return new TaskFailure(
+      "provider_rate_limited",
+      "YouTube temporarily rate-limited the video worker. Vidrial will retry.",
+      true,
+    );
+  }
+  if (
+    message.includes("etimedout") ||
+    message.includes("timed out") ||
+    /http error 5\d\d/.test(message)
+  ) {
+    return new TaskFailure(
+      "provider_temporary_failure",
+      "YouTube was temporarily unavailable. Vidrial will retry.",
+      true,
+    );
+  }
+  if (message.includes("video unavailable") || message.includes("has been removed")) {
+    return new TaskFailure(
+      "video_unavailable",
+      "This YouTube video is unavailable.",
+      false,
+    );
+  }
+  return new TaskFailure(
+    "provider_temporary_failure",
+    "YouTube could not be reached. Vidrial will retry.",
+    true,
+  );
+}
+
+function failureText(error: unknown) {
+  if (!(error instanceof Error)) return "";
+  const details = error as Error & { stderr?: unknown; shortMessage?: unknown };
+  return [details.message, details.shortMessage, details.stderr]
+    .filter((value): value is string => typeof value === "string")
+    .join("\n");
 }
 
 export async function downloadYouTubeMedia(
@@ -66,8 +161,15 @@ export async function downloadYouTubeMedia(
   directory: string,
   maximumDurationSeconds: number,
   signal?: AbortSignal,
+  strategy: "standard" | "web-safari" | "mweb-pot" = "standard",
 ): Promise<{ bytes: number; format: string; filename: string }> {
-  const args = buildYouTubeDownloadArgs(videoId, directory, maximumDurationSeconds);
+  const args = buildYouTubeDownloadArgs(
+    videoId,
+    directory,
+    maximumDurationSeconds,
+    strategy,
+    env.YTDLP_POT_PROVIDER_URL,
+  );
 
   try {
     const result = await execa(env.YTDLP_PATH, args, {
@@ -126,26 +228,8 @@ export async function downloadYouTubeMedia(
       throw new TaskFailure("cancelled", "The worker stopped YouTube acquisition.", true);
     }
 
-    const message = error instanceof Error ? error.message.toLowerCase() : "";
+    const message = failureText(error).toLowerCase();
 
-    // Classify yt-dlp failures
-    if (message.includes("video unavailable") || message.includes("private video")) {
-      throw new TaskFailure(
-        "video_unavailable",
-        "The YouTube video is private or unavailable.",
-        false,
-      );
-    }
-    if (message.includes("sign in") || message.includes("age-restricted")) {
-      throw new TaskFailure(
-        "video_restricted",
-        "The YouTube video requires sign-in or is age-restricted.",
-        false,
-      );
-    }
-    if (message.includes("etimedout") || message.includes("timed out")) {
-      throw new TaskFailure("download_timeout", "The YouTube download timed out.", true);
-    }
     if (message.includes("max-filesize")) {
       throw new TaskFailure(
         "file_too_large",
@@ -162,6 +246,6 @@ export async function downloadYouTubeMedia(
       );
     }
 
-    throw new TaskFailure("ytdlp_error", "yt-dlp could not retrieve this YouTube video.", true);
+    throw classifyYouTubeDownloadFailure(message);
   }
 }

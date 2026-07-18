@@ -301,6 +301,11 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
         directory,
         Number(job.source_duration_seconds),
         downloadSignal,
+        task.attempt > 1
+          ? env.YTDLP_POT_PROVIDER_URL
+            ? "mweb-pot"
+            : "web-safari"
+          : "standard",
       );
     } catch (error) {
       if (cancellation.signal.aborted) {
