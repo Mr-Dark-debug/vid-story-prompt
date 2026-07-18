@@ -15,11 +15,7 @@ import {
 } from "lucide-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatUtcDate } from "@/lib/format-date";
-import {
-  cancelClipJob,
-  retryClipJobTask,
-  type getClipJob,
-} from "@/services/clipping/server";
+import { cancelClipJob, retryClipJobTask, type getClipJob } from "@/services/clipping/server";
 import { getExportDownload } from "@/services/exports/server";
 import { deriveJobStages, type DisplayStageState } from "@/domain/clipping/job-progress";
 import { cn } from "@/lib/utils";
@@ -95,8 +91,12 @@ export function JobProgress({
     .find((task) => ["failed", "dead_lettered"].includes(task.status));
   const canRetry = Boolean(
     failedTask?.error_code &&
-      retryableCodes.has(failedTask.error_code) &&
-      failedTask.attempt < failedTask.max_attempts,
+    retryableCodes.has(failedTask.error_code) &&
+    failedTask.attempt < failedTask.max_attempts,
+  );
+  const providerChallengeExhausted = Boolean(
+    failedTask?.error_code === "provider_auth_challenge" &&
+    failedTask.attempt >= failedTask.max_attempts,
   );
   const orderedEvents = useMemo(() => [...events].reverse(), [events]);
 
@@ -161,9 +161,7 @@ export function JobProgress({
               <div
                 className={cn("h-1.5 rounded-full transition-colors", stageClasses[stage.state])}
               />
-              <div className="mt-1.5 truncate text-[10px] text-ink-mute">
-                {stage.label}
-              </div>
+              <div className="mt-1.5 truncate text-[10px] text-ink-mute">{stage.label}</div>
             </div>
           ))}
         </div>
@@ -171,6 +169,24 @@ export function JobProgress({
           <div className="mt-5 rounded-xl border border-danger/25 bg-danger/5 p-4 text-sm text-danger">
             <div className="font-semibold">Processing stopped</div>
             <div className="mt-1">{job.error_message}</div>
+            {providerChallengeExhausted ? (
+              <div className="mt-4 flex flex-wrap gap-2">
+                <Link
+                  to="/app/youtube-clipper/new"
+                  search={{ source: "youtube" }}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-danger px-3 text-xs font-semibold text-white"
+                >
+                  <RotateCcw className="h-3.5 w-3.5" /> Try another YouTube URL
+                </Link>
+                <Link
+                  to="/app/youtube-clipper/new"
+                  search={{ source: "upload" }}
+                  className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-danger/25 bg-surface-panel px-3 text-xs font-semibold text-danger"
+                >
+                  Use an original source
+                </Link>
+              </div>
+            ) : null}
             {canRetry && (
               <button
                 type="button"
@@ -178,7 +194,12 @@ export function JobProgress({
                 onClick={retry}
                 className="mt-3 inline-flex min-h-10 items-center gap-1.5 rounded-lg px-1 font-semibold disabled:opacity-60"
               >
-                <RotateCcw className={cn("h-3.5 w-3.5", retrying && "animate-spin motion-reduce:animate-none")} />
+                <RotateCcw
+                  className={cn(
+                    "h-3.5 w-3.5",
+                    retrying && "animate-spin motion-reduce:animate-none",
+                  )}
+                />
                 {retrying ? "Queueing retry…" : "Retry failed task"}
               </button>
             )}
@@ -288,45 +309,54 @@ export function JobProgress({
                       ? CheckCircle2
                       : Info;
               return (
-              <div
-                key={event.id}
-                className="relative grid grid-cols-[2rem_1fr_auto] gap-3 px-4 py-4 text-xs"
-              >
-                {index < orderedEvents.length - 1 && (
-                  <span aria-hidden="true" className="absolute bottom-0 left-[1.95rem] top-10 w-px bg-line" />
-                )}
-                <span
-                  className={cn(
-                    "relative z-10 grid h-8 w-8 place-items-center rounded-full border bg-surface-panel",
-                    event.severity === "error" && "border-danger/30 text-danger",
-                    event.severity === "warning" && "border-warning/35 text-warning",
-                    event.severity === "info" && "border-line-strong text-ink-soft",
-                  )}
+                <div
+                  key={event.id}
+                  className="relative grid grid-cols-[2rem_1fr_auto] gap-3 px-4 py-4 text-xs"
                 >
-                  <EventIcon className="h-4 w-4" />
-                </span>
-                <div className="min-w-0 pt-0.5">
-                  <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-semibold capitalize text-ink">
-                      {event.stage.replaceAll("_", " ")}
-                    </span>
-                    {event.attempt ? (
-                      <span className="rounded-full bg-surface-sunken px-2 py-0.5 text-[10px] text-ink-mute">
-                        Attempt {event.attempt}
+                  {index < orderedEvents.length - 1 && (
+                    <span
+                      aria-hidden="true"
+                      className="absolute bottom-0 left-[1.95rem] top-10 w-px bg-line"
+                    />
+                  )}
+                  <span
+                    className={cn(
+                      "relative z-10 grid h-8 w-8 place-items-center rounded-full border bg-surface-panel",
+                      event.severity === "error" && "border-danger/30 text-danger",
+                      event.severity === "warning" && "border-warning/35 text-warning",
+                      event.severity === "info" && "border-line-strong text-ink-soft",
+                    )}
+                  >
+                    <EventIcon className="h-4 w-4" />
+                  </span>
+                  <div className="min-w-0 pt-0.5">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <span className="font-semibold capitalize text-ink">
+                        {event.stage.replaceAll("_", " ")}
                       </span>
+                      {event.attempt ? (
+                        <span className="rounded-full bg-surface-sunken px-2 py-0.5 text-[10px] text-ink-mute">
+                          Attempt {event.attempt}
+                        </span>
+                      ) : null}
+                    </div>
+                    <p className="mt-1 leading-relaxed text-ink-soft">{event.message}</p>
+                    {event.progress_total ? (
+                      <p className="mt-1 font-mono text-[10px] text-ink-mute">
+                        {event.progress_current ?? 0}/{event.progress_total}
+                      </p>
                     ) : null}
                   </div>
-                  <p className="mt-1 leading-relaxed text-ink-soft">{event.message}</p>
-                  {event.progress_total ? (
-                    <p className="mt-1 font-mono text-[10px] text-ink-mute">
-                      {event.progress_current ?? 0}/{event.progress_total}
-                    </p>
-                  ) : null}
+                  <time
+                    className="pt-0.5 text-right text-[10px] text-ink-mute"
+                    dateTime={event.created_at}
+                  >
+                    {new Date(event.created_at).toLocaleTimeString([], {
+                      hour: "2-digit",
+                      minute: "2-digit",
+                    })}
+                  </time>
                 </div>
-                <time className="pt-0.5 text-right text-[10px] text-ink-mute" dateTime={event.created_at}>
-                  {new Date(event.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
-                </time>
-              </div>
               );
             })
           ) : (

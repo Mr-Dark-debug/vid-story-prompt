@@ -5,21 +5,28 @@ const task = (taskType: string, status: string) => ({ task_type: taskType, statu
 
 describe("clipping job progress", () => {
   it("preserves completed work and marks the actual failed stage", () => {
-    const stages = deriveJobStages(
-      { status: "failed" },
-      [task("download_youtube_source", "succeeded"), task("validate_source", "failed")],
-    );
+    const stages = deriveJobStages({ status: "failed" }, [
+      task("download_youtube_source", "succeeded"),
+      task("validate_source", "failed"),
+    ]);
     expect(stages.find((stage) => stage.id === "awaiting_source")?.state).toBe("completed");
     expect(stages.find((stage) => stage.id === "validating")?.state).toBe("failed");
     expect(stages.find((stage) => stage.id === "creating_proxy")?.state).toBe("pending");
   });
 
   it("shows retry wait on the task's real stage", () => {
-    const stages = deriveJobStages(
-      { status: "failed" },
-      [task("download_youtube_source", "retry_wait")],
-    );
+    const stages = deriveJobStages({ status: "failed" }, [
+      task("download_youtube_source", "retry_wait"),
+    ]);
     expect(stages.find((stage) => stage.id === "awaiting_source")?.state).toBe("retrying");
+  });
+
+  it("does not mark the queue green when source import is the first failed task", () => {
+    const stages = deriveJobStages({ status: "failed" }, [
+      task("download_youtube_source", "dead_lettered"),
+    ]);
+    expect(stages.find((stage) => stage.id === "awaiting_source")?.state).toBe("failed");
+    expect(stages.find((stage) => stage.id === "queued")?.state).toBe("pending");
   });
 
   it("uses semantic human status labels", () => {

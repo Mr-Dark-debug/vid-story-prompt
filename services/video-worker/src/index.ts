@@ -15,7 +15,7 @@ import {
   startConnectorTask,
   startTask,
 } from "./queue/repository.js";
-import { classifyFailure, nextAttempt } from "./queue/retry.js";
+import { classifyFailure, failureForTaskAttempt, nextAttempt } from "./queue/retry.js";
 import { supabase } from "./storage/client.js";
 import { handleTask } from "./tasks/handlers.js";
 import { handleConnectorImport } from "./tasks/connector-import.js";
@@ -56,6 +56,7 @@ createWorkerHttpServer({
   getState: () => ({
     activeTask,
     potProviderConfigured: Boolean(env.YTDLP_POT_PROVIDER_URL),
+    egressProxyConfigured: Boolean(env.YTDLP_PROXY_URL),
     ready,
   }),
   revision: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? "local",
@@ -143,7 +144,7 @@ async function run() {
         await completeTask(task.id, result);
         logger.info(context, "Task succeeded");
       } catch (error) {
-        const failure = classifyFailure(error);
+        const failure = failureForTaskAttempt(task, classifyFailure(error));
         await failTask(
           task,
           failure.code,

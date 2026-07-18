@@ -3,10 +3,12 @@ import { toast } from "sonner";
 import { createFileRoute, Link, useRouter } from "@tanstack/react-router";
 import {
   ArrowUpRight,
+  BellRing,
   CalendarClock,
   Check,
   LoaderCircle,
   Radio,
+  Scissors,
   ShieldCheck,
   Unplug,
 } from "lucide-react";
@@ -221,70 +223,30 @@ function Integrations() {
           isDirty={automationDirty}
           saving={busy === "automation"}
           onSave={saveAutomation}
+          contentClassName="max-w-4xl"
+          bodyClassName="p-0 sm:p-0"
         >
-          <div className="grid gap-0 lg:grid-cols-[1.15fr_.85fr]">
-            <div className="p-6 sm:p-8">
-              <div className="flex flex-wrap items-center gap-3">
-                <StatusDot variant={connected ? "success" : connection ? "warning" : "muted"}>
-                  {connected ? "Connected" : connection ? "Reconnect required" : "Not connected"}
-                </StatusDot>
-                <p className="text-sm leading-relaxed text-ink-soft">
-                  Connection is optional for clipping. Connect only for channel monitoring,
-                  automation, or publishing.
-                </p>
-              </div>
-
-              {connected && channel ? (
-                <div className="mt-7 rounded-2xl border border-line bg-surface-raised p-4">
-                  <div className="flex items-center gap-3">
-                    {channel.avatar_url ? (
-                      <img
-                        src={channel.avatar_url}
-                        alt=""
-                        className="h-11 w-11 rounded-full object-cover"
-                      />
-                    ) : (
-                      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-surface-sunken">
-                        <SiYoutube className="h-5 w-5 text-[#ff0033]" />
-                      </div>
-                    )}
-                    <div className="min-w-0 flex-1">
-                      <div className="truncate font-medium text-ink">{channel.title}</div>
-                      <div className="mt-0.5 truncate text-xs text-ink-mute">
-                        {channel.provider_channel_id}
-                      </div>
-                    </div>
-                    <a
-                      href={`https://www.youtube.com/channel/${channel.provider_channel_id}`}
-                      target="_blank"
-                      rel="noreferrer"
-                      className="rounded-lg border border-line p-2 text-ink-mute hover:text-ink"
-                      aria-label="Open connected YouTube channel"
-                    >
-                      <ArrowUpRight className="h-4 w-4" />
-                    </a>
-                  </div>
-                  <div className="mt-4 flex flex-wrap gap-2 text-xs">
-                    <span className="inline-flex items-center gap-1.5 rounded-full bg-success/10 px-3 py-1.5 text-ink">
-                      <Check className="h-3.5 w-3.5 text-success" /> Channel read
-                    </span>
-                    <span
-                      className={`inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 ${publishGranted ? "bg-success/10 text-ink" : "bg-surface-sunken text-ink-mute"}`}
-                    >
-                      <ShieldCheck className="h-3.5 w-3.5" />{" "}
-                      {publishGranted ? "Publishing granted" : "Publishing not granted"}
-                    </span>
-                  </div>
+          {!connected ? (
+            <div data-testid="youtube-connection-setup" className="px-5 py-6 sm:px-8 sm:py-8">
+              <section className="grid gap-6 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                <div>
+                  <StatusDot variant={connection ? "warning" : "muted"}>
+                    {connection ? "Reconnect required" : "Not connected"}
+                  </StatusDot>
+                  <h3 className="mt-4 font-display text-2xl text-ink">
+                    Connect only when you need channel tools
+                  </h3>
+                  <p className="mt-2 max-w-xl text-sm leading-6 text-ink-soft">
+                    Pasting a public or unlisted YouTube URL for clipping does not require a channel
+                    connection. Connect your account for upload monitoring and publishing controls.
+                  </p>
                 </div>
-              ) : null}
-
-              <div className="mt-6 flex flex-wrap gap-2">
-                {!connected ? (
+                <div className="flex flex-col gap-2 sm:min-w-48">
                   <button
                     type="button"
                     onClick={() => void connect("channel_read")}
                     disabled={Boolean(busy)}
-                    className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-surface-page disabled:opacity-60"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-surface-page disabled:opacity-60"
                   >
                     {busy === "channel_read" ? (
                       <LoaderCircle className="h-4 w-4 animate-spin" />
@@ -293,147 +255,230 @@ function Integrations() {
                     )}
                     {connection ? "Reconnect YouTube" : "Connect YouTube"}
                   </button>
-                ) : (
-                  <>
-                    {!publishGranted && (
-                      <button
-                        type="button"
-                        onClick={() => void connect("video_publish")}
-                        disabled={Boolean(busy)}
-                        className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-[#ff0033] px-4 py-2.5 text-sm font-semibold text-white disabled:opacity-60"
-                      >
-                        {busy === "video_publish" ? (
-                          <LoaderCircle className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <ArrowUpRight className="h-4 w-4" />
-                        )}
-                        Grant publishing access
-                      </button>
-                    )}
-                    <button
-                      type="button"
-                      onClick={() => setDisconnectOpen(true)}
-                      disabled={Boolean(busy)}
-                      className="inline-flex min-h-11 items-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm font-medium text-ink disabled:opacity-60"
-                    >
-                      <Unplug className="h-4 w-4" /> Disconnect
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
+                  <Link
+                    to="/app/youtube-clipper/new"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink"
+                  >
+                    <Scissors className="h-4 w-4" /> Clip a URL instead
+                  </Link>
+                </div>
+              </section>
 
-            <div className="border-t border-line bg-surface-raised p-6 sm:p-8 lg:border-l lg:border-t-0">
-              <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.16em] text-ember-ink">
-                <Radio className="h-4 w-4" /> Channel automation
-              </div>
-              <h3 className="mt-3 font-display text-xl text-ink">New upload workflow</h3>
-              <p className="mt-2 text-sm leading-relaxed text-ink-soft">
-                Manual jobs can import eligible attested media through the isolated worker. Channel
-                automation creates a draft unless a mapped authorised source already exists.
-              </p>
-              {!connected ? (
-                <p
-                  role="status"
-                  className="mt-4 rounded-xl border border-line bg-surface-panel px-4 py-3 text-sm text-ink-soft"
-                >
-                  Connect YouTube to configure channel monitoring and publishing automation.
-                </p>
-              ) : null}
-              <fieldset
-                disabled={!connected || Boolean(busy)}
-                className="mt-5 space-y-4 disabled:opacity-55"
-              >
-                <label className="flex items-center justify-between gap-3 rounded-xl border border-line bg-surface-panel px-4 py-3">
-                  <span className="text-sm font-medium text-ink">Monitor new uploads</span>
-                  <input
-                    type="checkbox"
-                    checked={automationEnabled}
-                    onChange={(event) => setAutomationEnabled(event.target.checked)}
-                    className="h-4 w-4 accent-[var(--ember)]"
-                  />
-                </label>
-                <SelectField
-                  label="When a new upload appears"
-                  value={sourceBehavior}
-                  onValueChange={setSourceBehavior}
-                  disabled={!connected || Boolean(busy)}
-                  options={[
-                    { value: "create_draft", label: "Create draft and request source" },
-                    {
-                      value: "start_when_source_exists",
-                      label: "Start when a mapped source exists",
-                    },
-                  ]}
-                />
-                <SelectField
-                  label="Clips per upload"
-                  value={String(requestedClips)}
-                  onValueChange={(value) => setRequestedClips(Number(value))}
-                  disabled={!connected || Boolean(busy)}
-                  options={[1, 2, 3, 4, 5, 10, 20, 50].map((count) => ({
-                    value: String(count),
-                    label: `${count} ${count === 1 ? "clip" : "clips"}`,
-                    badge: count > 20 ? "Pro" : count > 5 ? "Creator" : undefined,
-                    disabled: count > data.creationContext.entitlement.maxClipsPerJob,
-                    description:
-                      count > data.creationContext.entitlement.maxClipsPerJob
-                        ? `Available on ${count > 20 ? "Pro" : "Creator"}`
-                        : undefined,
-                  }))}
-                  hint={`${data.creationContext.entitlement.maxClipsPerJob} clips per upload on ${data.creationContext.plan}.`}
-                />
-                <SelectField
-                  label="After clips are ready"
-                  value={publishingBehavior}
-                  onValueChange={setPublishingBehavior}
-                  disabled={!connected || Boolean(busy)}
-                  options={[
-                    { value: "do_not_publish", label: "Do not publish automatically" },
-                    { value: "queue_for_review", label: "Queue for review" },
-                    { value: "schedule_approved", label: "Schedule approved clips" },
-                  ]}
-                />
-                <SelectField
-                  label="Default YouTube privacy"
-                  value={defaultPrivacy}
-                  onValueChange={setDefaultPrivacy}
-                  disabled={!connected || Boolean(busy)}
-                  options={[
-                    { value: "private", label: "Private" },
-                    { value: "unlisted", label: "Unlisted" },
-                    { value: "public", label: "Public" },
-                  ]}
-                />
-                {sourceBehavior === "start_when_source_exists" && (
-                  <label className="flex items-start gap-3 text-xs leading-relaxed text-ink-soft">
+              <section className="mt-7 border-t border-line pt-6">
+                <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.16em] text-ember-ink">
+                  <Radio className="h-4 w-4" /> Available after connection
+                </div>
+                <div className="mt-4 grid gap-4 sm:grid-cols-3">
+                  {[
+                    [BellRing, "Monitor uploads", "Detect new videos from the selected channel."],
+                    [
+                      Scissors,
+                      "Prepare clip drafts",
+                      "Choose how many clips each upload should create.",
+                    ],
+                    [
+                      ShieldCheck,
+                      "Control publishing",
+                      "Review access, privacy, and publishing behavior.",
+                    ],
+                  ].map(([Icon, title, description]) => {
+                    const FeatureIcon = Icon as typeof BellRing;
+                    return (
+                      <div key={String(title)} className="flex gap-3">
+                        <span className="mt-0.5 grid h-9 w-9 shrink-0 place-items-center rounded-xl bg-surface-sunken text-ink-soft">
+                          <FeatureIcon className="h-4 w-4" />
+                        </span>
+                        <div>
+                          <div className="text-sm font-semibold text-ink">{String(title)}</div>
+                          <p className="mt-1 text-xs leading-5 text-ink-mute">
+                            {String(description)}
+                          </p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </section>
+            </div>
+          ) : channel ? (
+            <div data-testid="youtube-connected-settings">
+              <section className="flex flex-col gap-5 px-5 py-6 sm:flex-row sm:items-center sm:justify-between sm:px-8">
+                <div className="flex min-w-0 items-center gap-3">
+                  {channel.avatar_url ? (
+                    <img
+                      src={channel.avatar_url}
+                      alt=""
+                      className="h-12 w-12 rounded-full object-cover"
+                    />
+                  ) : (
+                    <div className="grid h-12 w-12 shrink-0 place-items-center rounded-full bg-surface-sunken">
+                      <SiYoutube className="h-5 w-5 text-[#ff0033]" />
+                    </div>
+                  )}
+                  <div className="min-w-0">
+                    <div className="flex flex-wrap items-center gap-2">
+                      <div className="truncate font-semibold text-ink">{channel.title}</div>
+                      <StatusDot variant="success">Connected</StatusDot>
+                    </div>
+                    <div className="mt-1 flex flex-wrap gap-x-3 gap-y-1 text-xs text-ink-mute">
+                      <span className="inline-flex items-center gap-1">
+                        <Check className="h-3.5 w-3.5 text-success" /> Channel read
+                      </span>
+                      <span className="inline-flex items-center gap-1">
+                        <ShieldCheck className="h-3.5 w-3.5" />{" "}
+                        {publishGranted ? "Publishing granted" : "Publishing not granted"}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+                <div className="flex flex-wrap gap-2">
+                  <a
+                    href={`https://www.youtube.com/channel/${channel.provider_channel_id}`}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-line px-3 text-xs font-semibold text-ink"
+                  >
+                    View channel <ArrowUpRight className="h-3.5 w-3.5" />
+                  </a>
+                  <button
+                    type="button"
+                    onClick={() => setDisconnectOpen(true)}
+                    disabled={Boolean(busy)}
+                    className="inline-flex min-h-10 items-center gap-1.5 rounded-xl border border-line px-3 text-xs font-semibold text-ink disabled:opacity-60"
+                  >
+                    <Unplug className="h-3.5 w-3.5" /> Disconnect
+                  </button>
+                </div>
+              </section>
+
+              <section className="border-t border-line bg-surface-raised/65 px-5 py-6 sm:px-8 sm:py-7">
+                <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[.16em] text-ember-ink">
+                      <Radio className="h-4 w-4" /> Channel automation
+                    </div>
+                    <h3 className="mt-2 font-display text-xl text-ink">New upload workflow</h3>
+                    <p className="mt-1 text-sm text-ink-soft">
+                      Prepare drafts from new channel uploads with review-first controls.
+                    </p>
+                  </div>
+                  <label className="flex min-h-11 items-center justify-between gap-4 rounded-xl border border-line bg-surface-panel px-4">
+                    <span className="text-sm font-semibold text-ink">Monitor uploads</span>
                     <input
                       type="checkbox"
-                      checked={rightsAccepted}
-                      onChange={(event) => setRightsAccepted(event.target.checked)}
-                      className="mt-0.5 h-4 w-4 accent-[var(--ember)]"
+                      checked={automationEnabled}
+                      disabled={Boolean(busy)}
+                      onChange={(event) => setAutomationEnabled(event.target.checked)}
+                      className="h-4 w-4 accent-[var(--ember)]"
                     />
-                    <span>
-                      I confirm that mapped source media belongs to this managed channel and may be
-                      processed under the current content policy.
-                    </span>
                   </label>
-                )}
-                <button
-                  type="button"
-                  onClick={() => void saveAutomation()}
-                  className="inline-flex min-h-11 items-center gap-2 rounded-xl bg-ink px-4 py-2.5 text-sm font-semibold text-surface-page"
+                </div>
+
+                <fieldset
+                  disabled={Boolean(busy)}
+                  className="mt-6 grid gap-4 sm:grid-cols-2 disabled:opacity-55"
                 >
-                  {busy === "automation" ? (
-                    <LoaderCircle className="h-4 w-4 animate-spin" />
+                  <SelectField
+                    label="When a new upload appears"
+                    value={sourceBehavior}
+                    onValueChange={setSourceBehavior}
+                    options={[
+                      { value: "create_draft", label: "Create draft and request source" },
+                      {
+                        value: "start_when_source_exists",
+                        label: "Start when a mapped source exists",
+                      },
+                    ]}
+                  />
+                  <SelectField
+                    label="Clips per upload"
+                    value={String(requestedClips)}
+                    onValueChange={(value) => setRequestedClips(Number(value))}
+                    options={[1, 2, 3, 4, 5, 10, 20, 50].map((count) => ({
+                      value: String(count),
+                      label: `${count} ${count === 1 ? "clip" : "clips"}`,
+                      badge: count > 20 ? "Pro" : count > 5 ? "Creator" : undefined,
+                      disabled: count > data.creationContext.entitlement.maxClipsPerJob,
+                      description:
+                        count > data.creationContext.entitlement.maxClipsPerJob
+                          ? `Available on ${count > 20 ? "Pro" : "Creator"}`
+                          : undefined,
+                    }))}
+                    hint={`${data.creationContext.entitlement.maxClipsPerJob} clips per upload on ${data.creationContext.plan}.`}
+                  />
+                  <SelectField
+                    label="After clips are ready"
+                    value={publishingBehavior}
+                    onValueChange={setPublishingBehavior}
+                    options={[
+                      { value: "do_not_publish", label: "Do not publish automatically" },
+                      { value: "queue_for_review", label: "Queue for review" },
+                      { value: "schedule_approved", label: "Schedule approved clips" },
+                    ]}
+                  />
+                  <SelectField
+                    label="Default YouTube privacy"
+                    value={defaultPrivacy}
+                    onValueChange={setDefaultPrivacy}
+                    options={[
+                      { value: "private", label: "Private" },
+                      { value: "unlisted", label: "Unlisted" },
+                      { value: "public", label: "Public" },
+                    ]}
+                  />
+                  {sourceBehavior === "start_when_source_exists" ? (
+                    <label className="flex items-start gap-3 text-xs leading-relaxed text-ink-soft sm:col-span-2">
+                      <input
+                        type="checkbox"
+                        checked={rightsAccepted}
+                        onChange={(event) => setRightsAccepted(event.target.checked)}
+                        className="mt-0.5 h-4 w-4 accent-[var(--ember)]"
+                      />
+                      <span>
+                        I confirm that mapped source media belongs to this managed channel and may
+                        be processed under the current content policy.
+                      </span>
+                    </label>
+                  ) : null}
+                </fieldset>
+
+                <div className="mt-6 flex flex-col-reverse gap-2 border-t border-line pt-5 sm:flex-row sm:items-center sm:justify-between">
+                  {!publishGranted ? (
+                    <button
+                      type="button"
+                      onClick={() => void connect("video_publish")}
+                      disabled={Boolean(busy)}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-line bg-surface-panel px-4 text-sm font-semibold text-ink disabled:opacity-60"
+                    >
+                      {busy === "video_publish" ? (
+                        <LoaderCircle className="h-4 w-4 animate-spin" />
+                      ) : (
+                        <ShieldCheck className="h-4 w-4" />
+                      )}
+                      Grant publishing access
+                    </button>
                   ) : (
-                    <Check className="h-4 w-4" />
+                    <span className="text-xs text-ink-mute">
+                      Publishing access is granted independently.
+                    </span>
                   )}
-                  Save automation
-                </button>
-              </fieldset>
+                  <button
+                    type="button"
+                    disabled={busy === "automation" || !automationDirty}
+                    onClick={() => void saveAutomation()}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl bg-ink px-5 text-sm font-semibold text-surface-page disabled:opacity-45"
+                  >
+                    {busy === "automation" ? (
+                      <LoaderCircle className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <Check className="h-4 w-4" />
+                    )}
+                    Save automation
+                  </button>
+                </div>
+              </section>
             </div>
-          </div>
+          ) : null}
         </ConnectorSettingsDialog>
       ) : selectedConnector ? (
         <ConnectorSettingsDialog

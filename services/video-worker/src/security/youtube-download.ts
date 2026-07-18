@@ -4,6 +4,20 @@ import { execa } from "execa";
 import { env } from "../config/env.js";
 import { TaskFailure } from "../domain/types.js";
 
+export type YouTubeDownloadStrategy =
+  "standard" | "web-safari" | "mweb-pot" | "web-embedded" | "android-vr";
+
+export function selectYouTubeDownloadStrategy(
+  attempt: number,
+  potProviderConfigured: boolean,
+): YouTubeDownloadStrategy {
+  if (attempt <= 1) return "standard";
+  if (attempt === 2) return potProviderConfigured ? "mweb-pot" : "web-safari";
+  if (attempt === 3) return "web-embedded";
+  if (attempt === 4) return "android-vr";
+  return potProviderConfigured ? "mweb-pot" : "web-safari";
+}
+
 /**
  * Downloads YouTube video media using yt-dlp with security controls.
  *
@@ -19,8 +33,9 @@ export function buildYouTubeDownloadArgs(
   videoId: string,
   directory: string,
   maximumDurationSeconds: number,
-  strategy: "standard" | "web-safari" | "mweb-pot" = "standard",
+  strategy: YouTubeDownloadStrategy = "standard",
   potProviderUrl?: string,
+  proxyUrl?: string,
 ): string[] {
   if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) {
     throw new TaskFailure("invalid_video_id", "The YouTube video ID is malformed.", false);
@@ -46,6 +61,7 @@ export function buildYouTubeDownloadArgs(
     "--ignore-config",
     "--js-runtimes",
     "node",
+    "--force-ipv4",
     "--retries",
     "3",
     "--fragment-retries",
@@ -63,6 +79,12 @@ export function buildYouTubeDownloadArgs(
 
   if (strategy === "web-safari") {
     args.push("--extractor-args", "youtube:player_client=web_safari");
+  }
+  if (strategy === "web-embedded") {
+    args.push("--extractor-args", "youtube:player_client=web_embedded");
+  }
+  if (strategy === "android-vr") {
+    args.push("--extractor-args", "youtube:player_client=android_vr");
   }
   if (strategy === "mweb-pot") {
     if (!potProviderUrl) {
@@ -86,6 +108,18 @@ export function buildYouTubeDownloadArgs(
       "--extractor-args",
       `youtubepot-bgutilhttp:base_url=${provider.toString().replace(/\/$/, "")}`,
     );
+  }
+
+  if (proxyUrl) {
+    const proxy = new URL(proxyUrl);
+    if (!["http:", "https:", "socks5:", "socks5h:"].includes(proxy.protocol) || !proxy.hostname) {
+      throw new TaskFailure(
+        "provider_configuration_error",
+        "The YouTube egress proxy URL is invalid.",
+        false,
+      );
+    }
+    args.push("--proxy", proxy.toString());
   }
 
   args.push(`https://www.youtube.com/watch?v=${videoId}`);
@@ -182,7 +216,7 @@ export async function downloadYouTubeMedia(
   directory: string,
   maximumDurationSeconds: number,
   signal?: AbortSignal,
-  strategy: "standard" | "web-safari" | "mweb-pot" = "standard",
+  strategy: YouTubeDownloadStrategy = "standard",
 ): Promise<{ bytes: number; format: string; filename: string }> {
   const args = buildYouTubeDownloadArgs(
     videoId,
@@ -190,6 +224,7 @@ export async function downloadYouTubeMedia(
     maximumDurationSeconds,
     strategy,
     env.YTDLP_POT_PROVIDER_URL,
+    env.YTDLP_PROXY_URL,
   );
 
   try {

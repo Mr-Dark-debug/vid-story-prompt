@@ -10,7 +10,10 @@ import { TaskFailure, type ClipTask, type TaskResult } from "../domain/types.js"
 import { createProxy, extractSpeechAudio, renderClip } from "../media/ffmpeg.js";
 import { probeMedia } from "../media/probe.js";
 import { downloadDirectMedia } from "../security/direct-download.js";
-import { downloadYouTubeMedia } from "../security/youtube-download.js";
+import {
+  downloadYouTubeMedia,
+  selectYouTubeDownloadStrategy,
+} from "../security/youtube-download.js";
 import { scanLocalFile } from "../security/virus-scan.js";
 import { downloadAsset, supabase, uploadAsset } from "../storage/client.js";
 import { mergeTranscriptChunks } from "../transcription/merge.js";
@@ -301,11 +304,7 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
         directory,
         Number(job.source_duration_seconds),
         downloadSignal,
-        task.attempt > 1
-          ? env.YTDLP_POT_PROVIDER_URL
-            ? "mweb-pot"
-            : "web-safari"
-          : "standard",
+        selectYouTubeDownloadStrategy(task.attempt, Boolean(env.YTDLP_POT_PROVIDER_URL)),
       );
     } catch (error) {
       if (cancellation.signal.aborted) {

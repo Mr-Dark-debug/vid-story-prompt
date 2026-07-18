@@ -31,6 +31,10 @@ export const env = z
       (value) => (value === "" ? undefined : value),
       z.string().url().optional(),
     ),
+    YTDLP_PROXY_URL: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.string().min(8).optional(),
+    ),
     GROQ_API_KEY: optionalSecret,
     GROQ_TRANSCRIPTION_MODEL: z.string().default("whisper-large-v3-turbo"),
     OPENAI_API_KEY: optionalSecret,

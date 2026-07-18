@@ -47,6 +47,8 @@ services:
         value: "300000"
       - key: DIRECT_DOWNLOAD_REDIRECT_LIMIT
         value: "4"
+      - key: YTDLP_PROXY_URL
+        sync: false
       - key: FFMPEG_THREADS
         value: "1"
       - key: LOG_LEVEL

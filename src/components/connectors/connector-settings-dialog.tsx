@@ -10,6 +10,7 @@ import {
   AlertDialogDescription,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import { cn } from "@/lib/utils";
 
 export function ConnectorSettingsDialog({
   connector,
@@ -19,6 +20,8 @@ export function ConnectorSettingsDialog({
   isDirty = false,
   onSave,
   saving = false,
+  contentClassName,
+  bodyClassName,
 }: {
   connector: PublicConnectorDefinition;
   open: boolean;
@@ -27,6 +30,8 @@ export function ConnectorSettingsDialog({
   isDirty?: boolean;
   onSave?: () => void | boolean | Promise<void | boolean>;
   saving?: boolean;
+  contentClassName?: string;
+  bodyClassName?: string;
 }) {
   const [confirmClose, setConfirmClose] = useState(false);
   const [savingFromGuard, setSavingFromGuard] = useState(false);
@@ -55,7 +60,12 @@ export function ConnectorSettingsDialog({
   return (
     <>
       <Dialog open={open} onOpenChange={requestOpenChange}>
-        <DialogContent className="max-h-[min(90dvh,54rem)] w-[calc(100%-1.5rem)] max-w-3xl overflow-y-auto rounded-[1.75rem] border-line bg-surface-panel p-0 shadow-[0_28px_90px_-34px_rgba(29,29,27,.45)]">
+        <DialogContent
+          className={cn(
+            "max-h-[min(92dvh,56rem)] w-[calc(100%-1.5rem)] max-w-3xl grid-rows-[auto_minmax(0,1fr)] gap-0 overflow-hidden rounded-[1.75rem] border-line bg-surface-panel p-0 shadow-[0_28px_90px_-34px_rgba(29,29,27,.45)]",
+            contentClassName,
+          )}
+        >
           <header className="sticky top-0 z-10 flex items-start gap-4 border-b border-line bg-surface-panel/95 px-5 py-5 pr-14 backdrop-blur sm:px-7">
             <span className="grid h-12 w-12 shrink-0 place-items-center rounded-2xl border border-line bg-surface-page text-ink-soft shadow-sm">
               <ConnectorIcon connectorId={connector.id} icon={connector.icon} />
@@ -72,7 +82,9 @@ export function ConnectorSettingsDialog({
               </DialogDescription>
             </div>
           </header>
-          <div className="px-5 py-6 sm:px-7">{children}</div>
+          <div className={cn("min-h-0 overflow-y-auto px-5 py-6 sm:px-7", bodyClassName)}>
+            {children}
+          </div>
         </DialogContent>
       </Dialog>
 

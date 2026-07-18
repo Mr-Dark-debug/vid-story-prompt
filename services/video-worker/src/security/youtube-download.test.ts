@@ -9,6 +9,7 @@ import {
   buildYouTubeDownloadArgs,
   classifyYouTubeDownloadFailure,
   classifyYouTubeExecutionFailure,
+  selectYouTubeDownloadStrategy,
 } from "./youtube-download.js";
 
 describe("YouTube download command", () => {
@@ -24,6 +25,7 @@ describe("YouTube download command", () => {
         "--ignore-config",
         "--js-runtimes",
         "node",
+        "--force-ipv4",
         "--max-filesize",
         "--match-filters",
         "!is_live & duration <= 131",
@@ -79,6 +81,59 @@ describe("YouTube download command", () => {
       ]),
     );
     expect(potArgs.join(" ")).not.toMatch(/cookiefile|username|password/i);
+
+    const embeddedArgs = buildYouTubeDownloadArgs(
+      "dQw4w9WgXcQ",
+      "/tmp/vidrial/task",
+      120,
+      "web-embedded",
+    );
+    expect(embeddedArgs).toEqual(
+      expect.arrayContaining(["--extractor-args", "youtube:player_client=web_embedded"]),
+    );
+
+    const androidArgs = buildYouTubeDownloadArgs(
+      "dQw4w9WgXcQ",
+      "/tmp/vidrial/task",
+      120,
+      "android-vr",
+    );
+    expect(androidArgs).toEqual(
+      expect.arrayContaining(["--extractor-args", "youtube:player_client=android_vr"]),
+    );
+  });
+
+  it("rotates supported clients instead of repeating one blocked path", () => {
+    expect([1, 2, 3, 4, 5].map((attempt) => selectYouTubeDownloadStrategy(attempt, true))).toEqual([
+      "standard",
+      "mweb-pot",
+      "web-embedded",
+      "android-vr",
+      "mweb-pot",
+    ]);
+    expect(selectYouTubeDownloadStrategy(2, false)).toBe("web-safari");
+  });
+
+  it("allows a server-only egress proxy while rejecting unsupported schemes", () => {
+    const proxyArgs = buildYouTubeDownloadArgs(
+      "dQw4w9WgXcQ",
+      "/tmp/vidrial/task",
+      120,
+      "standard",
+      undefined,
+      "socks5h://proxy.internal:1080",
+    );
+    expect(proxyArgs).toEqual(expect.arrayContaining(["--proxy", "socks5h://proxy.internal:1080"]));
+    expect(() =>
+      buildYouTubeDownloadArgs(
+        "dQw4w9WgXcQ",
+        "/tmp/vidrial/task",
+        120,
+        "standard",
+        undefined,
+        "file:///tmp/socket",
+      ),
+    ).toThrow(TaskFailure);
   });
 
   it("does not mistake the bounded command flag for an oversized download", () => {

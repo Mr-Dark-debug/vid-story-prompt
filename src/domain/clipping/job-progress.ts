@@ -59,10 +59,14 @@ export function deriveJobStages(
     ? (job.status as DisplayStageId)
     : null;
   const hasStarted = tasks.some((task) => !["pending", "queued"].includes(task.status));
+  const hasCompletedWork = tasks.some((task) => task.status === "succeeded");
 
   return displayStages.map((stage) => {
     if (stage.id === "queued") {
       if (job.status === "queued") return { ...stage, state: "active" };
+      if (["failed", "cancelled", "expired"].includes(job.status) && !hasCompletedWork) {
+        return { ...stage, state: "pending" };
+      }
       return { ...stage, state: hasStarted ? "completed" : "pending" };
     }
     if (stage.id === "ready") {
@@ -90,15 +94,35 @@ export function getJobStatusPresentation(status: string): {
   active: boolean;
 } {
   if (["ready", "completed", "partially_ready"].includes(status))
-    return { label: status === "partially_ready" ? "Partially ready" : status === "completed" ? "Completed" : "Ready", tone: "success", active: false };
+    return {
+      label:
+        status === "partially_ready"
+          ? "Partially ready"
+          : status === "completed"
+            ? "Completed"
+            : "Ready",
+      tone: "success",
+      active: false,
+    };
   if (["failed", "dead_lettered"].includes(status))
     return { label: "Failed", tone: "danger", active: false };
   if (["cancelled", "expired", "expiring"].includes(status))
-    return { label: status === "cancelled" ? "Cancelled" : "Expired", tone: "neutral", active: false };
+    return {
+      label: status === "cancelled" ? "Cancelled" : "Expired",
+      tone: "neutral",
+      active: false,
+    };
   if (status === "retry_wait") return { label: "Retrying", tone: "warning", active: true };
   if (["draft", "awaiting_source", "uploading", "queued"].includes(status))
     return {
-      label: status === "awaiting_source" ? "Awaiting source" : status === "uploading" ? "Uploading" : status === "queued" ? "Queued" : "Draft",
+      label:
+        status === "awaiting_source"
+          ? "Awaiting source"
+          : status === "uploading"
+            ? "Uploading"
+            : status === "queued"
+              ? "Queued"
+              : "Draft",
       tone: "info",
       active: status === "uploading" || status === "queued",
     };
