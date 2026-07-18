@@ -347,10 +347,11 @@ export function JobProgress({
                       </p>
                     ) : null}
                   </div>
-                  <time
-                    className="pt-0.5 text-right text-[10px] text-ink-mute"
-                    dateTime={event.created_at}
-                  >
+                <time
+                  className="pt-0.5 text-right text-[10px] text-ink-mute"
+                  dateTime={event.created_at}
+                  suppressHydrationWarning
+                >
                     {new Date(event.created_at).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",
