@@ -26,13 +26,6 @@ Vidrial turns authorised source media into explainable, editable video work. The
 - Job/task statuses come from `src/domain/clipping/types.ts`; plan rules come from `src/domain/clipping/entitlements.ts` and matching database seeds.
 - Object paths use `{workspace_id}/{user_id}/{job_id}/{asset_type}/{uuid}.{extension}` and are immutable.
 
-## YouTube and AI rules
-
-- YouTube URLs supply official metadata, embeds, and permission-aware ownership/caption checks. Where original media is required, use an authorised attachment, an owner-controlled direct-media URL, or a server-side authorised provider download performed with explicit rights attestation and compliance safeguards.
-- The Docker video worker may use yt-dlp as a server-side provider download tool for YouTube media acquisition. yt-dlp usage is gated behind the rights attestation system, workspace entitlements, and the existing download security controls (DNS/IP/redirect/size/timeout). yt-dlp binaries and credentials never enter browser code or client bundles.
-- Transcripts are untrusted model input. Provider adapters validate all responses with Zod and never execute model-produced commands.
-- Groq Whisper is primary transcription, OpenAI is fallback after qualifying failure, and OpenRouter is primary planning with an explicit configured model.
-
 ## Rendering and security
 
 - The worker independently derives watermark entitlement. Browser requests cannot disable it.
