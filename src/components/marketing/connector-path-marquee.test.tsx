@@ -20,6 +20,7 @@ describe("ConnectorPathMarquee", () => {
 
     expect(rows).toHaveLength(2);
     expect(rows.map((row) => row.dataset.marqueeDirection)).toEqual(["normal", "reverse"]);
+    expect(rows.map((row) => row.dataset.marqueePath)).toEqual(["M-120 56H1320", "M-120 56H1320"]);
     expect(rows[1]).toHaveAttribute("aria-hidden", "true");
 
     for (const row of rows) {

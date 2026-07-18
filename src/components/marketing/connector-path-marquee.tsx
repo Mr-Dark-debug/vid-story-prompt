@@ -10,8 +10,7 @@ const displayedConnectors = CONNECTOR_REGISTRY.filter(
     connector.id !== "other",
 );
 
-const upperPath = "M-120 58C180 28 430 86 690 54C930 24 1110 82 1320 56";
-const lowerPath = "M-120 54C180 84 430 26 690 58C930 88 1110 30 1320 56";
+const straightPath = "M-120 56H1320";
 
 const horizontalFade =
   "linear-gradient(to right, transparent 0%, black 9%, black 91%, transparent 100%)";
@@ -34,6 +33,7 @@ function ConnectorMarqueeRow({
     <div
       data-marquee-row
       data-marquee-direction={direction}
+      data-marquee-path={path}
       aria-hidden={hiddenFromAssistiveTechnology || undefined}
     >
       <MarqueeAlongSvgPath
@@ -87,8 +87,12 @@ export function ConnectorPathMarquee() {
         Import from the tools you already use
       </h2>
       <div className="grid gap-1 py-2 sm:gap-2">
-        <ConnectorMarqueeRow path={upperPath} direction="normal" />
-        <ConnectorMarqueeRow path={lowerPath} direction="reverse" hiddenFromAssistiveTechnology />
+        <ConnectorMarqueeRow path={straightPath} direction="normal" />
+        <ConnectorMarqueeRow
+          path={straightPath}
+          direction="reverse"
+          hiddenFromAssistiveTechnology
+        />
       </div>
     </section>
   );
