@@ -9,6 +9,7 @@ const turnstileResponseSchema = z.object({
   action: z.string().optional(),
   hostname: z.string().optional(),
   success: z.boolean(),
+  "error-codes": z.array(z.string()).optional().default([]),
 });
 
 type TurnstileResult = z.infer<typeof turnstileResponseSchema>;
@@ -17,17 +18,60 @@ function isLocalHostname(hostname: string) {
   return hostname === "localhost" || hostname === "127.0.0.1" || hostname === "::1";
 }
 
+export class TurnstileVerificationError extends Error {
+  constructor(
+    public readonly code: string,
+    message: string,
+  ) {
+    super(message);
+    this.name = "TurnstileVerificationError";
+  }
+}
+
+export function getTurnstileAllowedHostnames(publicAppUrl: string, configured = "") {
+  return new Set([
+    new URL(publicAppUrl).hostname.toLowerCase(),
+    ...configured
+      .split(",")
+      .map((value) => value.trim().toLowerCase())
+      .filter(Boolean),
+  ]);
+}
+
+function turnstileErrorMessage(code: string) {
+  if (code === "timeout-or-duplicate")
+    return "The security verification expired or was already used. Complete it again.";
+  if (code === "invalid-input-response")
+    return "The security verification was invalid. Complete it again.";
+  if (code === "missing-input-response")
+    return "Complete the security verification before continuing.";
+  if (code === "invalid-input-secret" || code === "missing-input-secret")
+    return "Security verification is temporarily unavailable. Please retry shortly.";
+  return "Security verification could not be completed. Please retry.";
+}
+
 export function validateTurnstileResult(
   value: unknown,
   expectedAction: TurnstileAction,
-  expectedHostname: string,
+  allowedHostnames: ReadonlySet<string>,
 ): TurnstileResult {
   const result = turnstileResponseSchema.parse(value);
-  if (!result.success) throw new Error("The security verification expired. Complete it again.");
+  if (!result.success) {
+    const code = result["error-codes"][0] ?? "verification-failed";
+    throw new TurnstileVerificationError(code, turnstileErrorMessage(code));
+  }
   if (result.action !== expectedAction)
-    throw new Error("The security verification was issued for a different action.");
-  if (!isLocalHostname(expectedHostname) && result.hostname !== expectedHostname)
-    throw new Error("The security verification was issued for a different website.");
+    throw new TurnstileVerificationError(
+      "action-mismatch",
+      "The security verification was issued for a different action.",
+    );
+  const localDevelopment = [...allowedHostnames].some(isLocalHostname);
+  const responseHostname = result.hostname?.toLowerCase();
+  if (!localDevelopment && (!responseHostname || !allowedHostnames.has(responseHostname)))
+    throw new TurnstileVerificationError(
+      "hostname-mismatch",
+      "The security verification was issued for a different website.",
+    );
   return result;
 }
 
@@ -64,6 +108,10 @@ export async function verifyTurnstile(token: string | undefined, action: Turnsti
     throw new Error("Security verification returned an invalid response. Please retry.");
   }
 
-  validateTurnstileResult(result, action, new URL(env.PUBLIC_APP_URL).hostname);
+  validateTurnstileResult(
+    result,
+    action,
+    getTurnstileAllowedHostnames(env.PUBLIC_APP_URL, env.TURNSTILE_ALLOWED_HOSTNAMES),
+  );
   return { configured: true as const };
 }

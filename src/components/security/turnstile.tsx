@@ -3,13 +3,14 @@ import { Button } from "@/components/ui/button";
 
 type TurnstileApi = {
   remove: (widgetId: string) => void;
+  reset: (widgetId: string) => void;
   render: (
     container: HTMLElement,
     options: {
       action: string;
       appearance: "always" | "execute" | "interaction-only";
       callback: (token: string) => void;
-      "error-callback": () => void;
+      "error-callback": (code?: string) => void;
       "expired-callback": () => void;
       sitekey: string;
       size: "flexible";
@@ -25,6 +26,32 @@ declare global {
 }
 
 let scriptPromise: Promise<TurnstileApi> | undefined;
+
+export function classifyTurnstileClientError(code?: string) {
+  if (code === "110200")
+    return {
+      message: "Security verification is not enabled for this website.",
+      retryable: false,
+    };
+  if (code === "110620" || code === "110600")
+    return {
+      message: "Security verification timed out. Try again.",
+      retryable: true,
+    };
+  if (
+    code?.startsWith("200") ||
+    code?.startsWith("300") ||
+    code?.startsWith("600")
+  )
+    return {
+      message: "Security verification was interrupted. Trying again…",
+      retryable: true,
+    };
+  return {
+    message: "Security verification could not complete. Please retry.",
+    retryable: true,
+  };
+}
 
 function loadTurnstile() {
   if (window.turnstile) return Promise.resolve(window.turnstile);
@@ -76,6 +103,7 @@ export function TurnstileWidget({
   siteKey: string;
 }) {
   const container = useRef<HTMLDivElement>(null);
+  const automaticResetUsed = useRef(false);
   const [error, setError] = useState<string | null>(null);
   const [loadAttempt, setLoadAttempt] = useState(0);
 
@@ -85,6 +113,7 @@ export function TurnstileWidget({
     let widgetId: string | undefined;
     onToken(null);
     setError(null);
+    automaticResetUsed.current = false;
 
     void loadTurnstile()
       .then((turnstile) => {
@@ -97,9 +126,14 @@ export function TurnstileWidget({
             setError(null);
             onToken(token);
           },
-          "error-callback": () => {
+          "error-callback": (code) => {
+            const failure = classifyTurnstileClientError(code);
             onToken(null);
-            setError("Security verification could not complete. Please retry.");
+            setError(failure.message);
+            if (failure.retryable && !automaticResetUsed.current && widgetId) {
+              automaticResetUsed.current = true;
+              turnstile.reset(widgetId);
+            }
           },
           "expired-callback": () => {
             onToken(null);
