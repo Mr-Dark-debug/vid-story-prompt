@@ -73,7 +73,6 @@ services:
     branch: main
     dockerfilePath: ./services/video-worker/warp/Dockerfile
     dockerContext: ./services/video-worker/warp
-    healthCheckPath: /healthz
     envVars:
       - key: PORT
         value: "8081"
