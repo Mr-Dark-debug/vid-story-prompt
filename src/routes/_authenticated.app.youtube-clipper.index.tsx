@@ -6,6 +6,7 @@ import { deleteClipJob, listClipJobs } from "@/services/clipping/server";
 import { formatUtcDateTime } from "@/lib/format-date";
 import { ResilientThumbnail } from "@/components/media/resilient-thumbnail";
 import { ConfirmationDialog, StatusDialog } from "@/components/ui/status-dialog";
+import { JobStatusBadge } from "@/components/youtube-clipper/job-status-badge";
 
 export const Route = createFileRoute("/_authenticated/app/youtube-clipper/")({
   loader: () => listClipJobs(),
@@ -107,9 +108,7 @@ function ClipperDashboard() {
                   {job.requested_clip_count} clips
                 </div>
               </div>
-              <span className="hidden rounded-full bg-surface-sunken px-3 py-1 text-xs font-medium capitalize text-ink-soft sm:inline-flex">
-                {job.status.replaceAll("_", " ")}
-              </span>
+              <JobStatusBadge status={job.status} className="hidden sm:inline-flex" />
               <button
                 type="button"
                 aria-label={`Delete ${job.source_title ?? "clipping job"}`}

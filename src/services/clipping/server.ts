@@ -37,6 +37,14 @@ const jobInput = z.object({
   projectId: z.string().uuid().optional(),
 });
 
+const retryTaskResult = z.object({
+  taskId: z.string().uuid(),
+  jobId: z.string().uuid(),
+  status: z.literal("queued"),
+  attempt: z.number().int().nonnegative(),
+  maxAttempts: z.number().int().positive(),
+});
+
 type RpcClient = {
   rpc: (
     name: string,
@@ -167,7 +175,13 @@ export const getClipJob = createServerFn({ method: "GET" })
   .validator(z.object({ jobId: z.string().uuid() }))
   .handler(async ({ data }) => {
     const supabase = getSupabaseServerClient();
-    const [{ data: job, error }, { data: events }, { data: clips }, { data: exports }] =
+    const [
+      { data: job, error },
+      { data: events },
+      { data: clips },
+      { data: exports },
+      { data: tasks, error: taskError },
+    ] =
       await Promise.all([
         supabase.from("clip_jobs").select("*").eq("id", data.jobId).single(),
         supabase
@@ -189,9 +203,43 @@ export const getClipJob = createServerFn({ method: "GET" })
           )
           .eq("clip_job_id", data.jobId)
           .order("created_at", { ascending: false }),
+        supabase
+          .from("job_tasks")
+          .select(
+            "id,task_type,status,attempt,max_attempts,next_attempt_at,started_at,completed_at,error_code,error_message,progress_current,progress_total,created_at",
+          )
+          .eq("clip_job_id", data.jobId)
+          .order("created_at", { ascending: true }),
       ]);
     if (error) throw new Error(error.message);
-    return { job, events: events ?? [], clips: clips ?? [], exports: exports ?? [] };
+    if (taskError) throw new Error(taskError.message);
+    return {
+      job,
+      events: events ?? [],
+      clips: clips ?? [],
+      exports: exports ?? [],
+      tasks: tasks ?? [],
+    };
+  });
+
+export const retryClipJobTask = createServerFn({ method: "POST" })
+  .validator(z.object({ jobId: z.string().uuid() }))
+  .handler(async ({ data }) => {
+    const session = await getCurrentSession();
+    if (!session?.workspaceId) throw new Error("Your workspace session expired.");
+    const client = getSupabaseServerClient() as unknown as RpcClient;
+    const { data: result, error } = await client.rpc("retry_clip_task", {
+      p_job_id: data.jobId,
+    });
+    if (error) {
+      if (/retry_not_available|retry_already_active/i.test(error.message)) {
+        throw new Error("This task cannot be retried. Refresh the job to see its latest state.");
+      }
+      throw new Error("The failed task could not be queued again.");
+    }
+    const parsed = retryTaskResult.parse(result);
+    const workerWake = await wakeVideoWorker();
+    return { result: parsed, workerWake };
   });
 
 export const cancelClipJob = createServerFn({ method: "POST" })

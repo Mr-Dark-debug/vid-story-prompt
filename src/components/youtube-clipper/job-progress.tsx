@@ -1,34 +1,51 @@
 import { Link, useRouter } from "@tanstack/react-router";
-import { useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
   ArrowRight,
   Check,
+  CheckCircle2,
   Clock3,
+  Info,
   LoaderCircle,
   RotateCcw,
   Scissors,
   X,
+  XCircle,
 } from "lucide-react";
 import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatUtcDate } from "@/lib/format-date";
-import { cancelClipJob, type getClipJob } from "@/services/clipping/server";
+import {
+  cancelClipJob,
+  retryClipJobTask,
+  type getClipJob,
+} from "@/services/clipping/server";
 import { getExportDownload } from "@/services/exports/server";
+import { deriveJobStages, type DisplayStageState } from "@/domain/clipping/job-progress";
+import { cn } from "@/lib/utils";
+import { StatusDialog } from "@/components/ui/status-dialog";
 import { YouTubePublishPanel } from "./youtube-publish-panel";
+import { JobStatusBadge } from "./job-status-badge";
 
 type JobData = Awaited<ReturnType<typeof getClipJob>>;
-const stages = [
-  "awaiting_source",
-  "queued",
-  "validating",
-  "creating_proxy",
-  "extracting_audio",
-  "transcribing",
-  "analysing",
-  "planning",
-  "rendering_previews",
-  "ready",
-];
+const retryableCodes = new Set([
+  "provider_auth_challenge",
+  "provider_rate_limited",
+  "provider_temporary_failure",
+  "download_timeout",
+  "ytdlp_error",
+  "video_restricted",
+  "plan_unavailable",
+  "temporary_failure",
+]);
+
+const stageClasses: Record<DisplayStageState, string> = {
+  completed: "bg-success",
+  active: "bg-ember",
+  retrying: "bg-warning",
+  failed: "bg-danger",
+  pending: "bg-line",
+};
 
 export function JobProgress({
   data,
@@ -40,7 +57,9 @@ export function JobProgress({
   publishingJobs?: Parameters<typeof YouTubePublishPanel>[0]["jobs"];
 }) {
   const router = useRouter();
-  const { job, events, clips, exports } = data;
+  const { job, events, clips, exports, tasks } = data;
+  const [retrying, setRetrying] = useState(false);
+  const [retryError, setRetryError] = useState<string | null>(null);
   useEffect(() => {
     const channel = getSupabaseBrowserClient()
       .channel(`clip-job-${job.id}`)
@@ -59,13 +78,39 @@ export function JobProgress({
         },
         () => router.invalidate(),
       )
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "job_tasks", filter: `clip_job_id=eq.${job.id}` },
+        () => router.invalidate(),
+      )
       .subscribe();
     return () => {
       void getSupabaseBrowserClient().removeChannel(channel);
     };
   }, [job.id, router]);
-  const currentIndex = stages.indexOf(job.status);
+  const stages = useMemo(() => deriveJobStages(job, tasks), [job, tasks]);
   const terminal = ["failed", "cancelled", "expired"].includes(job.status);
+  const failedTask = [...tasks]
+    .reverse()
+    .find((task) => ["failed", "dead_lettered"].includes(task.status));
+  const canRetry = Boolean(
+    failedTask?.error_code &&
+      retryableCodes.has(failedTask.error_code) &&
+      failedTask.attempt < failedTask.max_attempts,
+  );
+  const orderedEvents = useMemo(() => [...events].reverse(), [events]);
+
+  const retry = async () => {
+    setRetrying(true);
+    try {
+      await retryClipJobTask({ data: { jobId: job.id } });
+      await router.invalidate();
+    } catch (cause) {
+      setRetryError(cause instanceof Error ? cause.message : "The task could not be retried.");
+    } finally {
+      setRetrying(false);
+    }
+  };
   return (
     <div>
       <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
@@ -104,22 +149,20 @@ export function JobProgress({
             ) : (
               <LoaderCircle className="h-5 w-5 animate-spin text-ember motion-reduce:animate-none" />
             )}
-            <span className="font-medium capitalize text-ink">
-              {job.status.replaceAll("_", " ")}
-            </span>
+            <JobStatusBadge status={job.status} />
           </div>
           <span className="text-xs text-ink-mute">
             Progress uses completed work, not estimated percentages
           </span>
         </div>
-        <div className="mt-5 grid grid-cols-4 gap-1 sm:grid-cols-10">
-          {stages.map((stage, index) => (
-            <div key={stage}>
+        <div className="mt-5 grid grid-cols-2 gap-x-2 gap-y-4 sm:grid-cols-5 lg:grid-cols-10">
+          {stages.map((stage) => (
+            <div key={stage.id} aria-label={`${stage.label}: ${stage.state}`}>
               <div
-                className={`h-1.5 rounded-full ${index <= currentIndex || ["ready", "partially_ready", "completed"].includes(job.status) ? "bg-ember" : "bg-line"}`}
+                className={cn("h-1.5 rounded-full transition-colors", stageClasses[stage.state])}
               />
-              <div className="mt-1 hidden truncate text-[9px] capitalize text-ink-mute sm:block">
-                {stage.replaceAll("_", " ")}
+              <div className="mt-1.5 truncate text-[10px] text-ink-mute">
+                {stage.label}
               </div>
             </div>
           ))}
@@ -128,10 +171,17 @@ export function JobProgress({
           <div className="mt-5 rounded-xl border border-danger/25 bg-danger/5 p-4 text-sm text-danger">
             <div className="font-semibold">Processing stopped</div>
             <div className="mt-1">{job.error_message}</div>
-            <button className="mt-3 inline-flex items-center gap-1.5 font-medium">
-              <RotateCcw className="h-3.5 w-3.5" />
-              Retry failed task
-            </button>
+            {canRetry && (
+              <button
+                type="button"
+                disabled={retrying}
+                onClick={retry}
+                className="mt-3 inline-flex min-h-10 items-center gap-1.5 rounded-lg px-1 font-semibold disabled:opacity-60"
+              >
+                <RotateCcw className={cn("h-3.5 w-3.5", retrying && "animate-spin motion-reduce:animate-none")} />
+                {retrying ? "Queueing retry…" : "Retry failed task"}
+              </button>
+            )}
           </div>
         )}
       </div>
@@ -227,21 +277,58 @@ export function JobProgress({
           <h2 className="font-display text-xl text-ink">Processing events</h2>
         </div>
         <div className="mt-3 overflow-hidden rounded-2xl border border-line bg-surface-panel">
-          {events.length ? (
-            events.map((event) => (
+          {orderedEvents.length ? (
+            orderedEvents.map((event, index) => {
+              const EventIcon =
+                event.severity === "error"
+                  ? XCircle
+                  : event.severity === "warning"
+                    ? AlertTriangle
+                    : event.progress_total && event.progress_current === event.progress_total
+                      ? CheckCircle2
+                      : Info;
+              return (
               <div
                 key={event.id}
-                className="grid grid-cols-[100px_1fr_auto] gap-3 border-b border-line px-4 py-3 text-xs last:border-0"
+                className="relative grid grid-cols-[2rem_1fr_auto] gap-3 px-4 py-4 text-xs"
               >
-                <span className="capitalize text-ink-mute">{event.stage.replaceAll("_", " ")}</span>
-                <span className="text-ink-soft">{event.message}</span>
-                <span className="text-ink-mute">
-                  {event.progress_total
-                    ? `${event.progress_current ?? 0}/${event.progress_total}`
-                    : new Date(event.created_at).toLocaleTimeString()}
+                {index < orderedEvents.length - 1 && (
+                  <span aria-hidden="true" className="absolute bottom-0 left-[1.95rem] top-10 w-px bg-line" />
+                )}
+                <span
+                  className={cn(
+                    "relative z-10 grid h-8 w-8 place-items-center rounded-full border bg-surface-panel",
+                    event.severity === "error" && "border-danger/30 text-danger",
+                    event.severity === "warning" && "border-warning/35 text-warning",
+                    event.severity === "info" && "border-line-strong text-ink-soft",
+                  )}
+                >
+                  <EventIcon className="h-4 w-4" />
                 </span>
+                <div className="min-w-0 pt-0.5">
+                  <div className="flex flex-wrap items-center gap-2">
+                    <span className="font-semibold capitalize text-ink">
+                      {event.stage.replaceAll("_", " ")}
+                    </span>
+                    {event.attempt ? (
+                      <span className="rounded-full bg-surface-sunken px-2 py-0.5 text-[10px] text-ink-mute">
+                        Attempt {event.attempt}
+                      </span>
+                    ) : null}
+                  </div>
+                  <p className="mt-1 leading-relaxed text-ink-soft">{event.message}</p>
+                  {event.progress_total ? (
+                    <p className="mt-1 font-mono text-[10px] text-ink-mute">
+                      {event.progress_current ?? 0}/{event.progress_total}
+                    </p>
+                  ) : null}
+                </div>
+                <time className="pt-0.5 text-right text-[10px] text-ink-mute" dateTime={event.created_at}>
+                  {new Date(event.created_at).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+                </time>
               </div>
-            ))
+              );
+            })
           ) : (
             <div className="px-4 py-6 text-sm text-ink-mute">
               The job is waiting for its first worker event.
@@ -249,6 +336,16 @@ export function JobProgress({
           )}
         </div>
       </section>
+      <StatusDialog
+        open={Boolean(retryError)}
+        onOpenChange={(open) => {
+          if (!open) setRetryError(null);
+        }}
+        variant="error"
+        title="The task could not be retried"
+        description={retryError ?? "Refresh the job and try again."}
+        primaryAction={{ label: "Close" }}
+      />
     </div>
   );
 }
