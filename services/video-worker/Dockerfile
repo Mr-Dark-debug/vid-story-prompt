@@ -18,7 +18,7 @@ RUN npm ci --no-audit --no-fund \
     && npx tsc \
     && npm prune --omit=dev
 
-FROM golang:1.24.4-alpine3.20 AS warp-builder
+FROM golang:1.24.4-alpine3.21 AS warp-builder
 ARG WARP_SOURCE_COMMIT=b59fab9526e8a76a12b31b02cfc24fbef603f5cd
 RUN apk add --no-cache git \
     && git clone --filter=blob:none https://github.com/shahradelahi/cloudflare-warp.git /src \

@@ -1,4 +1,4 @@
-FROM golang:1.24.4-alpine3.20 AS builder
+FROM golang:1.24.4-alpine3.21 AS builder
 
 ARG WARP_SOURCE_COMMIT=b59fab9526e8a76a12b31b02cfc24fbef603f5cd
 RUN apk add --no-cache git \
