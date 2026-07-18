@@ -135,17 +135,38 @@ export function classifyYouTubeDownloadFailure(input: string) {
     );
   }
   if (message.includes("video unavailable") || message.includes("has been removed")) {
-    return new TaskFailure(
-      "video_unavailable",
-      "This YouTube video is unavailable.",
-      false,
-    );
+    return new TaskFailure("video_unavailable", "This YouTube video is unavailable.", false);
   }
   return new TaskFailure(
     "provider_temporary_failure",
     "YouTube could not be reached. Vidrial will retry.",
     true,
   );
+}
+
+export function classifyYouTubeExecutionFailure(input: string) {
+  const message = input.toLowerCase();
+
+  if (
+    message.includes("file is larger than max-filesize") ||
+    message.includes("file exceeds max-filesize")
+  ) {
+    return new TaskFailure(
+      "file_too_large",
+      "The YouTube video exceeds the configured maximum file size.",
+      false,
+    );
+  }
+
+  if (message.includes("does not pass filter") || message.includes("is live")) {
+    return new TaskFailure(
+      "unsupported_video",
+      "The YouTube video is live or exceeds the reserved duration.",
+      false,
+    );
+  }
+
+  return classifyYouTubeDownloadFailure(message);
 }
 
 function failureText(error: unknown) {
@@ -228,24 +249,6 @@ export async function downloadYouTubeMedia(
       throw new TaskFailure("cancelled", "The worker stopped YouTube acquisition.", true);
     }
 
-    const message = failureText(error).toLowerCase();
-
-    if (message.includes("max-filesize")) {
-      throw new TaskFailure(
-        "file_too_large",
-        "The YouTube video exceeds the configured maximum file size.",
-        false,
-      );
-    }
-
-    if (message.includes("does not pass filter") || message.includes("is live")) {
-      throw new TaskFailure(
-        "unsupported_video",
-        "The YouTube video is live or exceeds the reserved duration.",
-        false,
-      );
-    }
-
-    throw classifyYouTubeDownloadFailure(message);
+    throw classifyYouTubeExecutionFailure(failureText(error));
   }
 }

@@ -8,6 +8,7 @@ import { TaskFailure } from "../domain/types.js";
 import {
   buildYouTubeDownloadArgs,
   classifyYouTubeDownloadFailure,
+  classifyYouTubeExecutionFailure,
 } from "./youtube-download.js";
 
 describe("YouTube download command", () => {
@@ -78,5 +79,20 @@ describe("YouTube download command", () => {
       ]),
     );
     expect(potArgs.join(" ")).not.toMatch(/cookiefile|username|password/i);
+  });
+
+  it("does not mistake the bounded command flag for an oversized download", () => {
+    const executionOutput = [
+      "Command failed with exit code 1: yt-dlp --max-filesize 2147483648",
+      "ERROR: Sign in to confirm you’re not a bot",
+    ].join("\n");
+
+    expect(classifyYouTubeExecutionFailure(executionOutput)).toMatchObject({
+      code: "provider_auth_challenge",
+      retryable: true,
+    });
+    expect(
+      classifyYouTubeExecutionFailure("ERROR: File is larger than max-filesize. Aborting."),
+    ).toMatchObject({ code: "file_too_large", retryable: false });
   });
 });
