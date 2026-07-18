@@ -12,6 +12,7 @@ import { probeMedia } from "../media/probe.js";
 import { downloadDirectMedia } from "../security/direct-download.js";
 import {
   downloadYouTubeMedia,
+  readYouTubeSourceSection,
   selectYouTubeDownloadStrategy,
 } from "../security/youtube-download.js";
 import { scanLocalFile } from "../security/virus-scan.js";
@@ -72,10 +73,23 @@ async function validateSource(task: ClipTask): Promise<TaskResult> {
     const info = await probeMedia(target);
     if (!info.hasAudio)
       throw new TaskFailure("missing_audio", "Speech clipping requires an audio stream.", false);
-    if (info.durationSeconds > Number(job.source_duration_seconds) * 1.05 + 5)
+    const expectedDuration = Number(
+      task.input_json.expectedDurationSeconds ?? job.source_duration_seconds,
+    );
+    const durationTolerance = Math.max(5, expectedDuration * 0.05);
+    const durationDelta = Math.abs(info.durationSeconds - expectedDuration);
+    const authorisedRecovery = task.input_json.authorisedSourceRecovery === true;
+    const confirmedMismatch = task.input_json.confirmedMismatch === true;
+    if (info.durationSeconds > expectedDuration + durationTolerance)
       throw new TaskFailure(
         "duration_limit",
-        "Worker validation found a source longer than the reserved duration.",
+        `The attached file is ${Math.round(info.durationSeconds)} seconds, longer than the ${Math.round(expectedDuration)} seconds reserved for this job. Choose the matching original file.`,
+        false,
+      );
+    if (authorisedRecovery && durationDelta > durationTolerance && !confirmedMismatch)
+      throw new TaskFailure(
+        "source_match_confirmation_required",
+        `The attached file is ${Math.round(info.durationSeconds)} seconds, but this job expects about ${Math.round(expectedDuration)} seconds. Confirm this shorter file before continuing.`,
         false,
       );
     const checksum = await sha256(target);
@@ -98,12 +112,35 @@ async function validateSource(task: ClipTask): Promise<TaskResult> {
       })
       .eq("id", asset.id);
     if (error) throw error;
+    if (authorisedRecovery) {
+      const confidence = durationDelta <= Math.max(2, expectedDuration * 0.01) ? 0.99 : 0.85;
+      const { error: matchError } = await supabase
+        .from("clip_jobs")
+        .update({
+          source_match_json: {
+            status: confirmedMismatch ? "user_confirmed" : "verified",
+            expectedDurationSeconds: expectedDuration,
+            assetDurationSeconds: info.durationSeconds,
+            durationDeltaSeconds: durationDelta,
+            confidence,
+            reason: "Worker-verified FFprobe duration and playable streams",
+            confirmedMismatch,
+            checksum,
+            verifiedAt: new Date().toISOString(),
+          },
+          updated_at: new Date().toISOString(),
+        })
+        .eq("id", job.id);
+      if (matchError) throw matchError;
+    }
     const { error: usageError } = await supabase.rpc("commit_source_usage", { p_job_id: job.id });
     if (usageError) throw usageError;
     return {
       output: { checksum, ...info },
       jobStatus: "creating_proxy",
-      message: "Source validated with FFprobe.",
+      message: authorisedRecovery
+        ? "Authorised replacement source matched and validated with FFprobe."
+        : "Source validated with FFprobe.",
       children: [
         { taskType: "create_proxy", input: {}, idempotencyKey: `${job.id}:proxy` },
         { taskType: "extract_audio", input: {}, idempotencyKey: `${job.id}:audio` },
@@ -149,7 +186,22 @@ async function downloadDirect(task: ClipTask): Promise<TaskResult> {
       jobStatus: "validating",
       message: "Owner-controlled media downloaded and isolated.",
       children: [
-        { taskType: "validate_source", input: {}, idempotencyKey: `${job.id}:validate-direct` },
+        {
+          taskType: "validate_source",
+          input:
+            task.input_json.authorisedSourceRecovery === true
+              ? {
+                  authorisedSourceRecovery: true,
+                  expectedDurationSeconds: job.source_duration_seconds,
+                  confirmedMismatch: false,
+                  connectorId: "direct_url",
+                }
+              : {},
+          idempotencyKey:
+            task.input_json.authorisedSourceRecovery === true
+              ? `${job.id}:validate-authorised-direct:${task.id}`
+              : `${job.id}:validate-direct`,
+        },
       ],
     };
   });
@@ -305,6 +357,10 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
         Number(job.source_duration_seconds),
         downloadSignal,
         selectYouTubeDownloadStrategy(task.attempt, Boolean(env.YTDLP_POT_PROVIDER_URL)),
+        {
+          forceProxy: task.input_json.forceProxy === true,
+          section: readYouTubeSourceSection(task.input_json),
+        },
       );
     } catch (error) {
       if (cancellation.signal.aborted) {
@@ -333,9 +389,16 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
     });
     await attachYouTubeAsset(job, task, assetId, videoId);
     return {
-      output: { assetId, checksum, bytes: downloaded.bytes, format: downloaded.format },
+      output: {
+        assetId,
+        checksum,
+        bytes: downloaded.bytes,
+        format: downloaded.format,
+        proxyTier: downloaded.proxyTier,
+        sectionApplied: downloaded.sectionApplied,
+      },
       jobStatus: "validating",
-      message: "YouTube media downloaded via yt-dlp and isolated.",
+      message: `YouTube media acquired through ${downloaded.proxyTier === "direct" ? "direct egress" : "protected egress"} and isolated.`,
       children: [
         { taskType: "validate_source", input: {}, idempotencyKey: `${job.id}:validate-yt` },
       ],

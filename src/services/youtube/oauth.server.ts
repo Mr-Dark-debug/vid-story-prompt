@@ -204,6 +204,7 @@ export const finishYouTubeConnection = createServerFn({ method: "POST" })
         {
           workspace_id: session.workspaceId,
           user_id: session.id,
+          connector_id: "youtube",
           provider: "google_youtube",
           access_token_encrypted: encryptSecret(
             tokens.access_token,

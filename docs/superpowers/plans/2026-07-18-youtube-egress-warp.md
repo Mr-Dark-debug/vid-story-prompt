@@ -6,7 +6,7 @@
 
 **Architecture:** Keep the existing PostgreSQL queue, fixed yt-dlp client strategies, and isolated Docker worker. Add a pure proxy/attempt planner, a protected worker proxy-health probe, an original Cloudflare WARP private service, audited processing-event tiers, and a sanitized TanStack server boundary for UI health. Complete the in-progress `awaiting_authorised_source` flow so WARP failure is recoverable rather than terminal.
 
-**Tech Stack:** Node 22, TypeScript, yt-dlp 2026.07.04, FFmpeg/FFprobe, Cloudflare WARP CLI, GOST, Docker/Compose, Render Blueprint, Supabase PostgreSQL/RLS, TanStack Start, React 19, Vitest, Playwright.
+**Tech Stack:** Node 22, TypeScript, yt-dlp 2026.07.04, FFmpeg/FFprobe, pinned user-space WARP client, Docker/Compose, Render Blueprint, Supabase PostgreSQL/RLS, TanStack Start, React 19, Vitest, Playwright.
 
 ## Global Constraints
 
@@ -16,7 +16,7 @@
 - Do not bypass private, age-restricted, region-locked, removed, or rights-restricted media.
 - Keep existing player-client rotation, IPv4 enforcement, PO-provider compatibility, leases, heartbeats, cancellation, retry classification, RLS, usage enforcement, and immutable paths.
 - Use `processing_events`, the repository's source-of-truth event table; do not invent a parallel `job_events` table.
-- Use a Debian slim WARP image because Cloudflare does not publish an official Alpine package; do not copy GPL-3.0 `warp-docker` source.
+- Use an Alpine user-space WARP image because Render cannot grant the official daemon's required `NET_ADMIN` capability; do not copy GPL-3.0 `warp-docker` source.
 - Render private services require paid compute; do not claim the complete Render deployment is free.
 - Do not edit `src/routeTree.gen.ts` manually.
 - Never force-push, rebase, amend, or squash published Lovable commits.
@@ -26,6 +26,7 @@
 ### Task 1: Stabilize the existing authorised-source recovery
 
 **Files:**
+
 - Modify: `supabase/migrations/20260718230000_authorised_source_recovery.sql`
 - Modify: `src/domain/clipping/types.ts`
 - Modify: `src/domain/clipping/state-machine.ts`
@@ -38,6 +39,7 @@
 - Test: `src/components/youtube-clipper/authorised-source-recovery.test.tsx`
 
 **Interfaces:**
+
 - Produces: `ClipJobStatus = "awaiting_authorised_source"`, `TaskStatus = "superseded"`.
 - Produces: `attachSourceAndResumeClipJob(input)` and `attachDirectSourceAndResumeClipJob(input)`.
 - Consumes: existing `source_attachments`, `media_assets`, `connector_imports`, `job_tasks`, usage ledger, and worker wake path.
@@ -83,12 +85,14 @@ Expected: tests pass and typecheck has no recovery-flow errors.
 ### Task 2: Add pure proxy selection and redaction
 
 **Files:**
+
 - Create: `services/video-worker/src/security/youtube-proxy.ts`
 - Create: `services/video-worker/src/security/youtube-proxy.test.ts`
 - Modify: `services/video-worker/src/config/env.ts`
 - Modify: `.env.example`
 
 **Interfaces:**
+
 - Produces: `resolveYouTubeProxy(input): ProxySelection`.
 - Produces: `proxyEnvironment(selection): NodeJS.ProcessEnv`.
 - Produces: `redactProxyUrl(url): string`.
@@ -98,9 +102,19 @@ Expected: tests pass and typecheck has no recovery-flow errors.
 Cover:
 
 ```ts
-expect(resolveYouTubeProxy({ ytdlpProxyUrl: "http://override:9000", warpProxyUrl: "http://warp:8080", production: true })).toMatchObject({ tier: "operator", url: "http://override:9000/" });
-expect(resolveYouTubeProxy({ warpProxyUrl: "http://warp:8080", production: true })).toMatchObject({ tier: "warp" });
-expect(resolveYouTubeProxy({ renderWarpHost: "warp.internal", renderWarpPort: 8080, production: true })).toMatchObject({ tier: "render_warp" });
+expect(
+  resolveYouTubeProxy({
+    ytdlpProxyUrl: "http://override:9000",
+    warpProxyUrl: "http://warp:8080",
+    production: true,
+  }),
+).toMatchObject({ tier: "operator", url: "http://override:9000/" });
+expect(resolveYouTubeProxy({ warpProxyUrl: "http://warp:8080", production: true })).toMatchObject({
+  tier: "warp",
+});
+expect(
+  resolveYouTubeProxy({ renderWarpHost: "warp.internal", renderWarpPort: 8080, production: true }),
+).toMatchObject({ tier: "render_warp" });
 expect(resolveYouTubeProxy({ production: false })).toEqual({ tier: "direct", url: undefined });
 expect(() => resolveYouTubeProxy({ production: false, forceProxy: true })).toThrow(/proxy/i);
 ```
@@ -128,11 +142,13 @@ Expected: all four precedence cases and force-proxy failure pass.
 ### Task 3: Route yt-dlp through planned egress and support exact sections
 
 **Files:**
+
 - Modify: `services/video-worker/src/security/youtube-download.ts`
 - Modify: `services/video-worker/src/security/youtube-download.test.ts`
 - Modify: `services/video-worker/src/tasks/handlers.ts`
 
 **Interfaces:**
+
 - Consumes: `ProxySelection` from Task 2.
 - Produces: `YouTubeSourceSection = { startSeconds: number; endSeconds: number }`.
 - Produces: acquisition result metadata `{ proxyTier, strategy, sectionApplied }`.
@@ -142,10 +158,9 @@ Expected: all four precedence cases and force-proxy failure pass.
 Verify a proxy appears in `--proxy`, proxy credentials never appear in snapshots/log helpers, and a valid section adds:
 
 ```ts
-expect(args).toEqual(expect.arrayContaining([
-  "--downloader", "ffmpeg",
-  "--download-sections", "*83-130",
-]));
+expect(args).toEqual(
+  expect.arrayContaining(["--downloader", "ffmpeg", "--download-sections", "*83-130"]),
+);
 ```
 
 Reject negative, reversed, non-finite, or out-of-reservation ranges.
@@ -180,6 +195,7 @@ Expected: existing rotation tests remain green and new proxy/section tests pass.
 ### Task 4: Add protected proxy health and startup readiness
 
 **Files:**
+
 - Create: `services/video-worker/src/health/proxy-health.ts`
 - Create: `services/video-worker/src/health/proxy-health.test.ts`
 - Modify: `services/video-worker/src/http/server.ts`
@@ -187,6 +203,7 @@ Expected: existing rotation tests remain green and new proxy/section tests pass.
 - Modify: `services/video-worker/src/index.ts`
 
 **Interfaces:**
+
 - Produces: `ProxyHealthSnapshot` with operator-only fields.
 - Produces: authenticated `GET /health/proxy`.
 - Consumes: worker bearer secret and `ProxySelection`.
@@ -218,6 +235,7 @@ Expected: authentication, redaction, timeout, healthy, degraded, and blocked cas
 ### Task 5: Persist proxy tiers and support force-proxy retry
 
 **Files:**
+
 - Create: `supabase/migrations/20260718231500_youtube_proxy_tiers.sql`
 - Modify: `src/lib/supabase/database.types.ts` through the repository generator
 - Modify: `src/services/clipping/server.ts`
@@ -225,6 +243,7 @@ Expected: authentication, redaction, timeout, healthy, degraded, and blocked cas
 - Test: relevant server/domain and Supabase integration tests
 
 **Interfaces:**
+
 - Produces: nullable `processing_events.proxy_tier` constrained to `direct`, `operator`, `warp`, `render_warp`, or `authorised_source`.
 - Produces: `retryClipJobTask({ jobId, forceProxy })`.
 
@@ -263,6 +282,7 @@ Cover cross-workspace rejection, idempotent force retry, cancelled/expired rejec
 ### Task 6: Build the original WARP private service
 
 **Files:**
+
 - Create: `services/video-worker/warp/Dockerfile`
 - Create: `services/video-worker/warp/entrypoint.sh`
 - Create: `services/video-worker/warp/healthcheck.sh`
@@ -272,17 +292,18 @@ Cover cross-workspace rejection, idempotent force retry, cancelled/expired rejec
 - Modify: `render.yaml`
 
 **Interfaces:**
+
 - Produces: HTTP CONNECT proxy on internal port 8080.
 - Produces: container health requiring `warp=on|plus`.
 - Produces: Render service host reference consumed as `WARP_PROXY_HOST`.
 
 - [ ] **Step 1: Create a checksum-pinned Debian slim image.**
 
-Install Cloudflare's signed package repository and official `cloudflare-warp` package. Download a fixed GOST release for `TARGETARCH`, verify SHA-256, and install no compiler in the final image.
+Build the MIT-licensed user-space WARP proxy from an immutable source commit in a separate Go stage. Copy only the static binary into the final Alpine image; install no compiler in the runtime image.
 
 - [ ] **Step 2: Implement idempotent startup.**
 
-Start dbus and `warp-svc`, wait boundedly, register only when no persisted registration exists, set proxy mode/port 40000 before connect, connect, verify `warp=on|plus`, then exec GOST listening on `0.0.0.0:8080` and forwarding to `127.0.0.1:40000`.
+Generate a registration only when no persisted identity exists, start the user-space client with HTTP CONNECT on `0.0.0.0:8080`, fail if the child exits, and wait boundedly until Cloudflare trace verifies `warp=on|plus`.
 
 - [ ] **Step 3: Add local Compose smoke test.**
 
@@ -307,6 +328,7 @@ Expected: exit 0 and `proxy=ok`. Current host discovery shows Docker is unavaila
 ### Task 7: Add sanitized app health service and WorkerEgressBadge
 
 **Files:**
+
 - Modify: `src/services/worker/server.ts`
 - Create: `src/components/dashboard/WorkerEgressBadge.tsx`
 - Create: `src/components/dashboard/WorkerEgressBadge.test.tsx`
@@ -314,6 +336,7 @@ Expected: exit 0 and `proxy=ok`. Current host discovery shows Docker is unavaila
 - Modify: `src/components/youtube-clipper/job-progress.tsx`
 
 **Interfaces:**
+
 - Produces: `getWorkerEgressHealth()` server function returning only status/tier/message/time.
 - Produces: `WorkerEgressBadge` with healthy/degraded/blocked/unknown states.
 
@@ -347,12 +370,14 @@ Expected: badge states, copy, no secret fields, and force-proxy action pass.
 ### Task 8: Make YouTube/OAuth copy truthful
 
 **Files:**
+
 - Modify: `src/routes/_authenticated.app.settings.integrations.tsx`
 - Modify: `src/components/youtube-clipper/job-wizard.tsx`
 - Modify: `src/components/youtube-clipper/job-progress.tsx`
 - Test: existing integrations/wizard/job-progress tests or focused new tests
 
 **Interfaces:**
+
 - Consumes: central connector registry and `WorkerEgressBadge`.
 
 - [ ] **Step 1: Add copy assertions.**
@@ -372,6 +397,7 @@ At 360px, actions wrap vertically or within container width; no horizontal overf
 ### Task 9: Documentation and worklog
 
 **Files:**
+
 - Create or modify: `docs/VIDEO_WORKER.md`
 - Create or modify: `docs/YOUTUBE_CLIPPER.md`
 - Modify: `docs/CONNECTOR_MATRIX.md`
@@ -396,9 +422,10 @@ Document WARP blocking risk, Cloudflare availability/limits, paid Render private
 ### Task 10: Full verification, deployment, and production evidence
 
 **Files:**
+
 - Modify only files required to fix failures discovered by verification.
 
-- [ ] **Step 1: Format and run all local checks.**
+- [x] **Step 1: Format and run all local checks.**
 
 Run:
 
@@ -415,7 +442,7 @@ npm --prefix services/video-worker run build
 
 Expected: every available check exits 0.
 
-- [ ] **Step 2: Run Supabase integration and migration verification.**
+- [x] **Step 2: Run Supabase integration and migration verification.**
 
 Use the configured local/remote tooling only after confirming the target project. Apply migrations in order, regenerate types, and verify RLS/RPC behavior. Never print service-role secrets.
 
@@ -442,4 +469,6 @@ Record exact command outcomes, migration/deploy revisions, job ID/URL when safe,
 ## Worklog
 
 - 2026-07-18: Repository, dirty worktree, current worker, task/event model, Render Blueprint, yt-dlp upstream guidance, Cloudflare WARP packaging/terms, YouTube policy, and supplied evidence audited. Selected hybrid protected-egress plus same-job authorised-source recovery. Docker, Supabase CLI, and Vercel CLI are not currently installed globally on this Windows host; Bun, Node, npm, and the Git remote are available.
-
+- 2026-07-18: Replaced the initial official-daemon container design after current upstream evidence confirmed that pattern requires `NET_ADMIN`, which Render Blueprints cannot grant. The shipped Alpine image builds the MIT-licensed `shahradelahi/cloudflare-warp` user-space proxy at pinned commit `b59fab9526e8a76a12b31b02cfc24fbef603f5cd`; Docker remains unavailable locally, so its image smoke test is pending the Render build.
+- 2026-07-18: Applied remote Supabase migrations `20260718230000_authorised_source_recovery.sql` and `20260718231500_youtube_proxy_tiers.sql`. Post-apply `supabase db lint` returned no errors and only the two unrelated existing unused-variable warnings in `request_job_deletion` and `complete_connector_task`. Live schema types regenerated successfully after making the generator preserve nullable columns and the existing typed automation RPC.
+- 2026-07-18: Local verification passed: app typecheck, worker typecheck, 180 app tests (6 skipped), 51 worker tests, app build, worker build, and ESLint with zero errors (seven existing Fast Refresh warnings). Focused additions cover proxy precedence/fail-closed behavior, subprocess proxy environment, WARP trace and yt-dlp health, protected endpoint authentication, partial section arguments, 403 classification, browser-safe health mapping, badge states, and authorised-source recovery copy.

@@ -49,7 +49,39 @@ services:
         value: "4"
       - key: YTDLP_PROXY_URL
         sync: false
+      - key: WARP_PROXY_HOST
+        fromService:
+          type: pserv
+          name: vidrial-warp-proxy
+          property: host
+      - key: WARP_PROXY_PORT
+        value: "8080"
+      - key: YTDLP_PROXY_PROBE_TIMEOUT_MS
+        value: "15000"
+      - key: YTDLP_STARTUP_PROBE
+        value: "true"
       - key: FFMPEG_THREADS
         value: "1"
       - key: LOG_LEVEL
         value: info
+
+  - type: pserv
+    name: vidrial-warp-proxy
+    runtime: docker
+    plan: starter
+    region: frankfurt
+    branch: main
+    dockerfilePath: ./services/video-worker/warp/Dockerfile
+    dockerContext: ./services/video-worker/warp
+    healthCheckPath: /healthz
+    envVars:
+      - key: PORT
+        value: "8081"
+      - key: HTTP_PROXY_PORT
+        value: "8080"
+      - key: WARP_START_TIMEOUT_SECONDS
+        value: "60"
+    disk:
+      name: warp-registration
+      mountPath: /var/lib/cloudflare-warp
+      sizeGB: 1

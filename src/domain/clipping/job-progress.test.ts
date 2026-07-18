@@ -42,5 +42,23 @@ describe("clipping job progress", () => {
       label: "Failed",
       tone: "danger",
     });
+    expect(getJobStatusPresentation("awaiting_authorised_source")).toMatchObject({
+      label: "Source needed",
+      tone: "info",
+    });
+  });
+
+  it("shows recoverable acquisition as waiting and ignores superseded failures", () => {
+    const waiting = deriveJobStages({ status: "awaiting_authorised_source" }, [
+      task("download_youtube_source", "dead_lettered"),
+    ]);
+    expect(waiting.find((stage) => stage.id === "awaiting_source")?.state).toBe("retrying");
+
+    const resumed = deriveJobStages({ status: "queued" }, [
+      task("download_youtube_source", "superseded"),
+      task("validate_source", "queued"),
+    ]);
+    expect(resumed.find((stage) => stage.id === "awaiting_source")?.state).toBe("pending");
+    expect(resumed.find((stage) => stage.id === "validating")?.state).toBe("pending");
   });
 });

@@ -35,6 +35,20 @@ export const env = z
       (value) => (value === "" ? undefined : value),
       z.string().min(8).optional(),
     ),
+    WARP_PROXY_URL: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.string().min(8).optional(),
+    ),
+    WARP_PROXY_HOST: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.string().min(1).optional(),
+    ),
+    WARP_PROXY_PORT: z.coerce.number().int().min(1).max(65_535).default(8080),
+    YTDLP_PROXY_PROBE_TIMEOUT_MS: z.coerce.number().int().min(1_000).default(15_000),
+    YTDLP_STARTUP_PROBE: z
+      .enum(["true", "false"])
+      .default("true")
+      .transform((value) => value === "true"),
     GROQ_API_KEY: optionalSecret,
     GROQ_TRANSCRIPTION_MODEL: z.string().default("whisper-large-v3-turbo"),
     OPENAI_API_KEY: optionalSecret,

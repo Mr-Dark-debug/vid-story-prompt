@@ -10,6 +10,7 @@ import {
   LoaderCircle,
   RotateCcw,
   Scissors,
+  ShieldAlert,
   X,
   XCircle,
 } from "lucide-react";
@@ -22,6 +23,8 @@ import { cn } from "@/lib/utils";
 import { StatusDialog } from "@/components/ui/status-dialog";
 import { YouTubePublishPanel } from "./youtube-publish-panel";
 import { JobStatusBadge } from "./job-status-badge";
+import { AuthorisedSourceRecovery } from "./authorised-source-recovery";
+import { WorkerEgressBadge } from "@/components/dashboard/WorkerEgressBadge";
 
 type JobData = Awaited<ReturnType<typeof getClipJob>>;
 const retryableCodes = new Set([
@@ -94,16 +97,31 @@ export function JobProgress({
     retryableCodes.has(failedTask.error_code) &&
     failedTask.attempt < failedTask.max_attempts,
   );
-  const providerChallengeExhausted = Boolean(
-    failedTask?.error_code === "provider_auth_challenge" &&
-    failedTask.attempt >= failedTask.max_attempts,
+  const awaitingAuthorisedSource = job.status === "awaiting_authorised_source";
+  const canForceProxy = Boolean(
+    failedTask?.error_code &&
+    ["provider_auth_challenge", "provider_rate_limited", "provider_temporary_failure"].includes(
+      failedTask.error_code,
+    ) &&
+    !failedTask.force_proxy,
   );
+  const acquisitionMessage =
+    failedTask?.error_code === "provider_auth_challenge" ||
+    failedTask?.error_code === "provider_rate_limited" ||
+    failedTask?.error_code === "provider_temporary_failure" ||
+    failedTask?.error_code === "video_restricted"
+      ? "YouTube blocked this request from the server's network. The worker retries through Cloudflare WARP when configured. If WARP is also blocked for this video, attach the authorised original below to continue this same job, or upload it from the Upload tab."
+      : failedTask?.error_code === "video_private" ||
+          failedTask?.error_code === "video_age_restricted" ||
+          failedTask?.error_code === "video_unavailable"
+        ? "This YouTube source cannot be acquired automatically. Protected egress does not bypass private, age, region, or availability restrictions. Attach the authorised original below to continue this same job."
+        : job.error_message;
   const orderedEvents = useMemo(() => [...events].reverse(), [events]);
 
-  const retry = async () => {
+  const retry = async (forceProxy = false) => {
     setRetrying(true);
     try {
-      await retryClipJobTask({ data: { jobId: job.id } });
+      await retryClipJobTask({ data: { jobId: job.id, forceProxy } });
       await router.invalidate();
     } catch (cause) {
       setRetryError(cause instanceof Error ? cause.message : "The task could not be retried.");
@@ -155,6 +173,9 @@ export function JobProgress({
             Progress uses completed work, not estimated percentages
           </span>
         </div>
+        <div className="mt-4">
+          <WorkerEgressBadge />
+        </div>
         <div className="mt-5 grid grid-cols-2 gap-x-2 gap-y-4 sm:grid-cols-5 lg:grid-cols-10">
           {stages.map((stage) => (
             <div key={stage.id} aria-label={`${stage.label}: ${stage.state}`}>
@@ -165,33 +186,29 @@ export function JobProgress({
             </div>
           ))}
         </div>
-        {job.error_message && (
-          <div className="mt-5 rounded-xl border border-danger/25 bg-danger/5 p-4 text-sm text-danger">
-            <div className="font-semibold">Processing stopped</div>
-            <div className="mt-1">{job.error_message}</div>
-            {providerChallengeExhausted ? (
-              <div className="mt-4 flex flex-wrap gap-2">
-                <Link
-                  to="/app/youtube-clipper/new"
-                  search={{ source: "youtube" }}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-danger px-3 text-xs font-semibold text-white"
-                >
-                  <RotateCcw className="h-3.5 w-3.5" /> Try another YouTube URL
-                </Link>
-                <Link
-                  to="/app/youtube-clipper/new"
-                  search={{ source: "upload" }}
-                  className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-danger/25 bg-surface-panel px-3 text-xs font-semibold text-danger"
-                >
-                  Use an original source
-                </Link>
+        {acquisitionMessage && (
+          <div
+            className={cn(
+              "mt-5 rounded-xl border p-4 text-sm",
+              awaitingAuthorisedSource
+                ? "border-warning/30 bg-warning/10 text-ink"
+                : "border-danger/25 bg-danger/5 text-danger",
+            )}
+          >
+            <div className="font-semibold">
+              {awaitingAuthorisedSource ? "Source action required" : "Processing stopped"}
+            </div>
+            <div className="mt-1 leading-6">{acquisitionMessage}</div>
+            {job.youtube_video_id ? (
+              <div className="mt-2 font-mono text-xs text-ink-soft">
+                Failing video ID: {job.youtube_video_id}
               </div>
             ) : null}
-            {canRetry && (
+            {canRetry && !awaitingAuthorisedSource && (
               <button
                 type="button"
                 disabled={retrying}
-                onClick={retry}
+                onClick={() => void retry(false)}
                 className="mt-3 inline-flex min-h-10 items-center gap-1.5 rounded-lg px-1 font-semibold disabled:opacity-60"
               >
                 <RotateCcw
@@ -203,9 +220,28 @@ export function JobProgress({
                 {retrying ? "Queueing retry…" : "Retry failed task"}
               </button>
             )}
+            {canForceProxy ? (
+              <button
+                type="button"
+                disabled={retrying}
+                onClick={() => void retry(true)}
+                className="mt-3 ml-3 inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-danger/25 px-3 font-semibold disabled:opacity-60"
+              >
+                <ShieldAlert className="h-3.5 w-3.5" /> Retry through WARP
+              </button>
+            ) : null}
           </div>
         )}
       </div>
+      {awaitingAuthorisedSource ? (
+        <AuthorisedSourceRecovery
+          jobId={job.id}
+          sourceAssetId={job.source_asset_id ?? null}
+          errorCode={job.error_code ?? null}
+          connectedConnectorIds={data.connectedConnectorIds}
+          onResumed={() => router.invalidate()}
+        />
+      ) : null}
       {clips.length > 0 && (
         <section className="mt-8">
           <div className="flex items-end justify-between">
@@ -339,6 +375,11 @@ export function JobProgress({
                           Attempt {event.attempt}
                         </span>
                       ) : null}
+                      {event.proxy_tier ? (
+                        <span className="rounded-full border border-line bg-surface-panel px-2 py-0.5 text-[10px] font-medium text-ink-soft">
+                          Egress: {event.proxy_tier.replaceAll("_", " ")}
+                        </span>
+                      ) : null}
                     </div>
                     <p className="mt-1 leading-relaxed text-ink-soft">{event.message}</p>
                     {event.progress_total ? (
@@ -347,11 +388,11 @@ export function JobProgress({
                       </p>
                     ) : null}
                   </div>
-                <time
-                  className="pt-0.5 text-right text-[10px] text-ink-mute"
-                  dateTime={event.created_at}
-                  suppressHydrationWarning
-                >
+                  <time
+                    className="pt-0.5 text-right text-[10px] text-ink-mute"
+                    dateTime={event.created_at}
+                    suppressHydrationWarning
+                  >
                     {new Date(event.created_at).toLocaleTimeString([], {
                       hour: "2-digit",
                       minute: "2-digit",

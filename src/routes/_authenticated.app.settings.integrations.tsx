@@ -233,12 +233,10 @@ function Integrations() {
                   <StatusDot variant={connection ? "warning" : "muted"}>
                     {connection ? "Reconnect required" : "Not connected"}
                   </StatusDot>
-                  <h3 className="mt-4 font-display text-2xl text-ink">
-                    Connect only when you need channel tools
-                  </h3>
+                  <h3 className="mt-4 font-display text-2xl text-ink">Connect YouTube account</h3>
                   <p className="mt-2 max-w-xl text-sm leading-6 text-ink-soft">
-                    Pasting a public or unlisted YouTube URL for clipping does not require a channel
-                    connection. Connect your account for upload monitoring and publishing controls.
+                    Optional Data API access for your channels, uploads, playlists, automation, and
+                    publishing. Connecting an account does not enable or repair URL downloads.
                   </p>
                 </div>
                 <div className="flex flex-col gap-2 sm:min-w-48">
@@ -260,6 +258,25 @@ function Integrations() {
                     className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-line px-4 py-2.5 text-sm font-semibold text-ink"
                   >
                     <Scissors className="h-4 w-4" /> Clip a URL instead
+                  </Link>
+                </div>
+              </section>
+
+              <section className="mt-7 rounded-2xl border border-line bg-surface-sunken p-5 sm:p-6">
+                <div className="grid gap-4 sm:grid-cols-[minmax(0,1fr)_auto] sm:items-center">
+                  <div>
+                    <h3 className="font-display text-xl text-ink">Clip a YouTube URL</h3>
+                    <p className="mt-2 text-sm leading-6 text-ink-soft">
+                      Paste an eligible public or unlisted URL without connecting an account. URL
+                      acquisition depends on worker egress health; you can attach an authorised
+                      original to the same job if YouTube does not provide the media.
+                    </p>
+                  </div>
+                  <Link
+                    to="/app/youtube-clipper/new"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 rounded-xl border border-line bg-surface-panel px-4 py-2.5 text-sm font-semibold text-ink"
+                  >
+                    <Scissors className="h-4 w-4" /> Open URL clipper
                   </Link>
                 </div>
               </section>

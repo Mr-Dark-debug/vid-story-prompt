@@ -41,6 +41,7 @@ export class TaskFailure extends Error {
     public readonly code: string,
     message: string,
     public readonly retryable: boolean,
+    public readonly metadata: Record<string, unknown> = {},
   ) {
     super(message);
   }

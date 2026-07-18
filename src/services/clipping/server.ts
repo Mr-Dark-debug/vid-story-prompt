@@ -43,6 +43,19 @@ const retryTaskResult = z.object({
   status: z.literal("queued"),
   attempt: z.number().int().nonnegative(),
   maxAttempts: z.number().int().positive(),
+  forceProxy: z.boolean().optional(),
+});
+
+const sourceRecoveryResult = z.object({
+  jobId: z.string().uuid(),
+  status: z.string(),
+  assetId: z.string().uuid().optional(),
+  taskId: z.string().uuid().optional(),
+  expectedDurationSeconds: z.coerce.number().nullable().optional(),
+  actualDurationSeconds: z.coerce.number().nullable().optional(),
+  matchConfidence: z.coerce.number().min(0).max(1).optional(),
+  matchReason: z.string().optional(),
+  idempotent: z.boolean().optional(),
 });
 
 type RpcClient = {
@@ -181,36 +194,43 @@ export const getClipJob = createServerFn({ method: "GET" })
       { data: clips },
       { data: exports },
       { data: tasks, error: taskError },
-    ] =
-      await Promise.all([
-        supabase.from("clip_jobs").select("*").eq("id", data.jobId).single(),
-        supabase
-          .from("processing_events")
-          .select("*")
-          .eq("clip_job_id", data.jobId)
-          .order("created_at", { ascending: false })
-          .limit(50),
-        supabase
-          .from("clips")
-          .select("*")
-          .eq("clip_job_id", data.jobId)
-          .is("deleted_at", null)
-          .order("created_at"),
-        supabase
-          .from("exports")
-          .select(
-            "id,clip_id,export_type,format,resolution,watermarked,status,expires_at,created_at",
-          )
-          .eq("clip_job_id", data.jobId)
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("job_tasks")
-          .select(
-            "id,task_type,status,attempt,max_attempts,next_attempt_at,started_at,completed_at,error_code,error_message,progress_current,progress_total,created_at",
-          )
-          .eq("clip_job_id", data.jobId)
-          .order("created_at", { ascending: true }),
-      ]);
+      { data: sourceAttachments },
+      { data: connectorConnections },
+    ] = await Promise.all([
+      supabase.from("clip_jobs").select("*").eq("id", data.jobId).single(),
+      supabase
+        .from("processing_events")
+        .select("*")
+        .eq("clip_job_id", data.jobId)
+        .order("created_at", { ascending: false })
+        .limit(50),
+      supabase
+        .from("clips")
+        .select("*")
+        .eq("clip_job_id", data.jobId)
+        .is("deleted_at", null)
+        .order("created_at"),
+      supabase
+        .from("exports")
+        .select("id,clip_id,export_type,format,resolution,watermarked,status,expires_at,created_at")
+        .eq("clip_job_id", data.jobId)
+        .order("created_at", { ascending: false }),
+      supabase
+        .from("job_tasks")
+        .select(
+          "id,task_type,status,attempt,max_attempts,next_attempt_at,started_at,completed_at,error_code,error_message,progress_current,progress_total,created_at,input_json",
+        )
+        .eq("clip_job_id", data.jobId)
+        .order("created_at", { ascending: true }),
+      supabase
+        .from("source_attachments")
+        .select(
+          "id,connector_id,connector_import_id,media_asset_id,youtube_video_id,relationship,match_confidence,match_reason,created_at",
+        )
+        .eq("clip_job_id", data.jobId)
+        .order("created_at", { ascending: true }),
+      supabase.from("oauth_connections").select("provider").eq("status", "connected"),
+    ]);
     if (error) throw new Error(error.message);
     if (taskError) throw new Error(taskError.message);
     return {
@@ -218,18 +238,105 @@ export const getClipJob = createServerFn({ method: "GET" })
       events: events ?? [],
       clips: clips ?? [],
       exports: exports ?? [],
-      tasks: tasks ?? [],
+      tasks: (tasks ?? []).map(({ input_json, ...task }) => ({
+        ...task,
+        force_proxy:
+          typeof input_json === "object" && input_json !== null && !Array.isArray(input_json)
+            ? input_json.forceProxy === true
+            : false,
+      })),
+      sourceAttachments: sourceAttachments ?? [],
+      connectedConnectorIds: (connectorConnections ?? []).map((item) =>
+        item.provider === "google_youtube" ? "youtube" : item.provider,
+      ),
     };
   });
 
+export const attachSourceAndResumeClipJob = createServerFn({ method: "POST" })
+  .validator(
+    z.object({
+      jobId: z.string().uuid(),
+      mediaAssetId: z.string().uuid(),
+      connectorId: z.enum(["local_upload", "google_drive", "dropbox", "onedrive"]),
+      connectorImportId: z.string().uuid().nullable().optional(),
+      idempotencyKey: z.string().uuid(),
+      confirmMismatch: z.boolean().default(false),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const session = await getCurrentSession();
+    if (!session?.workspaceId) throw new Error("Your workspace session expired.");
+    const client = getSupabaseServerClient() as unknown as RpcClient;
+    const { data: result, error } = await client.rpc("attach_source_and_resume_clip_job", {
+      p_job_id: data.jobId,
+      p_media_asset_id: data.mediaAssetId,
+      p_connector_id: data.connectorId,
+      p_connector_import_id: data.connectorImportId ?? null,
+      p_idempotency_key: data.idempotencyKey,
+      p_confirm_mismatch: data.confirmMismatch,
+    });
+    if (error) {
+      if (/source_exceeds_reserved_duration/i.test(error.message))
+        throw new Error(
+          "This file is longer than the source duration reserved for this job. Choose the matching original file.",
+        );
+      if (/source_asset_not_ready|connector_import_not_ready/i.test(error.message))
+        throw new Error("The selected source is still importing. Wait for it to finish and retry.");
+      if (/source_recovery_not_available/i.test(error.message))
+        throw new Error(
+          "This job no longer needs a replacement source. Refresh to see its status.",
+        );
+      throw new Error("The authorised source could not be attached to this job.");
+    }
+    const parsed = sourceRecoveryResult.parse(result);
+    if (parsed.status === "queued") await wakeVideoWorker();
+    return parsed;
+  });
+
+export const attachDirectSourceAndResumeClipJob = createServerFn({ method: "POST" })
+  .validator(
+    z.object({
+      jobId: z.string().uuid(),
+      sourceUrl: z
+        .string()
+        .url()
+        .max(2048)
+        .refine((value) => value.startsWith("https://"), {
+          message: "Use an HTTPS owner-controlled media URL.",
+        }),
+      idempotencyKey: z.string().uuid(),
+    }),
+  )
+  .handler(async ({ data }) => {
+    const session = await getCurrentSession();
+    if (!session?.workspaceId) throw new Error("Your workspace session expired.");
+    const client = getSupabaseServerClient() as unknown as RpcClient;
+    const { data: result, error } = await client.rpc("attach_direct_source_and_resume_clip_job", {
+      p_job_id: data.jobId,
+      p_source_url: data.sourceUrl,
+      p_idempotency_key: data.idempotencyKey,
+    });
+    if (error) {
+      if (/source_recovery_not_available/i.test(error.message))
+        throw new Error(
+          "This job no longer needs a replacement source. Refresh to see its status.",
+        );
+      throw new Error("The owner-controlled media link could not be attached to this job.");
+    }
+    const parsed = sourceRecoveryResult.parse(result);
+    await wakeVideoWorker();
+    return parsed;
+  });
+
 export const retryClipJobTask = createServerFn({ method: "POST" })
-  .validator(z.object({ jobId: z.string().uuid() }))
+  .validator(z.object({ jobId: z.string().uuid(), forceProxy: z.boolean().default(false) }))
   .handler(async ({ data }) => {
     const session = await getCurrentSession();
     if (!session?.workspaceId) throw new Error("Your workspace session expired.");
     const client = getSupabaseServerClient() as unknown as RpcClient;
     const { data: result, error } = await client.rpc("retry_clip_task", {
       p_job_id: data.jobId,
+      p_force_proxy: data.forceProxy,
     });
     if (error) {
       if (/retry_not_available|retry_already_active/i.test(error.message)) {

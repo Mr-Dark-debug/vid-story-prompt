@@ -30,8 +30,8 @@ Upstream evidence supports IP-level blocking as one failure class, but not as th
 
 The task brief contains implementation assumptions that do not match the current repository or platform:
 
-- Cloudflare publishes the official WARP Linux client through Debian/Ubuntu and RPM repositories, not Alpine `apk`; the sidecar will therefore use `debian:bookworm-slim`.
-- `cmj2002/warp-docker` is GPL-3.0, not MIT. Vidrial will use an original entrypoint built from Cloudflare's official CLI behavior rather than copy that implementation.
+- Cloudflare publishes its official WARP Linux client through Debian/Ubuntu and RPM repositories, but the daemon pattern requires `NET_ADMIN`, which Render Blueprints cannot grant. The deployable sidecar therefore uses a pinned MIT-licensed user-space WARP implementation on Alpine.
+- `cmj2002/warp-docker` is GPL-3.0, not MIT. Vidrial does not copy that implementation.
 - Render private services cannot use the free plan. The WARP software is free, but a private `pserv` requires paid Render compute.
 - the current clipping wizard asks AI to discover clip ranges after transcription. `--download-sections` cannot reduce the initial source acquisition when no range exists yet. The worker will support exact range acquisition when a validated `sourceSection` is present, and tests/documentation will not claim that ordinary AI-discovery jobs use it.
 
@@ -70,11 +70,11 @@ Startup performs a bounded Cloudflare trace check and a yt-dlp format probe for 
 
 ### WARP private service
 
-`services/video-worker/warp/` contains an original Debian slim image, entrypoint, health script, README, and local Compose smoke test. It installs Cloudflare's signed official package, a pinned GOST release with checksum verification, curl, dbus, and minimal runtime dependencies. Startup accepts Cloudflare's application terms explicitly, starts `warp-svc`, registers only when no persisted identity exists, switches to local proxy mode before connecting, and exposes an HTTP CONNECT listener on `0.0.0.0:8080` forwarding to WARP's local SOCKS port.
+`services/video-worker/warp/` contains an original Alpine image, entrypoint, health script, README, and local Compose smoke test. It compiles `shahradelahi/cloudflare-warp` from an immutable commit in a separate Go build stage and copies only the static binary into the runtime. Startup registers only when no persisted identity exists and exposes its user-space HTTP CONNECT listener on `0.0.0.0:8080`.
 
 The image healthcheck requires `warp=on` or `warp=plus`. Registration state is stored on a Render persistent disk to avoid generating a new identity on every deploy. The Render Blueprint creates a Frankfurt private service on a paid starter plan, exposes port 8080 only to the private network, and injects its internal host into the worker through a service property reference.
 
-If Render rejects the WARP daemon because the runtime does not provide required kernel/device capabilities, deployment is reported as blocked rather than fabricated as healthy. The documented operational alternative is a user-supplied `YTDLP_PROXY_URL` or the authorised-source recovery path.
+If WARP registration or the user-space tunnel fails, deployment is reported as blocked rather than fabricated as healthy. The documented operational alternative is a user-supplied `YTDLP_PROXY_URL` or the authorised-source recovery path.
 
 ### Acquisition retries and audit trail
 
@@ -164,4 +164,3 @@ Production verification requires authenticated Vercel, Supabase, Render, and app
 - https://developers.cloudflare.com/warp-client/warp-modes/
 - https://www.cloudflare.com/application/terms/
 - https://developers.google.com/youtube/terms/developer-policies
-

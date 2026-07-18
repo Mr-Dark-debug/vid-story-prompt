@@ -47,6 +47,7 @@ export async function failTask(
   message: string,
   retryable: boolean,
   nextAttemptAt: string | null,
+  proxyTier: string | null = null,
 ) {
   const { error } = await supabase.rpc("fail_clip_task", {
     p_task_id: task.id,
@@ -55,6 +56,7 @@ export async function failTask(
     p_error_message: message,
     p_retryable: retryable,
     p_next_attempt_at: nextAttemptAt,
+    p_proxy_tier: proxyTier,
   });
   if (error) throw error;
 }

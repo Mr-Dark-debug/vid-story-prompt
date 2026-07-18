@@ -20,10 +20,26 @@ import { supabase } from "./storage/client.js";
 import { handleTask } from "./tasks/handlers.js";
 import { handleConnectorImport } from "./tasks/connector-import.js";
 import type { ConnectorTask } from "./domain/types.js";
+import {
+  probeProxyHealth,
+  unknownProxyHealth,
+  type ProxyHealthSnapshot,
+} from "./health/proxy-health.js";
+import { describeProxy, resolveYouTubeProxy } from "./security/youtube-proxy.js";
 
 let stopping = false;
 let activeTask = false;
 let ready = false;
+const proxySelection = resolveYouTubeProxy({
+  production: process.env.NODE_ENV === "production",
+  renderWarpHost: env.WARP_PROXY_HOST,
+  renderWarpPort: env.WARP_PROXY_PORT,
+  warpProxyUrl: env.WARP_PROXY_URL,
+  ytdlpProxyUrl: env.YTDLP_PROXY_URL,
+});
+let proxyHealth: ProxyHealthSnapshot = unknownProxyHealth(proxySelection.tier);
+let startupProxyProbePending = env.YTDLP_STARTUP_PROBE;
+let lastYtdlpProbeAt = 0;
 const shutdown = new AbortController();
 await mkdir(env.WORKER_TEMP_ROOT, { recursive: true });
 
@@ -43,6 +59,32 @@ async function readiness() {
       );
     }
     await Promise.all(checks);
+    const includeYtdlp =
+      startupProxyProbePending ||
+      proxyHealth.ytdlpReachable === false ||
+      Date.now() - lastYtdlpProbeAt >= 5 * 60_000;
+    proxyHealth = await probeProxyHealth(proxySelection, {
+      includeYtdlp,
+      previous: proxyHealth,
+    });
+    if (includeYtdlp) lastYtdlpProbeAt = Date.now();
+    startupProxyProbePending = false;
+    if (proxySelection.url && proxyHealth.status === "blocked") {
+      ready = false;
+      logger.error(
+        { errorCode: proxyHealth.errorCode, proxy: describeProxy(proxySelection) },
+        "Worker proxy readiness failed",
+      );
+      return;
+    }
+    if (proxyHealth.status === "healthy") {
+      logger.info({ proxy: describeProxy(proxySelection) }, "Worker proxy readiness succeeded");
+    } else if (proxySelection.tier === "direct") {
+      logger.warn(
+        { proxy: describeProxy(proxySelection) },
+        "YouTube acquisition is using direct egress and may be blocked on datacenter networks",
+      );
+    }
     const { error } = await supabase.from("plans").select("key").limit(1);
     if (error) throw error;
     ready = true;
@@ -56,7 +98,7 @@ createWorkerHttpServer({
   getState: () => ({
     activeTask,
     potProviderConfigured: Boolean(env.YTDLP_POT_PROVIDER_URL),
-    egressProxyConfigured: Boolean(env.YTDLP_PROXY_URL),
+    proxyHealth,
     ready,
   }),
   revision: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? "local",
@@ -112,6 +154,10 @@ async function processConnectorTask(task: ConnectorTask) {
 async function run() {
   while (!stopping) {
     try {
+      if (!ready) {
+        await new Promise((resolve) => setTimeout(resolve, env.QUEUE_POLL_INTERVAL_MS));
+        continue;
+      }
       const connectorTask = await claimConnectorTask();
       if (connectorTask) {
         await processConnectorTask(connectorTask);
@@ -151,6 +197,7 @@ async function run() {
           failure.message,
           failure.retryable,
           failure.retryable ? nextAttempt(task.attempt) : null,
+          failure.proxyTier ?? null,
         );
         logger[failure.retryable ? "warn" : "error"](
           { ...context, errorCode: failure.code, error },

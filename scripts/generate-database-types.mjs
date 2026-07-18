@@ -43,9 +43,25 @@ function fieldsFor(definition, mode) {
   const required = new Set(definition.required ?? []);
   return Object.entries(definition.properties ?? {})
     .map(([name, value]) => {
-      const hasDatabaseDefault = name === "id" || name.endsWith("_at") || value.default !== undefined;
-      const optional = mode === "Update" || (mode === "Insert" && (!required.has(name) || hasDatabaseDefault));
-      const nullable = value.nullable || value["x-nullable"] ? " | null" : "";
+      const hasDatabaseDefault =
+        name === "id" ||
+        name.endsWith("_at") ||
+        value.default !== undefined ||
+        value.type === "array" ||
+        value.type === "object";
+      const optional =
+        mode === "Update" || (mode === "Insert" && (!required.has(name) || hasDatabaseDefault));
+      // PostgREST omits nullable metadata for some columns, but a column that is not
+      // required and has no database default is nullable in the generated schema.
+      const nullable =
+        value.nullable ||
+        value["x-nullable"] ||
+        value.default === null ||
+        (!required.has(name) &&
+          value.default === undefined &&
+          !["created_at", "updated_at", "received_at"].includes(name))
+          ? " | null"
+          : "";
       return `          ${JSON.stringify(name)}${optional ? "?" : ""}: ${typeFor(value)}${nullable};`;
     })
     .join("\n");
@@ -58,7 +74,7 @@ const tables = tableNames
   })
   .join("\n");
 
-const output = `// Generated from the live Supabase PostgREST schema by scripts/generate-database-types.mjs.\n// Do not edit manually.\n\nexport type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];\n\nexport type Database = {\n  public: {\n    Tables: {\n${tables}\n    };\n    Views: Record<string, never>;\n    Functions: Record<string, never>;\n    Enums: Record<string, never>;\n    CompositeTypes: Record<string, never>;\n  };\n};\n`;
+const output = `// Generated from the live Supabase PostgREST schema by scripts/generate-database-types.mjs.\n// Do not edit manually.\n\nexport type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];\n\nexport type Database = {\n  public: {\n    Tables: {\n${tables}\n    };\n    Views: Record<string, never>;\n    Functions: {\n      create_automated_clip_job: {\n        Args: {\n          p_rule_id: string;\n          p_draft_id: string;\n          p_source_asset_id: string;\n          p_idempotency_key: string;\n        };\n        Returns: string;\n      };\n    };\n    Enums: Record<string, never>;\n    CompositeTypes: Record<string, never>;\n  };\n};\n`;
 
 await writeFile(resolve("src/lib/supabase/database.types.ts"), output, "utf8");
 console.log(`Generated ${tableNames.length} public table definitions.`);

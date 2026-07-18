@@ -3,9 +3,25 @@ import { stat } from "node:fs/promises";
 import { execa } from "execa";
 import { env } from "../config/env.js";
 import { TaskFailure } from "../domain/types.js";
+import {
+  proxyEnvironment,
+  resolveYouTubeProxy,
+  type YouTubeProxySelection,
+} from "./youtube-proxy.js";
 
 export type YouTubeDownloadStrategy =
   "standard" | "web-safari" | "mweb-pot" | "web-embedded" | "android-vr";
+
+export type YouTubeSourceSection = {
+  endSeconds: number;
+  startSeconds: number;
+};
+
+type YouTubeDownloadOptions = {
+  forceProxy?: boolean;
+  proxy?: YouTubeProxySelection;
+  section?: YouTubeSourceSection;
+};
 
 export function selectYouTubeDownloadStrategy(
   attempt: number,
@@ -36,6 +52,7 @@ export function buildYouTubeDownloadArgs(
   strategy: YouTubeDownloadStrategy = "standard",
   potProviderUrl?: string,
   proxyUrl?: string,
+  section?: YouTubeSourceSection,
 ): string[] {
   if (!/^[A-Za-z0-9_-]{11}$/.test(videoId)) {
     throw new TaskFailure("invalid_video_id", "The YouTube video ID is malformed.", false);
@@ -122,8 +139,58 @@ export function buildYouTubeDownloadArgs(
     args.push("--proxy", proxy.toString());
   }
 
+  if (section) {
+    const { startSeconds, endSeconds } = section;
+    if (
+      !Number.isFinite(startSeconds) ||
+      !Number.isFinite(endSeconds) ||
+      startSeconds < 0 ||
+      endSeconds <= startSeconds ||
+      endSeconds > maximumDurationSeconds
+    ) {
+      throw new TaskFailure(
+        "invalid_source_section",
+        "The requested YouTube source section is outside the reserved source duration.",
+        false,
+      );
+    }
+    args.push(
+      "--downloader",
+      "ffmpeg",
+      "--download-sections",
+      `*${formatSectionTime(startSeconds)}-${formatSectionTime(endSeconds)}`,
+    );
+  }
+
   args.push(`https://www.youtube.com/watch?v=${videoId}`);
   return args;
+}
+
+function formatSectionTime(value: number) {
+  return Number.isInteger(value) ? String(value) : String(Number(value.toFixed(3)));
+}
+
+export function readYouTubeSourceSection(
+  input: Record<string, unknown>,
+): YouTubeSourceSection | undefined {
+  const raw = input.sourceSection;
+  if (raw === undefined || raw === null) return undefined;
+  if (typeof raw !== "object" || Array.isArray(raw)) {
+    throw new TaskFailure(
+      "invalid_source_section",
+      "The YouTube source section is invalid.",
+      false,
+    );
+  }
+  const section = raw as Record<string, unknown>;
+  if (typeof section.startSeconds !== "number" || typeof section.endSeconds !== "number") {
+    throw new TaskFailure(
+      "invalid_source_section",
+      "The YouTube source section is invalid.",
+      false,
+    );
+  }
+  return { startSeconds: section.startSeconds, endSeconds: section.endSeconds };
 }
 
 export function classifyYouTubeDownloadFailure(input: string) {
@@ -142,7 +209,9 @@ export function classifyYouTubeDownloadFailure(input: string) {
     message.includes("sign in to confirm") ||
     message.includes("not a bot") ||
     message.includes("proof of origin") ||
-    message.includes("po token")
+    message.includes("po token") ||
+    message.includes("http error 403") ||
+    message.includes("remote server returned 403")
   ) {
     return new TaskFailure(
       "provider_auth_challenge",
@@ -217,18 +286,37 @@ export async function downloadYouTubeMedia(
   maximumDurationSeconds: number,
   signal?: AbortSignal,
   strategy: YouTubeDownloadStrategy = "standard",
-): Promise<{ bytes: number; format: string; filename: string }> {
+  options: YouTubeDownloadOptions = {},
+): Promise<{
+  bytes: number;
+  filename: string;
+  format: string;
+  proxyTier: YouTubeProxySelection["tier"];
+  sectionApplied: boolean;
+}> {
+  const proxy =
+    options.proxy ??
+    resolveYouTubeProxy({
+      forceProxy: options.forceProxy,
+      production: process.env.NODE_ENV === "production",
+      renderWarpHost: env.WARP_PROXY_HOST,
+      renderWarpPort: env.WARP_PROXY_PORT,
+      warpProxyUrl: env.WARP_PROXY_URL,
+      ytdlpProxyUrl: env.YTDLP_PROXY_URL,
+    });
   const args = buildYouTubeDownloadArgs(
     videoId,
     directory,
     maximumDurationSeconds,
     strategy,
     env.YTDLP_POT_PROVIDER_URL,
-    env.YTDLP_PROXY_URL,
+    proxy.url,
+    options.section,
   );
 
   try {
     const result = await execa(env.YTDLP_PATH, args, {
+      env: proxyEnvironment(proxy),
       timeout: env.YTDLP_TIMEOUT_MS,
       cancelSignal: signal,
       reject: true,
@@ -276,6 +364,8 @@ export async function downloadYouTubeMedia(
       bytes: fileStat.size,
       format: ext,
       filename: filepath,
+      proxyTier: proxy.tier,
+      sectionApplied: Boolean(options.section),
     };
   } catch (error: unknown) {
     if (error instanceof TaskFailure) throw error;
@@ -284,6 +374,9 @@ export async function downloadYouTubeMedia(
       throw new TaskFailure("cancelled", "The worker stopped YouTube acquisition.", true);
     }
 
-    throw classifyYouTubeExecutionFailure(failureText(error));
+    const failure = classifyYouTubeExecutionFailure(failureText(error));
+    throw new TaskFailure(failure.code, failure.message, failure.retryable, {
+      proxyTier: proxy.tier,
+    });
   }
 }

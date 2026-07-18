@@ -1,15 +1,23 @@
 import type { ClipTask } from "../domain/types.js";
 import { TaskFailure } from "../domain/types.js";
+import type { YouTubeProxyTier } from "../security/youtube-proxy.js";
 
 export type ClassifiedFailure = {
   code: string;
   message: string;
   retryable: boolean;
+  proxyTier?: YouTubeProxyTier;
 };
 
 export function classifyFailure(error: unknown): ClassifiedFailure {
   if (error instanceof TaskFailure) {
-    return { code: error.code, message: error.message, retryable: error.retryable };
+    const proxyTier = error.metadata.proxyTier;
+    return {
+      code: error.code,
+      message: error.message,
+      retryable: error.retryable,
+      ...(typeof proxyTier === "string" ? { proxyTier: proxyTier as YouTubeProxyTier } : {}),
+    };
   }
   const message = error instanceof Error ? error.message : "Unknown worker failure";
   const retryable = /timeout|ECONN|fetch failed|storage|rate.?limit|5\d\d/i.test(message);

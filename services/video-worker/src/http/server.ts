@@ -1,9 +1,11 @@
 import { timingSafeEqual } from "node:crypto";
 import { createServer } from "node:http";
+import type { ProxyHealthSnapshot } from "../health/proxy-health.js";
 
 type WorkerState = {
   activeTask: boolean;
   potProviderConfigured: boolean;
+  proxyHealth: ProxyHealthSnapshot;
   ready: boolean;
 };
 
@@ -48,6 +50,28 @@ export function createWorkerHttpServer(options: WorkerServerOptions) {
     if (request.method === "GET" && path === "/readyz") {
       json(response, state.ready ? 200 : 503, {
         status: state.ready ? "ready" : "not_ready",
+      });
+      return;
+    }
+
+    if (request.method === "GET" && path === "/health/proxy") {
+      if (!options.wakeSecret) {
+        json(response, 503, { error: "proxy_health_not_configured" });
+        return;
+      }
+      if (!bearerMatches(request.headers.authorization, options.wakeSecret)) {
+        json(response, 401, { error: "unauthorized" });
+        return;
+      }
+      json(response, 200, {
+        checked_at: state.proxyHealth.checkedAt,
+        egress_ip: state.proxyHealth.egressIp,
+        error_code: state.proxyHealth.errorCode,
+        proxy_reachable: state.proxyHealth.proxyReachable,
+        proxy_tier: state.proxyHealth.tier,
+        status: state.proxyHealth.status,
+        warp_enabled: state.proxyHealth.warpEnabled,
+        ytdlp_reachable: state.proxyHealth.ytdlpReachable,
       });
       return;
     }

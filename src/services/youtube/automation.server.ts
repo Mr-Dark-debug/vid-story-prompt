@@ -100,6 +100,7 @@ export const saveYouTubeAutomationRule = createServerFn({ method: "POST" })
           caption_preset: data.rule.captionPreset,
           content_type: data.rule.contentType,
           clip_settings_json: {},
+          trigger_configuration_json: {},
           publishing_behavior: data.rule.publishingBehavior,
           default_privacy: data.rule.defaultPrivacy,
           timezone: data.rule.timezone,

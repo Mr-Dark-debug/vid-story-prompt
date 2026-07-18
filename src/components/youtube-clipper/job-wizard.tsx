@@ -36,6 +36,7 @@ import { ConnectorIcon } from "@/components/connectors/connector-icon";
 import { ResilientThumbnail } from "@/components/media/resilient-thumbnail";
 import { SelectField, type SelectFieldOption } from "@/components/ui/select-field";
 import { StatusDialog } from "@/components/ui/status-dialog";
+import { WorkerEgressBadge } from "@/components/dashboard/WorkerEgressBadge";
 import {
   PLAN_ENTITLEMENTS,
   evaluateJobEntitlement,
@@ -847,7 +848,7 @@ function ConnectorSourceStep(props: {
   );
 }
 
-function CloudAssetBrowser({
+export function CloudAssetBrowser({
   connector,
   selected,
   onSelect,
@@ -1081,6 +1082,9 @@ function SourceStep(props: {
         Paste a YouTube link to load its public details automatically. A YouTube account connection
         is not required for clipping.
       </p>
+      <div className="mt-4">
+        <WorkerEgressBadge />
+      </div>
       <div className="mt-5 grid gap-3 sm:grid-cols-3">
         {modes.map((mode) => (
           <button

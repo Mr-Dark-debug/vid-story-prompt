@@ -41,6 +41,7 @@ export const createProject = createServerFn({ method: "POST" })
         brief: data.brief,
         status: "draft",
         timeline_json: timeline,
+        transcript_edits_json: {},
         updated_at: now,
       })
       .select("*")
@@ -221,17 +222,15 @@ export const restoreProjectVersion = createServerFn({ method: "POST" })
       .eq("id", data.projectId)
       .eq("user_id", session.id);
     if (updateError) throw new Error(updateError.message);
-    await supabase
-      .from("project_versions")
-      .insert({
-        project_id: data.projectId,
-        workspace_id: session.workspaceId,
-        user_id: session.id,
-        label: `Restored: ${version.label}`,
-        kind: "manual",
-        summary: "Restored a previous timeline version.",
-        timeline_json: version.timeline_json,
-      });
+    await supabase.from("project_versions").insert({
+      project_id: data.projectId,
+      workspace_id: session.workspaceId,
+      user_id: session.id,
+      label: `Restored: ${version.label}`,
+      kind: "manual",
+      summary: "Restored a previous timeline version.",
+      timeline_json: version.timeline_json,
+    });
     return { ok: true };
   });
 
@@ -323,21 +322,20 @@ export const createProjectFromTemplate = createServerFn({ method: "POST" })
         aspect: template.aspect,
         status: "draft",
         timeline_json: { clips: [], playhead: 0 },
+        transcript_edits_json: {},
       })
       .select("id")
       .single();
     if (createError) throw new Error(createError.message);
-    const { error: versionError } = await supabase
-      .from("project_versions")
-      .insert({
-        project_id: project.id,
-        workspace_id: session.workspaceId,
-        user_id: session.id,
-        label: "Created from template",
-        kind: "manual",
-        summary: `Created from ${template.name}.`,
-        timeline_json: { clips: [], playhead: 0 },
-      });
+    const { error: versionError } = await supabase.from("project_versions").insert({
+      project_id: project.id,
+      workspace_id: session.workspaceId,
+      user_id: session.id,
+      label: "Created from template",
+      kind: "manual",
+      summary: `Created from ${template.name}.`,
+      timeline_json: { clips: [], playhead: 0 },
+    });
     if (versionError) {
       await supabase.from("app_projects").delete().eq("id", project.id).eq("user_id", session.id);
       throw new Error(`Template project could not be initialised: ${versionError.message}`);

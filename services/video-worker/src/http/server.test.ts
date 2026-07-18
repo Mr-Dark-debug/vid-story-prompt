@@ -13,7 +13,21 @@ afterEach(async () => {
 
 async function start(ready = true) {
   const server = createWorkerHttpServer({
-    getState: () => ({ activeTask: false, potProviderConfigured: true, ready }),
+    getState: () => ({
+      activeTask: false,
+      potProviderConfigured: true,
+      proxyHealth: {
+        checkedAt: "2026-07-18T20:00:00.000Z",
+        egressIp: "203.0.113.7",
+        errorCode: null,
+        proxyReachable: true,
+        status: "healthy",
+        tier: "warp",
+        warpEnabled: true,
+        ytdlpReachable: true,
+      },
+      ready,
+    }),
     revision: "test-revision",
     wakeSecret: "a-secure-worker-wake-secret",
     workerId: "worker-test",
@@ -51,5 +65,24 @@ describe("worker HTTP server", () => {
         })
       ).status,
     ).toBe(202);
+  });
+
+  it("protects detailed proxy health with the worker bearer secret", async () => {
+    const origin = await start();
+    expect((await fetch(`${origin}/health/proxy`)).status).toBe(401);
+    const response = await fetch(`${origin}/health/proxy`, {
+      headers: { authorization: "Bearer a-secure-worker-wake-secret" },
+    });
+    expect(response.status).toBe(200);
+    expect(await response.json()).toEqual({
+      checked_at: "2026-07-18T20:00:00.000Z",
+      egress_ip: "203.0.113.7",
+      error_code: null,
+      proxy_reachable: true,
+      proxy_tier: "warp",
+      status: "healthy",
+      warp_enabled: true,
+      ytdlp_reachable: true,
+    });
   });
 });

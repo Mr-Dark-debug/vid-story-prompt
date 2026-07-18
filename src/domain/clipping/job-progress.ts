@@ -36,11 +36,14 @@ const taskStage: Record<string, DisplayStageId> = {
 };
 
 function taskGroupState(tasks: ProgressTask[]): DisplayStageState {
-  if (tasks.some((task) => task.status === "failed" || task.status === "dead_lettered"))
+  const current = tasks.filter((task) => task.status !== "superseded");
+  if (current.some((task) => task.status === "failed" || task.status === "dead_lettered"))
     return "failed";
-  if (tasks.some((task) => task.status === "retry_wait")) return "retrying";
-  if (tasks.some((task) => task.status === "running" || task.status === "leased")) return "active";
-  if (tasks.length > 0 && tasks.every((task) => task.status === "succeeded")) return "completed";
+  if (current.some((task) => task.status === "retry_wait")) return "retrying";
+  if (current.some((task) => task.status === "running" || task.status === "leased"))
+    return "active";
+  if (current.length > 0 && current.every((task) => task.status === "succeeded"))
+    return "completed";
   return "pending";
 }
 
@@ -62,6 +65,9 @@ export function deriveJobStages(
   const hasCompletedWork = tasks.some((task) => task.status === "succeeded");
 
   return displayStages.map((stage) => {
+    if (stage.id === "awaiting_source" && job.status === "awaiting_authorised_source") {
+      return { ...stage, state: "retrying" };
+    }
     if (stage.id === "queued") {
       if (job.status === "queued") return { ...stage, state: "active" };
       if (["failed", "cancelled", "expired"].includes(job.status) && !hasCompletedWork) {
@@ -113,16 +119,22 @@ export function getJobStatusPresentation(status: string): {
       active: false,
     };
   if (status === "retry_wait") return { label: "Retrying", tone: "warning", active: true };
-  if (["draft", "awaiting_source", "uploading", "queued"].includes(status))
+  if (
+    ["draft", "awaiting_source", "awaiting_authorised_source", "uploading", "queued"].includes(
+      status,
+    )
+  )
     return {
       label:
-        status === "awaiting_source"
-          ? "Awaiting source"
-          : status === "uploading"
-            ? "Uploading"
-            : status === "queued"
-              ? "Queued"
-              : "Draft",
+        status === "awaiting_authorised_source"
+          ? "Source needed"
+          : status === "awaiting_source"
+            ? "Awaiting source"
+            : status === "uploading"
+              ? "Uploading"
+              : status === "queued"
+                ? "Queued"
+                : "Draft",
       tone: "info",
       active: status === "uploading" || status === "queued",
     };

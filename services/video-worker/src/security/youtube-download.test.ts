@@ -9,6 +9,7 @@ import {
   buildYouTubeDownloadArgs,
   classifyYouTubeDownloadFailure,
   classifyYouTubeExecutionFailure,
+  readYouTubeSourceSection,
   selectYouTubeDownloadStrategy,
 } from "./youtube-download.js";
 
@@ -46,6 +47,11 @@ describe("YouTube download command", () => {
 
   it.each([
     ["Sign in to confirm you’re not a bot", "provider_auth_challenge", true],
+    [
+      "ERROR: unable to download video data: HTTP Error 403: Forbidden",
+      "provider_auth_challenge",
+      true,
+    ],
     ["This video is age-restricted", "video_age_restricted", false],
     ["Private video", "video_private", false],
     ["HTTP Error 429: Too Many Requests", "provider_rate_limited", true],
@@ -134,6 +140,56 @@ describe("YouTube download command", () => {
         "file:///tmp/socket",
       ),
     ).toThrow(TaskFailure);
+  });
+
+  it("uses FFmpeg section download only for an exact validated range", () => {
+    const section = readYouTubeSourceSection({
+      sourceSection: { startSeconds: 83, endSeconds: 130 },
+    });
+    const args = buildYouTubeDownloadArgs(
+      "dQw4w9WgXcQ",
+      "/tmp/vidrial/task",
+      600,
+      "standard",
+      undefined,
+      "http://warp.internal:8080",
+      section,
+    );
+    expect(args).toEqual(
+      expect.arrayContaining([
+        "--proxy",
+        "http://warp.internal:8080/",
+        "--downloader",
+        "ffmpeg",
+        "--download-sections",
+        "*83-130",
+      ]),
+    );
+  });
+
+  it.each([
+    { startSeconds: -1, endSeconds: 30 },
+    { startSeconds: 30, endSeconds: 30 },
+    { startSeconds: 40, endSeconds: 30 },
+    { startSeconds: 0, endSeconds: 601 },
+    { startSeconds: Number.NaN, endSeconds: 30 },
+  ])("rejects invalid source section $startSeconds-$endSeconds", (section) => {
+    expect(() =>
+      buildYouTubeDownloadArgs(
+        "dQw4w9WgXcQ",
+        "/tmp/vidrial/task",
+        600,
+        "standard",
+        undefined,
+        undefined,
+        section,
+      ),
+    ).toThrow(TaskFailure);
+  });
+
+  it("rejects malformed task source section input", () => {
+    expect(() => readYouTubeSourceSection({ sourceSection: "0-30" })).toThrow(TaskFailure);
+    expect(readYouTubeSourceSection({})).toBeUndefined();
   });
 
   it("does not mistake the bounded command flag for an oversized download", () => {
