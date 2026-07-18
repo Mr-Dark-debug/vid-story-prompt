@@ -53,7 +53,12 @@ async function readiness() {
 }
 
 createWorkerHttpServer({
-  getState: () => ({ activeTask, ready }),
+  getState: () => ({
+    activeTask,
+    potProviderConfigured: Boolean(env.YTDLP_POT_PROVIDER_URL),
+    ready,
+  }),
+  revision: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? "local",
   wakeSecret: env.WORKER_WAKE_SECRET,
   workerId: env.WORKER_ID,
 }).listen(env.PORT, "0.0.0.0", () =>

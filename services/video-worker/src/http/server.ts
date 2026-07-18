@@ -3,11 +3,13 @@ import { createServer } from "node:http";
 
 type WorkerState = {
   activeTask: boolean;
+  potProviderConfigured: boolean;
   ready: boolean;
 };
 
 type WorkerServerOptions = {
   getState: () => WorkerState;
+  revision: string;
   wakeSecret?: string;
   workerId: string;
 };
@@ -35,6 +37,8 @@ export function createWorkerHttpServer(options: WorkerServerOptions) {
     if (request.method === "GET" && path === "/healthz") {
       json(response, 200, {
         activeTask: state.activeTask,
+        potProviderConfigured: state.potProviderConfigured,
+        revision: options.revision,
         status: "ok",
         workerId: options.workerId,
       });

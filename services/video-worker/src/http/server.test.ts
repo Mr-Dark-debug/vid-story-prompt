@@ -13,7 +13,8 @@ afterEach(async () => {
 
 async function start(ready = true) {
   const server = createWorkerHttpServer({
-    getState: () => ({ activeTask: false, ready }),
+    getState: () => ({ activeTask: false, potProviderConfigured: true, ready }),
+    revision: "test-revision",
     wakeSecret: "a-secure-worker-wake-secret",
     workerId: "worker-test",
   });
@@ -31,6 +32,8 @@ describe("worker HTTP server", () => {
     expect(health.status).toBe(200);
     expect(await health.json()).toEqual({
       activeTask: false,
+      potProviderConfigured: true,
+      revision: "test-revision",
       status: "ok",
       workerId: "worker-test",
     });
