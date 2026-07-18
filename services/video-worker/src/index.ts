@@ -29,10 +29,20 @@ await mkdir(env.WORKER_TEMP_ROOT, { recursive: true });
 
 async function readiness() {
   try {
-    await Promise.all([
+    const checks: Promise<unknown>[] = [
       execa(env.FFMPEG_PATH, ["-version"], { timeout: 5000 }),
       execa(env.FFPROBE_PATH, ["-version"], { timeout: 5000 }),
-    ]);
+    ];
+    if (env.YTDLP_POT_PROVIDER_URL) {
+      checks.push(
+        fetch(`${env.YTDLP_POT_PROVIDER_URL.replace(/\/$/, "")}/ping`, {
+          signal: AbortSignal.timeout(5_000),
+        }).then((response) => {
+          if (!response.ok) throw new Error("PO-token provider readiness failed");
+        }),
+      );
+    }
+    await Promise.all(checks);
     const { error } = await supabase.from("plans").select("key").limit(1);
     if (error) throw error;
     ready = true;
