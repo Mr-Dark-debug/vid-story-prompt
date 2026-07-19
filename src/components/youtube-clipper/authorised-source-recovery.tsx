@@ -17,6 +17,7 @@ import {
 import { userFacingError } from "@/lib/user-facing-error";
 import { CloudAssetBrowser } from "./job-wizard";
 import { SourceUpload, type UploadedSource } from "./source-upload";
+import { LocalRelayRecovery } from "./local-relay-recovery";
 
 const RECOVERY_CONNECTOR_IDS = [
   "local_upload",
@@ -188,6 +189,8 @@ export function AuthorisedSourceRecovery({
           </p>
         </div>
       </div>
+
+      <LocalRelayRecovery jobId={jobId} onQueued={onResumed} />
 
       {errorCode === "source_match_confirmation_required" && sourceAssetId ? (
         <div className="mt-4 flex flex-col gap-3 rounded-xl border border-warning/30 bg-surface-panel p-4 sm:flex-row sm:items-center sm:justify-between">

@@ -97,7 +97,9 @@ export function JobProgress({
     retryableCodes.has(failedTask.error_code) &&
     failedTask.attempt < failedTask.max_attempts,
   );
-  const awaitingAuthorisedSource = job.status === "awaiting_authorised_source";
+  const awaitingAuthorisedSource = ["awaiting_authorised_source", "awaiting_local_relay"].includes(
+    job.status,
+  );
   const canForceProxy = Boolean(
     failedTask?.error_code &&
     ["provider_auth_challenge", "provider_rate_limited", "provider_temporary_failure"].includes(
@@ -110,7 +112,7 @@ export function JobProgress({
     failedTask?.error_code === "provider_rate_limited" ||
     failedTask?.error_code === "provider_temporary_failure" ||
     failedTask?.error_code === "video_restricted"
-      ? "YouTube blocked this request from the server's network. The worker retries through Cloudflare WARP when configured. If WARP is also blocked for this video, attach the authorised original below to continue this same job, or upload it from the Upload tab."
+      ? "YouTube blocked this request from the server's network. The worker tried each distinct Cloudflare WARP path and the optional source adapter. Continue asynchronously with the free local helper, or attach an authorised original below to resume this same job."
       : failedTask?.error_code === "video_private" ||
           failedTask?.error_code === "video_age_restricted" ||
           failedTask?.error_code === "video_unavailable"
@@ -162,6 +164,8 @@ export function JobProgress({
           <div className="flex items-center gap-2">
             {terminal ? (
               <AlertTriangle className="h-5 w-5 text-danger" />
+            ) : awaitingAuthorisedSource ? (
+              <AlertTriangle className="h-5 w-5 text-warning" />
             ) : ["ready", "partially_ready", "completed"].includes(job.status) ? (
               <Check className="h-5 w-5 text-success" />
             ) : (
@@ -220,7 +224,7 @@ export function JobProgress({
                 {retrying ? "Queueing retry…" : "Retry failed task"}
               </button>
             )}
-            {canForceProxy ? (
+            {canForceProxy && !awaitingAuthorisedSource ? (
               <button
                 type="button"
                 disabled={retrying}

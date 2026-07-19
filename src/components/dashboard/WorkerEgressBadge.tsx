@@ -72,7 +72,12 @@ export function WorkerEgressBadge({ health }: { health?: WorkerEgressHealth }) {
       )}
     >
       <state.Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-      <span className="truncate">Worker egress: {state.label}</span>
+      <span className="truncate">
+        Worker egress: {state.label}
+        {typeof current.uniqueEgressMembers === "number"
+          ? ` · ${current.uniqueEgressMembers}/${current.configuredMembers ?? current.uniqueEgressMembers} unique`
+          : ""}
+      </span>
     </div>
   );
 }

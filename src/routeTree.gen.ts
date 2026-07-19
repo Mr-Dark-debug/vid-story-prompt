@@ -65,6 +65,7 @@ import { Route as AuthenticatedAppSettingsIndexRouteImport } from './routes/_aut
 import { Route as AuthenticatedAppProjectsIndexRouteImport } from './routes/_authenticated.app.projects.index'
 import { Route as AuthenticatedAppAutomationsIndexRouteImport } from './routes/_authenticated.app.automations.index'
 import { Route as AuthConnectorsConnectorIdCallbackRouteImport } from './routes/auth.connectors.$connectorId.callback'
+import { Route as ApiAcquisitionRelayActionRouteImport } from './routes/api.acquisition.relay.$action'
 import { Route as AuthenticatedAppYoutubeClipperNewRouteImport } from './routes/_authenticated.app.youtube-clipper.new'
 import { Route as AuthenticatedAppSettingsPrivacyRouteImport } from './routes/_authenticated.app.settings.privacy'
 import { Route as AuthenticatedAppSettingsPreferencesRouteImport } from './routes/_authenticated.app.settings.preferences'
@@ -372,6 +373,12 @@ const AuthConnectorsConnectorIdCallbackRoute =
     path: '/auth/connectors/$connectorId/callback',
     getParentRoute: () => rootRouteImport,
   } as any)
+const ApiAcquisitionRelayActionRoute =
+  ApiAcquisitionRelayActionRouteImport.update({
+    id: '/api/acquisition/relay/$action',
+    path: '/api/acquisition/relay/$action',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAppYoutubeClipperNewRoute =
   AuthenticatedAppYoutubeClipperNewRouteImport.update({
     id: '/new',
@@ -535,6 +542,7 @@ export interface FileRoutesByFullPath {
   '/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
   '/app/settings/privacy': typeof AuthenticatedAppSettingsPrivacyRoute
   '/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
+  '/api/acquisition/relay/$action': typeof ApiAcquisitionRelayActionRoute
   '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
   '/app/automations/': typeof AuthenticatedAppAutomationsIndexRoute
   '/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
@@ -603,6 +611,7 @@ export interface FileRoutesByTo {
   '/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
   '/app/settings/privacy': typeof AuthenticatedAppSettingsPrivacyRoute
   '/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
+  '/api/acquisition/relay/$action': typeof ApiAcquisitionRelayActionRoute
   '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
   '/app/automations': typeof AuthenticatedAppAutomationsIndexRoute
   '/app/projects': typeof AuthenticatedAppProjectsIndexRoute
@@ -679,6 +688,7 @@ export interface FileRoutesById {
   '/_authenticated/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
   '/_authenticated/app/settings/privacy': typeof AuthenticatedAppSettingsPrivacyRoute
   '/_authenticated/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
+  '/api/acquisition/relay/$action': typeof ApiAcquisitionRelayActionRoute
   '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
   '/_authenticated/app/automations/': typeof AuthenticatedAppAutomationsIndexRoute
   '/_authenticated/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
@@ -755,6 +765,7 @@ export interface FileRouteTypes {
     | '/app/settings/preferences'
     | '/app/settings/privacy'
     | '/app/youtube-clipper/new'
+    | '/api/acquisition/relay/$action'
     | '/auth/connectors/$connectorId/callback'
     | '/app/automations/'
     | '/app/projects/'
@@ -823,6 +834,7 @@ export interface FileRouteTypes {
     | '/app/settings/preferences'
     | '/app/settings/privacy'
     | '/app/youtube-clipper/new'
+    | '/api/acquisition/relay/$action'
     | '/auth/connectors/$connectorId/callback'
     | '/app/automations'
     | '/app/projects'
@@ -898,6 +910,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/settings/preferences'
     | '/_authenticated/app/settings/privacy'
     | '/_authenticated/app/youtube-clipper/new'
+    | '/api/acquisition/relay/$action'
     | '/auth/connectors/$connectorId/callback'
     | '/_authenticated/app/automations/'
     | '/_authenticated/app/projects/'
@@ -943,6 +956,7 @@ export interface RootRouteChildren {
   AuthCallbackRoute: typeof AuthCallbackRoute
   ApiYoutubeWebhookRoute: typeof ApiYoutubeWebhookRoute
   AuthYoutubeCallbackRoute: typeof AuthYoutubeCallbackRoute
+  ApiAcquisitionRelayActionRoute: typeof ApiAcquisitionRelayActionRoute
   AuthConnectorsConnectorIdCallbackRoute: typeof AuthConnectorsConnectorIdCallbackRoute
 }
 
@@ -1340,6 +1354,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthConnectorsConnectorIdCallbackRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/acquisition/relay/$action': {
+      id: '/api/acquisition/relay/$action'
+      path: '/api/acquisition/relay/$action'
+      fullPath: '/api/acquisition/relay/$action'
+      preLoaderRoute: typeof ApiAcquisitionRelayActionRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/app/youtube-clipper/new': {
       id: '/_authenticated/app/youtube-clipper/new'
       path: '/new'
@@ -1681,6 +1702,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthCallbackRoute: AuthCallbackRoute,
   ApiYoutubeWebhookRoute: ApiYoutubeWebhookRoute,
   AuthYoutubeCallbackRoute: AuthYoutubeCallbackRoute,
+  ApiAcquisitionRelayActionRoute: ApiAcquisitionRelayActionRoute,
   AuthConnectorsConnectorIdCallbackRoute:
     AuthConnectorsConnectorIdCallbackRoute,
 }

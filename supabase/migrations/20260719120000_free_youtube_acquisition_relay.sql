@@ -460,11 +460,18 @@ as $$
 declare
   v_request public.acquisition_relay_requests%rowtype;
   v_asset public.media_assets%rowtype;
+  v_receipt_request_id uuid;
   v_task_id uuid := gen_random_uuid();
 begin
   insert into public.acquisition_callback_receipts(provider, provider_event_id, relay_request_id)
   values ('local_relay', p_provider_event_id, p_request_id)
   on conflict (provider, provider_event_id) do nothing;
+  select relay_request_id into v_receipt_request_id
+  from public.acquisition_callback_receipts
+  where provider = 'local_relay' and provider_event_id = p_provider_event_id;
+  if v_receipt_request_id <> p_request_id then
+    raise exception 'callback_event_reused' using errcode = '23505';
+  end if;
 
   select * into v_request from public.acquisition_relay_requests where id = p_request_id for update;
   if not found then raise exception 'relay_request_not_found' using errcode = 'P0002'; end if;
@@ -556,11 +563,19 @@ language plpgsql
 security definer
 set search_path = ''
 as $$
-declare v_request public.acquisition_relay_requests%rowtype;
+declare
+  v_request public.acquisition_relay_requests%rowtype;
+  v_receipt_request_id uuid;
 begin
   insert into public.acquisition_callback_receipts(provider, provider_event_id, relay_request_id)
   values ('local_relay', p_provider_event_id, p_request_id)
   on conflict (provider, provider_event_id) do nothing;
+  select relay_request_id into v_receipt_request_id
+  from public.acquisition_callback_receipts
+  where provider = 'local_relay' and provider_event_id = p_provider_event_id;
+  if v_receipt_request_id <> p_request_id then
+    raise exception 'callback_event_reused' using errcode = '23505';
+  end if;
   select * into v_request from public.acquisition_relay_requests where id = p_request_id for update;
   if not found then raise exception 'relay_request_not_found' using errcode = 'P0002'; end if;
   if v_request.status in ('completed','cancelled','expired') then return v_request; end if;

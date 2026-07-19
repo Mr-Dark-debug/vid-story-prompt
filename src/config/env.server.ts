@@ -23,6 +23,11 @@ const serverEnvSchema = z.object({
   TURNSTILE_ALLOWED_HOSTNAMES: z.string().optional(),
   VIDEO_WORKER_URL: z.string().url().optional(),
   WORKER_WAKE_SECRET: z.string().min(20).optional(),
+  LOCAL_RELAY_ENABLED: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
+  LOCAL_RELAY_SIGNING_KEY: z.string().min(32).optional(),
   OPENROUTER_API_KEY: z.string().min(10).optional(),
   OPENROUTER_CLIP_MODEL: z.string().min(3).optional(),
 });
@@ -51,6 +56,8 @@ export function getServerEnv() {
     TURNSTILE_ALLOWED_HOSTNAMES: process.env.TURNSTILE_ALLOWED_HOSTNAMES,
     VIDEO_WORKER_URL: process.env.VIDEO_WORKER_URL,
     WORKER_WAKE_SECRET: process.env.WORKER_WAKE_SECRET,
+    LOCAL_RELAY_ENABLED: process.env.LOCAL_RELAY_ENABLED,
+    LOCAL_RELAY_SIGNING_KEY: process.env.LOCAL_RELAY_SIGNING_KEY,
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
     OPENROUTER_CLIP_MODEL: process.env.OPENROUTER_CLIP_MODEL,
   });

@@ -70,10 +70,6 @@ export const env = z
       .enum(["true", "false"])
       .default("false")
       .transform((value) => value === "true"),
-    LOCAL_RELAY_SIGNING_KEY: z.preprocess(
-      (value) => (value === "" ? undefined : value),
-      z.string().min(32).optional(),
-    ),
     GROQ_API_KEY: optionalSecret,
     GROQ_TRANSCRIPTION_MODEL: z.string().default("whisper-large-v3-turbo"),
     OPENAI_API_KEY: optionalSecret,
@@ -113,13 +109,6 @@ export const env = z
         code: z.ZodIssueCode.custom,
         message: "COBALT_API_URL is required when COBALT_API_KEY is set.",
         path: ["COBALT_API_URL"],
-      });
-    }
-    if (value.LOCAL_RELAY_ENABLED && !value.LOCAL_RELAY_SIGNING_KEY) {
-      context.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "LOCAL_RELAY_SIGNING_KEY is required when the local relay is enabled.",
-        path: ["LOCAL_RELAY_SIGNING_KEY"],
       });
     }
   })

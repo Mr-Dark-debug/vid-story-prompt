@@ -4,6 +4,8 @@ import type { ProxyHealthSnapshot } from "../health/proxy-health.js";
 
 type WorkerState = {
   activeTask: boolean;
+  cobaltEnabled: boolean;
+  localRelayEnabled: boolean;
   potProviderConfigured: boolean;
   proxyHealth: ProxyHealthSnapshot;
   ready: boolean;
@@ -77,6 +79,8 @@ export function createWorkerHttpServer(options: WorkerServerOptions) {
           state.proxyHealth.healthyMembers ?? (state.proxyHealth.proxyReachable ? 1 : 0),
         unique_egress_members:
           state.proxyHealth.uniqueEgressMembers ?? (state.proxyHealth.proxyReachable ? 1 : 0),
+        cobalt_enabled: state.cobaltEnabled,
+        local_relay_enabled: state.localRelayEnabled,
       });
       return;
     }

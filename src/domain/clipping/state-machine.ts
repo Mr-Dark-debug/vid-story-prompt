@@ -3,7 +3,14 @@ import type { ClipJobStatus, TaskStatus } from "./types";
 const jobTransitions: Record<ClipJobStatus, readonly ClipJobStatus[]> = {
   draft: ["awaiting_source", "uploading", "queued", "cancelled"],
   awaiting_source: ["uploading", "queued", "cancelled", "expired"],
-  awaiting_authorised_source: ["queued", "uploading", "cancelled", "expired"],
+  awaiting_authorised_source: [
+    "awaiting_local_relay",
+    "queued",
+    "uploading",
+    "cancelled",
+    "expired",
+  ],
+  awaiting_local_relay: ["awaiting_authorised_source", "queued", "cancelled", "expired"],
   uploading: ["queued", "failed", "cancelled"],
   queued: ["validating", "cancelled", "failed"],
   validating: ["creating_proxy", "extracting_audio", "failed", "cancelled"],

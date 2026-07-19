@@ -68,9 +68,7 @@ services:
       - key: COBALT_REQUEST_TIMEOUT_MS
         value: "90000"
       - key: LOCAL_RELAY_ENABLED
-        value: "false"
-      - key: LOCAL_RELAY_SIGNING_KEY
-        sync: false
+        value: "true"
       - key: FFMPEG_THREADS
         value: "1"
       - key: LOG_LEVEL

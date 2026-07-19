@@ -46,6 +46,10 @@ describe("clipping job progress", () => {
       label: "Source needed",
       tone: "info",
     });
+    expect(getJobStatusPresentation("awaiting_local_relay")).toMatchObject({
+      label: "Waiting for helper",
+      tone: "warning",
+    });
   });
 
   it("shows recoverable acquisition as waiting and ignores superseded failures", () => {
@@ -60,5 +64,13 @@ describe("clipping job progress", () => {
     ]);
     expect(resumed.find((stage) => stage.id === "awaiting_source")?.state).toBe("pending");
     expect(resumed.find((stage) => stage.id === "validating")?.state).toBe("pending");
+  });
+
+  it("keeps source acquisition active while a local relay device is needed", () => {
+    const stages = deriveJobStages({ status: "awaiting_local_relay" }, [
+      task("download_youtube_source", "dead_lettered"),
+    ]);
+
+    expect(stages.find((stage) => stage.id === "awaiting_source")?.state).toBe("retrying");
   });
 });

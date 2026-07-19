@@ -108,6 +108,8 @@ async function readiness() {
 createWorkerHttpServer({
   getState: () => ({
     activeTask,
+    cobaltEnabled: Boolean(env.COBALT_API_URL),
+    localRelayEnabled: env.LOCAL_RELAY_ENABLED,
     potProviderConfigured: Boolean(env.YTDLP_POT_PROVIDER_URL),
     proxyHealth,
     ready,

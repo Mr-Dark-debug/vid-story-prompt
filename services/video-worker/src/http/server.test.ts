@@ -15,6 +15,8 @@ async function start(ready = true) {
   const server = createWorkerHttpServer({
     getState: () => ({
       activeTask: false,
+      cobaltEnabled: true,
+      localRelayEnabled: true,
       potProviderConfigured: true,
       proxyHealth: {
         checkedAt: "2026-07-18T20:00:00.000Z",
@@ -91,6 +93,8 @@ describe("worker HTTP server", () => {
       configured_members: 3,
       healthy_members: 2,
       unique_egress_members: 1,
+      cobalt_enabled: true,
+      local_relay_enabled: true,
     });
     expect(JSON.stringify(body)).not.toMatch(/secret|warp-a/);
   });

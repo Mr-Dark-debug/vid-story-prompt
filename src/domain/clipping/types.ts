@@ -10,6 +10,7 @@ export const clipJobStatuses = [
   "draft",
   "awaiting_source",
   "awaiting_authorised_source",
+  "awaiting_local_relay",
   "uploading",
   "queued",
   "validating",
