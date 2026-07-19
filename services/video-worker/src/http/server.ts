@@ -72,6 +72,11 @@ export function createWorkerHttpServer(options: WorkerServerOptions) {
         status: state.proxyHealth.status,
         warp_enabled: state.proxyHealth.warpEnabled,
         ytdlp_reachable: state.proxyHealth.ytdlpReachable,
+        configured_members: state.proxyHealth.configuredMembers ?? 1,
+        healthy_members:
+          state.proxyHealth.healthyMembers ?? (state.proxyHealth.proxyReachable ? 1 : 0),
+        unique_egress_members:
+          state.proxyHealth.uniqueEgressMembers ?? (state.proxyHealth.proxyReachable ? 1 : 0),
       });
       return;
     }

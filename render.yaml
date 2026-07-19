@@ -75,9 +75,13 @@ services:
     dockerContext: ./services/video-worker/warp
     envVars:
       - key: PORT
-        value: "8081"
+        value: "8090"
       - key: HTTP_PROXY_PORT
         value: "8080"
+      - key: WARP_POOL_BASE_PORT
+        value: "8080"
+      - key: WARP_POOL_SIZE
+        value: "3"
       - key: WARP_START_TIMEOUT_SECONDS
         value: "60"
     disk:

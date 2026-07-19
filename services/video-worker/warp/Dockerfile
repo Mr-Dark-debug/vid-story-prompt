@@ -18,10 +18,12 @@ RUN chmod 0755 /usr/local/bin/entrypoint.sh /usr/local/bin/healthcheck.sh /usr/l
     && mkdir -p /var/lib/cloudflare-warp
 
 ENV HTTP_PROXY_PORT=8080 \
-    PORT=8081 \
+    WARP_POOL_BASE_PORT=8080 \
+    WARP_POOL_SIZE=1 \
+    PORT=8090 \
     WARP_START_TIMEOUT_SECONDS=45
 
-EXPOSE 8080 8081
+EXPOSE 8080 8081 8082 8083 8090
 VOLUME ["/var/lib/cloudflare-warp"]
 HEALTHCHECK --interval=30s --timeout=7s --start-period=45s --retries=3 \
   CMD ["/usr/local/bin/healthcheck.sh"]

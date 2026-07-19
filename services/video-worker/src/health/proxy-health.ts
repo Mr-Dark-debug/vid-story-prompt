@@ -1,6 +1,12 @@
 import { execa } from "execa";
 import { env } from "../config/env.js";
 import { proxyEnvironment, type YouTubeProxySelection } from "../security/youtube-proxy.js";
+import {
+  deduplicateHealthyEgress,
+  type ProxyMemberProbe,
+  type ProxyPoolMember,
+  type UniquePoolMember,
+} from "../security/youtube-egress-pool.js";
 
 export type ProxyHealthStatus = "healthy" | "degraded" | "blocked" | "unknown";
 
@@ -13,6 +19,10 @@ export type ProxyHealthSnapshot = {
   tier: YouTubeProxySelection["tier"];
   warpEnabled: boolean | null;
   ytdlpReachable: boolean | null;
+  configuredMembers?: number;
+  healthyMembers?: number;
+  uniqueEgressMembers?: number;
+  uniqueMembers?: UniquePoolMember[];
 };
 
 type CommandResult = { stdout?: unknown };
@@ -136,5 +146,60 @@ export async function probeProxyHealth(
     tier: selection.tier,
     warpEnabled,
     ytdlpReachable,
+  };
+}
+
+export async function probeProxyPoolHealth(
+  members: ProxyPoolMember[],
+  options: {
+    fingerprintKey: string;
+    includeYtdlp?: boolean;
+    minimumUniqueMembers?: number;
+    run?: CommandRunner;
+    timeoutMs?: number;
+    ytdlpPath?: string;
+  },
+): Promise<ProxyHealthSnapshot> {
+  const snapshots = await Promise.all(
+    members.map((member) =>
+      probeProxyHealth(
+        { tier: "warp", url: member.url },
+        {
+          includeYtdlp: options.includeYtdlp,
+          run: options.run,
+          timeoutMs: options.timeoutMs,
+          ytdlpPath: options.ytdlpPath,
+        },
+      ),
+    ),
+  );
+  const probes: ProxyMemberProbe[] = snapshots.map((snapshot, index) => ({
+    member: members[index],
+    reachable: snapshot.proxyReachable === true && snapshot.ytdlpReachable !== false,
+    warpEnabled: snapshot.warpEnabled,
+    egressIp: snapshot.egressIp,
+  }));
+  const uniqueMembers = deduplicateHealthyEgress(probes, options.fingerprintKey);
+  const healthyMembers = probes.filter((probe) => probe.reachable && probe.warpEnabled).length;
+  const minimumUniqueMembers = Math.max(1, options.minimumUniqueMembers ?? 1);
+  const status: ProxyHealthStatus =
+    uniqueMembers.length >= minimumUniqueMembers
+      ? "healthy"
+      : healthyMembers > 0
+        ? "degraded"
+        : "blocked";
+  return {
+    checkedAt: new Date().toISOString(),
+    egressIp: null,
+    errorCode: status === "healthy" ? null : "insufficient_unique_egress",
+    proxyReachable: healthyMembers > 0,
+    status,
+    tier: "warp",
+    warpEnabled: healthyMembers > 0,
+    ytdlpReachable: snapshots.some((snapshot) => snapshot.ytdlpReachable === true),
+    configuredMembers: members.length,
+    healthyMembers,
+    uniqueEgressMembers: uniqueMembers.length,
+    uniqueMembers,
   };
 }

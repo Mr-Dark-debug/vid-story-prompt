@@ -22,10 +22,12 @@ import { handleConnectorImport } from "./tasks/connector-import.js";
 import type { ConnectorTask } from "./domain/types.js";
 import {
   probeProxyHealth,
+  probeProxyPoolHealth,
   unknownProxyHealth,
   type ProxyHealthSnapshot,
 } from "./health/proxy-health.js";
 import { describeProxy, resolveYouTubeProxy } from "./security/youtube-proxy.js";
+import { parseProxyPool } from "./security/youtube-egress-pool.js";
 
 let stopping = false;
 let activeTask = false;
@@ -37,6 +39,9 @@ const proxySelection = resolveYouTubeProxy({
   warpProxyUrl: env.WARP_PROXY_URL,
   ytdlpProxyUrl: env.YTDLP_PROXY_URL,
 });
+const proxyPoolMembers = env.YTDLP_PROXY_URL ? [] : parseProxyPool(env.WARP_POOL_URLS);
+const egressFingerprintKey =
+  env.EGRESS_FINGERPRINT_KEY ?? env.WORKER_WAKE_SECRET ?? env.SUPABASE_SERVICE_ROLE_KEY;
 let proxyHealth: ProxyHealthSnapshot = unknownProxyHealth(proxySelection.tier);
 let startupProxyProbePending = env.YTDLP_STARTUP_PROBE;
 let lastYtdlpProbeAt = 0;
@@ -63,13 +68,19 @@ async function readiness() {
       startupProxyProbePending ||
       proxyHealth.ytdlpReachable === false ||
       Date.now() - lastYtdlpProbeAt >= 5 * 60_000;
-    proxyHealth = await probeProxyHealth(proxySelection, {
-      includeYtdlp,
-      previous: proxyHealth,
-    });
+    proxyHealth = proxyPoolMembers.length
+      ? await probeProxyPoolHealth(proxyPoolMembers, {
+          fingerprintKey: egressFingerprintKey,
+          includeYtdlp,
+          minimumUniqueMembers: env.WARP_POOL_MIN_HEALTHY,
+        })
+      : await probeProxyHealth(proxySelection, {
+          includeYtdlp,
+          previous: proxyHealth,
+        });
     if (includeYtdlp) lastYtdlpProbeAt = Date.now();
     startupProxyProbePending = false;
-    if (proxySelection.url && proxyHealth.status === "blocked") {
+    if ((proxySelection.url || proxyPoolMembers.length) && proxyHealth.status === "blocked") {
       ready = false;
       logger.error(
         { errorCode: proxyHealth.errorCode, proxy: describeProxy(proxySelection) },
