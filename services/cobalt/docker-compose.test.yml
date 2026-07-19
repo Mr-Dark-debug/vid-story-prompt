@@ -1,0 +1,43 @@
+services:
+  cobalt:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    init: true
+    read_only: true
+    environment:
+      API_URL: http://cobalt:9000/
+      API_PORT: "9000"
+      API_LISTEN_ADDRESS: 0.0.0.0
+      COBALT_API_KEY: 59856ca4-6640-49f2-8585-89f9e9381eb8
+      CORS_WILDCARD: "0"
+      CORS_URL: http://localhost
+      DURATION_LIMIT: "21600"
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    healthcheck:
+      test:
+        - CMD
+        - node
+        - -e
+        - fetch('http://127.0.0.1:9000/').then(r=>{if(!r.ok)process.exit(1)}).catch(()=>process.exit(1))
+      interval: 3s
+      timeout: 2s
+      retries: 30
+
+  smoke:
+    image: curlimages/curl:8.12.1
+    depends_on:
+      cobalt:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-ec"]
+    command:
+      - |
+        curl -fsS http://cobalt:9000/ | grep -q '"cobalt"'
+        unauth_status="$$(curl -sS -o /dev/null -w '%{http_code}' \
+          -H 'accept: application/json' \
+          -H 'content-type: application/json' \
+          -d '{"url":"https://www.youtube.com/watch?v=dQw4w9WgXcQ"}' \
+          http://cobalt:9000/)"
+        test "$${unauth_status}" = "401"
+        echo "cobalt=ok auth=required"
