@@ -28,6 +28,7 @@ import {
 } from "./health/proxy-health.js";
 import { describeProxy, resolveYouTubeProxy } from "./security/youtube-proxy.js";
 import { parseProxyPool } from "./security/youtube-egress-pool.js";
+import { setHealthyWarpMembers } from "./security/acquisition-runtime.js";
 
 let stopping = false;
 let activeTask = false;
@@ -78,15 +79,14 @@ async function readiness() {
           includeYtdlp,
           previous: proxyHealth,
         });
+    setHealthyWarpMembers(proxyHealth.uniqueMembers ?? []);
     if (includeYtdlp) lastYtdlpProbeAt = Date.now();
     startupProxyProbePending = false;
     if ((proxySelection.url || proxyPoolMembers.length) && proxyHealth.status === "blocked") {
-      ready = false;
       logger.error(
         { errorCode: proxyHealth.errorCode, proxy: describeProxy(proxySelection) },
-        "Worker proxy readiness failed",
+        "Worker proxy readiness failed; direct production egress remains disabled and queued jobs will escalate to another configured source path",
       );
-      return;
     }
     if (proxyHealth.status === "healthy") {
       logger.info({ proxy: describeProxy(proxySelection) }, "Worker proxy readiness succeeded");
