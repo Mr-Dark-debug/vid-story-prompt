@@ -16,6 +16,7 @@ vi.mock("@/services/acquisition/relay.server", () => ({
 describe("LocalRelayRecovery", () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    window.sessionStorage.clear();
     listRelayDevices.mockResolvedValue([]);
   });
 
@@ -46,7 +47,10 @@ describe("LocalRelayRecovery", () => {
   });
 
   it("copies a complete short-lived pairing command", async () => {
-    createRelayPairing.mockResolvedValue({ pairingToken: "pair.challenge" });
+    createRelayPairing.mockResolvedValue({
+      pairingToken: "pair.challenge",
+      expiresAt: new Date(Date.now() + 600_000).toISOString(),
+    });
     const writeText = vi.fn().mockResolvedValue(undefined);
     Object.defineProperty(navigator, "clipboard", {
       configurable: true,
@@ -64,6 +68,20 @@ describe("LocalRelayRecovery", () => {
         ),
       ),
     );
+  });
+
+  it("restores a non-expired pairing after a route remount", async () => {
+    window.sessionStorage.setItem(
+      "vidrial:relay-pairing:2c0c70a6-99ad-4b2d-a463-997641803126",
+      JSON.stringify({
+        token: "stored.pairing",
+        expiresAt: new Date(Date.now() + 600_000).toISOString(),
+      }),
+    );
+
+    render(<LocalRelayRecovery jobId="2c0c70a6-99ad-4b2d-a463-997641803126" onQueued={vi.fn()} />);
+
+    expect(await screen.findByText("stored.pairing")).toBeInTheDocument();
   });
 
   it("confirms before revoking a paired device", async () => {

@@ -20,10 +20,15 @@ import {
 import { userFacingError } from "@/lib/user-facing-error";
 
 type Device = Awaited<ReturnType<typeof listRelayDevices>>[number];
+type PairingState = { token: string; expiresAt: string };
+
+function pairingStorageKey(jobId: string) {
+  return `vidrial:relay-pairing:${jobId}`;
+}
 
 export function LocalRelayRecovery({ jobId, onQueued }: { jobId: string; onQueued: () => void }) {
   const [devices, setDevices] = useState<Device[]>([]);
-  const [pairingToken, setPairingToken] = useState<string | null>(null);
+  const [pairing, setPairing] = useState<PairingState | null>(null);
   const [copied, setCopied] = useState(false);
   const [busy, setBusy] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -35,7 +40,12 @@ export function LocalRelayRecovery({ jobId, onQueued }: { jobId: string; onQueue
     setLoading(true);
     setError(null);
     try {
-      setDevices((await listRelayDevices()) as Device[]);
+      const nextDevices = (await listRelayDevices()) as Device[];
+      setDevices(nextDevices);
+      if (nextDevices.some((device) => device.status === "active")) {
+        setPairing(null);
+        window.sessionStorage.removeItem(pairingStorageKey(jobId));
+      }
     } catch (cause) {
       setError(userFacingError(cause, "Paired devices could not be loaded."));
     } finally {
@@ -44,12 +54,12 @@ export function LocalRelayRecovery({ jobId, onQueued }: { jobId: string; onQueue
   };
 
   const copyPairingCommand = async () => {
-    if (!pairingToken) return;
+    if (!pairing) return;
     try {
       const server =
         typeof window === "undefined" ? "https://vidrial.vercel.app" : window.location.origin;
       await navigator.clipboard.writeText(
-        `vidrial-relay pair --server ${server} --token ${pairingToken}`,
+        `vidrial-relay pair --server ${server} --token ${pairing.token}`,
       );
       setCopied(true);
       toast.success("Setup command copied.");
@@ -60,15 +70,34 @@ export function LocalRelayRecovery({ jobId, onQueued }: { jobId: string; onQueue
   };
 
   useEffect(() => {
+    try {
+      const stored = window.sessionStorage.getItem(pairingStorageKey(jobId));
+      if (stored) {
+        const candidate = JSON.parse(stored) as PairingState;
+        if (
+          typeof candidate.token === "string" &&
+          typeof candidate.expiresAt === "string" &&
+          Date.parse(candidate.expiresAt) > Date.now()
+        ) {
+          setPairing(candidate);
+        } else {
+          window.sessionStorage.removeItem(pairingStorageKey(jobId));
+        }
+      }
+    } catch {
+      window.sessionStorage.removeItem(pairingStorageKey(jobId));
+    }
     void refresh();
-  }, []);
+  }, [jobId]);
 
   const pair = async () => {
     setBusy(true);
     setError(null);
     try {
       const result = await createRelayPairing({ data: { displayName: "This device" } });
-      setPairingToken(result.pairingToken);
+      const nextPairing = { token: result.pairingToken, expiresAt: result.expiresAt };
+      window.sessionStorage.setItem(pairingStorageKey(jobId), JSON.stringify(nextPairing));
+      setPairing(nextPairing);
     } catch (cause) {
       setError(userFacingError(cause, "A pairing token could not be created."));
     } finally {
@@ -187,12 +216,12 @@ export function LocalRelayRecovery({ jobId, onQueued }: { jobId: string; onQueue
           </div>
         )}
 
-        {pairingToken ? (
+        {pairing ? (
           <div className="mt-4 min-w-0 rounded-xl border border-ember/20 bg-ember/5 p-3 sm:p-4">
             <p className="text-xs font-semibold text-ink">Pairing code · expires in 10 minutes</p>
             <div className="mt-2 flex min-w-0 flex-col gap-2 sm:flex-row">
               <code className="min-w-0 flex-1 overflow-x-auto rounded-lg border border-line bg-surface-panel px-3 py-2.5 text-xs text-ink">
-                {pairingToken}
+                {pairing.token}
               </code>
               <Button
                 type="button"
