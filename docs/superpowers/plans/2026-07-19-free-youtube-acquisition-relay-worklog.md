@@ -38,3 +38,16 @@ Implemented the repository-side architecture for measured cloud acquisition, opt
 - Free Cobalt compute can cold-start and shares datacenter risk. Production operators should treat it as optional.
 - WARP registrations and free services have bandwidth/resource limits. Health-based graceful degradation is intentional.
 - Private, paid, DRM, age- and region-restricted media remains unsupported. Same-job original-source recovery is always retained.
+
+## Production verification — 2026-07-22
+
+- PR #5 was merged with a normal merge commit and deployed to Vercel and Render. Production reported `Worker egress: Healthy`, with protected WARP egress and YouTube reachability verified.
+- An authenticated 360px Chrome/Playwright pass had no horizontal overflow or console/page errors. The OAuth/download separation, truthful egress state, recommended free recovery path, privacy disclosure, and mobile recovery hierarchy were visible.
+- A first rights-attested production run acquired and FFprobe-validated a 30–90 second section of Blender's CC-BY *Tears of Steel* through WARP. It proved `sectionApplied=true` and a 6,615,559-byte partial payload, then exposed a strict Groq response-shape failure at transcription.
+- PR #6 updated the transcription boundary to request both word and segment timestamps, accept nullable/numeric provider variants, fall back safely from words to segments or bounded text, and classify malformed provider data as retryable. Worker verification increased to 82 passing tests, with typecheck and build passing.
+- The repeat production job requested only 45–65 seconds. One standard WARP attempt succeeded on pool member 0, `sectionApplied=true`, and the acquired payload was 2,842,348 bytes.
+- Every downstream task then succeeded on attempt 1: source validation, proxy creation, audio extraction, scene detection, audio chunking, Groq transcription, transcript merge, AI candidate planning, and preview rendering. The job reached `ready` with one `ready` clip.
+- Both production fixtures used disposable authenticated users with recorded rights attestations. Their database rows and generated Storage objects were removed after verification. PR comments contain the ephemeral job ID and event summary; no fixture credentials were retained.
+- Docker Compose smoke tests remain unclaimed because Docker was unavailable on the verification host. The equivalent deployed WARP/yt-dlp path was exercised successfully in production.
+
+The remaining operational risks are unchanged: WARP addresses can eventually be blocked, free-tier CPU makes FFmpeg proxy generation slow, and `YTDLP_PROXY_URL` remains the operator-controlled escape hatch for compliant dedicated egress.
