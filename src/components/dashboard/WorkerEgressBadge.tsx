@@ -21,9 +21,15 @@ const presentation = {
   },
   unknown: {
     Icon: CircleHelp,
-    label: "Checking",
-    className: "border-line bg-surface-sunken text-ink-mute",
+    label: "Unavailable",
+    className: "border-warning/30 bg-warning/10 text-warning",
   },
+} as const;
+
+const checkingPresentation = {
+  Icon: CircleHelp,
+  label: "Checking",
+  className: "border-line bg-surface-sunken text-ink-mute",
 } as const;
 
 const initialHealth: WorkerEgressHealth = {
@@ -35,32 +41,39 @@ const initialHealth: WorkerEgressHealth = {
 
 export function WorkerEgressBadge({ health }: { health?: WorkerEgressHealth }) {
   const [current, setCurrent] = useState(health ?? initialHealth);
+  const [checking, setChecking] = useState(!health);
 
   useEffect(() => {
     if (health) {
       setCurrent(health);
+      setChecking(false);
       return;
     }
     let active = true;
     void getWorkerEgressHealth()
       .then((result) => {
-        if (active) setCurrent(result);
+        if (active) {
+          setCurrent(result);
+          setChecking(false);
+        }
       })
       .catch(() => {
-        if (active)
+        if (active) {
           setCurrent({
             checkedAt: null,
             message: "The worker health check could not be reached.",
             status: "blocked",
             tier: "none",
           });
+          setChecking(false);
+        }
       });
     return () => {
       active = false;
     };
   }, [health]);
 
-  const state = presentation[current.status];
+  const state = checking ? checkingPresentation : presentation[current.status];
   return (
     <div
       role="status"
