@@ -65,7 +65,10 @@ export function deriveJobStages(
   const hasCompletedWork = tasks.some((task) => task.status === "succeeded");
 
   return displayStages.map((stage) => {
-    if (stage.id === "awaiting_source" && job.status === "awaiting_authorised_source") {
+    if (
+      stage.id === "awaiting_source" &&
+      ["awaiting_authorised_source", "awaiting_local_relay"].includes(job.status)
+    ) {
       return { ...stage, state: "retrying" };
     }
     if (stage.id === "queued") {
@@ -119,6 +122,8 @@ export function getJobStatusPresentation(status: string): {
       active: false,
     };
   if (status === "retry_wait") return { label: "Retrying", tone: "warning", active: true };
+  if (status === "awaiting_local_relay")
+    return { label: "Waiting for helper", tone: "warning", active: true };
   if (
     ["draft", "awaiting_source", "awaiting_authorised_source", "uploading", "queued"].includes(
       status,

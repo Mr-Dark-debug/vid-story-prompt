@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { readdir, stat } from "node:fs/promises";
+import { mkdir, readdir, stat } from "node:fs/promises";
 import { join } from "node:path";
 import { execa } from "execa";
 import { z } from "zod";
@@ -10,12 +10,16 @@ import { TaskFailure, type ClipTask, type TaskResult } from "../domain/types.js"
 import { createProxy, extractSpeechAudio, renderClip } from "../media/ffmpeg.js";
 import { probeMedia } from "../media/probe.js";
 import { downloadDirectMedia } from "../security/direct-download.js";
+import { getHealthyWarpMembers } from "../security/acquisition-runtime.js";
+import { cobaltClient } from "../security/cobalt-download.js";
+import { acquireYouTubeSource } from "../security/youtube-acquisition.js";
 import {
   downloadYouTubeMedia,
   readYouTubeSourceSection,
   selectYouTubeDownloadStrategy,
 } from "../security/youtube-download.js";
 import { scanLocalFile } from "../security/virus-scan.js";
+import type { YouTubeProxySelection } from "../security/youtube-proxy.js";
 import { downloadAsset, supabase, uploadAsset } from "../storage/client.js";
 import { mergeTranscriptChunks } from "../transcription/merge.js";
 import { transcribeWithFallback } from "../transcription/providers.js";
@@ -31,6 +35,11 @@ import { renderExport } from "./export.js";
 import { deleteExpiredAssets } from "./cleanup.js";
 import { renderBatchExport } from "./batch-export.js";
 import { publishYouTubeVideo } from "./youtube-publish.js";
+import {
+  finishAcquisitionAttempt,
+  loadPriorAcquisitionAttempts,
+  recordAcquisitionAttempt,
+} from "./source-acquisition-repository.js";
 
 const uuid = z.string().uuid();
 async function insertAsset(
@@ -349,19 +358,60 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
           }
         });
     }, 2_000);
-    let downloaded: Awaited<ReturnType<typeof downloadYouTubeMedia>>;
+    let downloaded: Awaited<ReturnType<typeof acquireYouTubeSource>>;
     try {
-      downloaded = await downloadYouTubeMedia(
-        videoId,
-        directory,
-        Number(job.source_duration_seconds),
-        downloadSignal,
-        selectYouTubeDownloadStrategy(task.attempt, Boolean(env.YTDLP_POT_PROVIDER_URL)),
-        {
-          forceProxy: task.input_json.forceProxy === true,
-          section: readYouTubeSourceSection(task.input_json),
+      const priorAttempts = await loadPriorAcquisitionAttempts(task.id);
+      const section = readYouTubeSourceSection(task.input_json);
+      downloaded = await acquireYouTubeSource({
+        cancelled: () => cancellation.signal.aborted,
+        cobaltEnabled: Boolean(env.COBALT_API_URL),
+        downloadCobalt: async () => {
+          const attemptDirectory = join(
+            directory,
+            `acquisition-cobalt-${priorAttempts.length + 1}`,
+          );
+          await mkdir(attemptDirectory, { recursive: true });
+          return cobaltClient.download({
+            apiKey: env.COBALT_API_KEY,
+            apiUrl: env.COBALT_API_URL!,
+            directory: attemptDirectory,
+            maximumDurationSeconds: Number(job.source_duration_seconds),
+            section,
+            signal: downloadSignal,
+            timeoutMs: env.COBALT_REQUEST_TIMEOUT_MS,
+            videoId,
+          });
         },
-      );
+        downloadYtdlp: async (planned) => {
+          const attemptDirectory = join(
+            directory,
+            `acquisition-${planned.sourceTier}-${planned.poolMemberIndex ?? "single"}-${planned.strategy}`,
+          );
+          await mkdir(attemptDirectory, { recursive: true });
+          const proxy: YouTubeProxySelection =
+            planned.sourceTier === "operator_proxy"
+              ? { tier: "operator", url: planned.proxyUrl }
+              : planned.sourceTier === "warp"
+                ? { tier: "warp", url: planned.proxyUrl }
+                : { tier: "direct" };
+          return downloadYouTubeMedia(
+            videoId,
+            attemptDirectory,
+            Number(job.source_duration_seconds),
+            downloadSignal,
+            planned.strategy ??
+              selectYouTubeDownloadStrategy(task.attempt, Boolean(env.YTDLP_POT_PROVIDER_URL)),
+            { proxy, section },
+          );
+        },
+        finishAttempt: finishAcquisitionAttempt,
+        operatorProxyUrl: env.YTDLP_PROXY_URL,
+        potProviderConfigured: Boolean(env.YTDLP_POT_PROVIDER_URL),
+        previous: priorAttempts,
+        production: process.env.NODE_ENV === "production",
+        recordAttempt: (planned, ordinal) => recordAcquisitionAttempt(task.id, planned, ordinal),
+        warpMembers: getHealthyWarpMembers(),
+      });
     } catch (error) {
       if (cancellation.signal.aborted) {
         throw new TaskFailure("cancelled", "The YouTube acquisition job was cancelled.", false);
@@ -385,7 +435,14 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
       mime: "application/octet-stream",
       size: downloaded.bytes,
       checksum,
-      metadata: { ...info, virusScan, youtubeVideoId: videoId, format: downloaded.format },
+      metadata: {
+        ...info,
+        virusScan,
+        youtubeVideoId: videoId,
+        format: downloaded.format,
+        sourceTier: downloaded.sourceTier,
+        poolMemberIndex: downloaded.poolMemberIndex,
+      },
     });
     await attachYouTubeAsset(job, task, assetId, videoId);
     return {
@@ -395,10 +452,12 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
         bytes: downloaded.bytes,
         format: downloaded.format,
         proxyTier: downloaded.proxyTier,
+        sourceTier: downloaded.sourceTier,
+        poolMemberIndex: downloaded.poolMemberIndex,
         sectionApplied: downloaded.sectionApplied,
       },
       jobStatus: "validating",
-      message: `YouTube media acquired through ${downloaded.proxyTier === "direct" ? "direct egress" : "protected egress"} and isolated.`,
+      message: `YouTube media acquired through ${downloaded.sourceTier === "cobalt" ? "the optional source adapter" : downloaded.proxyTier === "direct" ? "direct egress" : "protected egress"} and isolated.`,
       children: [
         { taskType: "validate_source", input: {}, idempotencyKey: `${job.id}:validate-yt` },
       ],

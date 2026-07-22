@@ -1,0 +1,31 @@
+services:
+  - type: web
+    name: vidrial-cobalt
+    runtime: docker
+    plan: free
+    region: frankfurt
+    dockerfilePath: ./services/cobalt/Dockerfile
+    dockerContext: ./services/cobalt
+    healthCheckPath: /
+    envVars:
+      - key: API_URL
+        fromService:
+          type: web
+          name: vidrial-cobalt
+          envVarKey: RENDER_EXTERNAL_URL
+      - key: API_PORT
+        value: "9000"
+      - key: API_LISTEN_ADDRESS
+        value: 0.0.0.0
+      - key: COBALT_API_KEY
+        sync: false
+      - key: CORS_WILDCARD
+        value: "0"
+      - key: CORS_URL
+        value: https://vidrial.vercel.app
+      - key: DURATION_LIMIT
+        value: "21600"
+      - key: RATELIMIT_MAX
+        value: "20"
+      - key: TUNNEL_RATELIMIT_MAX
+        value: "40"

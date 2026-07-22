@@ -8,12 +8,22 @@ export type WorkerEgressHealth = {
   message: string;
   status: "healthy" | "degraded" | "blocked" | "unknown";
   tier: "protected" | "operator" | "direct" | "none";
+  configuredMembers?: number;
+  healthyMembers?: number;
+  uniqueEgressMembers?: number;
+  cobaltEnabled?: boolean;
+  localRelayEnabled?: boolean;
 };
 
 type WorkerProxyHealthResponse = {
   checked_at?: unknown;
   proxy_tier?: unknown;
   status?: unknown;
+  configured_members?: unknown;
+  healthy_members?: unknown;
+  unique_egress_members?: unknown;
+  cobalt_enabled?: unknown;
+  local_relay_enabled?: unknown;
 };
 
 export function mapWorkerProxyHealth(input: WorkerProxyHealthResponse): WorkerEgressHealth {
@@ -45,6 +55,17 @@ export function mapWorkerProxyHealth(input: WorkerProxyHealthResponse): WorkerEg
     message,
     status,
     tier,
+    ...(typeof input.configured_members === "number"
+      ? { configuredMembers: input.configured_members }
+      : {}),
+    ...(typeof input.healthy_members === "number" ? { healthyMembers: input.healthy_members } : {}),
+    ...(typeof input.unique_egress_members === "number"
+      ? { uniqueEgressMembers: input.unique_egress_members }
+      : {}),
+    ...(typeof input.cobalt_enabled === "boolean" ? { cobaltEnabled: input.cobalt_enabled } : {}),
+    ...(typeof input.local_relay_enabled === "boolean"
+      ? { localRelayEnabled: input.local_relay_enabled }
+      : {}),
   };
 }
 

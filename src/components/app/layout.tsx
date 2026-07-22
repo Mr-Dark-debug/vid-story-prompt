@@ -75,10 +75,17 @@ export function AppLayout() {
     void getAccountPreferences()
       .then((preferences) => {
         if (!active) return;
-        const notifyOnce = (key: string, message: string) => {
-          if (seenNotifications.current.has(key)) return;
+        const notifyOnce = (
+          key: string,
+          message: string,
+          kind: "success" | "info" | "warning" = "success",
+        ) => {
+          const durableKey = `vidrial-notification:${key}`;
+          if (seenNotifications.current.has(key) || window.sessionStorage.getItem(durableKey))
+            return;
           seenNotifications.current.add(key);
-          toast.success(message);
+          window.sessionStorage.setItem(durableKey, "1");
+          toast[kind](message);
         };
         channel = getSupabaseBrowserClient()
           .channel(`workspace-notifications-${user.id}`)
@@ -106,12 +113,56 @@ export function AppLayout() {
             },
             (payload) => {
               const item = payload.new as { id?: string; status?: string };
+              if (item.id && item.status === "awaiting_authorised_source") {
+                notifyOnce(
+                  `job-source-${item.id}`,
+                  "YouTube cloud acquisition stopped. Continue with the free local helper or attach an original source.",
+                  "warning",
+                );
+              }
+              if (item.id && item.status === "awaiting_local_relay") {
+                notifyOnce(
+                  `job-relay-${item.id}`,
+                  "Local acquisition is queued. Keep the paired helper online.",
+                  "info",
+                );
+              }
               if (
                 preferences.notifications.aiPlanComplete &&
                 item.id &&
                 ["ready", "completed"].includes(item.status ?? "")
               )
                 notifyOnce(`job-${item.id}`, "Your clip analysis is ready to review.");
+            },
+          )
+          .on(
+            "postgres_changes",
+            {
+              event: "UPDATE",
+              schema: "public",
+              table: "acquisition_relay_requests",
+              filter: `workspace_id=eq.${user.workspaceId}`,
+            },
+            (payload) => {
+              const item = payload.new as { id?: string; status?: string };
+              if (!item.id) return;
+              if (item.status === "uploading")
+                notifyOnce(
+                  `relay-upload-${item.id}`,
+                  "The local helper is uploading your source.",
+                  "info",
+                );
+              if (item.status === "completed")
+                notifyOnce(
+                  `relay-complete-${item.id}`,
+                  "Local source received. Worker validation has resumed.",
+                );
+              if (item.status === "failed")
+                notifyOnce(
+                  `relay-failed-${item.id}`,
+                  "Local acquisition stopped. Original-source upload is still available.",
+                  "warning",
+                );
             },
           )
           .subscribe();

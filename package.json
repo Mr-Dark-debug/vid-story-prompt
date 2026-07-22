@@ -20,7 +20,10 @@
     "supabase:reset": "supabase db reset",
     "supabase:types": "node scripts/generate-database-types.mjs",
     "worker:dev": "bun --cwd services/video-worker dev",
-    "worker:test": "bun --cwd services/video-worker test"
+    "worker:test": "bun --cwd services/video-worker test",
+    "helper:typecheck": "npm --prefix services/acquisition-helper run typecheck",
+    "helper:test": "npm --prefix services/acquisition-helper test",
+    "helper:build": "npm --prefix services/acquisition-helper run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

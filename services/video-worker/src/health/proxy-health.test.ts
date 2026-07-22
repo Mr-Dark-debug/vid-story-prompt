@@ -5,7 +5,8 @@ vi.hoisted(() => {
   process.env.SUPABASE_SERVICE_ROLE_KEY = "worker-test-service-role-key-long-enough";
 });
 
-import { parseCloudflareTrace, probeProxyHealth } from "./proxy-health.js";
+import { parseCloudflareTrace, probeProxyHealth, probeProxyPoolHealth } from "./proxy-health.js";
+import { parseProxyPool } from "../security/youtube-egress-pool.js";
 
 describe("proxy health", () => {
   it("parses the Cloudflare trace without logging it", () => {
@@ -69,5 +70,36 @@ describe("proxy health", () => {
     await expect(
       probeProxyHealth({ tier: "direct" }, { includeYtdlp: true, run }),
     ).resolves.toMatchObject({ status: "degraded", ytdlpReachable: true });
+  });
+
+  it("reports measured unique WARP capacity and keeps member URLs internal", async () => {
+    const members = parseProxyPool(
+      "http://user:secret@warp-a:8081,http://warp-b:8082,http://warp-c:8083",
+    );
+    const run = vi
+      .fn()
+      .mockResolvedValueOnce({ stdout: "ip=203.0.113.7\nwarp=on\n" })
+      .mockResolvedValueOnce({ stdout: "formats" })
+      .mockResolvedValueOnce({ stdout: "ip=203.0.113.7\nwarp=on\n" })
+      .mockResolvedValueOnce({ stdout: "formats" })
+      .mockRejectedValueOnce(new Error("connect refused"));
+    const health = await probeProxyPoolHealth(members, {
+      fingerprintKey: "fingerprint-key-that-is-long-enough",
+      includeYtdlp: true,
+      minimumUniqueMembers: 1,
+      run,
+    });
+    expect(health).toMatchObject({
+      configuredMembers: 3,
+      healthyMembers: 2,
+      uniqueEgressMembers: 1,
+      status: "healthy",
+    });
+    expect(health.uniqueMembers).toHaveLength(1);
+    expect(JSON.stringify({
+      configuredMembers: health.configuredMembers,
+      healthyMembers: health.healthyMembers,
+      uniqueEgressMembers: health.uniqueEgressMembers,
+    })).not.toMatch(/secret|warp-a|203\.0\.113/);
   });
 });

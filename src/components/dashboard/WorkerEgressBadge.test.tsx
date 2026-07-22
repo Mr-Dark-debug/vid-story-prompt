@@ -12,7 +12,7 @@ describe("WorkerEgressBadge", () => {
     ["healthy", "Healthy"],
     ["degraded", "Degraded"],
     ["blocked", "Blocked"],
-    ["unknown", "Checking"],
+    ["unknown", "Unavailable"],
   ] as const)("renders the %s state with text, not color alone", (status, label) => {
     render(
       <WorkerEgressBadge

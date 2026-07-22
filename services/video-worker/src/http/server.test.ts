@@ -15,6 +15,8 @@ async function start(ready = true) {
   const server = createWorkerHttpServer({
     getState: () => ({
       activeTask: false,
+      cobaltEnabled: true,
+      localRelayEnabled: true,
       potProviderConfigured: true,
       proxyHealth: {
         checkedAt: "2026-07-18T20:00:00.000Z",
@@ -25,6 +27,10 @@ async function start(ready = true) {
         tier: "warp",
         warpEnabled: true,
         ytdlpReachable: true,
+        configuredMembers: 3,
+        healthyMembers: 2,
+        uniqueEgressMembers: 1,
+        uniqueMembers: [],
       },
       ready,
     }),
@@ -74,7 +80,8 @@ describe("worker HTTP server", () => {
       headers: { authorization: "Bearer a-secure-worker-wake-secret" },
     });
     expect(response.status).toBe(200);
-    expect(await response.json()).toEqual({
+    const body = await response.json();
+    expect(body).toEqual({
       checked_at: "2026-07-18T20:00:00.000Z",
       egress_ip: "203.0.113.7",
       error_code: null,
@@ -83,6 +90,12 @@ describe("worker HTTP server", () => {
       status: "healthy",
       warp_enabled: true,
       ytdlp_reachable: true,
+      configured_members: 3,
+      healthy_members: 2,
+      unique_egress_members: 1,
+      cobalt_enabled: true,
+      local_relay_enabled: true,
     });
+    expect(JSON.stringify(body)).not.toMatch(/secret|warp-a/);
   });
 });

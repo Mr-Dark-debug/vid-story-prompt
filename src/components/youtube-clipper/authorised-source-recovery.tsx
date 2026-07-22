@@ -17,6 +17,7 @@ import {
 import { userFacingError } from "@/lib/user-facing-error";
 import { CloudAssetBrowser } from "./job-wizard";
 import { SourceUpload, type UploadedSource } from "./source-upload";
+import { LocalRelayRecovery } from "./local-relay-recovery";
 
 const RECOVERY_CONNECTOR_IDS = [
   "local_upload",
@@ -177,7 +178,7 @@ export function AuthorisedSourceRecovery({
     <section className="mt-5 rounded-2xl border border-warning/30 bg-warning/5 p-4 sm:p-5">
       <div className="flex items-start gap-3">
         <span className="grid h-10 w-10 shrink-0 place-items-center rounded-full bg-surface-panel text-warning shadow-sm">
-          <ShieldCheck className="h-5 w-5" />
+          <ShieldCheck aria-hidden className="h-5 w-5" />
         </span>
         <div>
           <h2 className="text-base font-semibold text-ink">Add the original source to continue</h2>
@@ -188,6 +189,8 @@ export function AuthorisedSourceRecovery({
           </p>
         </div>
       </div>
+
+      <LocalRelayRecovery jobId={jobId} onQueued={onResumed} />
 
       {errorCode === "source_match_confirmation_required" && sourceAssetId ? (
         <div className="mt-4 flex flex-col gap-3 rounded-xl border border-warning/30 bg-surface-panel p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -207,7 +210,15 @@ export function AuthorisedSourceRecovery({
         </div>
       ) : null}
 
-      <div className="mt-5">
+      <div className="mt-6 flex items-center gap-3" aria-hidden="true">
+        <span className="h-px flex-1 bg-line" />
+        <span className="text-[10px] font-semibold uppercase tracking-[.14em] text-ink-mute">
+          Or attach another authorised source
+        </span>
+        <span className="h-px flex-1 bg-line" />
+      </div>
+
+      <div className="mt-4">
         <SourcePicker
           value={connectorId}
           connectors={recoveryConnectors}

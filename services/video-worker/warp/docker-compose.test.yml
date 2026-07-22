@@ -4,7 +4,9 @@ services:
       context: .
       dockerfile: Dockerfile
     environment:
-      PORT: "8081"
+      PORT: "8090"
+      WARP_POOL_SIZE: "3"
+      WARP_POOL_BASE_PORT: "8080"
       WARP_START_TIMEOUT_SECONDS: "60"
     healthcheck:
       test: ["CMD", "/usr/local/bin/healthcheck.sh"]

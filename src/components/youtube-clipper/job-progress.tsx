@@ -21,6 +21,7 @@ import { getExportDownload } from "@/services/exports/server";
 import { deriveJobStages, type DisplayStageState } from "@/domain/clipping/job-progress";
 import { cn } from "@/lib/utils";
 import { StatusDialog } from "@/components/ui/status-dialog";
+import { ConfirmationDialog } from "@/components/ui/status-dialog";
 import { YouTubePublishPanel } from "./youtube-publish-panel";
 import { JobStatusBadge } from "./job-status-badge";
 import { AuthorisedSourceRecovery } from "./authorised-source-recovery";
@@ -59,6 +60,8 @@ export function JobProgress({
   const { job, events, clips, exports, tasks } = data;
   const [retrying, setRetrying] = useState(false);
   const [retryError, setRetryError] = useState<string | null>(null);
+  const [confirmCancel, setConfirmCancel] = useState(false);
+  const [cancelling, setCancelling] = useState(false);
   useEffect(() => {
     const channel = getSupabaseBrowserClient()
       .channel(`clip-job-${job.id}`)
@@ -97,7 +100,9 @@ export function JobProgress({
     retryableCodes.has(failedTask.error_code) &&
     failedTask.attempt < failedTask.max_attempts,
   );
-  const awaitingAuthorisedSource = job.status === "awaiting_authorised_source";
+  const awaitingAuthorisedSource = ["awaiting_authorised_source", "awaiting_local_relay"].includes(
+    job.status,
+  );
   const canForceProxy = Boolean(
     failedTask?.error_code &&
     ["provider_auth_challenge", "provider_rate_limited", "provider_temporary_failure"].includes(
@@ -110,7 +115,7 @@ export function JobProgress({
     failedTask?.error_code === "provider_rate_limited" ||
     failedTask?.error_code === "provider_temporary_failure" ||
     failedTask?.error_code === "video_restricted"
-      ? "YouTube blocked this request from the server's network. The worker retries through Cloudflare WARP when configured. If WARP is also blocked for this video, attach the authorised original below to continue this same job, or upload it from the Upload tab."
+      ? "YouTube blocked this request from the server's network. The worker tried each distinct Cloudflare WARP path and the optional source adapter. Continue asynchronously with the free local helper, or attach an authorised original below to resume this same job."
       : failedTask?.error_code === "video_private" ||
           failedTask?.error_code === "video_age_restricted" ||
           failedTask?.error_code === "video_unavailable"
@@ -146,30 +151,33 @@ export function JobProgress({
         </div>
         {!terminal && (
           <button
-            onClick={async () => {
-              await cancelClipJob({ data: { jobId: job.id } });
-              await router.invalidate();
-            }}
-            className="inline-flex items-center gap-2 self-start rounded-lg border border-line px-3 py-2 text-sm text-ink-soft"
+            type="button"
+            onClick={() => setConfirmCancel(true)}
+            className="inline-flex min-h-11 items-center gap-2 self-start rounded-lg border border-line px-3 py-2 text-sm text-ink-soft transition-colors hover:bg-surface-sunken focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
           >
-            <X className="h-4 w-4" />
+            <X aria-hidden className="h-4 w-4" />
             Cancel job
           </button>
         )}
       </div>
       <div className="mt-7 rounded-2xl border border-line bg-surface-panel p-5">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="flex flex-col gap-2.5 sm:flex-row sm:items-start sm:justify-between sm:gap-4">
+          <div className="flex min-w-0 items-center gap-2">
             {terminal ? (
-              <AlertTriangle className="h-5 w-5 text-danger" />
+              <AlertTriangle aria-hidden className="h-5 w-5 shrink-0 text-danger" />
+            ) : awaitingAuthorisedSource ? (
+              <AlertTriangle aria-hidden className="h-5 w-5 shrink-0 text-warning" />
             ) : ["ready", "partially_ready", "completed"].includes(job.status) ? (
-              <Check className="h-5 w-5 text-success" />
+              <Check aria-hidden className="h-5 w-5 shrink-0 text-success" />
             ) : (
-              <LoaderCircle className="h-5 w-5 animate-spin text-ember motion-reduce:animate-none" />
+              <LoaderCircle
+                aria-hidden
+                className="h-5 w-5 shrink-0 animate-spin text-ember motion-reduce:animate-none"
+              />
             )}
             <JobStatusBadge status={job.status} />
           </div>
-          <span className="text-xs text-ink-mute">
+          <span className="max-w-sm text-xs leading-5 text-ink-mute sm:text-right">
             Progress uses completed work, not estimated percentages
           </span>
         </div>
@@ -220,7 +228,7 @@ export function JobProgress({
                 {retrying ? "Queueing retry…" : "Retry failed task"}
               </button>
             )}
-            {canForceProxy ? (
+            {canForceProxy && !awaitingAuthorisedSource ? (
               <button
                 type="button"
                 disabled={retrying}
@@ -417,6 +425,29 @@ export function JobProgress({
         title="The task could not be retried"
         description={retryError ?? "Refresh the job and try again."}
         primaryAction={{ label: "Close" }}
+      />
+      <ConfirmationDialog
+        open={confirmCancel}
+        onOpenChange={setConfirmCancel}
+        destructive
+        busy={cancelling}
+        title="Cancel this clipping job?"
+        description="Processing will stop and unfinished work will not be resumed. Completed clips and retained source files keep their existing retention rules."
+        confirmLabel="Cancel job"
+        onConfirm={async () => {
+          setCancelling(true);
+          try {
+            await cancelClipJob({ data: { jobId: job.id } });
+            setConfirmCancel(false);
+            await router.invalidate();
+          } catch (cause) {
+            setRetryError(
+              cause instanceof Error ? cause.message : "The job could not be cancelled.",
+            );
+          } finally {
+            setCancelling(false);
+          }
+        }}
       />
     </div>
   );
