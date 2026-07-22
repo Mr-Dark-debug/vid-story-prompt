@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import {
   Check,
   ChevronDown,
@@ -36,7 +36,7 @@ export function LocalRelayRecovery({ jobId, onQueued }: { jobId: string; onQueue
   const [deviceToRevoke, setDeviceToRevoke] = useState<Device | null>(null);
   const [revoking, setRevoking] = useState(false);
 
-  const refresh = async () => {
+  const refresh = useCallback(async () => {
     setLoading(true);
     setError(null);
     try {
@@ -51,7 +51,7 @@ export function LocalRelayRecovery({ jobId, onQueued }: { jobId: string; onQueue
     } finally {
       setLoading(false);
     }
-  };
+  }, [jobId]);
 
   const copyPairingCommand = async () => {
     if (!pairing) return;
@@ -88,7 +88,7 @@ export function LocalRelayRecovery({ jobId, onQueued }: { jobId: string; onQueue
       window.sessionStorage.removeItem(pairingStorageKey(jobId));
     }
     void refresh();
-  }, [jobId]);
+  }, [jobId, refresh]);
 
   const pair = async () => {
     setBusy(true);
