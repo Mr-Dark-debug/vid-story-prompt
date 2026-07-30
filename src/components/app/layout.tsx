@@ -116,15 +116,8 @@ export function AppLayout() {
               if (item.id && item.status === "awaiting_authorised_source") {
                 notifyOnce(
                   `job-source-${item.id}`,
-                  "YouTube cloud acquisition stopped. Continue with the free local helper or attach an original source.",
+                  "YouTube acquisition stopped. Attach your original file or an owner-controlled source to continue.",
                   "warning",
-                );
-              }
-              if (item.id && item.status === "awaiting_local_relay") {
-                notifyOnce(
-                  `job-relay-${item.id}`,
-                  "Local acquisition is queued. Keep the paired helper online.",
-                  "info",
                 );
               }
               if (
@@ -138,30 +131,27 @@ export function AppLayout() {
           .on(
             "postgres_changes",
             {
-              event: "UPDATE",
+              event: "INSERT",
               schema: "public",
-              table: "acquisition_relay_requests",
-              filter: `workspace_id=eq.${user.workspaceId}`,
+              table: "processing_events",
             },
             (payload) => {
-              const item = payload.new as { id?: string; status?: string };
-              if (!item.id) return;
-              if (item.status === "uploading")
+              const item = payload.new as {
+                id?: string;
+                clip_job_id?: string;
+                stage?: string;
+              };
+              if (!item.id || !item.clip_job_id) return;
+              if (item.stage === "python_acquisition_accepted")
                 notifyOnce(
-                  `relay-upload-${item.id}`,
-                  "The local helper is uploading your source.",
+                  `python-acquisition-start-${item.clip_job_id}`,
+                  "Protected YouTube acquisition started.",
                   "info",
                 );
-              if (item.status === "completed")
+              if (item.stage === "python_acquisition_completed")
                 notifyOnce(
-                  `relay-complete-${item.id}`,
-                  "Local source received. Worker validation has resumed.",
-                );
-              if (item.status === "failed")
-                notifyOnce(
-                  `relay-failed-${item.id}`,
-                  "Local acquisition stopped. Original-source upload is still available.",
-                  "warning",
+                  `python-acquisition-complete-${item.clip_job_id}`,
+                  "YouTube source received securely. Media validation is continuing.",
                 );
             },
           )

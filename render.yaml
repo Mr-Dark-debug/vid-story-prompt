@@ -61,14 +61,18 @@ services:
         value: "15000"
       - key: YTDLP_STARTUP_PROBE
         value: "true"
+      - key: PYTHON_ACQUISITION_REQUIRED
+        value: "true"
+      - key: PYTHON_ACQUISITION_URL
+        value: http://127.0.0.1:8090
+      - key: PYTHON_ACQUISITION_PORT
+        value: "8090"
       - key: COBALT_API_URL
         sync: false
       - key: COBALT_API_KEY
         sync: false
       - key: COBALT_REQUEST_TIMEOUT_MS
         value: "90000"
-      - key: LOCAL_RELAY_ENABLED
-        value: "true"
       - key: FFMPEG_THREADS
         value: "1"
       - key: LOG_LEVEL

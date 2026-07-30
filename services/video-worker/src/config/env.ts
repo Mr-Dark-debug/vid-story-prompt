@@ -66,10 +66,15 @@ export const env = z
     ),
     COBALT_API_KEY: optionalSecret,
     COBALT_REQUEST_TIMEOUT_MS: z.coerce.number().int().min(5_000).max(300_000).default(45_000),
-    LOCAL_RELAY_ENABLED: z
+    PYTHON_ACQUISITION_URL: z.string().url().default("http://127.0.0.1:8090"),
+    PYTHON_ACQUISITION_PORT: z.coerce.number().int().min(1).max(65_535).default(8090),
+    PYTHON_ACQUISITION_TOKEN: optionalSecret,
+    VIDRIAL_ACQUISITION_WEBHOOK_SECRET: optionalSecret,
+    PYTHON_ACQUISITION_REQUIRED: z
       .enum(["true", "false"])
       .default("false")
       .transform((value) => value === "true"),
+    PYTHON_ACQUISITION_POLL_MS: z.coerce.number().int().min(100).max(5_000).default(500),
     GROQ_API_KEY: optionalSecret,
     GROQ_TRANSCRIPTION_MODEL: z.string().default("whisper-large-v3-turbo"),
     OPENAI_API_KEY: optionalSecret,

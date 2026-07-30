@@ -4,11 +4,11 @@
 
 Implemented handlers validate media, securely download direct sources, acquire rights-attested YouTube sources, build proxies, extract/chunk audio, transcribe with Groq/OpenAI fallback, merge overlap words, plan candidates through OpenRouter, deduplicate/select diverse moments, render previews/final exports, create SRT/VTT/ASS and delete expired assets.
 
-The image pins yt-dlp `2026.07.04` and verifies the upstream SHA-256 during its Docker build. `YTDLP_PATH` defaults to `yt-dlp` and `YTDLP_TIMEOUT_MS` defaults to ten minutes. The command builder explicitly enables the image's Node 22 runtime for yt-dlp's bundled YouTube challenge solver, disables cookies, config files, cache, playlists, live video, partial files and unbounded retries, and applies the global source-size bound plus the job's reserved-duration bound. The handler polls job cancellation while yt-dlp runs and cannot move a cancelled job back into validation.
+The image pins yt-dlp `2026.07.04` as both the verified CLI used by startup probes and the Python package used by the internal acquisition engine. `YTDLP_TIMEOUT_MS` defaults to ten minutes. The loopback FastAPI engine embeds `yt_dlp.YoutubeDL`, enables Node 22 for the bundled YouTube challenge solver, disables cookies, cache, playlists, live video, partial files and unbounded retries, and applies the global source-size bound plus the job's reserved-duration and plan-height bounds. The Node handler polls job cancellation, cancels the Python request, and cannot move a cancelled job back into validation.
 
 ## YouTube egress
 
-YouTube acquisition uses one server-only proxy selection for both yt-dlp's `--proxy` option and the subprocess `HTTP_PROXY`, `HTTPS_PROXY`, `ALL_PROXY`, and lowercase variables. Precedence is:
+YouTube acquisition passes one server-only proxy selection into the embedded Python yt-dlp options. Precedence is:
 
 1. `YTDLP_PROXY_URL` — operator override, including an approved authenticated proxy.
 2. `WARP_PROXY_URL` — explicit WARP HTTP proxy URL.
@@ -43,15 +43,20 @@ The precedence chain is:
 1. `YTDLP_PROXY_URL`, when the operator supplies a server-side override.
 2. Each healthy, unique WARP egress identity from `WARP_POOL_URLS` (or the embedded pool), across the existing bounded player-client strategies.
 3. One optional self-hosted Cobalt request when `COBALT_API_URL` is configured.
-4. The free paired local helper, explicitly started by the user after cloud exhaustion.
-5. Existing same-job authorised-source upload, connector import, or owner-controlled HTTPS URL recovery.
+4. Existing same-job authorised-source upload, connector import, or owner-controlled HTTPS URL recovery.
 
 Every network attempt is inserted into `source_acquisition_attempts` before it starts and finished with a sanitized result. `processing_events` exposes only the source tier, strategy, and pool member index—never proxy URLs, exact egress IPs, credentials, cookies, filenames, or raw provider stderr. Interrupted running attempts are superseded before planning resumes, so a task never repeats an identical `(egress identity, client strategy)` path.
 
-The WARP pool measures every registration through Cloudflare trace, HMAC-fingerprints the actual egress address, and deduplicates registrations that happen to receive the same address. The free Render Blueprint uses two embedded registrations to respect the free worker's process and memory limits. The standalone sidecar remains available for paid or self-hosted deployments. Pool failure leaves the worker ready for uploads, rendering, Cobalt, and local recovery, while `/health/proxy` accurately reports blocked egress; direct production download remains disabled.
+The WARP pool measures every registration through Cloudflare trace, HMAC-fingerprints the actual egress address, and deduplicates registrations that happen to receive the same address. The free Render Blueprint uses two embedded registrations to respect the free worker's process and memory limits. The standalone sidecar remains available for paid or self-hosted deployments. Pool failure leaves the worker ready for uploads, rendering, Cobalt, and authorised-source recovery, while `/health/proxy` accurately reports blocked egress; direct production download remains disabled.
 
 Cobalt is optional extractor diversity, not a guaranteed network bypass. The official image, API-key wrapper, AGPL notice, Compose contract test, and optional Render example live in `services/cobalt/`. The hosted `api.cobalt.tools` endpoint is not used. See the [current Cobalt API documentation](https://github.com/imputnet/cobalt/blob/main/docs/api.md) and [instance protection guide](https://github.com/imputnet/cobalt/blob/main/docs/protect-an-instance.md).
 
-The local helper lives in `services/acquisition-helper/`. It leases one device-scoped request, heartbeats, uses exact `--download-sections` bounds, uploads through a short-lived signed Storage URL, completes through an idempotent callback, and deletes temporary media. Default operation is cookie-free. An explicit `--cookies` path remains on the local device and is never sent to Vidrial. Cookies are full account credentials and authenticated acquisition can trigger account restrictions. Private, paid, DRM, region- and age-restricted content is unsupported.
+## Internal Python acquisition API
 
-Required web/server settings to enable the helper are `LOCAL_RELAY_ENABLED=true`, a dedicated 32+ character `LOCAL_RELAY_SIGNING_KEY`, `SUPABASE_SERVICE_ROLE_KEY`, and the canonical `PUBLIC_APP_URL`. Keep the signing key distinct from OAuth and connector encryption keys. The worker receives only the feature flag for sanitized health reporting; helper callbacks terminate at the app.
+`services/video-worker/python-acquisition` is packaged into the existing Render image and bound to `127.0.0.1:8090`. It is not a public downloader and is not deployed on Vercel. Vercel Functions are an unsuitable media plane because request/response bodies are limited and invocation lifetime is bounded; a separate free Render service would introduce another cold start and consume the same monthly free-instance pool.
+
+The Node worker submits an authenticated `POST /v1/downloads` and receives HTTP 202, then polls the status resource while maintaining the durable Supabase task heartbeat. Completed responses contain local artifact metadata, never media bytes. Node revalidates path containment, exact byte size, extension, malware/media properties, checksum and immutable Storage path before uploading directly to the private Supabase `source-media` bucket.
+
+FastAPI accepts only canonical video IDs, an allowlisted container, the server-derived 720p/1080p/2160p plan cap, bounded duration and optional exact source section. It writes only beneath `WORKER_TEMP_ROOT`. `start.sh` generates separate per-container API and webhook secrets when absent, waits for Python health, and fails container startup if the process cannot become healthy. Signed callbacks are raw-body verified, schema and size bounded, mapped to fixed product copy, and inserted through a replay-safe service-role RPC before Supabase Realtime updates the UI.
+
+The local-device relay and its pairing API were retired on 2026-07-30. Historical schema/status values remain readable for already-created rows, but no planner, route, UI, environment flag, or helper executable can create new relay requests.

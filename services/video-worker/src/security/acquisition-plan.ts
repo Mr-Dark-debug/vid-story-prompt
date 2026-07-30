@@ -27,7 +27,6 @@ export type PlannedAcquisitionAttempt = {
 type PlanInput = {
   cancelled: boolean;
   cobaltEnabled: boolean;
-  localRelayEnabled: boolean;
   operatorProxyUrl?: string;
   potProviderConfigured: boolean;
   previous: PriorAcquisitionAttempt[];
@@ -106,9 +105,6 @@ export function nextAcquisitionAttempt(input: PlanInput): PlannedAcquisitionAtte
 
   if (input.cobaltEnabled && !wasTried(input.previous, "cobalt")) {
     return { sourceTier: "cobalt" };
-  }
-  if (input.localRelayEnabled && !wasTried(input.previous, "local_relay")) {
-    return { sourceTier: "local_relay" };
   }
   return null;
 }

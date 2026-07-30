@@ -28,7 +28,6 @@ describe("YouTube acquisition planning", () => {
       nextAcquisitionAttempt({
         cancelled: false,
         cobaltEnabled: true,
-        localRelayEnabled: true,
         operatorProxyUrl: "http://operator:9000/",
         potProviderConfigured: false,
         previous: [],
@@ -43,7 +42,6 @@ describe("YouTube acquisition planning", () => {
       nextAcquisitionAttempt({
         cancelled: false,
         cobaltEnabled: false,
-        localRelayEnabled: false,
         potProviderConfigured: false,
         previous: [],
         production: true,
@@ -57,7 +55,6 @@ describe("YouTube acquisition planning", () => {
       nextAcquisitionAttempt({
         cancelled: false,
         cobaltEnabled: false,
-        localRelayEnabled: false,
         potProviderConfigured: false,
         previous: [],
         production: false,
@@ -71,7 +68,6 @@ describe("YouTube acquisition planning", () => {
       nextAcquisitionAttempt({
         cancelled: false,
         cobaltEnabled: false,
-        localRelayEnabled: false,
         potProviderConfigured: false,
         previous: [prior("warp", "standard", "fingerprint-a")],
         production: true,
@@ -84,32 +80,31 @@ describe("YouTube acquisition planning", () => {
     });
   });
 
-  it("tries Cobalt and then the local relay after cloud exhaustion", () => {
+  it("ends after Cobalt instead of requiring customer-side software", () => {
     const strategies = ["standard", "web-safari", "web-embedded", "android-vr"] as const;
     const exhaustedWarp = warpMembers.flatMap((member) =>
       strategies.map((strategy) => prior("warp", strategy, member.egressFingerprint)),
     );
-    const cobalt = nextAcquisitionAttempt({
-      cancelled: false,
-      cobaltEnabled: true,
-      localRelayEnabled: true,
-      potProviderConfigured: false,
-      previous: exhaustedWarp,
-      production: true,
-      warpMembers,
-    });
-    expect(cobalt).toMatchObject({ sourceTier: "cobalt" });
     expect(
       nextAcquisitionAttempt({
         cancelled: false,
         cobaltEnabled: true,
-        localRelayEnabled: true,
+        potProviderConfigured: false,
+        previous: exhaustedWarp,
+        production: true,
+        warpMembers,
+      }),
+    ).toMatchObject({ sourceTier: "cobalt" });
+    expect(
+      nextAcquisitionAttempt({
+        cancelled: false,
+        cobaltEnabled: true,
         potProviderConfigured: false,
         previous: [...exhaustedWarp, prior("cobalt")],
         production: true,
         warpMembers,
       }),
-    ).toMatchObject({ sourceTier: "local_relay" });
+    ).toBeNull();
   });
 
   it.each(["video_private", "video_age_restricted", "video_unavailable", "cancelled"])(
@@ -119,7 +114,6 @@ describe("YouTube acquisition planning", () => {
         nextAcquisitionAttempt({
           cancelled: terminalCode === "cancelled",
           cobaltEnabled: true,
-          localRelayEnabled: true,
           potProviderConfigured: false,
           previous: [],
           production: true,

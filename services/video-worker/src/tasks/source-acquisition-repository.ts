@@ -4,6 +4,7 @@ import type {
 } from "../security/acquisition-plan.js";
 import type { TaskFailure } from "../domain/types.js";
 import { supabase } from "../storage/client.js";
+import type { PythonAcquisitionWebhook } from "../http/python-acquisition-webhook.js";
 
 type AttemptRow = {
   id: string;
@@ -84,4 +85,25 @@ export async function finishAcquisitionAttempt(
     p_error_message: failure?.message.slice(0, 2000) ?? null,
   });
   if (error) throw error;
+}
+
+export async function recordPythonAcquisitionWebhook(
+  event: PythonAcquisitionWebhook,
+  copy: { message: string; severity: "info" | "warning" | "error" },
+) {
+  const rpc = supabase.rpc as unknown as (
+    name: string,
+    args: Record<string, unknown>,
+  ) => PromiseLike<{ data: unknown; error: { message: string } | null }>;
+  const { error } = await rpc("record_python_acquisition_callback", {
+    p_provider_event_id: event.event_id,
+    p_job_task_id: event.task_id,
+    p_clip_job_id: event.job_id,
+    p_stage: `python_acquisition_${event.state}`,
+    p_severity: copy.severity,
+    p_message: copy.message,
+    p_progress_current: event.progress_current ?? null,
+    p_progress_total: event.progress_total ?? null,
+  });
+  if (error) throw new Error(error.message);
 }
