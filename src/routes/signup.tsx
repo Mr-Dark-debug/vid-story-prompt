@@ -118,11 +118,12 @@ function SignupPage() {
           {turnstileSiteKey ? (
             <div className="mb-5">
               <p className="text-sm leading-relaxed text-ink-soft">
-                Complete this quick check before creating your account.
+                We run a private browser check to protect account creation. You will only be asked
+                to interact when Cloudflare needs confirmation.
               </p>
               <TurnstileWidget
                 action="signup"
-                appearance="always"
+                appearance="interaction-only"
                 siteKey={turnstileSiteKey}
                 resetKey={turnstileResetKey}
                 onToken={setTurnstileToken}

@@ -2,7 +2,7 @@ import { getRequestIP } from "@tanstack/react-start/server";
 import { z } from "zod";
 import { getServerEnv } from "@/config/env.server";
 
-export const turnstileActions = ["signup"] as const;
+export const turnstileActions = ["login", "signup"] as const;
 export type TurnstileAction = (typeof turnstileActions)[number];
 
 const turnstileResponseSchema = z.object({

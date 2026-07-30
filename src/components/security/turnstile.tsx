@@ -1,3 +1,4 @@
+import { LoaderCircle, ShieldCheck } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
 
@@ -9,12 +10,20 @@ type TurnstileApi = {
     options: {
       action: string;
       appearance: "always" | "execute" | "interaction-only";
+      "after-interactive-callback": () => void;
+      "before-interactive-callback": () => void;
       callback: (token: string) => void;
       "error-callback": (code?: string) => void;
       "expired-callback": () => void;
+      "refresh-expired": "auto";
+      "refresh-timeout": "auto";
+      retry: "auto";
+      "retry-interval": number;
       sitekey: string;
       size: "flexible";
       theme: "light";
+      "timeout-callback": () => void;
+      "unsupported-callback": () => void;
     },
   ) => string;
 };
@@ -60,21 +69,28 @@ function loadTurnstile() {
   scriptPromise = new Promise<TurnstileApi>((resolve, reject) => {
     const existing = document.querySelector<HTMLScriptElement>("script[data-vidrial-turnstile]");
     const script = existing ?? document.createElement("script");
-    const onLoad = () => {
-      if (window.turnstile) resolve(window.turnstile);
-      else {
-        scriptPromise = undefined;
-        script.remove();
-        reject(new Error("Turnstile did not load."));
-      }
+    const startedAt = Date.now();
+    let settled = false;
+    const finish = (callback: () => void) => {
+      if (settled) return;
+      settled = true;
+      callback();
     };
-    script.addEventListener("load", onLoad, { once: true });
+    const checkReady = () => {
+      if (window.turnstile) {
+        finish(() => resolve(window.turnstile as TurnstileApi));
+        return;
+      }
+      if (Date.now() - startedAt >= 10_000) {
+        finish(() => reject(new Error("Turnstile did not load.")));
+        return;
+      }
+      window.setTimeout(checkReady, 50);
+    };
     script.addEventListener(
       "error",
       () => {
-        scriptPromise = undefined;
-        script.remove();
-        reject(new Error("Turnstile could not load."));
+        finish(() => reject(new Error("Turnstile could not load.")));
       },
       { once: true },
     );
@@ -85,6 +101,11 @@ function loadTurnstile() {
       script.src = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit";
       document.head.append(script);
     }
+    checkReady();
+  }).catch((error) => {
+    scriptPromise = undefined;
+    document.querySelector<HTMLScriptElement>("script[data-vidrial-turnstile]")?.remove();
+    throw error;
   });
   return scriptPromise;
 }
@@ -96,16 +117,17 @@ export function TurnstileWidget({
   resetKey,
   siteKey,
 }: {
-  action: "signup";
+  action: "login" | "signup";
   appearance?: "always" | "interaction-only";
   onToken: (token: string | null) => void;
   resetKey: number;
   siteKey: string;
 }) {
   const container = useRef<HTMLDivElement>(null);
-  const automaticResetUsed = useRef(false);
   const [error, setError] = useState<string | null>(null);
+  const [interactive, setInteractive] = useState(false);
   const [loadAttempt, setLoadAttempt] = useState(0);
+  const [verified, setVerified] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -113,8 +135,8 @@ export function TurnstileWidget({
     let widgetId: string | undefined;
     onToken(null);
     setError(null);
-    automaticResetUsed.current = false;
-
+    setInteractive(false);
+    setVerified(false);
     void loadTurnstile()
       .then((turnstile) => {
         if (cancelled || !container.current) return;
@@ -122,26 +144,42 @@ export function TurnstileWidget({
         widgetId = turnstile.render(container.current, {
           action,
           appearance,
+          "after-interactive-callback": () => setInteractive(false),
+          "before-interactive-callback": () => setInteractive(true),
           callback: (token) => {
             setError(null);
+            setInteractive(false);
+            setVerified(true);
             onToken(token);
           },
           "error-callback": (code) => {
             const failure = classifyTurnstileClientError(code);
             onToken(null);
+            setVerified(false);
             setError(failure.message);
-            if (failure.retryable && !automaticResetUsed.current && widgetId) {
-              automaticResetUsed.current = true;
-              turnstile.reset(widgetId);
-            }
           },
           "expired-callback": () => {
             onToken(null);
-            setError("Security verification expired. Complete it again.");
+            setVerified(false);
+            setError("Security verification expired. Refreshing automatically...");
           },
+          "refresh-expired": "auto",
+          "refresh-timeout": "auto",
+          retry: "auto",
+          "retry-interval": 8_000,
           sitekey: siteKey,
           size: "flexible",
           theme: "light",
+          "timeout-callback": () => {
+            onToken(null);
+            setVerified(false);
+            setError("Security verification timed out. Refreshing automatically...");
+          },
+          "unsupported-callback": () => {
+            onToken(null);
+            setVerified(false);
+            setError("This browser cannot run the security check. Update it or try another browser.");
+          },
         });
       })
       .catch(() => {
@@ -155,14 +193,39 @@ export function TurnstileWidget({
     };
   }, [action, appearance, loadAttempt, onToken, resetKey, siteKey]);
 
+  const showChallenge = appearance === "always" || interactive;
+
   return (
-    <div className="mt-3 rounded-xl border border-line bg-surface-page p-3">
-      <p className="mb-2 text-xs font-medium text-ink-soft">Security verification</p>
+    <div
+      className={
+        showChallenge || error
+          ? "mt-3 min-w-0 rounded-xl border border-line bg-surface-page p-3"
+          : "mt-3 min-h-5"
+      }
+      data-testid="turnstile-verification"
+    >
+      {showChallenge ? (
+        <p className="mb-2 text-xs font-medium text-ink-soft">Security verification</p>
+      ) : null}
       <div
         ref={container}
         aria-label="Security verification"
-        className={appearance === "always" ? "min-h-[65px]" : undefined}
+        className="min-w-0 max-w-full overflow-hidden"
       />
+      {!showChallenge && !error ? (
+        <p
+          className="flex items-center gap-1.5 text-xs text-ink-mute"
+          role="status"
+          aria-live="polite"
+        >
+          {verified ? (
+            <ShieldCheck className="h-3.5 w-3.5 text-success" aria-hidden />
+          ) : (
+            <LoaderCircle className="h-3.5 w-3.5 animate-spin" aria-hidden />
+          )}
+          {verified ? "Browser security checked" : "Checking browser security..."}
+        </p>
+      ) : null}
       {error && (
         <div className="mt-2 flex flex-wrap items-center justify-between gap-2" role="alert">
           <p className="text-xs text-danger">{error}</p>

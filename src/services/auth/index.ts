@@ -15,7 +15,8 @@ export type SessionState = { user: User | null; isLoading: boolean };
 
 export const authService = {
   current: getCurrentSession,
-  login: (email: string, password: string) => login({ data: { email, password } }),
+  login: (email: string, password: string, turnstileToken?: string) =>
+    login({ data: { email, password, turnstileToken } }),
   signup: (
     email: string,
     password: string,

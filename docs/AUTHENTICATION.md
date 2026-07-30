@@ -59,7 +59,28 @@ GOOGLE_CLIENT_ID
 GOOGLE_CLIENT_SECRET
 GOOGLE_OAUTH_TOKEN_ENCRYPTION_KEY
 YOUTUBE_API_KEY
+TURNSTILE_SECRET_KEY
+TURNSTILE_ALLOWED_HOSTNAMES
 ```
+
+Browser-visible Turnstile configuration:
+
+```text
+VITE_TURNSTILE_SITE_KEY
+```
+
+Vidrial explicitly renders Cloudflare Turnstile in managed `interaction-only` mode on both log-in
+and sign-up. Normal visitors receive a token automatically and only see a small completed status;
+the challenge expands when Cloudflare requires interaction. Password and Google entry points stay
+disabled until a fresh token exists. Errors, timeouts, and five-minute token expiry clear the token
+and use Cloudflare's automatic retry/refresh behavior.
+
+The TanStack server validates every token with Cloudflare Siteverify before calling Supabase Auth.
+It also requires the exact `login` or `signup` action and an allowed hostname. Tokens are never
+logged or returned in application errors. Because a Turnstile token is single-use, do not also
+enable Supabase's native CAPTCHA verification for these same calls unless the integration is
+changed to let Supabase be the sole verifier; double verification will reject the already-consumed
+token.
 
 `GOOGLE_OAUTH_TOKEN_ENCRYPTION_KEY` must contain at least 32 random characters. Store all server-only values as encrypted hosting secrets. Never commit them or prefix them with `VITE_`.
 
