@@ -123,7 +123,7 @@ export function getJobStatusPresentation(status: string): {
     };
   if (status === "retry_wait") return { label: "Retrying", tone: "warning", active: true };
   if (status === "awaiting_local_relay")
-    return { label: "Waiting for helper", tone: "warning", active: true };
+    return { label: "Source needed", tone: "warning", active: false };
   if (
     ["draft", "awaiting_source", "awaiting_authorised_source", "uploading", "queued"].includes(
       status,

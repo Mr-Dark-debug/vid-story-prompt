@@ -33,8 +33,9 @@ describe("authorised source recovery", () => {
         onResumed={vi.fn()}
       />,
     );
-    expect(screen.getByText("Add the original source to continue")).toBeInTheDocument();
-    expect(screen.getByText(/existing usage reservation stay on this job/i)).toBeInTheDocument();
+    expect(screen.getByText("Use your original source")).toBeInTheDocument();
+    expect(screen.getByText(/usage reservation stay on this job/i)).toBeInTheDocument();
+    expect(screen.queryByText(/pair a device|continue on this device|local helper/i)).not.toBeInTheDocument();
     expect(screen.getByRole("checkbox")).not.toBeChecked();
     expect(screen.getByText("Upload control")).toBeInTheDocument();
   });

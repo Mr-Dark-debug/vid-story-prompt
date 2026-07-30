@@ -115,7 +115,7 @@ export function JobProgress({
     failedTask?.error_code === "provider_rate_limited" ||
     failedTask?.error_code === "provider_temporary_failure" ||
     failedTask?.error_code === "video_restricted"
-      ? "YouTube blocked this request from the server's network. The worker tried each distinct Cloudflare WARP path and the optional source adapter. Continue asynchronously with the free local helper, or attach an authorised original below to resume this same job."
+      ? "YouTube blocked this request from the server's network. The worker tried every protected Cloudflare WARP path and the optional source adapter. Attach an authorised original below to resume this same job without losing your clip settings."
       : failedTask?.error_code === "video_private" ||
           failedTask?.error_code === "video_age_restricted" ||
           failedTask?.error_code === "video_unavailable"

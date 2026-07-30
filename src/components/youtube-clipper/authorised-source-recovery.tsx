@@ -17,7 +17,6 @@ import {
 import { userFacingError } from "@/lib/user-facing-error";
 import { CloudAssetBrowser } from "./job-wizard";
 import { SourceUpload, type UploadedSource } from "./source-upload";
-import { LocalRelayRecovery } from "./local-relay-recovery";
 
 const RECOVERY_CONNECTOR_IDS = [
   "local_upload",
@@ -181,16 +180,14 @@ export function AuthorisedSourceRecovery({
           <ShieldCheck aria-hidden className="h-5 w-5" />
         </span>
         <div>
-          <h2 className="text-base font-semibold text-ink">Add the original source to continue</h2>
+          <h2 className="text-base font-semibold text-ink">Use your original source</h2>
           <p className="mt-1 max-w-2xl text-sm leading-6 text-ink-soft">
-            Automatic YouTube retrieval stopped. Attach the matching original file or an
-            owner-controlled media link here. Your clip settings, history, and existing usage
-            reservation stay on this job.
+            Every protected YouTube route was exhausted for this video. Upload the matching file,
+            paste an owner-controlled media link, or choose it from connected storage. Your clip
+            settings and usage reservation stay on this job.
           </p>
         </div>
       </div>
-
-      <LocalRelayRecovery jobId={jobId} onQueued={onResumed} />
 
       {errorCode === "source_match_confirmation_required" && sourceAssetId ? (
         <div className="mt-4 flex flex-col gap-3 rounded-xl border border-warning/30 bg-surface-panel p-4 sm:flex-row sm:items-center sm:justify-between">
@@ -213,7 +210,7 @@ export function AuthorisedSourceRecovery({
       <div className="mt-6 flex items-center gap-3" aria-hidden="true">
         <span className="h-px flex-1 bg-line" />
         <span className="text-[10px] font-semibold uppercase tracking-[.14em] text-ink-mute">
-          Or attach another authorised source
+          Choose an authorised source
         </span>
         <span className="h-px flex-1 bg-line" />
       </div>

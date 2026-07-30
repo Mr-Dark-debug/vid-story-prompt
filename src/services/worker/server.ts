@@ -12,7 +12,6 @@ export type WorkerEgressHealth = {
   healthyMembers?: number;
   uniqueEgressMembers?: number;
   cobaltEnabled?: boolean;
-  localRelayEnabled?: boolean;
 };
 
 type WorkerProxyHealthResponse = {
@@ -23,7 +22,6 @@ type WorkerProxyHealthResponse = {
   healthy_members?: unknown;
   unique_egress_members?: unknown;
   cobalt_enabled?: unknown;
-  local_relay_enabled?: unknown;
 };
 
 export function mapWorkerProxyHealth(input: WorkerProxyHealthResponse): WorkerEgressHealth {
@@ -63,9 +61,6 @@ export function mapWorkerProxyHealth(input: WorkerProxyHealthResponse): WorkerEg
       ? { uniqueEgressMembers: input.unique_egress_members }
       : {}),
     ...(typeof input.cobalt_enabled === "boolean" ? { cobaltEnabled: input.cobalt_enabled } : {}),
-    ...(typeof input.local_relay_enabled === "boolean"
-      ? { localRelayEnabled: input.local_relay_enabled }
-      : {}),
   };
 }
 

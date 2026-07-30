@@ -47,8 +47,9 @@ describe("clipping job progress", () => {
       tone: "info",
     });
     expect(getJobStatusPresentation("awaiting_local_relay")).toMatchObject({
-      label: "Waiting for helper",
+      label: "Source needed",
       tone: "warning",
+      active: false,
     });
   });
 
@@ -66,7 +67,7 @@ describe("clipping job progress", () => {
     expect(resumed.find((stage) => stage.id === "validating")?.state).toBe("pending");
   });
 
-  it("keeps source acquisition active while a local relay device is needed", () => {
+  it("keeps historical relay jobs recoverable through authorised source attachment", () => {
     const stages = deriveJobStages({ status: "awaiting_local_relay" }, [
       task("download_youtube_source", "dead_lettered"),
     ]);
