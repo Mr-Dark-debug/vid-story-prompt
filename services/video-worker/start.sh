@@ -3,10 +3,11 @@ set -eu
 
 pot_pid=""
 warp_pids=""
+python_pid=""
 worker_pid=""
 
 stop_children() {
-  for pid in "$worker_pid" $warp_pids "$pot_pid"; do
+  for pid in "$worker_pid" "$python_pid" $warp_pids "$pot_pid"; do
     if [ -n "$pid" ]; then
       kill "$pid" 2>/dev/null || true
     fi
@@ -17,6 +18,38 @@ trap stop_children EXIT INT TERM
 
 node /opt/bgutil-ytdlp-pot-provider/server/build/main.js --port 4416 &
 pot_pid=$!
+
+if [ -z "${PYTHON_ACQUISITION_TOKEN:-}" ]; then
+  PYTHON_ACQUISITION_TOKEN="$(python3 -c 'import secrets; print(secrets.token_urlsafe(32))')"
+  export PYTHON_ACQUISITION_TOKEN
+fi
+if [ -z "${VIDRIAL_ACQUISITION_WEBHOOK_SECRET:-}" ]; then
+  VIDRIAL_ACQUISITION_WEBHOOK_SECRET="$(python3 -c 'import secrets; print(secrets.token_urlsafe(32))')"
+  export VIDRIAL_ACQUISITION_WEBHOOK_SECRET
+fi
+export VIDRIAL_ACQUISITION_WEBHOOK_URL="${VIDRIAL_ACQUISITION_WEBHOOK_URL:-http://127.0.0.1:${PORT:-8080}/internal/python-acquisition/webhook}"
+
+python3 -m uvicorn app.main:app \
+  --app-dir /opt/vidrial-python-acquisition \
+  --host 127.0.0.1 \
+  --port "${PYTHON_ACQUISITION_PORT:-8090}" \
+  --no-access-log &
+python_pid=$!
+
+elapsed=0
+until curl -fsS --max-time 2 "${PYTHON_ACQUISITION_URL:-http://127.0.0.1:8090}/healthz" >/dev/null; do
+  if ! kill -0 "$python_pid" 2>/dev/null; then
+    echo "python_acquisition=failed reason=process_exited" >&2
+    exit 1
+  fi
+  if [ "$elapsed" -ge 30 ]; then
+    echo "python_acquisition=failed reason=start_timeout" >&2
+    exit 1
+  fi
+  sleep 1
+  elapsed=$((elapsed + 1))
+done
+echo "python_acquisition=ok"
 
 if [ "${ENABLE_EMBEDDED_WARP:-false}" = "true" ] \
   && [ -z "${YTDLP_PROXY_URL:-}" ] \

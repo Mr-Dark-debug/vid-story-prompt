@@ -29,10 +29,13 @@ import {
 import { describeProxy, resolveYouTubeProxy } from "./security/youtube-proxy.js";
 import { parseProxyPool } from "./security/youtube-egress-pool.js";
 import { setHealthyWarpMembers } from "./security/acquisition-runtime.js";
+import { pythonAcquisitionEventCopy } from "./http/python-acquisition-webhook.js";
+import { recordPythonAcquisitionWebhook } from "./tasks/source-acquisition-repository.js";
 
 let stopping = false;
 let activeTask = false;
 let ready = false;
+let pythonAcquisitionReady = false;
 const proxySelection = resolveYouTubeProxy({
   production: process.env.NODE_ENV === "production",
   renderWarpHost: env.WARP_PROXY_HOST,
@@ -63,6 +66,18 @@ async function readiness() {
           if (!response.ok) throw new Error("PO-token provider readiness failed");
         }),
       );
+    }
+    if (env.PYTHON_ACQUISITION_REQUIRED) {
+      checks.push(
+        fetch(`${env.PYTHON_ACQUISITION_URL.replace(/\/$/, "")}/healthz`, {
+          signal: AbortSignal.timeout(5_000),
+        }).then((response) => {
+          if (!response.ok) throw new Error("Python acquisition readiness failed");
+          pythonAcquisitionReady = true;
+        }),
+      );
+    } else {
+      pythonAcquisitionReady = false;
     }
     await Promise.all(checks);
     const includeYtdlp =
@@ -101,6 +116,7 @@ async function readiness() {
     ready = true;
   } catch (error) {
     ready = false;
+    pythonAcquisitionReady = false;
     logger.error({ error }, "Worker readiness failed");
   }
 }
@@ -109,12 +125,15 @@ createWorkerHttpServer({
   getState: () => ({
     activeTask,
     cobaltEnabled: Boolean(env.COBALT_API_URL),
-    localRelayEnabled: env.LOCAL_RELAY_ENABLED,
     potProviderConfigured: Boolean(env.YTDLP_POT_PROVIDER_URL),
+    pythonAcquisitionReady,
     proxyHealth,
     ready,
   }),
   revision: process.env.RENDER_GIT_COMMIT?.slice(0, 7) ?? "local",
+  onPythonAcquisitionWebhook: (event) =>
+    recordPythonAcquisitionWebhook(event, pythonAcquisitionEventCopy[event.state]),
+  pythonWebhookSecret: env.VIDRIAL_ACQUISITION_WEBHOOK_SECRET,
   wakeSecret: env.WORKER_WAKE_SECRET,
   workerId: env.WORKER_ID,
 }).listen(env.PORT, "0.0.0.0", () =>

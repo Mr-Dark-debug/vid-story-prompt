@@ -29,20 +29,26 @@ RUN apk add --no-cache git \
 FROM node:22-bookworm-slim
 ARG YTDLP_VERSION=2026.07.04
 ARG YTDLP_SHA256=495be29ff4d9d4e9be7eabdfef225221e5d5282e77f2f505abc6dca80349f3fd
-RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg ca-certificates fonts-liberation python3 curl tini && rm -rf /var/lib/apt/lists/* \
+RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg ca-certificates fonts-liberation python3 python3-pip curl tini && rm -rf /var/lib/apt/lists/* \
     && curl -fsSL "https://github.com/yt-dlp/yt-dlp/releases/download/${YTDLP_VERSION}/yt-dlp" -o /usr/local/bin/yt-dlp \
     && echo "${YTDLP_SHA256}  /usr/local/bin/yt-dlp" | sha256sum -c - \
     && chmod +x /usr/local/bin/yt-dlp
+COPY python-acquisition/requirements.txt /tmp/python-acquisition-requirements.txt
+RUN python3 -m pip install --break-system-packages --no-cache-dir -r /tmp/python-acquisition-requirements.txt \
+    && rm /tmp/python-acquisition-requirements.txt
 WORKDIR /worker
 ENV NODE_ENV=production FFMPEG_PATH=ffmpeg FFPROBE_PATH=ffprobe WORKER_TEMP_ROOT=/tmp/vidrial \
     YTDLP_POT_PROVIDER_URL=http://127.0.0.1:4416 ENABLE_EMBEDDED_WARP=true \
-    EMBEDDED_WARP_PROXY_PORT=8080 EMBEDDED_WARP_START_TIMEOUT_SECONDS=60
+    EMBEDDED_WARP_PROXY_PORT=8080 EMBEDDED_WARP_START_TIMEOUT_SECONDS=60 \
+    PYTHON_ACQUISITION_REQUIRED=true PYTHON_ACQUISITION_URL=http://127.0.0.1:8090 \
+    PYTHON_ACQUISITION_PORT=8090 VIDRIAL_ACQUISITION_ROOT=/tmp/vidrial
 COPY --from=build /worker/package.json ./
 COPY --from=build /worker/node_modules ./node_modules
 COPY --from=build /worker/dist ./dist
 COPY --from=pot-provider /provider/server /opt/bgutil-ytdlp-pot-provider/server
 COPY --from=pot-provider /provider/plugin/yt_dlp_plugins /etc/yt-dlp/plugins/bgutil/yt_dlp_plugins
 COPY --from=warp-builder /out/warp /usr/local/bin/warp
+COPY python-acquisition/app /opt/vidrial-python-acquisition/app
 COPY warp/THIRD_PARTY_NOTICES.md /usr/share/licenses/vidrial-warp/THIRD_PARTY_NOTICES.md
 COPY start.sh /usr/local/bin/vidrial-worker-start
 RUN chmod 0755 /usr/local/bin/vidrial-worker-start

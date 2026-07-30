@@ -1,4 +1,6 @@
 import { afterEach, describe, expect, it } from "vitest";
+import { createHmac } from "node:crypto";
+import type { PythonAcquisitionWebhook } from "./python-acquisition-webhook.js";
 import { createWorkerHttpServer } from "./server.js";
 
 const servers: ReturnType<typeof createWorkerHttpServer>[] = [];
@@ -11,13 +13,19 @@ afterEach(async () => {
   );
 });
 
-async function start(ready = true) {
+async function start(
+  ready = true,
+  webhook?: {
+    secret: string;
+    handler: (event: PythonAcquisitionWebhook) => Promise<void>;
+  },
+) {
   const server = createWorkerHttpServer({
     getState: () => ({
       activeTask: false,
       cobaltEnabled: true,
-      localRelayEnabled: true,
       potProviderConfigured: true,
+      pythonAcquisitionReady: true,
       proxyHealth: {
         checkedAt: "2026-07-18T20:00:00.000Z",
         egressIp: "203.0.113.7",
@@ -35,6 +43,8 @@ async function start(ready = true) {
       ready,
     }),
     revision: "test-revision",
+    onPythonAcquisitionWebhook: webhook?.handler,
+    pythonWebhookSecret: webhook?.secret,
     wakeSecret: "a-secure-worker-wake-secret",
     workerId: "worker-test",
   });
@@ -53,6 +63,7 @@ describe("worker HTTP server", () => {
     expect(await health.json()).toEqual({
       activeTask: false,
       potProviderConfigured: true,
+      pythonAcquisitionReady: true,
       revision: "test-revision",
       status: "ok",
       workerId: "worker-test",
@@ -87,6 +98,7 @@ describe("worker HTTP server", () => {
       error_code: null,
       proxy_reachable: true,
       proxy_tier: "warp",
+      python_acquisition_ready: true,
       status: "healthy",
       warp_enabled: true,
       ytdlp_reachable: true,
@@ -94,8 +106,52 @@ describe("worker HTTP server", () => {
       healthy_members: 2,
       unique_egress_members: 1,
       cobalt_enabled: true,
-      local_relay_enabled: true,
     });
     expect(JSON.stringify(body)).not.toMatch(/secret|warp-a/);
+  });
+
+  it("accepts only signed, bounded Python acquisition callbacks", async () => {
+    const received: PythonAcquisitionWebhook[] = [];
+    const secret = "python-webhook-test-secret-with-32-characters";
+    const origin = await start(true, {
+      secret,
+      handler: async (event) => {
+        received.push(event);
+      },
+    });
+    const payload = {
+      event_id: "python_request_123456:completed:1",
+      request_id: "python_request_123456",
+      job_id: "11111111-1111-4111-8111-111111111111",
+      task_id: "22222222-2222-4222-8222-222222222222",
+      state: "completed",
+      progress_current: null,
+      progress_total: null,
+    };
+    const body = JSON.stringify(payload);
+    const signature = `sha256=${createHmac("sha256", secret).update(body).digest("hex")}`;
+    const accepted = await fetch(`${origin}/internal/python-acquisition/webhook`, {
+      method: "POST",
+      headers: { "content-type": "application/json", "x-vidrial-signature": signature },
+      body,
+    });
+    expect(accepted.status).toBe(202);
+    expect(received).toEqual([payload]);
+    expect(
+      (
+        await fetch(`${origin}/internal/python-acquisition/webhook`, {
+          method: "POST",
+          body,
+        })
+      ).status,
+    ).toBe(401);
+    expect(
+      (
+        await fetch(`${origin}/internal/python-acquisition/webhook`, {
+          method: "POST",
+          body: "x".repeat(16_385),
+        })
+      ).status,
+    ).toBe(413);
   });
 });

@@ -24,6 +24,7 @@ type AcquisitionRunnerInput = {
   downloadCobalt: () => Promise<Omit<AcquiredYouTubeSource, "sourceTier">>;
   downloadYtdlp: (
     attempt: PlannedAcquisitionAttempt,
+    persistedAttemptId: string,
   ) => Promise<Omit<AcquiredYouTubeSource, "sourceTier" | "poolMemberIndex">>;
   finishAttempt: (
     id: string,
@@ -75,7 +76,6 @@ export async function acquireYouTubeSource(
     const planned = nextAcquisitionAttempt({
       cancelled: false,
       cobaltEnabled: input.cobaltEnabled,
-      localRelayEnabled: false,
       operatorProxyUrl: input.operatorProxyUrl,
       potProviderConfigured: input.potProviderConfigured,
       previous,
@@ -85,14 +85,14 @@ export async function acquireYouTubeSource(
     if (!planned) {
       throw new TaskFailure(
         lastProviderFailure?.code ?? "provider_auth_challenge",
-        "YouTube blocked every configured cloud acquisition path. Continue this job with the local helper or attach an authorised original.",
+        "YouTube blocked every configured cloud acquisition path. Attach an authorised original file or owner-controlled source to continue this job.",
         false,
       );
     }
     if (planned.sourceTier === "local_relay") {
       throw new TaskFailure(
         "provider_auth_challenge",
-        "Cloud acquisition is exhausted and this job requires the local helper.",
+        "Cloud acquisition is exhausted. Attach an authorised original source to continue.",
         false,
       );
     }
@@ -102,7 +102,7 @@ export async function acquireYouTubeSource(
       const result =
         planned.sourceTier === "cobalt"
           ? await input.downloadCobalt()
-          : await input.downloadYtdlp(planned);
+          : await input.downloadYtdlp(planned, persisted.id);
       await input.finishAttempt(persisted.id, "succeeded");
       return {
         ...result,

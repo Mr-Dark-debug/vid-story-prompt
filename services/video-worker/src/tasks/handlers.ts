@@ -14,10 +14,10 @@ import { getHealthyWarpMembers } from "../security/acquisition-runtime.js";
 import { cobaltClient } from "../security/cobalt-download.js";
 import { acquireYouTubeSource } from "../security/youtube-acquisition.js";
 import {
-  downloadYouTubeMedia,
   readYouTubeSourceSection,
   selectYouTubeDownloadStrategy,
 } from "../security/youtube-download.js";
+import { downloadYouTubeWithPython } from "../security/python-acquisition-client.js";
 import { scanLocalFile } from "../security/virus-scan.js";
 import type { YouTubeProxySelection } from "../security/youtube-proxy.js";
 import { downloadAsset, supabase, uploadAsset } from "../storage/client.js";
@@ -245,7 +245,7 @@ async function assertYouTubeAcquisitionAllowed(job: Awaited<ReturnType<typeof ge
   }
   const { data: plan, error: planError } = await supabase
     .from("plans")
-    .select("active,max_source_seconds_per_job")
+    .select("active,max_source_seconds_per_job,max_export_height")
     .eq("key", profile.plan_key)
     .maybeSingle();
   if (planError) {
@@ -266,6 +266,15 @@ async function assertYouTubeAcquisitionAllowed(job: Awaited<ReturnType<typeof ge
       false,
     );
   }
+  const maximumHeight = Number(plan.max_export_height);
+  if (![720, 1080, 2160].includes(maximumHeight)) {
+    throw new TaskFailure(
+      "plan_unavailable",
+      "The workspace acquisition quality could not be verified.",
+      true,
+    );
+  }
+  return maximumHeight as 720 | 1080 | 2160;
 }
 
 async function attachYouTubeAsset(
@@ -310,7 +319,7 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
       .string()
       .regex(/^[A-Za-z0-9_-]{11}$/)
       .parse(task.input_json.videoId);
-    await assertYouTubeAcquisitionAllowed(job);
+    const maximumHeight = await assertYouTubeAcquisitionAllowed(job);
 
     if (job.source_asset_id) {
       await attachYouTubeAsset(job, task, job.source_asset_id, videoId);
@@ -382,7 +391,7 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
             videoId,
           });
         },
-        downloadYtdlp: async (planned) => {
+        downloadYtdlp: async (planned, persistedAttemptId) => {
           const attemptDirectory = join(
             directory,
             `acquisition-${planned.sourceTier}-${planned.poolMemberIndex ?? "single"}-${planned.strategy}`,
@@ -394,14 +403,23 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
               : planned.sourceTier === "warp"
                 ? { tier: "warp", url: planned.proxyUrl }
                 : { tier: "direct" };
-          return downloadYouTubeMedia(
-            videoId,
-            attemptDirectory,
-            Number(job.source_duration_seconds),
+          return downloadYouTubeWithPython(
+            {
+              requestId: `python_${persistedAttemptId.replaceAll("-", "")}`,
+              jobId: job.id,
+              taskId: task.id,
+              videoId,
+              directory: attemptDirectory,
+              maximumDurationSeconds: Number(job.source_duration_seconds),
+              maximumHeight,
+              outputFormat: "mp4",
+              strategy:
+                planned.strategy ??
+                selectYouTubeDownloadStrategy(task.attempt, Boolean(env.YTDLP_POT_PROVIDER_URL)),
+              proxy,
+              section,
+            },
             downloadSignal,
-            planned.strategy ??
-              selectYouTubeDownloadStrategy(task.attempt, Boolean(env.YTDLP_POT_PROVIDER_URL)),
-            { proxy, section },
           );
         },
         finishAttempt: finishAcquisitionAttempt,
