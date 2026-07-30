@@ -35,7 +35,12 @@ password or Google authentication attempt.
 - Real Cloudflare test widget: sign-in and sign-up both changed from checking to verified and enabled
   their actions without manual interaction.
 - 360x800 sign-in and sign-up: zero horizontal overflow; both pages visually inspected.
-- Production verification remains required after the Vercel deployment.
+- PR #9 merged normally as production revision `987d0bd`; Vercel deployment
+  `dpl_FPBFn8hQpuFxq8dAjcNYUrxEKi9q` reached `READY` and owns the canonical production aliases.
+- Unauthenticated production `/login` and `/signup` both returned HTTP 200 with the new managed
+  checking state, the expected route-specific copy, and no old forced-challenge copy.
+- The existing authenticated production session remained intact throughout verification; no user
+  session was cleared merely to re-run account creation.
 
 ## Separate production blocker
 
