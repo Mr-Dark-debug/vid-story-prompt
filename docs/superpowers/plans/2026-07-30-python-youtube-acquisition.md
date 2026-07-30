@@ -219,3 +219,35 @@ export type PythonAcquisitionInput = {
 - [ ] **Step 5: Merge with a normal merge commit, never force-push/rebase/amend/squash, and wait for Vercel and Render production revisions**
 - [ ] **Step 6: Submit a rights-attested 15–20 second clip from a previously blocked public test video; confirm Python accepted/downloading/completed events, plan-capped format, `source_tier=warp`, `sectionApplied=true`, ready preview, and downloadable output**
 - [ ] **Step 7: Audit logs for secrets/raw URLs, clean disposable fixtures in foreign-key-safe order, and append concrete production evidence**
+
+## Verification log — 2026-07-30
+
+### Completed
+
+- PR #8 merged to `main` with normal merge commit `2a16f49`; no history rewrite.
+- Vercel production deployment `dpl_DFLbVopMWW8ekAQuMf8VYo7aC49s` reached `READY` and serves
+  `vidrial.vercel.app`.
+- Production Supabase migration `20260730120000_python_acquisition_callbacks.sql` was applied and
+  confirmed in the linked migration list.
+- Python acquisition tests: 12 passed.
+- Worker tests: 85 passed; worker typecheck passed.
+- Application tests at the feature merge: 217 passed, 6 skipped; typecheck and build passed; lint
+  had zero errors and seven existing Fast Refresh warnings.
+- The authenticated production clipping wizard renders `Worker egress: Blocked`, has zero desktop
+  horizontal overflow, and reported no browser console errors. The outage is not silently treated as
+  healthy.
+
+### Production blocker — not claimed as success
+
+`https://vidrial-video-worker.onrender.com/healthz` currently returns Render's `Service Suspended`
+page, so the merged Docker revision cannot build or start and a production YouTube job cannot reach
+the Python process. Render's free-instance documentation says all free services can be suspended
+after the workspace exhausts 750 shared monthly instance hours or included outbound bandwidth, and
+that unusually high service-initiated traffic can require moving the service to a paid instance.
+YouTube download plus private-object upload is inherently service-initiated media traffic. Render
+also explicitly states that free instances are not for production applications.
+
+No `python_acquisition=ok`, protected-WARP health, `source_tier=warp`, `sectionApplied=true`, ready
+clip, or downloadable production artifact is claimed for this revision. Restoring the Render
+account/service or provisioning an authenticated alternative container runtime is required before
+Tasks 7.3, 7.6, and 7.7 can be completed.
