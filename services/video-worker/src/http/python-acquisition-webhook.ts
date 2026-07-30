@@ -49,4 +49,3 @@ export const pythonAcquisitionEventCopy: Record<
   failed: { severity: "warning", message: "This protected acquisition path was blocked; the worker will try the next configured path." },
   cancelled: { severity: "warning", message: "The protected source download was cancelled." },
 };
-

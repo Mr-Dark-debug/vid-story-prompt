@@ -30,4 +30,3 @@ def send_webhook(url: str | None, secret: str | None, event: WebhookEvent) -> bo
             return 200 <= response.status < 300
     except Exception:
         return False
-

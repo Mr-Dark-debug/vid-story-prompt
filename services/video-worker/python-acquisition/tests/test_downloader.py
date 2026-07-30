@@ -73,4 +73,3 @@ def test_proxy_protocol_is_allowlisted(tmp_path: Path) -> None:
             maximum_bytes=100_000,
         )
     assert error.value.code == "provider_configuration_error"
-
