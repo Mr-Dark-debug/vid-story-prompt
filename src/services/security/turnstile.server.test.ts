@@ -16,6 +16,16 @@ describe("Turnstile verification", () => {
     ).toBe(true);
   });
 
+  it("accepts the login action for sign-in protection", () => {
+    expect(
+      validateTurnstileResult(
+        { success: true, action: "login", hostname: "vidrial.vercel.app" },
+        "login",
+        new Set(["vidrial.vercel.app"]),
+      ).success,
+    ).toBe(true);
+  });
+
   it("rejects unsuccessful, cross-action, and cross-host responses", () => {
     expect(() =>
       validateTurnstileResult(

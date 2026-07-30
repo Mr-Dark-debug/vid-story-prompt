@@ -60,9 +60,13 @@ export const getCurrentSession = createServerFn({ method: "GET" }).handler(async
 });
 
 export const login = createServerFn({ method: "POST" })
-  .validator(credentialsSchema)
+  .validator(credentialsSchema.extend({ turnstileToken: turnstileTokenSchema }))
   .handler(async ({ data }) => {
-    const { error } = await getSupabaseServerClient().auth.signInWithPassword(data);
+    await verifyTurnstile(data.turnstileToken, "login");
+    const { error } = await getSupabaseServerClient().auth.signInWithPassword({
+      email: data.email,
+      password: data.password,
+    });
     if (error) throw authError(error.message);
     return { ok: true };
   });
@@ -98,7 +102,7 @@ export const beginGoogleSignIn = createServerFn({ method: "POST" })
     }),
   )
   .handler(async ({ data }) => {
-    if (data.intent === "signup") await verifyTurnstile(data.turnstileToken, "signup");
+    await verifyTurnstile(data.turnstileToken, data.intent);
     const { data: result, error } = await getSupabaseServerClient().auth.signInWithOAuth({
       provider: "google",
       options: {
