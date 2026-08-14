@@ -159,4 +159,41 @@
 
 ## Final completion report
 
-This section will be completed after implementation and verification, with one evidence-backed entry for each of §§4–10.
+### §4 — YouTube source acquisition: partially done
+
+- **Done:** the production worker is current (`dc85033`), starts even when embedded WARP cannot connect, keeps direct production egress disabled, applies conservative yt-dlp pacing, exposes sanitized per-tier diagnostics, and has a real authenticated Cobalt fallback. `GET /healthz` and `/readyz` return HTTP 200; authenticated `/health/proxy` returns HTTP 200 with Python acquisition ready and Cobalt `cobalt_ready`. The worker/Vercel bearer secret and worker/Cobalt API key are synchronized without either value being exposed.
+- **Done:** root `render.yaml` provisions `vidrial-cobalt`; the service is live at `https://vidrial-cobalt.onrender.com`, reports Cobalt 11.7.1, requires its API key, and is wired to the worker. Operator-proxy and paid-sidecar activation are documented and require configuration rather than a rewrite. Customer copy now says `Source access`, `Preparing source`, and provider-neutral recovery text. Migration `20260814050000` removes the remaining internal acquisition phrases from fixed product events.
+- **Production evidence:** baseline job `3af7525d-6ec8-4c71-9ddb-5daacb9f2cad` reproduced the original `0/2` failure. Eligible job `8422b2de-dfc3-469e-bda7-4b8785091efc` used the newly exposed bounded retry on production; the RPC queued attempt 6/6 and the current worker selected Cobalt. That attempt revealed and led to correction of the worker/Cobalt key mismatch. Two separate authenticated direct Cobalt probes for public videos `CXSvKcLovAk` and `jNQXAC9IVRw` reached Cobalt but returned YouTube's `error.api.youtube.login` challenge.
+- **Not done:** automatic YouTube acquisition does not yet succeed “most of the time” from the current free Frankfurt datacenter paths. The evidence shows YouTube rejects both free Cobalt/Render egress and the unavailable embedded WARP path. A clean operator-supplied residential/rotating `YTDLP_PROXY_URL`, or an approved paid persistent sidecar with verified fresh egress, is required to close this reliability objective. No proxy subscription or paid Render resource was purchased without operator authority, and no successful acquisition was fabricated.
+
+### §5 — AI scoring and results gallery: done
+
+- Implemented bounded transcript segmentation, candidate windows, deterministic pre-scoring, strict Zod LLM evaluation with one repair, deterministic fallback, deduplication and topic/time diversity selection. Persisted standalone, hook, clarity, story, relevance, technical and overall scores plus explanations.
+- Implemented real signed previews, consistent semantic score bands, sort/filter/selection, expandable explanations and per-metric evidence in the job gallery. App typecheck passed; full app suite passed 72 files plus one skipped, 307 tests plus six skipped; the integrated production build is Ready on Vercel.
+
+### §6 — per-clip titles and social copy: done
+
+- Suggested titles and validated YouTube Shorts, Instagram, TikTok and LinkedIn copy are persisted per candidate and displayed in gallery/editor. Title regeneration is scoped to one owned candidate through an atomic RPC and does not rerun the batch. Migration `20260814020000_clipper_candidate_social_copy.sql` is applied to production.
+- Focused OAuth/gallery/social tests passed as part of the recorded app and worker gates. A live candidate could not be produced for visual production evidence because §4 remains blocked upstream; this is called out under §10.
+
+### §7 — caption fonts and animation: done
+
+- Immutable manifest v2 supports licensed Liberation Sans/Serif/Mono presets, size/weight/position/alignment/background/stroke/shadow, keyword and active-word styling, profanity masking, and timed cues. Final FFmpeg/libass output implements word karaoke, line reveal and pop animations; browser preview uses the same manifest concepts.
+- Worker typecheck/build passed and the final worker suite passed 19 files/100 tests. No unlicensed Museum Sans or scraped font asset was added.
+
+### §8 — clip editor parity: done
+
+- Implemented timing, 9:16/1:1/16:9, fit/fill/centre/blur/manual focal point, safe area, timed overlays, caption cue editing/download, gain/mute/fades/normalization, title/social copy editing, undo/redo, immutable save, restore-as-new and version comparison. Worker rendering applies crop/focal/blur, overlays, captions, audio controls and server-derived watermark from the same immutable manifest.
+- App typecheck/lint/tests/build and worker typecheck/tests/build passed. Final production editor rendering could not be exercised without a source clip; that upstream evidence gap is recorded under §10 rather than hidden.
+
+### §9 — multi-channel publishing: partially done
+
+- **Done:** Facebook Pages, Instagram Professional, TikTok and LinkedIn use the central connector registry, existing PKCE/signed-state/exact-callback/encrypted-token architecture, credential-gated UI, review-first defaults and the existing publication queue. Worker adapters implement the current official upload/post flows. Migration `20260814030000_multichannel_publishing.sql` is applied to production.
+- **Blocked externally:** no Meta/TikTok/LinkedIn developer credentials, platform review/audit or authorised destinations were available; the UI therefore remains honestly non-executable. No live post or provider approval is claimed. The exact app-registration, scopes/products, review and account-linkage steps are in `docs/CONNECTOR_MATRIX.md` and `docs/DEPLOYMENT.md`. YouTube publishing also could not run because no final export existed.
+
+### §10 — end-to-end production verification: partially done
+
+- **Quality gate:** `npm run typecheck` passed; `npm run lint` passed with the same seven Fast Refresh warnings and zero errors; `npm test` passed 307 tests with six skipped; `npm run build` passed; worker typecheck/build passed; final worker suite passed 100 tests; Python acquisition passed 16 tests; Playwright passed 8/8; content validation passed 60/60/60; content audit reported zero blockers/revisions; 219 external links passed. Local Supabase integration remained unavailable because Docker/Podman is not installed.
+- **Database/deployment:** all 28 local migrations match production. Linked database lint has no errors and only two pre-existing unused-variable warnings. Vercel production deployment `https://vidrial-h0cw8p9fj-prashant-project.vercel.app` is Ready and aliased to `https://vidrial.vercel.app`. Render serves worker revision `dc85033`; `/healthz`, `/readyz` and authenticated `/health/proxy` all return HTTP 200. Cobalt is live and authenticated.
+- **Live browser evidence:** authenticated desktop production showed the provider-neutral source-access UI and the newly deployed bounded retry on job `8422b2de-dfc3-469e-bda7-4b8785091efc`. The real retry reached the current worker and created a persisted Cobalt attempt. Local Playwright verified the public/auth flows and 360-pixel overflow containment; a real 360-pixel production browser emulation was not separately captured.
+- **Blocked end-to-end:** the live job stopped at source acquisition because YouTube challenges the available free datacenter paths. Therefore there is no honest production evidence for transcription, scored candidate previews, two rendered caption combinations, final download, or publishing. Unblock §4 with a clean operator proxy or approved paid egress, then run one fresh rights-attested job through the already-deployed downstream pipeline and provider publishing where credentials exist.
