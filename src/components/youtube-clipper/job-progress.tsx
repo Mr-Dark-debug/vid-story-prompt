@@ -225,14 +225,14 @@ export function JobProgress({
                 {retrying ? "Queueing retry…" : "Retry failed task"}
               </button>
             )}
-            {canForceProxy && !awaitingAuthorisedSource ? (
+            {canForceProxy ? (
               <button
                 type="button"
                 disabled={retrying}
                 onClick={() => void retry(true)}
                 className="mt-3 ml-3 inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-danger/25 px-3 font-semibold disabled:opacity-60"
               >
-                <ShieldAlert className="h-3.5 w-3.5" /> Retry source access
+                <ShieldAlert className="h-3.5 w-3.5" /> Retry automatic source access
               </button>
             ) : null}
           </div>
