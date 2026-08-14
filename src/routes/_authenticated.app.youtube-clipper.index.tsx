@@ -102,10 +102,19 @@ function ClipperDashboard() {
                 >
                   {job.source_title ?? "Untitled source"}
                 </Link>
-                <div className="mt-1 flex items-center gap-2 text-xs text-ink-mute">
-                  <Clock3 className="h-3.5 w-3.5" />
-                  {formatUtcDateTime(job.created_at)} · {job.completed_clip_count}/
-                  {job.requested_clip_count} clips
+                <div className="mt-1 flex min-w-0 flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-ink-mute">
+                  <span className="flex w-full min-w-0 items-center gap-1.5 sm:w-auto">
+                    <Clock3 className="h-3.5 w-3.5 shrink-0" aria-hidden />
+                    <time className="min-w-0 truncate" dateTime={job.created_at}>
+                      {formatUtcDateTime(job.created_at)}
+                    </time>
+                  </span>
+                  <span aria-hidden className="hidden sm:inline">
+                    ·
+                  </span>
+                  <span className="whitespace-nowrap">
+                    {job.completed_clip_count}/{job.requested_clip_count} clips
+                  </span>
                 </div>
               </div>
               <JobStatusBadge status={job.status} className="hidden sm:inline-flex" />

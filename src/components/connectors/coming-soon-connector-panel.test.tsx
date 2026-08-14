@@ -13,12 +13,12 @@ afterEach(() => cleanup());
 
 describe("coming soon connector", () => {
   it("records interest without opening OAuth or simulating a connection", async () => {
-    render(<ComingSoonConnectorPanel connector={getConnector("tiktok")!} />);
+    render(<ComingSoonConnectorPanel connector={getConnector("x")!} />);
     expect(screen.getByText("Coming soon")).toBeInTheDocument();
     expect(screen.queryByText("Connected")).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole("button", { name: "Notify me" }));
     await waitFor(() =>
-      expect(joinConnectorWaitlist).toHaveBeenCalledWith({ data: { connectorId: "tiktok" } }),
+      expect(joinConnectorWaitlist).toHaveBeenCalledWith({ data: { connectorId: "x" } }),
     );
     expect(screen.getByRole("button", { name: /on the list/i })).toBeDisabled();
   });

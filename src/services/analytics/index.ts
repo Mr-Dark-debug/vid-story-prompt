@@ -23,7 +23,16 @@ export type AnalyticsEvent =
   | "upgrade_prompt_shown"
   | "upgrade_initiated"
   | "connector_selected"
-  | "connector_waitlist_joined";
+  | "connector_waitlist_joined"
+  | "blog_view"
+  | "blog_search"
+  | "blog_category_filter"
+  | "blog_cta_click"
+  | "blog_helpful"
+  | "blog_not_helpful"
+  | "blog_share"
+  | "blog_copy_link"
+  | "related_article_click";
 export interface AnalyticsProvider {
   track(event: AnalyticsEvent, properties: Record<string, string | number | boolean>): void;
 }

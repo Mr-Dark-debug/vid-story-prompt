@@ -10,6 +10,30 @@ import {
 
 export type ProxyHealthStatus = "healthy" | "degraded" | "blocked" | "unknown";
 
+export type AcquisitionTierState =
+  | "ready"
+  | "degraded"
+  | "blocked"
+  | "standby"
+  | "unconfigured"
+  | "unknown";
+
+export type AcquisitionTierDiagnostic = {
+  configured: boolean;
+  reasonCode: string;
+  state: AcquisitionTierState;
+};
+
+export type AcquisitionTierDiagnostics = {
+  cobalt: AcquisitionTierDiagnostic;
+  operatorProxy: AcquisitionTierDiagnostic;
+  protectedPool: AcquisitionTierDiagnostic & {
+    configuredMembers: number;
+    healthyMembers: number;
+    uniqueMembers: number;
+  };
+};
+
 export type ProxyHealthSnapshot = {
   checkedAt: string | null;
   egressIp: string | null;
@@ -31,6 +55,101 @@ type CommandRunner = (
   args: string[],
   options: Record<string, unknown>,
 ) => Promise<CommandResult>;
+
+export async function probeCobaltHealth(
+  apiUrl: string | undefined,
+  apiKey: string | undefined,
+  options: { fetcher?: typeof fetch; timeoutMs?: number } = {},
+): Promise<AcquisitionTierDiagnostic> {
+  if (!apiUrl || !apiKey) {
+    return { configured: false, reasonCode: "cobalt_unconfigured", state: "unconfigured" };
+  }
+  try {
+    const response = await (options.fetcher ?? fetch)(new URL("/", apiUrl), {
+      headers: { authorization: `Api-Key ${apiKey}`, "user-agent": "Vidrial-Video-Worker/1" },
+      signal: AbortSignal.timeout(options.timeoutMs ?? 5_000),
+    });
+    if (!response.ok) throw new Error("cobalt_probe_failed");
+    return { configured: true, reasonCode: "cobalt_ready", state: "ready" };
+  } catch {
+    return { configured: true, reasonCode: "cobalt_unreachable", state: "blocked" };
+  }
+}
+
+export function acquisitionTierDiagnostics(input: {
+  cobalt: AcquisitionTierDiagnostic;
+  operatorProxyConfigured: boolean;
+  protectedPoolConfiguredMembers: number;
+  proxyHealth: ProxyHealthSnapshot;
+}): AcquisitionTierDiagnostics {
+  const operatorActive = input.proxyHealth.tier === "operator";
+  const protectedActive =
+    input.proxyHealth.tier === "warp" || input.proxyHealth.tier === "render_warp";
+  const operatorProxy: AcquisitionTierDiagnostic = !input.operatorProxyConfigured
+    ? { configured: false, reasonCode: "operator_proxy_unconfigured", state: "unconfigured" }
+    : operatorActive
+      ? {
+          configured: true,
+          reasonCode:
+            input.proxyHealth.status === "healthy"
+              ? "operator_proxy_ready"
+              : input.proxyHealth.status === "blocked"
+                ? "operator_proxy_blocked"
+                : "operator_proxy_unverified",
+          state:
+            input.proxyHealth.status === "healthy"
+              ? "ready"
+              : input.proxyHealth.status === "blocked"
+                ? "blocked"
+                : "unknown",
+        }
+      : { configured: true, reasonCode: "operator_proxy_standby", state: "standby" };
+  const configuredMembers = input.protectedPoolConfiguredMembers;
+  const healthyMembers = input.proxyHealth.healthyMembers ?? 0;
+  const uniqueMembers = input.proxyHealth.uniqueEgressMembers ?? 0;
+  const protectedPool: AcquisitionTierDiagnostics["protectedPool"] =
+    configuredMembers <= 0
+      ? {
+          configured: false,
+          configuredMembers: 0,
+          healthyMembers: 0,
+          uniqueMembers: 0,
+          reasonCode: "protected_pool_unconfigured",
+          state: "unconfigured",
+        }
+      : protectedActive
+        ? {
+            configured: true,
+            configuredMembers,
+            healthyMembers,
+            uniqueMembers,
+            reasonCode:
+              input.proxyHealth.status === "healthy"
+                ? "protected_pool_ready"
+                : input.proxyHealth.status === "degraded"
+                  ? "protected_pool_degraded"
+                  : input.proxyHealth.status === "blocked"
+                    ? "protected_pool_exhausted"
+                    : "protected_pool_unverified",
+            state:
+              input.proxyHealth.status === "healthy"
+                ? "ready"
+                : input.proxyHealth.status === "degraded"
+                  ? "degraded"
+                  : input.proxyHealth.status === "blocked"
+                    ? "blocked"
+                    : "unknown",
+          }
+        : {
+            configured: true,
+            configuredMembers,
+            healthyMembers: 0,
+            uniqueMembers: 0,
+            reasonCode: "protected_pool_standby",
+            state: "standby",
+          };
+  return { cobalt: input.cobalt, operatorProxy, protectedPool };
+}
 
 export const unknownProxyHealth = (tier: YouTubeProxySelection["tier"]): ProxyHealthSnapshot => ({
   checkedAt: null,

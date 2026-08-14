@@ -18,6 +18,8 @@ Rules store connector and connection identity, remote collection identity, durat
 
 - A trigger only schedules work; the import worker independently validates media and the clipping service independently reserves usage.
 - Automatic publishing is not implied by automatic clipping. Publishing destinations have separate connections and entitlement checks.
+- New rules remain `approval_mode=manual`. `automatic` is stored only after an explicit operator choice; it cannot bypass provider credentials, connection capabilities, destination ownership, export completion, or queue idempotency.
+- A manual social publication is created only after the user reviews the export, destination, title, caption and provider visibility on the job page. The worker then uses the same leased, retry-classified publishing queue as YouTube.
 - YouTube publication uses only official upload APIs and defaults to review-safe settings.
 - Rules stop creating work when disabled, over their monthly ceiling, disconnected, or awaiting rights/source evidence.
 - Provider event payloads are untrusted input and are reduced to validated identifiers and metadata before persistence.

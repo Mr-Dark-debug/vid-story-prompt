@@ -11,7 +11,15 @@ import {
   secureTextEqual,
 } from "@/services/youtube/token-crypto.server";
 
-const oauthConnectorSchema = z.enum(["google_drive", "dropbox", "onedrive"]);
+export const oauthConnectorSchema = z.enum([
+  "google_drive",
+  "dropbox",
+  "onedrive",
+  "facebook",
+  "instagram",
+  "tiktok",
+  "linkedin",
+]);
 export type OAuthConnectorId = z.infer<typeof oauthConnectorSchema>;
 const randomToken = createServerOnlyFn((bytes: number) => randomBytes(bytes).toString("base64url"));
 const sha256Base64Url = createServerOnlyFn((value: string) =>
@@ -29,6 +37,9 @@ type ProviderConfig = {
   authorizationUrl: string;
   tokenUrl: string;
   scopes: string[];
+  capabilities: string[];
+  scopeSeparator?: " " | ",";
+  clientIdParameter?: "client_id" | "client_key";
   extraAuthorization?: Record<string, string>;
 };
 
@@ -69,6 +80,7 @@ export function getConnectorOAuthConfig(id: OAuthConnectorId): ProviderConfig {
       authorizationUrl: "https://accounts.google.com/o/oauth2/v2/auth",
       tokenUrl: "https://oauth2.googleapis.com/token",
       scopes: ["openid", "email", "profile", "https://www.googleapis.com/auth/drive.readonly"],
+      capabilities: ["browse", "search", "download_original"],
       extraAuthorization: {
         access_type: "offline",
         include_granted_scopes: "true",
@@ -87,20 +99,74 @@ export function getConnectorOAuthConfig(id: OAuthConnectorId): ProviderConfig {
       authorizationUrl: "https://www.dropbox.com/oauth2/authorize",
       tokenUrl: "https://api.dropboxapi.com/oauth2/token",
       scopes: ["account_info.read", "files.metadata.read", "files.content.read"],
+      capabilities: ["browse", "search", "download_original"],
       extraAuthorization: { token_access_type: "offline" },
     };
   }
-  if (!env.MICROSOFT_CLIENT_ID || !env.MICROSOFT_CLIENT_SECRET)
-    throw new Error("OneDrive OAuth is not configured.");
-  const tenant = encodeURIComponent(env.MICROSOFT_TENANT_ID);
+  if (id === "onedrive") {
+    if (!env.MICROSOFT_CLIENT_ID || !env.MICROSOFT_CLIENT_SECRET)
+      throw new Error("OneDrive OAuth is not configured.");
+    const tenant = encodeURIComponent(env.MICROSOFT_TENANT_ID);
+    return {
+      connectorId: id,
+      provider: "microsoft_onedrive",
+      clientId: env.MICROSOFT_CLIENT_ID,
+      clientSecret: env.MICROSOFT_CLIENT_SECRET,
+      authorizationUrl: `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/authorize`,
+      tokenUrl: `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/token`,
+      scopes: ["openid", "profile", "offline_access", "User.Read", "Files.Read.All"],
+      capabilities: ["browse", "search", "download_original"],
+    };
+  }
+  if (id === "facebook" || id === "instagram") {
+    if (!env.META_APP_ID || !env.META_APP_SECRET)
+      throw new Error("Meta publishing OAuth is not configured.");
+    return {
+      connectorId: id,
+      provider: id === "facebook" ? "meta_facebook" : "meta_instagram",
+      clientId: env.META_APP_ID,
+      clientSecret: env.META_APP_SECRET,
+      authorizationUrl: `https://www.facebook.com/${env.META_GRAPH_VERSION}/dialog/oauth`,
+      tokenUrl: `https://graph.facebook.com/${env.META_GRAPH_VERSION}/oauth/access_token`,
+      scopes:
+        id === "facebook"
+          ? ["pages_show_list", "pages_read_engagement", "pages_manage_posts"]
+          : [
+              "pages_show_list",
+              "pages_read_engagement",
+              "instagram_basic",
+              "instagram_content_publish",
+            ],
+      capabilities: ["video_publish"],
+    };
+  }
+  if (id === "tiktok") {
+    if (!env.TIKTOK_CLIENT_KEY || !env.TIKTOK_CLIENT_SECRET)
+      throw new Error("TikTok publishing OAuth is not configured.");
+    return {
+      connectorId: id,
+      provider: "tiktok",
+      clientId: env.TIKTOK_CLIENT_KEY,
+      clientSecret: env.TIKTOK_CLIENT_SECRET,
+      authorizationUrl: "https://www.tiktok.com/v2/auth/authorize/",
+      tokenUrl: "https://open.tiktokapis.com/v2/oauth/token/",
+      scopes: ["user.info.basic", "video.publish"],
+      capabilities: ["video_publish"],
+      scopeSeparator: ",",
+      clientIdParameter: "client_key",
+    };
+  }
+  if (!env.LINKEDIN_CLIENT_ID || !env.LINKEDIN_CLIENT_SECRET)
+    throw new Error("LinkedIn publishing OAuth is not configured.");
   return {
     connectorId: id,
-    provider: "microsoft_onedrive",
-    clientId: env.MICROSOFT_CLIENT_ID,
-    clientSecret: env.MICROSOFT_CLIENT_SECRET,
-    authorizationUrl: `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/authorize`,
-    tokenUrl: `https://login.microsoftonline.com/${tenant}/oauth2/v2.0/token`,
-    scopes: ["openid", "profile", "offline_access", "User.Read", "Files.Read.All"],
+    provider: "linkedin",
+    clientId: env.LINKEDIN_CLIENT_ID,
+    clientSecret: env.LINKEDIN_CLIENT_SECRET,
+    authorizationUrl: "https://www.linkedin.com/oauth/v2/authorization",
+    tokenUrl: "https://www.linkedin.com/oauth/v2/accessToken",
+    scopes: ["openid", "profile", "w_member_social"],
+    capabilities: ["video_publish"],
   };
 }
 
@@ -155,10 +221,10 @@ export const beginConnectorConnection = createServerFn({ method: "POST" })
     });
     if (error) throw new Error(`OAuth state could not be created: ${error.message}`);
     const params = new URLSearchParams({
-      client_id: config.clientId,
+      [config.clientIdParameter ?? "client_id"]: config.clientId,
       redirect_uri: callbackUrl(data.connectorId),
       response_type: "code",
-      scope: config.scopes.join(" "),
+      scope: config.scopes.join(config.scopeSeparator ?? " "),
       code_challenge: challenge,
       code_challenge_method: "S256",
       state,
@@ -217,6 +283,111 @@ async function providerIdentity(id: OAuthConnectorId, accessToken: string) {
       metadata: { email: data.email },
     };
   }
+  if (id === "facebook" || id === "instagram") {
+    const env = getServerEnv();
+    const fields =
+      id === "instagram"
+        ? "id,name,instagram_business_account{id,username}"
+        : "id,name";
+    const [profileResponse, pagesResponse] = await Promise.all([
+      fetch(`https://graph.facebook.com/${env.META_GRAPH_VERSION}/me?fields=id,name`, {
+        headers: { authorization: `Bearer ${accessToken}` },
+        signal: AbortSignal.timeout(10_000),
+      }),
+      fetch(
+        `https://graph.facebook.com/${env.META_GRAPH_VERSION}/me/accounts?fields=${encodeURIComponent(fields)}`,
+        {
+          headers: { authorization: `Bearer ${accessToken}` },
+          signal: AbortSignal.timeout(10_000),
+        },
+      ),
+    ]);
+    if (!profileResponse.ok || !pagesResponse.ok)
+      throw new Error("Meta could not verify the authorised publishing destinations.");
+    const profile = z.object({ id: z.string(), name: z.string().optional() }).parse(
+      await profileResponse.json(),
+    );
+    const pages = z
+      .object({
+        data: z.array(
+          z.object({
+            id: z.string(),
+            name: z.string(),
+            instagram_business_account: z
+              .object({ id: z.string(), username: z.string().optional() })
+              .optional(),
+          }),
+        ),
+      })
+      .parse(await pagesResponse.json()).data;
+    const targets =
+      id === "facebook"
+        ? pages.map((page) => ({ id: page.id, label: page.name, pageId: page.id }))
+        : pages.flatMap((page) =>
+            page.instagram_business_account
+              ? [
+                  {
+                    id: page.instagram_business_account.id,
+                    label: page.instagram_business_account.username
+                      ? `@${page.instagram_business_account.username}`
+                      : page.name,
+                    pageId: page.id,
+                  },
+                ]
+              : [],
+          );
+    if (!targets.length)
+      throw new Error(
+        id === "facebook"
+          ? "No authorised Facebook Page is available for publishing."
+          : "No authorised professional Instagram account is linked to a Page.",
+      );
+    return {
+      id: profile.id,
+      displayName: profile.name ?? (id === "facebook" ? "Meta account" : "Instagram account"),
+      metadata: { targets },
+    };
+  }
+  if (id === "tiktok") {
+    const response = await fetch(
+      "https://open.tiktokapis.com/v2/user/info/?fields=open_id,display_name,username",
+      { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(10_000) },
+    );
+    if (!response.ok) throw new Error("TikTok could not verify the connected creator.");
+    const body = z
+      .object({
+        data: z.object({
+          user: z.object({
+            open_id: z.string(),
+            display_name: z.string().optional(),
+            username: z.string().optional(),
+          }),
+        }),
+      })
+      .parse(await response.json());
+    const user = body.data.user;
+    return {
+      id: user.open_id,
+      displayName: user.display_name ?? user.username ?? "TikTok creator",
+      metadata: { targets: [{ id: user.open_id, label: user.display_name ?? "TikTok creator" }] },
+    };
+  }
+  if (id === "linkedin") {
+    const response = await fetch("https://api.linkedin.com/v2/userinfo", {
+      headers: { authorization: `Bearer ${accessToken}` },
+      signal: AbortSignal.timeout(10_000),
+    });
+    if (!response.ok) throw new Error("LinkedIn could not verify the connected member.");
+    const member = z.object({ sub: z.string(), name: z.string().optional() }).parse(
+      await response.json(),
+    );
+    const urn = `urn:li:person:${member.sub}`;
+    return {
+      id: member.sub,
+      displayName: member.name ?? "LinkedIn member",
+      metadata: { targets: [{ id: urn, label: member.name ?? "LinkedIn member" }] },
+    };
+  }
   const response = await fetch(
     "https://graph.microsoft.com/v1.0/me?$select=id,displayName,userPrincipalName",
     { headers: { authorization: `Bearer ${accessToken}` }, signal: AbortSignal.timeout(10_000) },
@@ -267,12 +438,13 @@ export const finishConnectorConnection = createServerFn({ method: "POST" })
       String(stored.code_verifier_encrypted),
       connectorEncryptionKey(),
     );
+    const clientParameter = config.clientIdParameter ?? "client_id";
     const tokenResponse = await fetch(config.tokenUrl, {
       method: "POST",
       headers: { "content-type": "application/x-www-form-urlencoded" },
       body: new URLSearchParams({
         code: data.code,
-        client_id: config.clientId,
+        [clientParameter]: config.clientId,
         client_secret: config.clientSecret,
         redirect_uri: callbackUrl(data.connectorId),
         grant_type: "authorization_code",
@@ -301,7 +473,7 @@ export const finishConnectorConnection = createServerFn({ method: "POST" })
           ? new Date(Date.now() + tokens.expires_in * 1000).toISOString()
           : null,
         scopes,
-        capabilities: ["browse", "search", "download_original"],
+        capabilities: config.capabilities,
         status: "connected",
         error_code: null,
         connected_at: new Date().toISOString(),

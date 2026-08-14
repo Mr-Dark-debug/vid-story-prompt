@@ -98,7 +98,20 @@ def build_ydl_options(
     *,
     maximum_bytes: int,
     pot_provider_url: str | None = None,
+    sleep_interval_seconds: float = 5.0,
+    maximum_sleep_interval_seconds: float = 10.0,
+    request_sleep_interval_seconds: float = 1.0,
 ) -> dict[str, Any]:
+    if not (
+        5.0 <= sleep_interval_seconds <= 10.0
+        and sleep_interval_seconds <= maximum_sleep_interval_seconds <= 10.0
+        and 0.0 <= request_sleep_interval_seconds <= 5.0
+    ):
+        raise AcquisitionError(
+            "provider_configuration_error",
+            "The configured acquisition pacing is outside its safe bounds.",
+            False,
+        )
     duration_bound = int(request.maximum_duration_seconds * 1.05 + 5)
     format_selector = (
         f"bestvideo[height<={request.maximum_height}]+bestaudio/"
@@ -139,6 +152,9 @@ def build_ydl_options(
         "source_address": "0.0.0.0",
         "retries": 3,
         "fragment_retries": 3,
+        "sleep_interval": sleep_interval_seconds,
+        "max_sleep_interval": maximum_sleep_interval_seconds,
+        "sleep_interval_requests": request_sleep_interval_seconds,
         "max_filesize": maximum_bytes,
         "match_filter": match_filter,
         "outtmpl": str(output_directory / "yt-source.%(ext)s"),
@@ -231,6 +247,9 @@ def run_download(
     cancel_event: Event,
     progress: ProgressCallback,
     pot_provider_url: str | None = None,
+    sleep_interval_seconds: float = 5.0,
+    maximum_sleep_interval_seconds: float = 10.0,
+    request_sleep_interval_seconds: float = 1.0,
 ) -> DownloadResult:
     output_directory = resolve_output_directory(request.output_directory, root)
     if any(output_directory.iterdir()):
@@ -244,6 +263,9 @@ def run_download(
         progress,
         maximum_bytes=maximum_bytes,
         pot_provider_url=pot_provider_url,
+        sleep_interval_seconds=sleep_interval_seconds,
+        maximum_sleep_interval_seconds=maximum_sleep_interval_seconds,
+        request_sleep_interval_seconds=request_sleep_interval_seconds,
     )
     logger = options["logger"]
     progress("extracting", None, None)

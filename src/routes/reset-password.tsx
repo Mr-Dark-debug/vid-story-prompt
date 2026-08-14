@@ -5,7 +5,12 @@ import { authService } from "@/services/auth";
 import { userFacingError } from "@/lib/user-facing-error";
 
 export const Route = createFileRoute("/reset-password")({
-  head: () => ({ meta: [{ title: "Choose a new password — Vidrial" }] }),
+  head: () => ({
+    meta: [
+      { title: "Choose a new password — Vidrial" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: ResetPasswordPage,
 });
 

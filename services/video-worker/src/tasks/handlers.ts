@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { mkdir, readdir, stat } from "node:fs/promises";
+import { mkdir, readdir, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { execa } from "execa";
 import { z } from "zod";
@@ -8,6 +8,8 @@ import { selectDiverseCandidates } from "../ai/selection.js";
 import { env } from "../config/env.js";
 import { TaskFailure, type ClipTask, type TaskResult } from "../domain/types.js";
 import { createProxy, extractSpeechAudio, renderClip } from "../media/ffmpeg.js";
+import { buildCaptionCues, createAss } from "../media/captions.js";
+import { editManifestSchema } from "../media/manifest.js";
 import { probeMedia } from "../media/probe.js";
 import { downloadDirectMedia } from "../security/direct-download.js";
 import { getHealthyWarpMembers } from "../security/acquisition-runtime.js";
@@ -35,6 +37,7 @@ import { renderExport } from "./export.js";
 import { deleteExpiredAssets } from "./cleanup.js";
 import { renderBatchExport } from "./batch-export.js";
 import { publishYouTubeVideo } from "./youtube-publish.js";
+import { publishSocialVideo } from "./social-publish.js";
 import {
   finishAcquisitionAttempt,
   loadPriorAcquisitionAttempts,
@@ -689,24 +692,36 @@ async function plan(task: ClipTask): Promise<TaskResult> {
     .eq("id", uuid.parse(task.input_json.transcriptId))
     .single();
   if (error) throw error;
+  const { data: transcriptSegments, error: segmentError } = await supabase
+    .from("transcript_segments")
+    .select("start_seconds,end_seconds,text")
+    .eq("transcript_id", transcript.id)
+    .order("sequence", { ascending: true });
+  if (segmentError) throw segmentError;
   const settings = job.settings_json as Record<string, unknown>;
+  const planning = await planClips({
+    transcript: transcript.text,
+    words: (transcriptSegments ?? []).map((segment) => ({
+      start: Number(segment.start_seconds),
+      end: Number(segment.end_seconds),
+      text: String(segment.text),
+    })),
+    durationSeconds: Number(job.source_duration_seconds),
+    requestedClips: job.requested_clip_count,
+    instruction: String(settings.instruction ?? ""),
+  });
   const candidates = selectDiverseCandidates(
-    await planClips({
-      transcript: transcript.text,
-      durationSeconds: Number(job.source_duration_seconds),
-      requestedClips: job.requested_clip_count,
-      instruction: String(settings.instruction ?? ""),
-    }),
+    planning.candidates,
     job.requested_clip_count,
   );
   const { data: planningRun, error: runError } = await supabase
     .from("planning_runs")
     .insert({
       clip_job_id: job.id,
-      provider: "openrouter",
-      model: env.OPENROUTER_CLIP_MODEL,
-      prompt_version: "clip-planner-v1",
-      schema_version: "clip-candidate-v1",
+      provider: planning.provider,
+      model: planning.model,
+      prompt_version: "clip-planner-v2-bounded-windows",
+      schema_version: "clip-candidate-v2-social-copy",
       status: "succeeded",
       completed_at: new Date().toISOString(),
     })
@@ -733,9 +748,10 @@ async function plan(task: ClipTask): Promise<TaskResult> {
         clarity_score: item.clarityScore,
         story_score: item.storyScore,
         relevance_score: item.relevanceScore,
-        technical_score: item.overallScore,
+        technical_score: item.technicalScore,
         overall_score: item.overallScore,
         selection_reason: item.explanation,
+        social_copy_json: item.socialCopy,
         rank: index + 1,
         status: "selected",
       })
@@ -755,6 +771,81 @@ async function plan(task: ClipTask): Promise<TaskResult> {
       .select("id")
       .single();
     if (clipError) throw clipError;
+    const captionCues = buildCaptionCues(
+      (transcriptSegments ?? []).map((segment) => ({
+        start: Number(segment.start_seconds),
+        end: Number(segment.end_seconds),
+        text: String(segment.text),
+      })),
+      item.startSeconds,
+      item.endSeconds,
+    );
+    const initialManifest = editManifestSchema.parse({
+      version: 2,
+      title: item.title,
+      socialCopy: item.socialCopy,
+      startSeconds: item.startSeconds,
+      endSeconds: item.endSeconds,
+      aspectRatio: "9:16",
+      cropMode: "fill",
+      focalPoint: { x: 0.5, y: 0.5 },
+      safeArea: true,
+      captions: {
+        text: item.transcriptExcerpt,
+        cues: captionCues,
+        fontPreset: "clean_sans",
+        fontSize: 64,
+        fontWeight: "bold",
+        position: "bottom",
+        alignment: "center",
+        textColor: "#ffffff",
+        highlightColor: "#ff9a66",
+        backgroundColor: "#000000",
+        backgroundOpacity: 0.5,
+        strokeColor: "#101010",
+        strokeWidth: 4,
+        shadow: true,
+        activeWord: true,
+        keywordHighlight: [],
+        animation: "word_highlight",
+        profanityMask: false,
+      },
+      textOverlays: [],
+      audio: {
+        gainDb: 0,
+        muted: false,
+        fadeInSeconds: 0.15,
+        fadeOutSeconds: 0.15,
+        normalize: true,
+      },
+    });
+    const { data: version, error: versionError } = await supabase
+      .from("clip_versions")
+      .insert({
+        clip_id: clip.id,
+        version_number: 1,
+        created_by: job.user_id,
+        created_source: "ai",
+        edit_manifest_json: initialManifest,
+        transcript_edits_json: { text: initialManifest.captions.text },
+        caption_settings_json: initialManifest.captions,
+        crop_settings_json: {
+          aspectRatio: initialManifest.aspectRatio,
+          cropMode: initialManifest.cropMode,
+          focalPoint: initialManifest.focalPoint,
+          safeArea: initialManifest.safeArea,
+        },
+        audio_settings_json: initialManifest.audio,
+        text_overlays_json: initialManifest.textOverlays,
+      })
+      .select("id")
+      .single();
+    if (versionError) throw versionError;
+    const { error: currentVersionError } = await supabase
+      .from("clips")
+      .update({ current_version_id: version.id })
+      .eq("id", clip.id);
+    if (currentVersionError) throw currentVersionError;
     children.push({
       taskType: "render_clip_preview",
       input: { clipId: clip.id, candidateId: candidate.id },
@@ -781,15 +872,41 @@ async function preview(task: ClipTask): Promise<TaskResult> {
       .eq("id", candidateId)
       .single();
     if (error) throw error;
+    const { data: clip, error: clipError } = await supabase
+      .from("clips")
+      .select("current_version_id")
+      .eq("id", clipId)
+      .single();
+    if (clipError || !clip.current_version_id) throw clipError ?? new Error("clip_version_missing");
+    const { data: version, error: versionError } = await supabase
+      .from("clip_versions")
+      .select("edit_manifest_json")
+      .eq("id", clip.current_version_id)
+      .single();
+    if (versionError) throw versionError;
+    const manifest = editManifestSchema.parse(version.edit_manifest_json);
+    const captionsFile = join(directory, "preview.ass");
+    await writeFile(
+      captionsFile,
+      createAss(manifest.captions.text, manifest.endSeconds - manifest.startSeconds, {
+        cues: manifest.captions.cues,
+        height: 1280,
+        settings: manifest.captions,
+        width: 720,
+      }),
+      "utf8",
+    );
     const output = join(directory, "preview.mp4");
     await renderClip({
       source: target,
       output,
-      start: Number(candidate.start_seconds),
-      duration: Number(candidate.end_seconds) - Number(candidate.start_seconds),
+      start: manifest.startSeconds,
+      duration: manifest.endSeconds - manifest.startSeconds,
       width: 720,
       height: 1280,
       watermark: job.watermark_required,
+      captionsFile,
+      manifest,
     });
     const path = immutablePath(job, "previews", "mp4");
     await uploadAsset("clip-previews", path, output, "video/mp4");
@@ -885,6 +1002,8 @@ export async function handleTask(task: ClipTask, signal?: AbortSignal): Promise<
       return renderBatchExport(task);
     case "publish_youtube_video":
       return publishYouTubeVideo(task);
+    case "publish_social_video":
+      return publishSocialVideo(task);
     case "delete_expired_assets":
       return deleteExpiredAssets(task);
     default:

@@ -57,7 +57,7 @@ export const PUBLISHING_CONNECTORS: readonly PublishingConnectorDefinition[] = [
   {
     id: "instagram_professional",
     label: "Instagram Professional",
-    availability: "coming_soon",
+    availability: "beta",
     supportsScheduling: false,
     authentication: "oauth",
     reviewFields: fullReview,
@@ -65,7 +65,7 @@ export const PUBLISHING_CONNECTORS: readonly PublishingConnectorDefinition[] = [
   {
     id: "facebook_pages",
     label: "Facebook Pages",
-    availability: "coming_soon",
+    availability: "beta",
     supportsScheduling: false,
     authentication: "oauth",
     reviewFields: fullReview,
@@ -73,7 +73,7 @@ export const PUBLISHING_CONNECTORS: readonly PublishingConnectorDefinition[] = [
   {
     id: "tiktok",
     label: "TikTok",
-    availability: "coming_soon",
+    availability: "beta",
     supportsScheduling: false,
     authentication: "oauth",
     reviewFields: fullReview,
@@ -81,7 +81,7 @@ export const PUBLISHING_CONNECTORS: readonly PublishingConnectorDefinition[] = [
   {
     id: "linkedin",
     label: "LinkedIn",
-    availability: "coming_soon",
+    availability: "beta",
     supportsScheduling: false,
     authentication: "oauth",
     reviewFields: fullReview,

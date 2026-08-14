@@ -21,8 +21,15 @@ const candidate = (start: number, end: number, title: string) =>
     clarityScore: 90,
     storyScore: 90,
     relevanceScore: 90,
+    technicalScore: 90,
     overallScore: 90,
     explanation: "Complete thought",
+    socialCopy: {
+      youtubeShorts: "Shorts copy",
+      instagram: "Instagram copy",
+      tiktok: "TikTok copy",
+      linkedin: "LinkedIn copy",
+    },
   });
 describe("worker domains", () => {
   it("validates AI candidates and duration", () => {

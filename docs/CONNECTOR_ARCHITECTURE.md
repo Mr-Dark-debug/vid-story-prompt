@@ -8,6 +8,8 @@ Vidrial connectors are an authorised-source layer around the existing clipping p
 - `connector_definitions` mirrors executable server configuration in PostgreSQL. Runtime catalog responses combine the static definition with credential configuration and the current workspace's connection state.
 - `src/domain/clipping/types.ts` remains authoritative for clipping job status. `src/domain/clipping/entitlements.ts` and matching plan rows remain authoritative for limits.
 - Publishing connectors are intentionally separate in `src/domain/connectors/publishing.ts` because importing a source never implies permission to publish it.
+- YouTube, Facebook, Instagram, TikTok, and LinkedIn publication records share `publishing_jobs` and the leased `job_tasks` queue. Provider adapters run only in the worker. Social jobs point to an encrypted `oauth_connections` record and a provider-returned destination id; tokens and derived Meta Page tokens never enter browser responses.
+- New automation rules default to manual approval. The existing `approval_mode=automatic` option is an explicit per-rule opt-in and does not create or widen a publishing connection.
 
 ## Request and import flow
 

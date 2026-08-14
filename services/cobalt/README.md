@@ -10,7 +10,9 @@ The wrapper requires `COBALT_API_KEY` to be a newly generated UUIDv4. At startup
 
 Configure the same secret as `COBALT_API_KEY` on the video worker. Set `COBALT_API_URL` to the instance URL. The adapter rejects credentials in URLs, only accepts HTTPS returned media URLs, and sends downloads through the worker's existing SSRF, redirect, timeout, and size controls.
 
-For Render, `render.example.yaml` shows a free, public web service protected by the API key. Render documents that free web services sleep and are not intended for production, so this service is deliberately optional and is not part of the root production Blueprint. A production operator can use paid/private compute or deploy the same image elsewhere without changing the worker.
+For Render, the root Blueprint and `render.example.yaml` show a free, public web service protected by the API key. The worker receives both the Render-managed external URL and the Cobalt service's key through `fromService`, so the secret is not duplicated in Git or copied into the browser environment. Render prompts for the new `sync: false` UUIDv4 only when the service is first created; for an existing Blueprint, add it to the new Cobalt service before syncing because Render ignores newly added `sync: false` values on an existing Blueprint.
+
+Render documents that free web services sleep and are not intended for production. A cold Cobalt service may take long enough to exceed the first worker request; the worker treats that as a bounded retryable fallback failure. Cobalt also uses its host's datacenter network and is extractor diversity, not a guarantee against provider blocking. A production operator can move the same service to paid/private compute without changing the worker adapter.
 
 Generate a key with `node -e "console.log(crypto.randomUUID())"` and run the local contract smoke test with:
 
@@ -19,3 +21,10 @@ docker compose -f services/cobalt/docker-compose.test.yml up --build --abort-on-
 ```
 
 The test verifies the current `GET /` health contract and that unauthenticated `POST /` requests are rejected. It does not depend on a live YouTube response.
+
+After deployment, verify without printing the key:
+
+1. `GET /` returns HTTP 200 from the Cobalt service.
+2. The worker's bearer-protected `GET /health/proxy` returns `tiers.cobalt.state=ready`.
+3. An unauthenticated `POST /` returns an authorization failure.
+4. The worker event log records a sanitized `cobalt` source tier only after all bounded protected-path attempts are exhausted.

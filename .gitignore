@@ -21,6 +21,8 @@ dist-ssr
 coverage
 playwright-report
 test-results
+output/
+.codex-*
 supabase/.branches
 supabase/.temp
 

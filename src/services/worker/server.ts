@@ -7,11 +7,6 @@ export type WorkerEgressHealth = {
   checkedAt: string | null;
   message: string;
   status: "healthy" | "degraded" | "blocked" | "unknown";
-  tier: "protected" | "operator" | "direct" | "none";
-  configuredMembers?: number;
-  healthyMembers?: number;
-  uniqueEgressMembers?: number;
-  cobaltEnabled?: boolean;
 };
 
 type WorkerProxyHealthResponse = {
@@ -25,42 +20,22 @@ type WorkerProxyHealthResponse = {
 };
 
 export function mapWorkerProxyHealth(input: WorkerProxyHealthResponse): WorkerEgressHealth {
-  const rawTier = typeof input.proxy_tier === "string" ? input.proxy_tier : "none";
-  const tier: WorkerEgressHealth["tier"] =
-    rawTier === "operator"
-      ? "operator"
-      : rawTier === "warp" || rawTier === "render_warp"
-        ? "protected"
-        : rawTier === "direct"
-          ? "direct"
-          : "none";
   const status: WorkerEgressHealth["status"] =
     input.status === "healthy" || input.status === "degraded" || input.status === "blocked"
       ? input.status
       : "unknown";
   const message =
     status === "healthy"
-      ? tier === "operator"
-        ? "The worker verified its configured private egress."
-        : "The worker verified protected WARP egress and YouTube reachability."
+      ? "Automatic source access is available."
       : status === "degraded"
-        ? "The worker is reachable, but protected YouTube egress is not fully verified."
+        ? "Automatic source access is available but may need another safe connection attempt."
         : status === "blocked"
-          ? "The worker could not verify a usable YouTube egress path."
-          : "Worker egress health has not been checked yet.";
+          ? "Automatic source access is temporarily unavailable; authorised upload recovery remains available."
+          : "Automatic source access has not been checked yet.";
   return {
     checkedAt: typeof input.checked_at === "string" ? input.checked_at : null,
     message,
     status,
-    tier,
-    ...(typeof input.configured_members === "number"
-      ? { configuredMembers: input.configured_members }
-      : {}),
-    ...(typeof input.healthy_members === "number" ? { healthyMembers: input.healthy_members } : {}),
-    ...(typeof input.unique_egress_members === "number"
-      ? { uniqueEgressMembers: input.unique_egress_members }
-      : {}),
-    ...(typeof input.cobalt_enabled === "boolean" ? { cobaltEnabled: input.cobalt_enabled } : {}),
   };
 }
 
@@ -69,9 +44,8 @@ export const getWorkerEgressHealth = createServerFn({ method: "GET" }).handler(a
   if (!VIDEO_WORKER_URL || !WORKER_WAKE_SECRET) {
     return {
       checkedAt: null,
-      message: "Worker egress health is not configured for this environment.",
+      message: "Automatic source access is not configured for this environment.",
       status: "unknown",
-      tier: "none",
     } satisfies WorkerEgressHealth;
   }
   try {
@@ -84,9 +58,8 @@ export const getWorkerEgressHealth = createServerFn({ method: "GET" }).handler(a
   } catch {
     return {
       checkedAt: null,
-      message: "The worker health check could not be reached.",
+      message: "Automatic source access could not be checked.",
       status: "blocked",
-      tier: "none",
     } satisfies WorkerEgressHealth;
   }
 });

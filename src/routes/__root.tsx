@@ -12,7 +12,8 @@ import { useEffect, type ReactNode } from "react";
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { brand } from "../config/brand";
-import { publicEnvBootstrapScript } from "../config/env";
+import { getPublicEnv, publicEnvBootstrapScript } from "../config/env";
+import { absoluteUrl, verificationMeta } from "../config/seo";
 import { RouteProgress } from "../components/ui/route-progress";
 import { Toaster } from "../components/ui/sonner";
 
@@ -77,32 +78,48 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
-  head: () => ({
-    meta: [
-      { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: `${brand.name} — ${brand.tagline}` },
-      { name: "description", content: brand.promise },
-      { name: "author", content: brand.name },
-      { property: "og:site_name", content: brand.name },
-      { property: "og:title", content: `${brand.name} — ${brand.tagline}` },
-      { property: "og:description", content: brand.promise },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-      { name: "theme-color", content: "#F6F7F7" },
-    ],
-    links: [
-      { rel: "stylesheet", href: appCss },
-      { rel: "preconnect", href: "https://fonts.googleapis.com" },
-      { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-      {
-        rel: "stylesheet",
-        href: "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap",
-      },
-      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
-    ],
-  }),
+  head: () => {
+    const publicEnv = getPublicEnv();
+
+    return {
+      meta: [
+        { charSet: "utf-8" },
+        { name: "viewport", content: "width=device-width, initial-scale=1" },
+        { title: `${brand.name} — ${brand.tagline}` },
+        { name: "description", content: brand.promise },
+        { name: "author", content: brand.name },
+        { name: "robots", content: "index,follow" },
+        { property: "og:site_name", content: brand.name },
+        { property: "og:title", content: `${brand.name} — ${brand.tagline}` },
+        { property: "og:description", content: brand.promise },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: absoluteUrl("/") },
+        { name: "twitter:card", content: "summary" },
+        { name: "theme-color", content: "#F6F7F7" },
+        ...verificationMeta({
+          google: publicEnv.VITE_GOOGLE_SITE_VERIFICATION,
+          bing: publicEnv.VITE_BING_SITE_VERIFICATION,
+        }),
+      ],
+      links: [
+        { rel: "stylesheet", href: appCss },
+        { rel: "preconnect", href: "https://fonts.googleapis.com" },
+        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
+        {
+          rel: "stylesheet",
+          href: "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap",
+        },
+        { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
+        { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+        {
+          rel: "alternate",
+          type: "application/rss+xml",
+          title: "Vidrial Blog RSS",
+          href: absoluteUrl("/rss.xml"),
+        },
+      ],
+    };
+  },
   shellComponent: RootShell,
   component: RootComponent,
   notFoundComponent: NotFoundComponent,

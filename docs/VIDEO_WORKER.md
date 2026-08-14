@@ -4,7 +4,13 @@
 
 Implemented handlers validate media, securely download direct sources, acquire rights-attested YouTube sources, build proxies, extract/chunk audio, transcribe with Groq/OpenAI fallback, merge overlap words, plan candidates through OpenRouter, deduplicate/select diverse moments, render previews/final exports, create SRT/VTT/ASS and delete expired assets.
 
-The image pins yt-dlp `2026.07.04` as both the verified CLI used by startup probes and the Python package used by the internal acquisition engine. `YTDLP_TIMEOUT_MS` defaults to ten minutes. The loopback FastAPI engine embeds `yt_dlp.YoutubeDL`, enables Node 22 for the bundled YouTube challenge solver, disables cookies, cache, playlists, live video, partial files and unbounded retries, and applies the global source-size bound plus the job's reserved-duration and plan-height bounds. The Node handler polls job cancellation, cancels the Python request, and cannot move a cancelled job back into validation.
+The leased publishing queue also executes provider-specific, review-gated publication tasks for YouTube, Facebook Reels, Instagram Reels, TikTok Content Posting, and LinkedIn Videos/Posts. Provider access tokens are decrypted only inside server or worker code; derived Meta Page tokens are held only in task memory and are never persisted or returned to the browser.
+
+Final renders parse the same version-2 immutable edit manifest shown by the editor. FFmpeg applies fit/fill/center/manual focal crop or a blurred background, user text overlays, gain/mute/fades, optional EBU R128 loudness normalization, server-derived watermarking, and libass captions. The manifest and source checksum are hashed into the exported asset metadata.
+
+Caption font presets use Debian's packaged Liberation Sans, Liberation Serif, and Liberation Mono families. Liberation fonts are freely redistributable metric-compatible fonts; the worker never downloads Museum Sans or another unlicensed face. `word_highlight` emits timed ASS karaoke tags from transcript word timings, `line_reveal` emits cumulative timed dialogue events, and `pop` uses bounded ASS fade/scale transforms. SRT and VTT sidecars use the same immutable cue boundaries.
+
+The image pins yt-dlp `2026.07.04` as both the verified CLI used by startup probes and the Python package used by the internal acquisition engine. It was reconfirmed as the current upstream release on 2026-08-14. `YTDLP_TIMEOUT_MS` defaults to ten minutes. The loopback FastAPI engine embeds `yt_dlp.YoutubeDL`, enables Node 22 for the bundled YouTube challenge solver, disables cookies, cache, playlists, live video, partial files and unbounded retries, and applies the global source-size bound plus the job's reserved-duration and plan-height bounds. It also applies bounded pacing: `YTDLP_SLEEP_INTERVAL_SECONDS=5`, `YTDLP_MAX_SLEEP_INTERVAL_SECONDS=10`, and `YTDLP_REQUEST_SLEEP_INTERVAL_SECONDS=1`. The worker rejects download pacing below five seconds or maximum pacing above ten seconds. The Node handler polls job cancellation, cancels the Python request, and cannot move a cancelled job back into validation.
 
 ## YouTube egress
 
@@ -24,7 +30,7 @@ sidecar requires no application change.
 
 A job with `forceProxy=true` fails closed if no proxy exists. A configured proxy that cannot pass the Cloudflare trace check also fails readiness; the worker never silently falls back to direct egress.
 
-On startup the worker checks Cloudflare trace and, when `YTDLP_STARTUP_PROBE=true`, runs a bounded yt-dlp format probe for the controlled public test video. The protected `GET /health/proxy` endpoint requires the worker bearer secret. It returns operator diagnostics including egress/WARP state, but the TanStack server maps that response to a sanitized health status before browser code sees it. Proxy URLs, credentials, and egress IPs never enter browser responses.
+On startup the worker checks Cloudflare trace and, when `YTDLP_STARTUP_PROBE=true`, runs a bounded yt-dlp format probe for the controlled public test video. The protected `GET /health/proxy` endpoint requires the worker bearer secret. It reports sanitized readiness for `operator_proxy`, `protected_pool`, and `cobalt`, including configured/healthy/unique member counts and fixed reason codes such as `protected_pool_exhausted`, `cobalt_unreachable`, or `operator_proxy_unconfigured`. It deliberately omits proxy URLs, credentials, raw egress IPs, and provider stderr. The TanStack server further maps this to non-technical customer copy.
 
 `services/video-worker/warp` builds a pinned MIT-licensed user-space WARP client that needs no `NET_ADMIN` capability and exposes HTTP CONNECT on private port 8080. A separate Render health listener returns success only when the proxied Cloudflare trace contains `warp=on` or `warp=plus`. Registration state is persisted. WARP access and the proxy implementation are free, but Render private services require paid compute.
 
@@ -50,6 +56,12 @@ Every network attempt is inserted into `source_acquisition_attempts` before it s
 The WARP pool measures every registration through Cloudflare trace, HMAC-fingerprints the actual egress address, and deduplicates registrations that happen to receive the same address. The free Render Blueprint uses two embedded registrations to respect the free worker's process and memory limits. The standalone sidecar remains available for paid or self-hosted deployments. Pool failure leaves the worker ready for uploads, rendering, Cobalt, and authorised-source recovery, while `/health/proxy` accurately reports blocked egress; direct production download remains disabled.
 
 Cobalt is optional extractor diversity, not a guaranteed network bypass. The official image, API-key wrapper, AGPL notice, Compose contract test, and optional Render example live in `services/cobalt/`. The hosted `api.cobalt.tools` endpoint is not used. See the [current Cobalt API documentation](https://github.com/imputnet/cobalt/blob/main/docs/api.md) and [instance protection guide](https://github.com/imputnet/cobalt/blob/main/docs/protect-an-instance.md).
+
+### Operator proxy setup
+
+`YTDLP_PROXY_URL` is the first production tier because a clean operator-controlled egress path is generally more durable than shared VPN/datacenter addresses. Configure it only on the worker, never Vercel or a `VITE_` variable. Accepted schemes are `http`, `https`, `socks5`, and `socks5h`; authenticated URLs are supported and must be stored as an encrypted host secret. Restart the worker, then call the bearer-protected `/health/proxy`. The expected result is `tiers.operator_proxy.state=ready`; the response never echoes the configured URL or its address.
+
+If the endpoint reports `operator_proxy_blocked`, rotate or repair the operator-managed endpoint and redeploy. Removing `YTDLP_PROXY_URL` intentionally restores the protected-pool tier. Never work around a failed proxy by enabling direct production egress. Self-hosters should size request quotas for the documented bounded strategy count and retain the 5-10 second pacing defaults.
 
 ## Internal Python acquisition API
 

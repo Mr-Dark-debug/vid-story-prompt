@@ -1,15 +1,13 @@
-import { Link, useRouter } from "@tanstack/react-router";
+import { useRouter } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
-  ArrowRight,
   Check,
   CheckCircle2,
   Clock3,
   Info,
   LoaderCircle,
   RotateCcw,
-  Scissors,
   ShieldAlert,
   X,
   XCircle,
@@ -26,6 +24,9 @@ import { YouTubePublishPanel } from "./youtube-publish-panel";
 import { JobStatusBadge } from "./job-status-badge";
 import { AuthorisedSourceRecovery } from "./authorised-source-recovery";
 import { WorkerEgressBadge } from "@/components/dashboard/WorkerEgressBadge";
+import { sourceRecoveryMessage } from "@/domain/clipping/source-copy";
+import { ResultsGallery } from "./results-gallery";
+import { SocialPublishPanel } from "./social-publish-panel";
 
 type JobData = Awaited<ReturnType<typeof getClipJob>>;
 const retryableCodes = new Set([
@@ -51,10 +52,16 @@ export function JobProgress({
   data,
   youtubeConnection = null,
   publishingJobs = [],
+  socialDestinations = [],
+  socialPublishingJobs = [],
+  configuredSocialPlatforms = [],
 }: {
   data: JobData;
   youtubeConnection?: Parameters<typeof YouTubePublishPanel>[0]["connection"];
   publishingJobs?: Parameters<typeof YouTubePublishPanel>[0]["jobs"];
+  socialDestinations?: Parameters<typeof SocialPublishPanel>[0]["destinations"];
+  socialPublishingJobs?: Parameters<typeof SocialPublishPanel>[0]["jobs"];
+  configuredSocialPlatforms?: string[];
 }) {
   const router = useRouter();
   const { job, events, clips, exports, tasks } = data;
@@ -110,17 +117,7 @@ export function JobProgress({
     ) &&
     !failedTask.force_proxy,
   );
-  const acquisitionMessage =
-    failedTask?.error_code === "provider_auth_challenge" ||
-    failedTask?.error_code === "provider_rate_limited" ||
-    failedTask?.error_code === "provider_temporary_failure" ||
-    failedTask?.error_code === "video_restricted"
-      ? "YouTube blocked this request from the server's network. The worker tried every protected Cloudflare WARP path and the optional source adapter. Attach an authorised original below to resume this same job without losing your clip settings."
-      : failedTask?.error_code === "video_private" ||
-          failedTask?.error_code === "video_age_restricted" ||
-          failedTask?.error_code === "video_unavailable"
-        ? "This YouTube source cannot be acquired automatically. Protected egress does not bypass private, age, region, or availability restrictions. Attach the authorised original below to continue this same job."
-        : job.error_message;
+  const acquisitionMessage = sourceRecoveryMessage(failedTask?.error_code, job.error_message);
   const orderedEvents = useMemo(() => [...events].reverse(), [events]);
 
   const retry = async (forceProxy = false) => {
@@ -235,7 +232,7 @@ export function JobProgress({
                 onClick={() => void retry(true)}
                 className="mt-3 ml-3 inline-flex min-h-10 items-center gap-1.5 rounded-lg border border-danger/25 px-3 font-semibold disabled:opacity-60"
               >
-                <ShieldAlert className="h-3.5 w-3.5" /> Retry through WARP
+                <ShieldAlert className="h-3.5 w-3.5" /> Retry source access
               </button>
             ) : null}
           </div>
@@ -250,48 +247,15 @@ export function JobProgress({
           onResumed={() => router.invalidate()}
         />
       ) : null}
-      {clips.length > 0 && (
-        <section className="mt-8">
-          <div className="flex items-end justify-between">
-            <div>
-              <div className="text-[11px] uppercase tracking-wider text-ink-mute">Results</div>
-              <h2 className="mt-1 font-display text-2xl text-ink">Recommended moments</h2>
-            </div>
-            <button className="rounded-lg bg-ink px-3 py-2 text-sm font-semibold text-surface-page">
-              Export selected
-            </button>
-          </div>
-          <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {clips.map((clip, index) => (
-              <article
-                key={clip.id}
-                className="overflow-hidden rounded-2xl border border-line bg-surface-panel"
-              >
-                <div className="flex aspect-[9/16] max-h-72 items-center justify-center bg-gradient-to-b from-[#4b4038] to-[#191b1a]">
-                  <Scissors className="h-7 w-7 text-white/40" />
-                </div>
-                <div className="p-4">
-                  <div className="flex items-start justify-between gap-3">
-                    <h3 className="font-medium text-ink">{clip.title}</h3>
-                    <span className="font-mono text-sm text-ember-ink">#{index + 1}</span>
-                  </div>
-                  <div className="mt-2 text-xs text-ink-mute">
-                    {Number(clip.duration_seconds).toFixed(1)} sec · {clip.status}
-                  </div>
-                  <Link
-                    to="/app/youtube-clipper/clips/$clipId/edit"
-                    params={{ clipId: clip.id }}
-                    className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-ember-ink"
-                  >
-                    Edit clip
-                    <ArrowRight className="h-4 w-4" />
-                  </Link>
-                </div>
-              </article>
-            ))}
-          </div>
-        </section>
-      )}
+      {data.candidates.length > 0 ? (
+        <ResultsGallery
+          candidates={data.candidates}
+          clips={clips}
+          exports={exports}
+          jobId={job.id}
+          titleRegenerationAvailable={data.titleRegenerationAvailable}
+        />
+      ) : null}
       {exports.length > 0 && (
         <section className="mt-8">
           <h2 className="font-display text-xl text-ink">Exports</h2>
@@ -334,6 +298,13 @@ export function JobProgress({
         exports={exports}
         connection={youtubeConnection}
         jobs={publishingJobs}
+        defaultTitle={job.source_title ?? "Vidrial clip"}
+      />
+      <SocialPublishPanel
+        exports={exports}
+        destinations={socialDestinations}
+        jobs={socialPublishingJobs}
+        configuredPlatforms={configuredSocialPlatforms}
         defaultTitle={job.source_title ?? "Vidrial clip"}
       />
       <section className="mt-8">
@@ -381,11 +352,6 @@ export function JobProgress({
                       {event.attempt ? (
                         <span className="rounded-full bg-surface-sunken px-2 py-0.5 text-[10px] text-ink-mute">
                           Attempt {event.attempt}
-                        </span>
-                      ) : null}
-                      {event.proxy_tier ? (
-                        <span className="rounded-full border border-line bg-surface-panel px-2 py-0.5 text-[10px] font-medium text-ink-soft">
-                          Egress: {event.proxy_tier.replaceAll("_", " ")}
                         </span>
                       ) : null}
                     </div>

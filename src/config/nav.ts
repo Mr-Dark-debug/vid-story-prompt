@@ -21,6 +21,7 @@ export const useCasesMenu: NavItem[] = [
 ];
 
 export const resourcesMenu: NavItem[] = [
+  { label: "Blog", to: "/blog", description: "Practical video editing guides" },
   { label: "Documentation", to: "/docs" },
   { label: "Changelog", to: "/changelog" },
   { label: "Roadmap", to: "/roadmap" },
@@ -46,6 +47,7 @@ export const footerColumns: { title: string; items: NavItem[] }[] = [
   {
     title: "Resources",
     items: [
+      { label: "Blog", to: "/blog" },
       { label: "Documentation", to: "/docs" },
       { label: "AI transparency", to: "/ai-transparency" },
       { label: "Security", to: "/security" },

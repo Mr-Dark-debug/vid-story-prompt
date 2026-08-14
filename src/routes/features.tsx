@@ -16,7 +16,7 @@ const features = [
     t: "AI edit planning",
     need: "One prompt is never really one edit.",
     does: "Turn a sentence into a reviewable list of operations with a duration estimate.",
-    eg: "Accept the pacing changes and reject the B-roll insert in one click.",
+    eg: "Accept a pacing change and reject an unwanted trim in one click.",
     avail: "Beta",
   },
   {
@@ -36,7 +36,7 @@ const features = [
   {
     t: "Caption creation",
     need: "Every platform wants captions.",
-    does: "Generate, style, position and export burned-in or sidecar subtitles.",
+    does: "Correct caption text and timing, then render burned-in captions with beta animated presets.",
     eg: "Clean Editorial preset for YouTube, Bold Hook for Reels.",
     avail: "Beta",
   },
@@ -52,7 +52,7 @@ const features = [
     need: '"Wait, where\'s that shot?"',
     does: "Semantic search over your uploads and one-click placement onto the timeline.",
     eg: '"exterior sunset with no people" → 3 matches, ranked.',
-    avail: "Available",
+    avail: "Coming soon",
   },
   {
     t: "Aspect-ratio adaptation",

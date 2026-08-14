@@ -5,7 +5,10 @@ test("public clipper presents the complete authorised-source flow", async ({ pag
     page.getByRole("heading", { name: "Turn one long video into clips worth watching." }),
   ).toBeVisible();
   await expect(page.getByLabel("YouTube video URL")).toBeVisible();
-  await expect(page.getByText("Interactive demonstration")).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "One conversation. Five complete moments." }),
+  ).toBeVisible();
+  await expect(page.getByText(/deterministic demonstration/i)).toBeVisible();
   await expect(
     page.getByText("Only upload or process content you own or are authorised to use."),
   ).toBeVisible();
@@ -21,10 +24,11 @@ test("signup visibly verifies the visitor before enabling account creation", asy
   await page.goto("/signup");
 
   await expect(page.getByRole("heading", { name: "Create your workspace." })).toBeVisible();
-  await expect(page.getByText("Security verification")).toBeVisible();
+  await expect(page.getByTestId("turnstile-verification")).toBeVisible({ timeout: 15_000 });
   await expect(page.locator('input[name="cf-turnstile-response"]')).toHaveValue(/.+/, {
     timeout: 15_000,
   });
+  await expect(page.getByText("Browser security checked", { exact: true })).toBeVisible();
   await expect(page.getByRole("button", { name: "Sign up with Google" })).toBeEnabled({
     timeout: 15_000,
   });

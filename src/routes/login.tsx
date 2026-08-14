@@ -19,7 +19,10 @@ export const Route = createFileRoute("/login")({
       throw redirect({ href: safeAuthenticatedDestination(search.redirect) });
   },
   head: () => ({
-    meta: [{ title: "Log in — Vidrial" }],
+    meta: [
+      { title: "Log in — Vidrial" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
     links: [{ rel: "canonical", href: "/login" }],
   }),
   component: LoginPage,

@@ -112,8 +112,8 @@ export function YouTubeClipperPublicPage() {
             </h1>
             <p className="mx-auto mt-6 max-w-2xl text-base leading-relaxed text-ink-soft sm:text-lg">
               Add an eligible YouTube video and confirm you have the right to use it. Vidrial
-              acquires the media securely, finds complete moments, reframes the video, creates
-              captions and gives you editable clips for Shorts, Reels and TikTok.
+              acquires the media securely, finds complete moments, creates editable captions and
+              gives you clips you can review before exporting for Shorts, Reels and TikTok.
             </p>
           </div>
           <form
@@ -201,7 +201,7 @@ export function YouTubeClipperPublicPage() {
             applicationCategory: "MultimediaApplication",
             operatingSystem: "Web",
             description:
-              "Find complete moments in authorised long videos, add captions, reframe and export editable social clips.",
+              "Find complete moments in authorised long videos, correct captions and export editable social clips.",
             offers: { "@type": "Offer", price: "0", priceCurrency: "USD" },
           }),
         }}
@@ -367,7 +367,7 @@ function FeatureStory() {
     {
       eyebrow: "Captions ready for social video",
       title: "Readable captions that remain editable.",
-      body: "Correct words, adjust timing, split or merge cues and export SRT or VTT. Final burned-in captions are rendered server-side for deterministic output.",
+      body: "Correct words, adjust timing, split or merge cues, and review the result in the editor. Final burned-in captions are rendered server-side for deterministic output.",
       icon: Captions,
     },
     {
@@ -379,7 +379,7 @@ function FeatureStory() {
     {
       eyebrow: "Download one clip or all of them",
       title: "Deliver the video and the context around it.",
-      body: "Export individual MP4, SRT, VTT, transcript and metadata files, or build a sanitised ZIP for every selected clip.",
+      body: "Export an individual MP4 or build a sanitised ZIP for selected clips. SRT and VTT sidecar export remain on the roadmap.",
       icon: Download,
     },
   ];

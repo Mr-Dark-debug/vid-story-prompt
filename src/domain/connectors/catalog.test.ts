@@ -12,8 +12,8 @@ describe("connector catalog", () => {
       capabilities: expect.arrayContaining(["metadata", "download_original"]),
     });
     expect(CONNECTOR_REGISTRY.find((item) => item.id === "tiktok")).toMatchObject({
-      availability: "coming_soon",
-      capabilities: [],
+      availability: "beta",
+      capabilities: ["publish"],
     });
   });
 

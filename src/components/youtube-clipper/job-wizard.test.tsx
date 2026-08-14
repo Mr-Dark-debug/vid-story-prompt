@@ -7,9 +7,8 @@ vi.mock("@/services/clipping/server", () => ({ createClipJob: vi.fn() }));
 vi.mock("@/services/worker/server", () => ({
   getWorkerEgressHealth: vi.fn().mockResolvedValue({
     checkedAt: "2026-07-18T21:00:00.000Z",
-    message: "Protected worker egress is healthy.",
+    message: "Automatic source access is available.",
     status: "healthy",
-    tier: "render_warp",
   }),
 }));
 vi.mock("./source-upload", () => ({
@@ -139,11 +138,11 @@ describe("job wizard", () => {
     expect(screen.getByTestId("youtube-source-fields")).not.toHaveClass("bg-surface-raised");
   });
 
-  it("surfaces worker egress health in the active YouTube source step", async () => {
+  it("surfaces automatic source access in the active YouTube source step", async () => {
     render(<JobWizard />);
 
     expect(
-      await screen.findByRole("status", { name: "Worker egress: Healthy" }),
+      await screen.findByRole("status", { name: "Source access: Healthy" }),
     ).toBeInTheDocument();
   });
 

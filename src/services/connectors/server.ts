@@ -5,6 +5,16 @@ import { getSupabaseAdminClient, getSupabaseServerClient } from "@/lib/supabase/
 import { getCurrentSession } from "@/services/auth/server";
 import { connectorConfigured } from "./oauth.server";
 
+const credentialGatedOAuth = new Set([
+  "google_drive",
+  "dropbox",
+  "onedrive",
+  "facebook",
+  "instagram",
+  "tiktok",
+  "linkedin",
+]);
+
 type ConnectorDb = {
   from(table: string): ConnectorQuery;
 };
@@ -42,18 +52,13 @@ export const getPublicConnectorCatalog = createServerFn({ method: "GET" }).handl
   return CONNECTOR_REGISTRY.map((definition) => ({
     ...definition,
     connected: connected.has(definition.id),
-    configured:
-      definition.id === "google_drive" ||
-      definition.id === "dropbox" ||
-      definition.id === "onedrive"
-        ? connectorConfigured(definition.id)
+    configured: credentialGatedOAuth.has(definition.id)
+        ? connectorConfigured(definition.id as Parameters<typeof connectorConfigured>[0])
         : definition.availability === "available",
     executable:
       definition.availability === "available" ||
-      ((definition.id === "google_drive" ||
-        definition.id === "dropbox" ||
-        definition.id === "onedrive") &&
-        connectorConfigured(definition.id)),
+      (credentialGatedOAuth.has(definition.id) &&
+        connectorConfigured(definition.id as Parameters<typeof connectorConfigured>[0])),
   }));
 });
 

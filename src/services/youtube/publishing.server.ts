@@ -99,6 +99,7 @@ export const listYouTubePublishingJobs = createServerFn({ method: "GET" })
       .select("*")
       .eq("clip_job_id", data.clipJobId)
       .eq("workspace_id", session.workspaceId)
+      .eq("platform", "youtube")
       .order("created_at", { ascending: false });
     if (error) throw new Error(error.message);
     return jobs ?? [];

@@ -5,7 +5,13 @@ vi.hoisted(() => {
   process.env.SUPABASE_SERVICE_ROLE_KEY = "worker-test-service-role-key-long-enough";
 });
 
-import { parseCloudflareTrace, probeProxyHealth, probeProxyPoolHealth } from "./proxy-health.js";
+import {
+  acquisitionTierDiagnostics,
+  parseCloudflareTrace,
+  probeCobaltHealth,
+  probeProxyHealth,
+  probeProxyPoolHealth,
+} from "./proxy-health.js";
 import { parseProxyPool } from "../security/youtube-egress-pool.js";
 
 describe("proxy health", () => {
@@ -102,4 +108,61 @@ describe("proxy health", () => {
       uniqueEgressMembers: health.uniqueEgressMembers,
     })).not.toMatch(/secret|warp-a|203\.0\.113/);
   });
+
+  it("probes configured Cobalt without returning credentials or URLs", async () => {
+    const fetcher = vi.fn().mockResolvedValue(new Response("ok", { status: 200 }));
+    await expect(
+      probeCobaltHealth("https://cobalt.example.test", "cobalt-api-key", { fetcher }),
+    ).resolves.toEqual({ configured: true, reasonCode: "cobalt_ready", state: "ready" });
+    expect(fetcher).toHaveBeenCalledWith(
+      new URL("https://cobalt.example.test/"),
+      expect.objectContaining({
+        headers: expect.objectContaining({ authorization: "Api-Key cobalt-api-key" }),
+      }),
+    );
+  });
+
+  it("reports sanitized readiness for every acquisition tier", () => {
+    const tiers = acquisitionTierDiagnostics({
+      cobalt: { configured: true, reasonCode: "cobalt_unreachable", state: "blocked" },
+      operatorProxyConfigured: false,
+      protectedPoolConfiguredMembers: 2,
+      proxyHealth: {
+        ...probeFixture,
+        errorCode: "insufficient_unique_egress",
+        status: "blocked",
+        configuredMembers: 2,
+        healthyMembers: 0,
+        uniqueEgressMembers: 0,
+      },
+    });
+    expect(tiers).toEqual({
+      cobalt: { configured: true, reasonCode: "cobalt_unreachable", state: "blocked" },
+      operatorProxy: {
+        configured: false,
+        reasonCode: "operator_proxy_unconfigured",
+        state: "unconfigured",
+      },
+      protectedPool: {
+        configured: true,
+        configuredMembers: 2,
+        healthyMembers: 0,
+        uniqueMembers: 0,
+        reasonCode: "protected_pool_exhausted",
+        state: "blocked",
+      },
+    });
+    expect(JSON.stringify(tiers)).not.toMatch(/203\.0\.113|https?:\/\//);
+  });
 });
+
+const probeFixture = {
+  checkedAt: "2026-08-14T00:00:00.000Z",
+  egressIp: null,
+  errorCode: null,
+  proxyReachable: false,
+  status: "unknown" as const,
+  tier: "warp" as const,
+  warpEnabled: false,
+  ytdlpReachable: false,
+};

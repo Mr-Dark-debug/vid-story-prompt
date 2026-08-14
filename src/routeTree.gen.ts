@@ -14,8 +14,13 @@ import { Route as VerifyEmailRouteImport } from './routes/verify-email'
 import { Route as UseCasesRouteImport } from './routes/use-cases'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as StatusRouteImport } from './routes/status'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
+import { Route as SitemapBlogDotxmlRouteImport } from './routes/sitemap-blog[.]xml'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SecurityRouteImport } from './routes/security'
+import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
 import { Route as RoadmapRouteImport } from './routes/roadmap'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as PrivacyRouteImport } from './routes/privacy'
@@ -31,11 +36,13 @@ import { Route as CopyrightRouteImport } from './routes/copyright'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as BlogRouteImport } from './routes/blog'
 import { Route as AiTransparencyRouteImport } from './routes/ai-transparency'
 import { Route as AcceptableUseRouteImport } from './routes/acceptable-use'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UseCasesIndexRouteImport } from './routes/use-cases.index'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as UseCasesYoutubeRouteImport } from './routes/use-cases.youtube'
 import { Route as UseCasesShortFormRouteImport } from './routes/use-cases.short-form'
 import { Route as UseCasesProductDemosRouteImport } from './routes/use-cases.product-demos'
@@ -46,11 +53,14 @@ import { Route as DocsTimelineRouteImport } from './routes/docs.timeline'
 import { Route as DocsGettingStartedRouteImport } from './routes/docs.getting-started'
 import { Route as DocsExportingRouteImport } from './routes/docs.exporting'
 import { Route as DocsAiEditorRouteImport } from './routes/docs.ai-editor'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated.app'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated.app.index'
+import { Route as BlogCategoryCategoryRouteImport } from './routes/blog.category.$category'
 import { Route as AuthYoutubeCallbackRouteImport } from './routes/auth.youtube.callback'
 import { Route as ApiYoutubeWebhookRouteImport } from './routes/api.youtube.webhook'
+import { Route as ApiIndexnowPublishRouteImport } from './routes/api.indexnow.publish'
 import { Route as AuthenticatedAppYoutubeClipperRouteImport } from './routes/_authenticated.app.youtube-clipper'
 import { Route as AuthenticatedAppUsageRouteImport } from './routes/_authenticated.app.usage'
 import { Route as AuthenticatedAppUploadsRouteImport } from './routes/_authenticated.app.uploads'
@@ -108,6 +118,21 @@ const StatusRoute = StatusRouteImport.update({
   path: '/status',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
+  id: '/sitemap-pages.xml',
+  path: '/sitemap-pages.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapBlogDotxmlRoute = SitemapBlogDotxmlRouteImport.update({
+  id: '/sitemap-blog.xml',
+  path: '/sitemap-blog.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SignupRoute = SignupRouteImport.update({
   id: '/signup',
   path: '/signup',
@@ -116,6 +141,16 @@ const SignupRoute = SignupRouteImport.update({
 const SecurityRoute = SecurityRouteImport.update({
   id: '/security',
   path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RssDotxmlRoute = RssDotxmlRouteImport.update({
+  id: '/rss.xml',
+  path: '/rss.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
   getParentRoute: () => rootRouteImport,
 } as any)
 const RoadmapRoute = RoadmapRouteImport.update({
@@ -193,6 +228,11 @@ const ChangelogRoute = ChangelogRouteImport.update({
   path: '/changelog',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AiTransparencyRoute = AiTransparencyRouteImport.update({
   id: '/ai-transparency',
   path: '/ai-transparency',
@@ -216,6 +256,11 @@ const UseCasesIndexRoute = UseCasesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => UseCasesRoute,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BlogRoute,
 } as any)
 const UseCasesYoutubeRoute = UseCasesYoutubeRouteImport.update({
   id: '/youtube',
@@ -267,6 +312,11 @@ const DocsAiEditorRoute = DocsAiEditorRouteImport.update({
   path: '/ai-editor',
   getParentRoute: () => DocsRoute,
 } as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
+} as any)
 const AuthCallbackRoute = AuthCallbackRouteImport.update({
   id: '/auth/callback',
   path: '/auth/callback',
@@ -282,6 +332,11 @@ const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
+const BlogCategoryCategoryRoute = BlogCategoryCategoryRouteImport.update({
+  id: '/category/$category',
+  path: '/category/$category',
+  getParentRoute: () => BlogRoute,
+} as any)
 const AuthYoutubeCallbackRoute = AuthYoutubeCallbackRouteImport.update({
   id: '/auth/youtube/callback',
   path: '/auth/youtube/callback',
@@ -290,6 +345,11 @@ const AuthYoutubeCallbackRoute = AuthYoutubeCallbackRouteImport.update({
 const ApiYoutubeWebhookRoute = ApiYoutubeWebhookRouteImport.update({
   id: '/api/youtube/webhook',
   path: '/api/youtube/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiIndexnowPublishRoute = ApiIndexnowPublishRouteImport.update({
+  id: '/api/indexnow/publish',
+  path: '/api/indexnow/publish',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppYoutubeClipperRoute =
@@ -479,6 +539,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/acceptable-use': typeof AcceptableUseRoute
   '/ai-transparency': typeof AiTransparencyRoute
+  '/blog': typeof BlogRouteWithChildren
   '/changelog': typeof ChangelogRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
@@ -494,8 +555,13 @@ export interface FileRoutesByFullPath {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/rss.xml': typeof RssDotxmlRoute
   '/security': typeof SecurityRoute
   '/signup': typeof SignupRoute
+  '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
   '/use-cases': typeof UseCasesRouteWithChildren
@@ -503,6 +569,7 @@ export interface FileRoutesByFullPath {
   '/youtube-clipper': typeof YoutubeClipperRoute
   '/app': typeof AuthenticatedAppRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/docs/ai-editor': typeof DocsAiEditorRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
@@ -513,6 +580,7 @@ export interface FileRoutesByFullPath {
   '/use-cases/product-demos': typeof UseCasesProductDemosRoute
   '/use-cases/short-form': typeof UseCasesShortFormRoute
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
+  '/blog/': typeof BlogIndexRoute
   '/use-cases/': typeof UseCasesIndexRoute
   '/app/automations': typeof AuthenticatedAppAutomationsRouteWithChildren
   '/app/billing': typeof AuthenticatedAppBillingRoute
@@ -523,8 +591,10 @@ export interface FileRoutesByFullPath {
   '/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/app/usage': typeof AuthenticatedAppUsageRoute
   '/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperRouteWithChildren
+  '/api/indexnow/publish': typeof ApiIndexnowPublishRoute
   '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
+  '/blog/category/$category': typeof BlogCategoryCategoryRoute
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
   '/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
@@ -568,13 +638,19 @@ export interface FileRoutesByTo {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/rss.xml': typeof RssDotxmlRoute
   '/security': typeof SecurityRoute
   '/signup': typeof SignupRoute
+  '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
   '/verify-email': typeof VerifyEmailRoute
   '/youtube-clipper': typeof YoutubeClipperRoute
   '/auth/callback': typeof AuthCallbackRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/docs/ai-editor': typeof DocsAiEditorRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
@@ -585,6 +661,7 @@ export interface FileRoutesByTo {
   '/use-cases/product-demos': typeof UseCasesProductDemosRoute
   '/use-cases/short-form': typeof UseCasesShortFormRoute
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
+  '/blog': typeof BlogIndexRoute
   '/use-cases': typeof UseCasesIndexRoute
   '/app/billing': typeof AuthenticatedAppBillingRoute
   '/app/feedback': typeof AuthenticatedAppFeedbackRoute
@@ -592,8 +669,10 @@ export interface FileRoutesByTo {
   '/app/templates': typeof AuthenticatedAppTemplatesRoute
   '/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/app/usage': typeof AuthenticatedAppUsageRoute
+  '/api/indexnow/publish': typeof ApiIndexnowPublishRoute
   '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
+  '/blog/category/$category': typeof BlogCategoryCategoryRoute
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
   '/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
@@ -623,6 +702,7 @@ export interface FileRoutesById {
   '/_authenticated': typeof AuthenticatedRouteWithChildren
   '/acceptable-use': typeof AcceptableUseRoute
   '/ai-transparency': typeof AiTransparencyRoute
+  '/blog': typeof BlogRouteWithChildren
   '/changelog': typeof ChangelogRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
@@ -638,8 +718,13 @@ export interface FileRoutesById {
   '/privacy': typeof PrivacyRoute
   '/reset-password': typeof ResetPasswordRoute
   '/roadmap': typeof RoadmapRoute
+  '/robots.txt': typeof RobotsDottxtRoute
+  '/rss.xml': typeof RssDotxmlRoute
   '/security': typeof SecurityRoute
   '/signup': typeof SignupRoute
+  '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
+  '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
+  '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
   '/terms': typeof TermsRoute
   '/use-cases': typeof UseCasesRouteWithChildren
@@ -647,6 +732,7 @@ export interface FileRoutesById {
   '/youtube-clipper': typeof YoutubeClipperRoute
   '/_authenticated/app': typeof AuthenticatedAppRouteWithChildren
   '/auth/callback': typeof AuthCallbackRoute
+  '/blog/$slug': typeof BlogSlugRoute
   '/docs/ai-editor': typeof DocsAiEditorRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
@@ -657,6 +743,7 @@ export interface FileRoutesById {
   '/use-cases/product-demos': typeof UseCasesProductDemosRoute
   '/use-cases/short-form': typeof UseCasesShortFormRoute
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
+  '/blog/': typeof BlogIndexRoute
   '/use-cases/': typeof UseCasesIndexRoute
   '/_authenticated/app/automations': typeof AuthenticatedAppAutomationsRouteWithChildren
   '/_authenticated/app/billing': typeof AuthenticatedAppBillingRoute
@@ -667,8 +754,10 @@ export interface FileRoutesById {
   '/_authenticated/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/_authenticated/app/usage': typeof AuthenticatedAppUsageRoute
   '/_authenticated/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperRouteWithChildren
+  '/api/indexnow/publish': typeof ApiIndexnowPublishRoute
   '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
+  '/blog/category/$category': typeof BlogCategoryCategoryRoute
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
   '/_authenticated/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
@@ -699,6 +788,7 @@ export interface FileRouteTypes {
     | '/'
     | '/acceptable-use'
     | '/ai-transparency'
+    | '/blog'
     | '/changelog'
     | '/contact'
     | '/cookies'
@@ -714,8 +804,13 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/roadmap'
+    | '/robots.txt'
+    | '/rss.xml'
     | '/security'
     | '/signup'
+    | '/sitemap-blog.xml'
+    | '/sitemap-pages.xml'
+    | '/sitemap.xml'
     | '/status'
     | '/terms'
     | '/use-cases'
@@ -723,6 +818,7 @@ export interface FileRouteTypes {
     | '/youtube-clipper'
     | '/app'
     | '/auth/callback'
+    | '/blog/$slug'
     | '/docs/ai-editor'
     | '/docs/exporting'
     | '/docs/getting-started'
@@ -733,6 +829,7 @@ export interface FileRouteTypes {
     | '/use-cases/product-demos'
     | '/use-cases/short-form'
     | '/use-cases/youtube'
+    | '/blog/'
     | '/use-cases/'
     | '/app/automations'
     | '/app/billing'
@@ -743,8 +840,10 @@ export interface FileRouteTypes {
     | '/app/uploads'
     | '/app/usage'
     | '/app/youtube-clipper'
+    | '/api/indexnow/publish'
     | '/api/youtube/webhook'
     | '/auth/youtube/callback'
+    | '/blog/category/$category'
     | '/app/'
     | '/app/automations/$automationId'
     | '/app/automations/new'
@@ -788,13 +887,19 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/roadmap'
+    | '/robots.txt'
+    | '/rss.xml'
     | '/security'
     | '/signup'
+    | '/sitemap-blog.xml'
+    | '/sitemap-pages.xml'
+    | '/sitemap.xml'
     | '/status'
     | '/terms'
     | '/verify-email'
     | '/youtube-clipper'
     | '/auth/callback'
+    | '/blog/$slug'
     | '/docs/ai-editor'
     | '/docs/exporting'
     | '/docs/getting-started'
@@ -805,6 +910,7 @@ export interface FileRouteTypes {
     | '/use-cases/product-demos'
     | '/use-cases/short-form'
     | '/use-cases/youtube'
+    | '/blog'
     | '/use-cases'
     | '/app/billing'
     | '/app/feedback'
@@ -812,8 +918,10 @@ export interface FileRouteTypes {
     | '/app/templates'
     | '/app/uploads'
     | '/app/usage'
+    | '/api/indexnow/publish'
     | '/api/youtube/webhook'
     | '/auth/youtube/callback'
+    | '/blog/category/$category'
     | '/app'
     | '/app/automations/$automationId'
     | '/app/automations/new'
@@ -842,6 +950,7 @@ export interface FileRouteTypes {
     | '/_authenticated'
     | '/acceptable-use'
     | '/ai-transparency'
+    | '/blog'
     | '/changelog'
     | '/contact'
     | '/cookies'
@@ -857,8 +966,13 @@ export interface FileRouteTypes {
     | '/privacy'
     | '/reset-password'
     | '/roadmap'
+    | '/robots.txt'
+    | '/rss.xml'
     | '/security'
     | '/signup'
+    | '/sitemap-blog.xml'
+    | '/sitemap-pages.xml'
+    | '/sitemap.xml'
     | '/status'
     | '/terms'
     | '/use-cases'
@@ -866,6 +980,7 @@ export interface FileRouteTypes {
     | '/youtube-clipper'
     | '/_authenticated/app'
     | '/auth/callback'
+    | '/blog/$slug'
     | '/docs/ai-editor'
     | '/docs/exporting'
     | '/docs/getting-started'
@@ -876,6 +991,7 @@ export interface FileRouteTypes {
     | '/use-cases/product-demos'
     | '/use-cases/short-form'
     | '/use-cases/youtube'
+    | '/blog/'
     | '/use-cases/'
     | '/_authenticated/app/automations'
     | '/_authenticated/app/billing'
@@ -886,8 +1002,10 @@ export interface FileRouteTypes {
     | '/_authenticated/app/uploads'
     | '/_authenticated/app/usage'
     | '/_authenticated/app/youtube-clipper'
+    | '/api/indexnow/publish'
     | '/api/youtube/webhook'
     | '/auth/youtube/callback'
+    | '/blog/category/$category'
     | '/_authenticated/app/'
     | '/_authenticated/app/automations/$automationId'
     | '/_authenticated/app/automations/new'
@@ -918,6 +1036,7 @@ export interface RootRouteChildren {
   AuthenticatedRoute: typeof AuthenticatedRouteWithChildren
   AcceptableUseRoute: typeof AcceptableUseRoute
   AiTransparencyRoute: typeof AiTransparencyRoute
+  BlogRoute: typeof BlogRouteWithChildren
   ChangelogRoute: typeof ChangelogRoute
   ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
@@ -933,14 +1052,20 @@ export interface RootRouteChildren {
   PrivacyRoute: typeof PrivacyRoute
   ResetPasswordRoute: typeof ResetPasswordRoute
   RoadmapRoute: typeof RoadmapRoute
+  RobotsDottxtRoute: typeof RobotsDottxtRoute
+  RssDotxmlRoute: typeof RssDotxmlRoute
   SecurityRoute: typeof SecurityRoute
   SignupRoute: typeof SignupRoute
+  SitemapBlogDotxmlRoute: typeof SitemapBlogDotxmlRoute
+  SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
+  SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StatusRoute: typeof StatusRoute
   TermsRoute: typeof TermsRoute
   UseCasesRoute: typeof UseCasesRouteWithChildren
   VerifyEmailRoute: typeof VerifyEmailRoute
   YoutubeClipperRoute: typeof YoutubeClipperRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  ApiIndexnowPublishRoute: typeof ApiIndexnowPublishRoute
   ApiYoutubeWebhookRoute: typeof ApiYoutubeWebhookRoute
   AuthYoutubeCallbackRoute: typeof AuthYoutubeCallbackRoute
   AuthConnectorsConnectorIdCallbackRoute: typeof AuthConnectorsConnectorIdCallbackRoute
@@ -983,6 +1108,27 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof StatusRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-pages.xml': {
+      id: '/sitemap-pages.xml'
+      path: '/sitemap-pages.xml'
+      fullPath: '/sitemap-pages.xml'
+      preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-blog.xml': {
+      id: '/sitemap-blog.xml'
+      path: '/sitemap-blog.xml'
+      fullPath: '/sitemap-blog.xml'
+      preLoaderRoute: typeof SitemapBlogDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/signup': {
       id: '/signup'
       path: '/signup'
@@ -995,6 +1141,20 @@ declare module '@tanstack/react-router' {
       path: '/security'
       fullPath: '/security'
       preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rss.xml': {
+      id: '/rss.xml'
+      path: '/rss.xml'
+      fullPath: '/rss.xml'
+      preLoaderRoute: typeof RssDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/roadmap': {
@@ -1102,6 +1262,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof ChangelogRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/ai-transparency': {
       id: '/ai-transparency'
       path: '/ai-transparency'
@@ -1136,6 +1303,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/use-cases/'
       preLoaderRoute: typeof UseCasesIndexRouteImport
       parentRoute: typeof UseCasesRoute
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/use-cases/youtube': {
       id: '/use-cases/youtube'
@@ -1207,6 +1381,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsAiEditorRouteImport
       parentRoute: typeof DocsRoute
     }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
+    }
     '/auth/callback': {
       id: '/auth/callback'
       path: '/auth/callback'
@@ -1228,6 +1409,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/blog/category/$category': {
+      id: '/blog/category/$category'
+      path: '/category/$category'
+      fullPath: '/blog/category/$category'
+      preLoaderRoute: typeof BlogCategoryCategoryRouteImport
+      parentRoute: typeof BlogRoute
+    }
     '/auth/youtube/callback': {
       id: '/auth/youtube/callback'
       path: '/auth/youtube/callback'
@@ -1240,6 +1428,13 @@ declare module '@tanstack/react-router' {
       path: '/api/youtube/webhook'
       fullPath: '/api/youtube/webhook'
       preLoaderRoute: typeof ApiYoutubeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/indexnow/publish': {
+      id: '/api/indexnow/publish'
+      path: '/api/indexnow/publish'
+      fullPath: '/api/indexnow/publish'
+      preLoaderRoute: typeof ApiIndexnowPublishRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/youtube-clipper': {
@@ -1611,6 +1806,20 @@ const AuthenticatedRouteWithChildren = AuthenticatedRoute._addFileChildren(
   AuthenticatedRouteChildren,
 )
 
+interface BlogRouteChildren {
+  BlogSlugRoute: typeof BlogSlugRoute
+  BlogIndexRoute: typeof BlogIndexRoute
+  BlogCategoryCategoryRoute: typeof BlogCategoryCategoryRoute
+}
+
+const BlogRouteChildren: BlogRouteChildren = {
+  BlogSlugRoute: BlogSlugRoute,
+  BlogIndexRoute: BlogIndexRoute,
+  BlogCategoryCategoryRoute: BlogCategoryCategoryRoute,
+}
+
+const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
+
 interface DocsRouteChildren {
   DocsAiEditorRoute: typeof DocsAiEditorRoute
   DocsExportingRoute: typeof DocsExportingRoute
@@ -1656,6 +1865,7 @@ const rootRouteChildren: RootRouteChildren = {
   AuthenticatedRoute: AuthenticatedRouteWithChildren,
   AcceptableUseRoute: AcceptableUseRoute,
   AiTransparencyRoute: AiTransparencyRoute,
+  BlogRoute: BlogRouteWithChildren,
   ChangelogRoute: ChangelogRoute,
   ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
@@ -1671,14 +1881,20 @@ const rootRouteChildren: RootRouteChildren = {
   PrivacyRoute: PrivacyRoute,
   ResetPasswordRoute: ResetPasswordRoute,
   RoadmapRoute: RoadmapRoute,
+  RobotsDottxtRoute: RobotsDottxtRoute,
+  RssDotxmlRoute: RssDotxmlRoute,
   SecurityRoute: SecurityRoute,
   SignupRoute: SignupRoute,
+  SitemapBlogDotxmlRoute: SitemapBlogDotxmlRoute,
+  SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
+  SitemapDotxmlRoute: SitemapDotxmlRoute,
   StatusRoute: StatusRoute,
   TermsRoute: TermsRoute,
   UseCasesRoute: UseCasesRouteWithChildren,
   VerifyEmailRoute: VerifyEmailRoute,
   YoutubeClipperRoute: YoutubeClipperRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  ApiIndexnowPublishRoute: ApiIndexnowPublishRoute,
   ApiYoutubeWebhookRoute: ApiYoutubeWebhookRoute,
   AuthYoutubeCallbackRoute: AuthYoutubeCallbackRoute,
   AuthConnectorsConnectorIdCallbackRoute:

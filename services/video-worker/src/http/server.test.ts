@@ -23,6 +23,22 @@ async function start(
   const server = createWorkerHttpServer({
     getState: () => ({
       activeTask: false,
+      acquisitionTiers: {
+        cobalt: { configured: true, reasonCode: "cobalt_ready", state: "ready" },
+        operatorProxy: {
+          configured: false,
+          reasonCode: "operator_proxy_unconfigured",
+          state: "unconfigured",
+        },
+        protectedPool: {
+          configured: true,
+          configuredMembers: 3,
+          healthyMembers: 2,
+          uniqueMembers: 1,
+          reasonCode: "protected_pool_ready",
+          state: "ready",
+        },
+      },
       cobaltEnabled: true,
       potProviderConfigured: true,
       pythonAcquisitionReady: true,
@@ -94,7 +110,6 @@ describe("worker HTTP server", () => {
     const body = await response.json();
     expect(body).toEqual({
       checked_at: "2026-07-18T20:00:00.000Z",
-      egress_ip: "203.0.113.7",
       error_code: null,
       proxy_reachable: true,
       proxy_tier: "warp",
@@ -106,8 +121,24 @@ describe("worker HTTP server", () => {
       healthy_members: 2,
       unique_egress_members: 1,
       cobalt_enabled: true,
+      tiers: {
+        cobalt: { configured: true, reasonCode: "cobalt_ready", state: "ready" },
+        operator_proxy: {
+          configured: false,
+          reasonCode: "operator_proxy_unconfigured",
+          state: "unconfigured",
+        },
+        protected_pool: {
+          configured: true,
+          configuredMembers: 3,
+          healthyMembers: 2,
+          uniqueMembers: 1,
+          reasonCode: "protected_pool_ready",
+          state: "ready",
+        },
+      },
     });
-    expect(JSON.stringify(body)).not.toMatch(/secret|warp-a/);
+    expect(JSON.stringify(body)).not.toMatch(/secret|warp-a|203\.0\.113/);
   });
 
   it("accepts only signed, bounded Python acquisition callbacks", async () => {

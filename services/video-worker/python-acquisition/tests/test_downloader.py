@@ -41,6 +41,43 @@ def test_plan_height_and_section_are_applied(tmp_path: Path) -> None:
     assert options["source_address"] == "0.0.0.0"
 
 
+def test_conservative_request_pacing_is_applied(tmp_path: Path) -> None:
+    options = build_ydl_options(
+        request_for(tmp_path),
+        tmp_path / "attempt",
+        Event(),
+        lambda *_: None,
+        maximum_bytes=100_000,
+        sleep_interval_seconds=5.0,
+        maximum_sleep_interval_seconds=10.0,
+        request_sleep_interval_seconds=1.0,
+    )
+    assert options["sleep_interval"] == 5.0
+    assert options["max_sleep_interval"] == 10.0
+    assert options["sleep_interval_requests"] == 1.0
+
+
+@pytest.mark.parametrize(
+    ("minimum", "maximum", "request_interval"),
+    [(4.9, 10.0, 1.0), (5.0, 10.1, 1.0), (5.0, 10.0, -0.1)],
+)
+def test_pacing_bounds_cannot_be_bypassed(
+    tmp_path: Path, minimum: float, maximum: float, request_interval: float
+) -> None:
+    with pytest.raises(AcquisitionError) as error:
+        build_ydl_options(
+            request_for(tmp_path),
+            tmp_path / "attempt",
+            Event(),
+            lambda *_: None,
+            maximum_bytes=100_000,
+            sleep_interval_seconds=minimum,
+            maximum_sleep_interval_seconds=maximum,
+            request_sleep_interval_seconds=request_interval,
+        )
+    assert error.value.code == "provider_configuration_error"
+
+
 def test_output_directory_must_be_beneath_worker_root(tmp_path: Path) -> None:
     with pytest.raises(AcquisitionError) as error:
         resolve_output_directory(str(tmp_path.parent), tmp_path)

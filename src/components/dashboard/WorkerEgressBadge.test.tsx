@@ -16,11 +16,11 @@ describe("WorkerEgressBadge", () => {
   ] as const)("renders the %s state with text, not color alone", (status, label) => {
     render(
       <WorkerEgressBadge
-        health={{ checkedAt: null, message: `${label} detail`, status, tier: "protected" }}
+        health={{ checkedAt: null, message: `${label} detail`, status }}
       />,
     );
-    expect(screen.getByRole("status", { name: `Worker egress: ${label}` })).toHaveTextContent(
-      `Worker egress: ${label}`,
+    expect(screen.getByRole("status", { name: `Source access: ${label}` })).toHaveTextContent(
+      `Source access: ${label}`,
     );
   });
 
@@ -29,12 +29,12 @@ describe("WorkerEgressBadge", () => {
       <WorkerEgressBadge
         health={{
           checkedAt: "2026-07-18T20:00:00.000Z",
-          message: "The worker verified protected egress.",
+          message: "Automatic source access is available.",
           status: "healthy",
-          tier: "operator",
         }}
       />,
     );
     expect(container).not.toHaveTextContent(/203\.0\.113|internal:8080/i);
+    expect(container).not.toHaveTextContent(/warp|cobalt|proxy|adapter|egress/i);
   });
 });

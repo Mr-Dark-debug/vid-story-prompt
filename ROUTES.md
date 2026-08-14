@@ -19,6 +19,15 @@ prefixes are layout/pathless routes.
 | `/use-cases/short-form` | `use-cases.short-form.tsx` | Social shorts |
 | `/use-cases/youtube` | `use-cases.youtube.tsx` | YouTube clipper landing |
 | `/youtube-clipper` | `youtube-clipper.tsx` | Public clipper page |
+| `/blog` | `blog.index.tsx` | Editorial blog index |
+| `/blog/$slug` | `blog.$slug.tsx` | Validated Markdown article |
+| `/blog/category/$category` | `blog.category.$category.tsx` | Crawlable topic category |
+
+## Search discovery
+
+`/sitemap.xml`, `/sitemap-pages.xml`, `/sitemap-blog.xml`, `/rss.xml`, and
+`/robots.txt` are server-rendered discovery endpoints. Published article URLs
+come only from validated, non-draft content with a PASS review status.
 
 ## Docs
 

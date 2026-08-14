@@ -1,8 +1,9 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
-import { finishConnectorConnection } from "@/services/connectors/oauth.server";
-
-const connectorSchema = z.enum(["google_drive", "dropbox", "onedrive"]);
+import {
+  finishConnectorConnection,
+  oauthConnectorSchema,
+} from "@/services/connectors/oauth.server";
 
 export const Route = createFileRoute("/auth/connectors/$connectorId/callback")({
   validateSearch: z.object({
@@ -11,7 +12,7 @@ export const Route = createFileRoute("/auth/connectors/$connectorId/callback")({
     error: z.string().optional(),
   }),
   beforeLoad: async ({ params, search }) => {
-    const connectorId = connectorSchema.safeParse(params.connectorId);
+    const connectorId = oauthConnectorSchema.safeParse(params.connectorId);
     if (!connectorId.success || search.error || !search.code || !search.state)
       throw redirect({
         to: "/app/settings/integrations",

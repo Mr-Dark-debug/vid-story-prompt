@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { mapWorkerProxyHealth } from "./server";
 
-describe("worker egress health boundary", () => {
-  it("maps WARP health to a protected browser-safe status", () => {
+describe("source access health boundary", () => {
+  it("maps worker health to browser-safe source access copy", () => {
     const result = mapWorkerProxyHealth({
       checked_at: "2026-07-18T20:00:00.000Z",
       proxy_tier: "render_warp",
@@ -11,9 +11,8 @@ describe("worker egress health boundary", () => {
 
     expect(result).toEqual({
       checkedAt: "2026-07-18T20:00:00.000Z",
-      message: "The worker verified protected WARP egress and YouTube reachability.",
+      message: "Automatic source access is available.",
       status: "healthy",
-      tier: "protected",
     });
   });
 
@@ -27,5 +26,6 @@ describe("worker egress health boundary", () => {
     } as never);
 
     expect(JSON.stringify(result)).not.toMatch(/203\.0\.113\.9|secret|proxy\.internal/i);
+    expect(JSON.stringify(result)).not.toMatch(/warp|cobalt|proxy|adapter|egress/i);
   });
 });

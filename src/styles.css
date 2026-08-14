@@ -270,6 +270,234 @@
   transform: translateY(0);
 }
 
+.article-tool {
+  display: inline-flex;
+  min-height: 2.75rem;
+  min-width: 2.75rem;
+  align-items: center;
+  justify-content: center;
+  border: 1px solid var(--line);
+  border-radius: 9999px;
+  color: var(--ink-soft);
+  transition:
+    border-color 150ms ease,
+    color 150ms ease,
+    transform 150ms ease;
+}
+
+.article-tool:hover {
+  border-color: var(--line-strong);
+  color: var(--ink);
+  transform: translateY(-1px);
+}
+
+.article-tool:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 2px;
+}
+
+.blog-prose {
+  color: var(--ink-soft);
+  font-size: 1rem;
+  line-height: 1.85;
+}
+
+.blog-prose > * + * {
+  margin-top: 1.35rem;
+}
+
+.blog-prose h2,
+.blog-prose h3,
+.blog-prose h4,
+.blog-prose h5,
+.blog-prose h6 {
+  position: relative;
+  scroll-margin-top: 7.5rem;
+  color: var(--ink);
+  font-family: var(--font-display);
+  font-weight: 650;
+  line-height: 1.18;
+}
+
+.blog-prose h2 {
+  margin-top: 3.75rem;
+  padding-top: 1.75rem;
+  border-top: 1px solid var(--line);
+  font-size: clamp(1.7rem, 4vw, 2.2rem);
+  letter-spacing: -0.04em;
+}
+
+.blog-prose h3 {
+  margin-top: 2.75rem;
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
+}
+
+.blog-prose h4 {
+  margin-top: 2.25rem;
+  font-size: 1.15rem;
+  letter-spacing: -0.02em;
+}
+
+.blog-prose h5,
+.blog-prose h6 {
+  margin-top: 2rem;
+  font-size: 1rem;
+  letter-spacing: -0.01em;
+}
+
+.blog-prose .heading-anchor {
+  margin-left: 0.45rem;
+  color: var(--brand-cool);
+  font-family: var(--font-mono);
+  font-size: 0.72em;
+  font-weight: 400;
+  opacity: 0;
+  text-decoration: none;
+  transition: opacity 150ms ease;
+}
+
+.blog-prose h2:hover .heading-anchor,
+.blog-prose h3:hover .heading-anchor,
+.blog-prose h4:hover .heading-anchor,
+.blog-prose h5:hover .heading-anchor,
+.blog-prose h6:hover .heading-anchor,
+.blog-prose .heading-anchor:focus-visible {
+  opacity: 1;
+}
+
+.blog-prose a {
+  border-radius: 0.125rem;
+  color: var(--ink);
+  font-weight: 600;
+  text-decoration-color: var(--line-strong);
+  text-decoration-line: underline;
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.24em;
+}
+
+.blog-prose a:hover {
+  text-decoration-color: var(--ink);
+}
+
+.blog-prose a:focus-visible {
+  outline: 2px solid var(--ember);
+  outline-offset: 3px;
+}
+
+.blog-prose strong {
+  color: var(--ink);
+  font-weight: 700;
+}
+
+.blog-prose ul,
+.blog-prose ol {
+  padding-left: 1.4rem;
+}
+
+.blog-prose ul {
+  list-style: disc;
+}
+
+.blog-prose ol {
+  list-style: decimal;
+}
+
+.blog-prose li + li {
+  margin-top: 0.55rem;
+}
+
+.blog-prose li::marker {
+  color: var(--brand-medium);
+  font-family: var(--font-mono);
+  font-size: 0.82em;
+}
+
+.blog-prose blockquote {
+  margin-block: 2rem;
+  border-left: 3px solid var(--ember);
+  padding: 0.25rem 0 0.25rem 1.25rem;
+  color: var(--ink);
+  font-size: 1.05rem;
+  font-weight: 550;
+}
+
+.blog-prose code {
+  border-radius: 0.25rem;
+  background: var(--surface-sunken);
+  padding: 0.12rem 0.35rem;
+  color: var(--ink);
+  font-family: var(--font-mono);
+  font-size: 0.86em;
+}
+
+.blog-prose pre {
+  max-width: 100%;
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  background: var(--brand-charcoal);
+  padding: 1.1rem;
+  color: #f6f7f7;
+  font-size: 0.82rem;
+  line-height: 1.7;
+}
+
+.blog-prose pre code {
+  background: transparent;
+  padding: 0;
+  color: inherit;
+}
+
+.blog-prose table {
+  width: 100%;
+  min-width: 36rem;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.blog-prose table:where(:not(:first-child)) {
+  margin-top: 2rem;
+}
+
+.blog-prose .blog-table-wrap {
+  margin-top: 2rem;
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.blog-prose th,
+.blog-prose td {
+  border-bottom: 1px solid var(--line);
+  padding: 0.75rem 0.8rem;
+  text-align: left;
+  vertical-align: top;
+}
+
+.blog-prose th {
+  background: var(--surface-raised);
+  color: var(--ink);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.blog-prose hr {
+  margin-block: 3rem;
+  border: 0;
+  border-top: 1px solid var(--line);
+}
+
+@media print {
+  .article-tool,
+  .heading-anchor {
+    display: none !important;
+  }
+
+  .blog-prose {
+    color: #1d1d1b;
+  }
+}
+
 @keyframes route-progress {
   0% {
     transform: translateX(-120%);

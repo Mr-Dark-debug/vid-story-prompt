@@ -34,9 +34,8 @@ const checkingPresentation = {
 
 const initialHealth: WorkerEgressHealth = {
   checkedAt: null,
-  message: "Checking worker egress health.",
+  message: "Checking automatic source access.",
   status: "unknown",
-  tier: "none",
 };
 
 export function WorkerEgressBadge({ health }: { health?: WorkerEgressHealth }) {
@@ -61,9 +60,8 @@ export function WorkerEgressBadge({ health }: { health?: WorkerEgressHealth }) {
         if (active) {
           setCurrent({
             checkedAt: null,
-            message: "The worker health check could not be reached.",
+            message: "Automatic source access could not be checked.",
             status: "blocked",
-            tier: "none",
           });
           setChecking(false);
         }
@@ -77,7 +75,7 @@ export function WorkerEgressBadge({ health }: { health?: WorkerEgressHealth }) {
   return (
     <div
       role="status"
-      aria-label={`Worker egress: ${state.label}`}
+      aria-label={`Source access: ${state.label}`}
       title={current.message}
       className={cn(
         "inline-flex min-w-0 max-w-full items-center gap-2 rounded-full border px-3 py-1.5 text-xs font-semibold",
@@ -86,10 +84,7 @@ export function WorkerEgressBadge({ health }: { health?: WorkerEgressHealth }) {
     >
       <state.Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
       <span className="truncate">
-        Worker egress: {state.label}
-        {typeof current.uniqueEgressMembers === "number"
-          ? ` · ${current.uniqueEgressMembers}/${current.configuredMembers ?? current.uniqueEgressMembers} unique`
-          : ""}
+        Source access: {state.label}
       </span>
     </div>
   );

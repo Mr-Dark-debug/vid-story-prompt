@@ -6,7 +6,12 @@ import { exchangeAuthCode } from "@/services/auth/server";
 
 export const Route = createFileRoute("/verify-email")({
   validateSearch: z.object({ code: z.string().optional() }),
-  head: () => ({ meta: [{ title: "Verify email — Vidrial" }] }),
+  head: () => ({
+    meta: [
+      { title: "Verify email — Vidrial" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
+  }),
   component: VerifyEmailPage,
 });
 

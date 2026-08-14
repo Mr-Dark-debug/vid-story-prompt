@@ -21,10 +21,13 @@ import { handleTask } from "./tasks/handlers.js";
 import { handleConnectorImport } from "./tasks/connector-import.js";
 import type { ConnectorTask } from "./domain/types.js";
 import {
+  acquisitionTierDiagnostics,
+  probeCobaltHealth,
   probeProxyHealth,
   probeProxyPoolHealth,
   unknownProxyHealth,
   type ProxyHealthSnapshot,
+  type AcquisitionTierDiagnostic,
 } from "./health/proxy-health.js";
 import { describeProxy, resolveYouTubeProxy } from "./security/youtube-proxy.js";
 import { parseProxyPool } from "./security/youtube-egress-pool.js";
@@ -47,6 +50,9 @@ const proxyPoolMembers = env.YTDLP_PROXY_URL ? [] : parseProxyPool(env.WARP_POOL
 const egressFingerprintKey =
   env.EGRESS_FINGERPRINT_KEY ?? env.WORKER_WAKE_SECRET ?? env.SUPABASE_SERVICE_ROLE_KEY;
 let proxyHealth: ProxyHealthSnapshot = unknownProxyHealth(proxySelection.tier);
+let cobaltHealth: AcquisitionTierDiagnostic = env.COBALT_API_URL && env.COBALT_API_KEY
+  ? { configured: true, reasonCode: "cobalt_not_checked", state: "unknown" }
+  : { configured: false, reasonCode: "cobalt_unconfigured", state: "unconfigured" };
 let startupProxyProbePending = env.YTDLP_STARTUP_PROBE;
 let lastYtdlpProbeAt = 0;
 const shutdown = new AbortController();
@@ -95,6 +101,11 @@ async function readiness() {
           previous: proxyHealth,
         });
     setHealthyWarpMembers(proxyHealth.uniqueMembers ?? []);
+    if (includeYtdlp) {
+      cobaltHealth = await probeCobaltHealth(env.COBALT_API_URL, env.COBALT_API_KEY, {
+        timeoutMs: Math.min(env.COBALT_REQUEST_TIMEOUT_MS, 10_000),
+      });
+    }
     if (includeYtdlp) lastYtdlpProbeAt = Date.now();
     startupProxyProbePending = false;
     if ((proxySelection.url || proxyPoolMembers.length) && proxyHealth.status === "blocked") {
@@ -124,6 +135,14 @@ async function readiness() {
 createWorkerHttpServer({
   getState: () => ({
     activeTask,
+    acquisitionTiers: acquisitionTierDiagnostics({
+      cobalt: cobaltHealth,
+      operatorProxyConfigured: Boolean(env.YTDLP_PROXY_URL),
+      protectedPoolConfiguredMembers: env.YTDLP_PROXY_URL
+        ? 0
+        : proxyPoolMembers.length || (proxySelection.tier === "direct" ? 0 : 1),
+      proxyHealth,
+    }),
     cobaltEnabled: Boolean(env.COBALT_API_URL),
     potProviderConfigured: Boolean(env.YTDLP_POT_PROVIDER_URL),
     pythonAcquisitionReady,

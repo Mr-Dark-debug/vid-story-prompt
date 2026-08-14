@@ -2,7 +2,7 @@ export const displayStages = [
   { id: "awaiting_source", label: "Source import" },
   { id: "queued", label: "Queued" },
   { id: "validating", label: "Validating" },
-  { id: "creating_proxy", label: "Creating proxy" },
+  { id: "creating_proxy", label: "Preparing source" },
   { id: "extracting_audio", label: "Extracting audio" },
   { id: "transcribing", label: "Transcribing" },
   { id: "analysing", label: "Analysing" },

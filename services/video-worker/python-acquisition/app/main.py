@@ -15,6 +15,25 @@ from .models import DownloadRequest, DownloadStatus, WebhookEvent
 from .webhooks import send_webhook
 
 
+def _bounded_float(name: str, default: float, minimum: float, maximum: float) -> float:
+    raw = os.getenv(name)
+    try:
+        value = default if raw is None or raw == "" else float(raw)
+    except ValueError as error:
+        raise AcquisitionError(
+            "provider_configuration_error",
+            "The configured acquisition pacing is invalid.",
+            False,
+        ) from error
+    if value < minimum or value > maximum:
+        raise AcquisitionError(
+            "provider_configuration_error",
+            "The configured acquisition pacing is outside its safe bounds.",
+            False,
+        )
+    return value
+
+
 class DownloadRegistry:
     def __init__(self) -> None:
         self._lock = Lock()
@@ -129,6 +148,15 @@ class DownloadRegistry:
                 cancel_event=cancellation,
                 progress=progress,
                 pot_provider_url=os.getenv("YTDLP_POT_PROVIDER_URL"),
+                sleep_interval_seconds=_bounded_float(
+                    "YTDLP_SLEEP_INTERVAL_SECONDS", 5.0, 5.0, 10.0
+                ),
+                maximum_sleep_interval_seconds=_bounded_float(
+                    "YTDLP_MAX_SLEEP_INTERVAL_SECONDS", 10.0, 5.0, 10.0
+                ),
+                request_sleep_interval_seconds=_bounded_float(
+                    "YTDLP_REQUEST_SLEEP_INTERVAL_SECONDS", 1.0, 0.0, 5.0
+                ),
             )
             self._set(request, "completed", result=result, notify=True)
         except AcquisitionError as error:

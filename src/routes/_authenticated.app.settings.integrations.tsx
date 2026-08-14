@@ -634,12 +634,14 @@ function GenericConnectorSettings({
         </div>
       </div>
       <p className="text-sm leading-6 text-ink-soft">
-        {connector.requiresOriginalSource
+        {connector.capabilities.length === 1 && connector.capabilities[0] === "publish"
+          ? "Publishing is a separate permission boundary. Connect only an account and destination you are authorised to post to."
+          : connector.requiresOriginalSource
           ? "This provider requires an original source file before clipping can begin."
           : "This provider can supply an authorised source when its availability and connection requirements are met."}
       </p>
       <div className="flex flex-wrap gap-2">
-        {connector.executable ? (
+        {connector.executable && connector.capabilities.includes("download_original") ? (
           <Link
             to="/app/youtube-clipper/new"
             search={{ source: connector.id }}

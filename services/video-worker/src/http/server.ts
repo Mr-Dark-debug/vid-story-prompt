@@ -1,6 +1,9 @@
 import { timingSafeEqual } from "node:crypto";
 import { createServer } from "node:http";
-import type { ProxyHealthSnapshot } from "../health/proxy-health.js";
+import type {
+  AcquisitionTierDiagnostics,
+  ProxyHealthSnapshot,
+} from "../health/proxy-health.js";
 import {
   verifyPythonAcquisitionWebhook,
   type PythonAcquisitionWebhook,
@@ -8,6 +11,7 @@ import {
 
 type WorkerState = {
   activeTask: boolean;
+  acquisitionTiers: AcquisitionTierDiagnostics;
   cobaltEnabled: boolean;
   potProviderConfigured: boolean;
   pythonAcquisitionReady: boolean;
@@ -74,7 +78,6 @@ export function createWorkerHttpServer(options: WorkerServerOptions) {
       }
       json(response, 200, {
         checked_at: state.proxyHealth.checkedAt,
-        egress_ip: state.proxyHealth.egressIp,
         error_code: state.proxyHealth.errorCode,
         proxy_reachable: state.proxyHealth.proxyReachable,
         proxy_tier: state.proxyHealth.tier,
@@ -88,6 +91,11 @@ export function createWorkerHttpServer(options: WorkerServerOptions) {
           state.proxyHealth.uniqueEgressMembers ?? (state.proxyHealth.proxyReachable ? 1 : 0),
         cobalt_enabled: state.cobaltEnabled,
         python_acquisition_ready: state.pythonAcquisitionReady,
+        tiers: {
+          cobalt: state.acquisitionTiers.cobalt,
+          operator_proxy: state.acquisitionTiers.operatorProxy,
+          protected_pool: state.acquisitionTiers.protectedPool,
+        },
       });
       return;
     }
