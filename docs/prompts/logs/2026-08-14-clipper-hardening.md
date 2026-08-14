@@ -141,6 +141,7 @@
 - `npm run test:e2e`: 8/8 Chromium tests passed. This covers the public clipper demonstration, protected-route return URL, real Cloudflare Turnstile test-key completion before account creation, crawlable blog index/search, article metadata/JSON-LD, real 404s, discovery endpoints, and a 360-pixel mobile overflow check.
 - A merged-gate run exposed a React hydration warning even though Playwright exited green: Markdown heading ids were assigned through a mutable render-order counter, which is unsafe under concurrent React rendering. Heading metadata now records source lines and `ArticleBody` resolves ids by immutable source position. A duplicate-heading regression test passes, and the 8/8 E2E rerun is free of the hydration mismatch.
 - Supabase local integration tests remain skipped because Docker/Podman is unavailable on this host. Linked checks passed: migration dry-run lists four pending migrations and `supabase db lint --linked --level warning` exits 0 with two pre-existing unused-variable warnings.
+- Applied the four pending migrations to the linked production Supabase project. Post-apply lint found that the blog-feedback function referenced `public.digest` while pgcrypto is installed under `extensions`; because the original migration was already applied, a forward-only `20260814040000_fix_blog_feedback_digest_schema.sql` migration corrected the qualified call. The remote ledger now matches all 27 local migrations. Final linked lint contains only the two pre-existing unused-variable warnings and no errors.
 
 ## Final completion report
 
