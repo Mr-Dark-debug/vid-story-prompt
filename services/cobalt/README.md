@@ -12,6 +12,8 @@ Configure the same secret as `COBALT_API_KEY` on the video worker. Set `COBALT_A
 
 For Render, the root Blueprint and `render.example.yaml` show a free, public web service protected by the API key. The worker receives both the Render-managed external URL and the Cobalt service's key through `fromService`, so the secret is not duplicated in Git or copied into the browser environment. Render prompts for the new `sync: false` UUIDv4 only when the service is first created; for an existing Blueprint, add it to the new Cobalt service before syncing because Render ignores newly added `sync: false` values on an existing Blueprint.
 
+On managed hosts such as Render, the wrapper binds Cobalt to the injected `PORT`; `API_PORT` remains the local/self-hosted fallback.
+
 Render documents that free web services sleep and are not intended for production. A cold Cobalt service may take long enough to exceed the first worker request; the worker treats that as a bounded retryable fallback failure. Cobalt also uses its host's datacenter network and is extractor diversity, not a guarantee against provider blocking. A production operator can move the same service to paid/private compute without changing the worker adapter.
 
 Generate a key with `node -e "console.log(crypto.randomUUID())"` and run the local contract smoke test with:

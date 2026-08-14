@@ -29,6 +29,7 @@ writeFileSync(
 
 export API_KEY_URL="file:///tmp/vidrial-cobalt-keys.json"
 export API_AUTH_REQUIRED=1
+export API_PORT="${PORT:-${API_PORT:-9000}}"
 unset COBALT_API_KEY
 
 exec "$@"

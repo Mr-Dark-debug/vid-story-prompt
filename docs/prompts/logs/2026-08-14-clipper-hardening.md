@@ -104,6 +104,7 @@
 - Added the free `vidrial-cobalt` wrapper to the active root Render Blueprint and uses Render `fromService` wiring for its URL and shared key. Existing Blueprint services still require the operator to populate newly introduced `sync:false` values during the first sync.
 - Made `YTDLP_PROXY_URL` configuration and paid persistent-WARP-sidecar trade-offs explicit in `.env.example`, `docs/VIDEO_WORKER.md`, and `docs/DEPLOYMENT.md`. No paid resource was created and no unproxied production fallback was introduced.
 - Replaced customer-facing WARP/egress/adapter terminology with `Source access`, `Preparing source`, and fixed recovery copy. Focused Python acquisition tests: 16 passed. Focused app acquisition/copy tests: 26 passed. Worker acquisition suite was green before the later full gate.
+- The first live Cobalt Blueprint deploy failed closed because the `sync:false` API key required a real operator value; a UUID-v4 secret was generated and stored through Render without recording it. The next deploy exposed a port mismatch (`API_PORT=9000` versus Render's injected `PORT=10000`), so the wrapper now gives the managed-host `PORT` precedence while preserving `API_PORT` for self-hosting.
 
 ### Scoring, titles, copy, and results gallery
 
