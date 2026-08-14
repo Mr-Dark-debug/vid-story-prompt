@@ -66,10 +66,25 @@ export async function probeCobaltHealth(
   }
   try {
     const response = await (options.fetcher ?? fetch)(new URL("/", apiUrl), {
-      headers: { authorization: `Api-Key ${apiKey}`, "user-agent": "Vidrial-Video-Worker/1" },
+      method: "POST",
+      headers: {
+        authorization: `Api-Key ${apiKey}`,
+        "content-type": "application/json",
+        "user-agent": "Vidrial-Video-Worker/1",
+      },
+      body: JSON.stringify({ url: "https://example.invalid/vidrial-cobalt-health" }),
       signal: AbortSignal.timeout(options.timeoutMs ?? 5_000),
     });
-    if (!response.ok) throw new Error("cobalt_probe_failed");
+    const text = await response.text();
+    if (text.length > 4_096) throw new Error("cobalt_probe_oversized");
+    const payload = JSON.parse(text) as { error?: { code?: unknown }; status?: unknown };
+    const providerCode = typeof payload.error?.code === "string" ? payload.error.code : "";
+    if (providerCode.startsWith("error.api.auth.key.")) {
+      return { configured: true, reasonCode: "cobalt_auth_rejected", state: "blocked" };
+    }
+    if (response.status >= 500 || typeof payload.status !== "string") {
+      throw new Error("cobalt_probe_failed");
+    }
     return { configured: true, reasonCode: "cobalt_ready", state: "ready" };
   } catch {
     return { configured: true, reasonCode: "cobalt_unreachable", state: "blocked" };

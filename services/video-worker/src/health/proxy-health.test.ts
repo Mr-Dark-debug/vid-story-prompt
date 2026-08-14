@@ -110,16 +110,38 @@ describe("proxy health", () => {
   });
 
   it("probes configured Cobalt without returning credentials or URLs", async () => {
-    const fetcher = vi.fn().mockResolvedValue(new Response("ok", { status: 200 }));
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({ status: "error", error: { code: "error.api.link.unsupported" } }),
+        { status: 400, headers: { "content-type": "application/json" } },
+      ),
+    );
     await expect(
       probeCobaltHealth("https://cobalt.example.test", "cobalt-api-key", { fetcher }),
     ).resolves.toEqual({ configured: true, reasonCode: "cobalt_ready", state: "ready" });
     expect(fetcher).toHaveBeenCalledWith(
       new URL("https://cobalt.example.test/"),
       expect.objectContaining({
+        method: "POST",
         headers: expect.objectContaining({ authorization: "Api-Key cobalt-api-key" }),
       }),
     );
+  });
+
+  it("reports a rejected Cobalt API key without exposing it", async () => {
+    const fetcher = vi.fn().mockResolvedValue(
+      new Response(
+        JSON.stringify({ status: "error", error: { code: "error.api.auth.key.invalid" } }),
+        { status: 400, headers: { "content-type": "application/json" } },
+      ),
+    );
+    await expect(
+      probeCobaltHealth("https://cobalt.example.test", "not-the-real-key", { fetcher }),
+    ).resolves.toEqual({
+      configured: true,
+      reasonCode: "cobalt_auth_rejected",
+      state: "blocked",
+    });
   });
 
   it("reports sanitized readiness for every acquisition tier", () => {
