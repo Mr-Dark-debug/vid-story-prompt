@@ -97,6 +97,27 @@ describe("blog components", () => {
     expect(screen.queryByText("hidden html")).not.toBeInTheDocument();
   });
 
+  it("assigns heading ids by source position without mutable render-order state", () => {
+    render(
+      <ArticleBody
+        body={"## First section\n\nCopy.\n\n### Repeated heading\n\nCopy.\n\n### Repeated heading"}
+        headings={[
+          { level: 2, text: "First section", id: "first-section", sourceLine: 1 },
+          { level: 3, text: "Repeated heading", id: "repeated-heading", sourceLine: 5 },
+          { level: 3, text: "Repeated heading", id: "repeated-heading-2", sourceLine: 9 },
+        ]}
+      />,
+    );
+
+    expect(screen.getByRole("heading", { name: /First section/ })).toHaveAttribute(
+      "id",
+      "first-section",
+    );
+    const repeated = screen.getAllByRole("heading", { name: /Repeated heading/ });
+    expect(repeated[0]).toHaveAttribute("id", "repeated-heading");
+    expect(repeated[1]).toHaveAttribute("id", "repeated-heading-2");
+  });
+
   it("uses the required authored-summary explanation", () => {
     render(<ArticleSummary items={base.aiSummary} />);
     expect(

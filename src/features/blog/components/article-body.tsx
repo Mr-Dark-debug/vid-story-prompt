@@ -1,5 +1,5 @@
 import type { ComponentPropsWithoutRef, ReactNode } from "react";
-import ReactMarkdown from "react-markdown";
+import ReactMarkdown, { type ExtraProps } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { BlogHeading } from "@/features/blog/schema";
 
@@ -13,11 +13,18 @@ function textFromChildren(children: ReactNode): string {
 }
 
 export function ArticleBody({ body, headings }: { body: string; headings: BlogHeading[] }) {
-  let headingIndex = 0;
-
   const heading = (Tag: "h2" | "h3" | "h4" | "h5" | "h6") =>
-    function MarkdownHeading({ children, ...props }: ComponentPropsWithoutRef<typeof Tag>) {
-      const current = headings[headingIndex++];
+    function MarkdownHeading({
+      children,
+      node,
+      ...props
+    }: ComponentPropsWithoutRef<typeof Tag> & ExtraProps) {
+      const text = textFromChildren(children);
+      const sourceLine = node?.position?.start.line;
+      const level = Number(Tag.slice(1));
+      const current =
+        headings.find((candidate) => candidate.sourceLine === sourceLine) ??
+        headings.find((candidate) => candidate.level === level && candidate.text === text);
       return (
         <Tag id={current?.id} {...props}>
           {children}

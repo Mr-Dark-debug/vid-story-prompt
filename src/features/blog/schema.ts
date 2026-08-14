@@ -130,6 +130,7 @@ export interface BlogHeading {
   level: 2 | 3 | 4 | 5 | 6;
   text: string;
   id: string;
+  sourceLine?: number;
 }
 
 export interface BlogArticleMeta {
@@ -309,7 +310,7 @@ function extractHeadings(body: string, sourcePath: string): BlogHeading[] {
   const idCounts = new Map<string, number>();
   let fence: string | undefined;
 
-  for (const line of body.split(/\r?\n/)) {
+  for (const [lineIndex, line] of body.split(/\r?\n/).entries()) {
     const fenceMatch = line.match(/^\s*(```+|~~~+)/);
     if (fenceMatch) {
       const marker = fenceMatch[1]?.[0];
@@ -336,6 +337,7 @@ function extractHeadings(body: string, sourcePath: string): BlogHeading[] {
       level: level as BlogHeading["level"],
       text,
       id: uniqueHeadingId(text, idCounts),
+      sourceLine: lineIndex + 1,
     });
   }
 

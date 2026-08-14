@@ -60,8 +60,13 @@ describe("parseBlogArticle", () => {
       "A useful clip communicates one complete idea without relying on the original episode.",
     );
     expect(parsed.headings).toEqual([
-      { level: 2, text: "Choose a complete moment", id: "choose-a-complete-moment" },
-      { level: 3, text: "Check the final cut", id: "check-the-final-cut" },
+      {
+        level: 2,
+        text: "Choose a complete moment",
+        id: "choose-a-complete-moment",
+        sourceLine: 3,
+      },
+      { level: 3, text: "Check the final cut", id: "check-the-final-cut", sourceLine: 7 },
     ]);
   });
 
