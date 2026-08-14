@@ -63,7 +63,10 @@ if [ "${ENABLE_EMBEDDED_WARP:-false}" = "true" ] \
 
   case "$pool_size" in
     1|2|3|4) ;;
-    *) echo "proxy=failed tier=embedded_warp reason=invalid_pool_size" >&2; exit 1 ;;
+    *)
+      echo "proxy=failed tier=embedded_warp reason=invalid_pool_size" >&2
+      pool_size=0
+      ;;
   esac
 
   mkdir -p "$data_dir"
@@ -76,7 +79,10 @@ if [ "${ENABLE_EMBEDDED_WARP:-false}" = "true" ] \
     mkdir -p "$member_dir"
     chmod 0700 "$member_dir"
     if [ ! -s "$member_dir/reg.json" ]; then
-      warp generate --data-dir "$member_dir" --loglevel error >/dev/null
+      if ! warp generate --data-dir "$member_dir" --loglevel error >/dev/null; then
+        echo "proxy=failed tier=embedded_warp member=${member} reason=warp_registration_failed" >&2
+        break
+      fi
     fi
     warp run --data-dir "$member_dir" --loglevel info --4 \
       --http-addr "127.0.0.1:${member_port}" &
@@ -84,28 +90,43 @@ if [ "${ENABLE_EMBEDDED_WARP:-false}" = "true" ] \
     warp_pids="$warp_pids $member_pid"
 
     elapsed=0
+    member_ready="false"
     until trace="$(curl -fsS --max-time 5 -x "http://127.0.0.1:${member_port}" \
       https://cloudflare.com/cdn-cgi/trace/)" \
       && printf '%s\n' "$trace" | grep -Eq '^warp=(on|plus)$'; do
       if ! kill -0 "$member_pid" 2>/dev/null; then
         echo "proxy=failed tier=embedded_warp member=${member} reason=warp_process_exited" >&2
-        exit 1
+        break
       fi
       if [ "$elapsed" -ge "$start_timeout" ]; then
         echo "proxy=failed tier=embedded_warp member=${member} reason=warp_connect_timeout" >&2
-        exit 1
+        break
       fi
       sleep 1
       elapsed=$((elapsed + 1))
     done
+    if trace="$(curl -fsS --max-time 5 -x "http://127.0.0.1:${member_port}" \
+      https://cloudflare.com/cdn-cgi/trace/ 2>/dev/null)" \
+      && printf '%s\n' "$trace" | grep -Eq '^warp=(on|plus)$'; then
+      member_ready="true"
+    fi
+    if [ "$member_ready" != "true" ]; then
+      kill "$member_pid" 2>/dev/null || true
+      wait "$member_pid" 2>/dev/null || true
+      break
+    fi
     member_url="http://127.0.0.1:${member_port}"
     pool_urls="${pool_urls}${pool_urls:+,}${member_url}"
     member=$((member + 1))
   done
 
-  export WARP_POOL_URLS="$pool_urls"
-  export WARP_PROXY_URL="http://127.0.0.1:${proxy_port}"
-  echo "proxy=ok tier=embedded_warp configured_members=${pool_size}"
+  if [ -n "$pool_urls" ]; then
+    export WARP_POOL_URLS="$pool_urls"
+    export WARP_PROXY_URL="http://127.0.0.1:${proxy_port}"
+    echo "proxy=ok tier=embedded_warp configured_members=${member}"
+  else
+    echo "proxy=unavailable tier=embedded_warp action=continue_with_configured_fallbacks" >&2
+  fi
 fi
 
 node dist/index.js &
