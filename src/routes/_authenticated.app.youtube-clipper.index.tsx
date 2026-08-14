@@ -87,7 +87,7 @@ function ClipperDashboard() {
           {jobs.map((job: ClipJobSummary) => (
             <article
               key={job.id}
-              className="flex items-center gap-3 rounded-2xl border border-line bg-surface-panel p-3 transition hover:border-line-strong sm:gap-4 sm:p-4"
+              className="flex min-w-0 items-center gap-3 rounded-2xl border border-line bg-surface-panel p-3 transition hover:border-line-strong sm:gap-4 sm:p-4"
             >
               <ResilientThumbnail
                 src={job.source_thumbnail_url}
