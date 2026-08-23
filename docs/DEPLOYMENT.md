@@ -33,6 +33,8 @@ Deploy `services/video-worker/Dockerfile` independently to Railway, Render, Fly.
 
 For the zero-cost residential acquisition topology, apply `20260823220000_worker_task_capability_routing.sql` before deploying either worker. Render must set `WORKER_TASK_EXCLUDE_TYPES=download_youtube_source`. Install `services/video-worker/home-worker/install.ps1` from a non-administrator PowerShell session; it registers a limited current-user logon task that sets `WORKER_TASK_INCLUDE_TYPES=download_youtube_source` and `WORKER_CONNECTOR_TASKS_ENABLED=false`. Confirm `status.ps1` reports `worker=ready` and `acquisition_egress=healthy` before accepting URL jobs. The machine must remain signed in and online; Render continues downstream work if the acquisition machine disconnects after uploading the immutable source asset.
 
+If Render is suspended or otherwise unavailable, re-run the installer with `-TaskMode FullPipeline`. The local worker then claims all clip-pipeline tasks while connector polling stays disabled. This is a continuity mode, not horizontal scaling: keep only one full-pipeline home worker active, monitor its loopback health, and switch back to `AcquisitionOnly` after the cloud worker is healthy.
+
 ### Credential-gated social publishing
 
 Set the same `CONNECTOR_TOKEN_ENCRYPTION_KEY` on the web application and worker. Add only providers you have actually registered and reviewed:

@@ -8,6 +8,7 @@ $repositoryEnvironment = if ([string]::IsNullOrWhiteSpace($EnvironmentFile)) {
 }
 Import-EnvironmentFile $repositoryEnvironment
 Import-EnvironmentFile $script:SecretsPath
+$taskMode = Get-HomeWorkerTaskMode
 
 $task = Get-ScheduledTask -TaskName $script:TaskName -ErrorAction SilentlyContinue
 $taskState = if ($task) { $task.State.ToString().ToLowerInvariant() } else { "not_installed" }
@@ -39,7 +40,8 @@ try {
   scheduled_task = $taskState
   worker = $workerHealth
   acquisition_egress = $proxyStatus
-  task_include = "download_youtube_source"
+  task_scope = $taskMode
+  task_include = if ($taskMode -eq "FullPipeline") { "all_clip_tasks" } else { "download_youtube_source" }
   connector_tasks = $false
   logs = $script:LogRoot
 } | ConvertTo-Json
