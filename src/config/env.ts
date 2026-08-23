@@ -6,6 +6,11 @@ const publicEnvSchema = z.object({
   VITE_TURNSTILE_SITE_KEY: z.string().min(10).optional(),
   VITE_GOOGLE_SITE_VERIFICATION: z.string().min(5).optional().or(z.literal("")),
   VITE_BING_SITE_VERIFICATION: z.string().min(5).optional().or(z.literal("")),
+  VITE_GA_MEASUREMENT_ID: z
+    .string()
+    .regex(/^G-[A-Z0-9]+$/)
+    .optional()
+    .or(z.literal("")),
 });
 
 export type PublicEnv = z.infer<typeof publicEnvSchema>;
@@ -45,6 +50,11 @@ export function getPublicEnv(): PublicEnv {
       browserEnv?.VITE_BING_SITE_VERIFICATION ??
       import.meta.env.VITE_BING_SITE_VERIFICATION ??
       processEnv?.VITE_BING_SITE_VERIFICATION,
+    VITE_GA_MEASUREMENT_ID:
+      browserEnv?.VITE_GA_MEASUREMENT_ID ??
+      import.meta.env.VITE_GA_MEASUREMENT_ID ??
+      processEnv?.VITE_GA_MEASUREMENT_ID ??
+      "G-GNXL7J1SBN",
   });
 }
 

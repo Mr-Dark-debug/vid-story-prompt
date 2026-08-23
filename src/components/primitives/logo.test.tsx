@@ -21,7 +21,9 @@ describe("Vidrial logo", () => {
   it("renders an accessible horizontal lockup", () => {
     render(<Logo showTagline />);
 
-    expect(screen.getByRole("link", { name: "Vidrial home" })).toHaveAttribute("href", "/");
+    expect(
+      screen.getByRole("link", { name: "Vidrial AI-assisted video editing home" }),
+    ).toHaveAttribute("href", "/");
     expect(screen.getByText("Vidrial")).toBeInTheDocument();
     expect(screen.getByText("AI-assisted video editing")).toBeInTheDocument();
   });

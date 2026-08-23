@@ -19,18 +19,32 @@ const serverEnvSchema = z.object({
   MICROSOFT_TENANT_ID: z.string().min(3).default("common"),
   META_APP_ID: z.string().min(8).optional(),
   META_APP_SECRET: z.string().min(8).optional(),
-  META_GRAPH_VERSION: z.string().regex(/^v\d{2}\.0$/).default("v25.0"),
+  META_GRAPH_VERSION: z
+    .string()
+    .regex(/^v\d{2}\.0$/)
+    .default("v25.0"),
   TIKTOK_CLIENT_KEY: z.string().min(8).optional(),
   TIKTOK_CLIENT_SECRET: z.string().min(8).optional(),
-  TIKTOK_CONTENT_POSTING_AUDITED: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
+  TIKTOK_CONTENT_POSTING_AUDITED: z
+    .enum(["true", "false"])
+    .default("false")
+    .transform((value) => value === "true"),
   LINKEDIN_CLIENT_ID: z.string().min(8).optional(),
   LINKEDIN_CLIENT_SECRET: z.string().min(8).optional(),
-  LINKEDIN_API_VERSION: z.string().regex(/^\d{6}$/).default("202605"),
+  LINKEDIN_API_VERSION: z
+    .string()
+    .regex(/^\d{6}$/)
+    .default("202605"),
   YOUTUBE_WEBHOOK_SECRET: z.string().min(32).optional(),
   TURNSTILE_SECRET_KEY: z.string().min(10).optional(),
   VITE_TURNSTILE_SITE_KEY: z.string().min(10).optional(),
   VITE_GOOGLE_SITE_VERIFICATION: z.string().min(5).optional().or(z.literal("")),
   VITE_BING_SITE_VERIFICATION: z.string().min(5).optional().or(z.literal("")),
+  VITE_GA_MEASUREMENT_ID: z
+    .string()
+    .regex(/^G-[A-Z0-9]+$/)
+    .optional()
+    .or(z.literal("")),
   INDEXNOW_TRIGGER_SECRET: z.string().min(32).optional(),
   TURNSTILE_ALLOWED_HOSTNAMES: z.string().optional(),
   VIDEO_WORKER_URL: z.string().url().optional(),
@@ -72,6 +86,7 @@ export function getServerEnv() {
     VITE_GOOGLE_SITE_VERIFICATION:
       process.env.VITE_GOOGLE_SITE_VERIFICATION ?? "3X4sNiR4A5uIQ1uzPN-jeIqr2Snd7fZiAwYYv6J2dt8",
     VITE_BING_SITE_VERIFICATION: process.env.VITE_BING_SITE_VERIFICATION,
+    VITE_GA_MEASUREMENT_ID: process.env.VITE_GA_MEASUREMENT_ID ?? "G-GNXL7J1SBN",
     INDEXNOW_TRIGGER_SECRET: process.env.INDEXNOW_TRIGGER_SECRET,
     TURNSTILE_ALLOWED_HOSTNAMES: process.env.TURNSTILE_ALLOWED_HOSTNAMES,
     VIDEO_WORKER_URL: process.env.VIDEO_WORKER_URL,

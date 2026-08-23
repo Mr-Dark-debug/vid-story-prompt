@@ -24,6 +24,7 @@ import {
 } from "../config/seo";
 import { RouteProgress } from "../components/ui/route-progress";
 import { Toaster } from "../components/ui/sonner";
+import { GoogleAnalytics } from "../services/analytics/google-analytics";
 
 function NotFoundComponent() {
   return (
@@ -118,12 +119,6 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       ],
       links: [
         { rel: "stylesheet", href: appCss },
-        { rel: "preconnect", href: "https://fonts.googleapis.com" },
-        { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "anonymous" },
-        {
-          rel: "stylesheet",
-          href: "https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500&family=Manrope:wght@400;500;600;700;800&display=swap",
-        },
         { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
         { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
         {
@@ -176,6 +171,7 @@ function RootComponent() {
   return (
     <QueryClientProvider client={queryClient}>
       <RouteProgress />
+      <GoogleAnalytics />
       {/* Required: nested routes render here. Removing <Outlet /> breaks all child routes. */}
       <Outlet />
       <Toaster position="bottom-right" richColors closeButton />

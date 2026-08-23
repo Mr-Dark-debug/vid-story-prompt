@@ -1,6 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SimpleMarketingPage } from "@/components/marketing/simple-page";
 import { pageMeta } from "@/config/seo";
+import { CookieSettingsButton } from "@/components/marketing/cookie-banner";
 
 export const Route = createFileRoute("/cookies")({
   head: () =>
@@ -30,9 +31,10 @@ export const Route = createFileRoute("/cookies")({
         </li>
       </ul>
       <p>
-        You can change your consent at any time — the cookie banner has a "Cookie settings" link
-        that returns you here.
+        You can change your consent at any time. Analytics remains disabled unless you explicitly
+        accept it.
       </p>
+      <CookieSettingsButton />
     </SimpleMarketingPage>
   ),
 });

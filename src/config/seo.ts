@@ -4,7 +4,7 @@ export const SEO_SITE_NAME = "Vidrial" as const;
 export const SEO_EDITORIAL_AUTHOR = "Vidrial Editorial Team" as const;
 export const SEO_DEFAULT_DESCRIPTION =
   "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing." as const;
-export const SEO_DEFAULT_SOCIAL_IMAGE = "/social/vidrial-social-card.svg" as const;
+export const SEO_DEFAULT_SOCIAL_IMAGE = "/social/vidrial-social-card.png" as const;
 
 export function absoluteUrl(path: string): string {
   const value = new URL(path, `${SEO_ORIGIN}/`);

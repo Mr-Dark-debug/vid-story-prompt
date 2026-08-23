@@ -64,7 +64,7 @@ export function Logo({
         toneClasses[tone],
         className,
       )}
-      aria-label={`${brand.name} home`}
+      aria-label={`${brand.name}${showTagline ? ` ${brand.descriptor}` : ""} home`}
     >
       <LogoMark className={dimensions.mark} />
       {!markOnly ? (

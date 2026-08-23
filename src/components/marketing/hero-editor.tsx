@@ -42,7 +42,7 @@ export function HeroEditor() {
                 <div className="truncate font-medium text-ink">{m.name}</div>
                 <div className="mt-0.5 flex items-center justify-between text-ink-mute">
                   <span className="truncate">{m.meta}</span>
-                  <span className="ml-2 shrink-0 rounded bg-surface-sunken px-1.5 py-0.5 text-[10px]">
+                  <span className="ml-2 shrink-0 rounded bg-surface-sunken px-1.5 py-0.5 text-[10px] text-ink-soft">
                     {m.role}
                   </span>
                 </div>
@@ -56,7 +56,11 @@ export function HeroEditor() {
           <div className="relative aspect-video overflow-hidden rounded-2xl bg-gradient-to-br from-ink to-ember-ink">
             <div className="absolute inset-0 opacity-40 [background:radial-gradient(circle_at_30%_30%,#f7c4a5,transparent_50%),radial-gradient(circle_at_70%_60%,#a8d8d2,transparent_45%)]" />
             <div className="absolute inset-x-0 bottom-0 flex items-center gap-3 border-t border-white/10 bg-black/25 px-4 py-2.5 text-[12px] text-white/90 backdrop-blur">
-              <button className="grid h-7 w-7 place-items-center rounded-full bg-white text-ink">
+              <button
+                type="button"
+                aria-label="Play preview"
+                className="grid h-7 w-7 place-items-center rounded-full bg-white text-ink"
+              >
                 <Play className="h-3.5 w-3.5" />
               </button>
               <span className="tabular-nums">00:34 / 06:12</span>

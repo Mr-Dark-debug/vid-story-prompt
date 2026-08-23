@@ -51,3 +51,34 @@
 - Existing working SEO systems will be extended or fixed only when current audit evidence identifies a gap.
 - Google Tag Manager will only be added if it provides a maintainability benefit over the existing/direct analytics architecture; duplicate instrumentation is prohibited.
 
+### 2026-08-24 — implementation and provider evidence
+
+- Commit `c13d364` was pushed to `main` and deployed by Vercel as `dpl_A4inDegaThxKJiTgjyhuaFx7cQrE`; Vercel reported `READY` and assigned `vidrial.vercel.app` plus its existing aliases.
+- Rendered production HTML contains the Google verification meta token. Google Search Console opened the URL-prefix property as verified and displayed normal reports with “Processing data, please check again in a day or so.”
+- The Search Console sitemap report contained zero submitted sitemaps at inspection time. `robots.txt` already advertises the root sitemap, but console submission is still pending.
+- The initial production crawl recorded 78 inventory items, 45 sitemap URLs, 52 indexable pages, 0 errors/non-200/orphans/invalid JSON-LD, 5 non-self canonicals caused by the docs layout, 21 duplicate titles, and 27 duplicate descriptions. The duplicate counts were primarily authenticated/noindex redirects.
+- After deployment, `npm run seo:audit` recorded 78 inventory items, 51 sitemap URLs, 51 indexable pages, 0 errors/non-200/multiple/non-self canonicals/duplicate indexable titles/duplicate indexable descriptions/orphans/invalid JSON-LD. One internal design-system route lacked a canonical and was subsequently changed to `noindex,nofollow` with a self-canonical.
+- `content:validate` passed 60 articles plus 60 paired research notes and 60 independent reviews. `content:audit` passed with 0 blockers/revisions. `content:links` checked 219 links with 0 failures.
+- Search-result baseline queries for `site:vidrial.vercel.app`, the Vidrial name, and the blog returned no results on 2026-08-24. This is a baseline, not evidence of future indexing or ranking.
+- Google Analytics exposed an existing property labelled `literna-vscode` with measurement ID `G-GNXL7J1SBN` and no received data. The direct GA4 runtime was implemented without GTM because the existing provider abstraction is sufficient.
+- Real-browser consent verification proved: no Google request before opt-in; the Google tag loaded with HTTP 200 after opt-in; advertising/analytics consent state was queued correctly; `/cookies` reopened settings; revocation stored `analytics:false`, set `ga-disable-G-GNXL7J1SBN=true`, and queued denied storage.
+- The first consent test exposed a CSP block for `googletagmanager.com`; the CSP was corrected narrowly and the tag then loaded successfully. Turnstile, framing, object, form-action, and private-origin controls remained intact.
+- Production Lighthouse baseline: desktop 95/90/96/100 and mobile 74/90/96/100 for Performance/Accessibility/Best Practices/SEO. Mobile LCP was 4.5 s, CLS 0, and TBT 10 ms. Source fixes removed external Google Fonts and corrected the reported unnamed preview button, low-contrast labels/footer text, and logo label mismatch. Post-deploy scores remain to be captured.
+- Bing Webmaster Tools authentication succeeded through the owner's Google identity. The console currently lists `moltjobs.lovable.app`; Vidrial import/addition has not been completed or claimed.
+- IndexNow proof and the protected production endpoint are live, but the local environment has no `INDEXNOW_TRIGGER_SECRET`; no authenticated production reconciliation was sent.
+- Current official-provider research was recorded in `docs/seo/2026-08-24-production-seo-growth-report.md`. Yahoo is Bing-powered for algorithmic results; DuckDuckGo largely sources traditional links/images from Bing while maintaining additional crawlers/indexes; Brave has crawl/refetch guidance but no general add-site console; Yandex and Naver have separate ownership/sitemap flows.
+
+### Current execution status
+
+- Completed: repository/production truth, authoritative inventory, technical crawl, metadata/canonical/structured-data/sitemap fixes, consent-gated GA4 implementation, competitor/intent baseline, provider architecture research, local build/type/content/targeted tests, Google ownership, operations/report documentation.
+- Pending after this source revision: full lint/test/worker/build gate, commit/push/deploy, post-deploy crawl/Lighthouse/consent verification, Search Console sitemap submission, Bing import/site submission, and authenticated IndexNow execution.
+- Security/account boundary: third-party account mutations and submissions must be confirmed at their action boundary; IndexNow additionally requires the missing server-only trigger secret.
+
+### 2026-08-24 — final local quality gate
+
+- `npm run typecheck` passed with no diagnostics.
+- `npm run lint` passed with 0 errors and 7 pre-existing Fast Refresh warnings.
+- `npm test` passed 72 files plus 1 skipped file: 311 tests passed and 6 skipped.
+- `npm run worker:test` passed 19 files and 100 tests.
+- `npm run build` passed after validating all 60 published articles, all 60 paired research notes, and all 60 independent reviews.
+- `git diff --check` reported no whitespace errors. The source revision is ready to integrate with the remote Lovable-connected branch and deploy.

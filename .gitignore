@@ -21,6 +21,7 @@ dist-ssr
 coverage
 playwright-report
 test-results
+.playwright-cli/
 output/
 .codex-*
 supabase/.branches

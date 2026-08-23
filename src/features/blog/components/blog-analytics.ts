@@ -1,6 +1,5 @@
 import { trackWithConsent, type AnalyticsEvent } from "@/services/analytics";
-
-const CONSENT_KEY = "vidrial.consent.v1";
+import { hasAnalyticsConsent } from "@/services/analytics/consent";
 
 type BlogEvent = Extract<
   AnalyticsEvent,
@@ -23,17 +22,7 @@ export type BlogAnalyticsProperties = {
   hasQuery?: boolean;
 };
 
-export function hasAnalyticsConsent(storage: Pick<Storage, "getItem"> | undefined) {
-  if (!storage) return false;
-  try {
-    const parsed = JSON.parse(storage.getItem(CONSENT_KEY) ?? "null") as {
-      analytics?: unknown;
-    } | null;
-    return parsed?.analytics === true;
-  } catch {
-    return false;
-  }
-}
+export { hasAnalyticsConsent } from "@/services/analytics/consent";
 
 export function trackBlogEvent(event: BlogEvent, properties: BlogAnalyticsProperties = {}) {
   const storage = typeof window === "undefined" ? undefined : window.localStorage;

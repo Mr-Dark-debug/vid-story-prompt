@@ -17,7 +17,10 @@ describe("withSecurityHeaders", () => {
       "https://challenges.cloudflare.com",
     );
     expect(secured.headers.get("content-security-policy")).toContain(
-      "script-src 'self' 'unsafe-inline' https://challenges.cloudflare.com https://vercel.live",
+      "https://www.googletagmanager.com",
+    );
+    expect(secured.headers.get("content-security-policy")).toContain(
+      "https://www.google-analytics.com",
     );
     expect(secured.headers.get("content-security-policy")).toContain(
       "wss://ws-us3.pusher.com",

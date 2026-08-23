@@ -4,9 +4,16 @@ import { Logo, LogoMark } from "@/components/primitives/logo";
 import { Section, SectionHeader, Callout } from "@/components/primitives/section";
 import { StatusDot } from "@/components/primitives/status-dot";
 import { UsageMeter } from "@/components/primitives/usage-meter";
+import { pageMeta } from "@/config/seo";
 
 export const Route = createFileRoute("/design-system")({
-  head: () => ({ meta: [{ title: "Design system — Vidrial" }] }),
+  head: () =>
+    pageMeta({
+      title: "Design system — Vidrial",
+      description: "Internal reference for Vidrial brand, interface, and component standards.",
+      path: "/design-system",
+      robots: "noindex,nofollow",
+    }),
   component: DesignSystem,
 });
 

@@ -74,7 +74,7 @@ describe("canonical SEO helpers", () => {
     });
     expect(head.meta).toContainEqual({
       property: "og:image",
-      content: "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+      content: "https://vidrial.vercel.app/social/vidrial-social-card.png",
     });
     expect(head.meta).toContainEqual({ name: "twitter:card", content: "summary_large_image" });
   });
