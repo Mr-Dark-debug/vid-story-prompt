@@ -1,10 +1,12 @@
 param(
   [string]$EnvironmentFile,
+  [ValidateSet("AcquisitionOnly", "FullPipeline")][string]$TaskMode = "AcquisitionOnly",
   [switch]$NoStart
 )
 
 . (Join-Path $PSScriptRoot "common.ps1")
 Initialize-StateDirectories
+Set-HomeWorkerTaskMode $TaskMode
 Stop-ScheduledTask -TaskName $script:TaskName -ErrorAction SilentlyContinue
 Stop-HomeWorkerProcesses
 
@@ -68,4 +70,4 @@ $settings = New-ScheduledTaskSettingsSet -ExecutionTimeLimit ([TimeSpan]::Zero) 
 Register-ScheduledTask -TaskName $script:TaskName -Action $action -Trigger $trigger -Principal $principal -Settings $settings -Force | Out-Null
 
 if (-not $NoStart) { Start-ScheduledTask -TaskName $script:TaskName }
-Write-Output "home_worker=installed task=$($script:TaskName) state=$($script:StateRoot)"
+Write-Output "home_worker=installed task=$($script:TaskName) mode=$TaskMode state=$($script:StateRoot)"

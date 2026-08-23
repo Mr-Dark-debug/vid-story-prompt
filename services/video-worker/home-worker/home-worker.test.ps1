@@ -9,6 +9,20 @@ $expectedStateParent = [System.IO.Path]::GetFullPath((Join-Path $env:LOCALAPPDAT
 $resolvedState = [System.IO.Path]::GetFullPath($script:StateRoot)
 Assert-True ($resolvedState.StartsWith($expectedStateParent + [System.IO.Path]::DirectorySeparatorChar)) "State must stay below the Vidrial user directory."
 
+$originalMode = if (Test-Path -LiteralPath $script:ModePath) { [System.IO.File]::ReadAllText($script:ModePath) } else { $null }
+try {
+  Set-HomeWorkerTaskMode "AcquisitionOnly"
+  Assert-True ((Get-HomeWorkerTaskMode) -eq "AcquisitionOnly") "Acquisition-only mode was not persisted."
+  Set-HomeWorkerTaskMode "FullPipeline"
+  Assert-True ((Get-HomeWorkerTaskMode) -eq "FullPipeline") "Full-pipeline mode was not persisted."
+} finally {
+  if ($null -eq $originalMode) {
+    Remove-Item -LiteralPath $script:ModePath -Force -ErrorAction SilentlyContinue
+  } else {
+    [System.IO.File]::WriteAllText($script:ModePath, $originalMode, [System.Text.UTF8Encoding]::new($false))
+  }
+}
+
 $firstSecret = New-UrlSafeSecret
 $secondSecret = New-UrlSafeSecret
 Assert-True ($firstSecret.Length -ge 40) "Generated secrets must retain at least 256 bits of entropy."
