@@ -1,13 +1,13 @@
 {
   "summary": {
-    "generatedAt": "2026-08-23T22:33:17.490Z",
+    "generatedAt": "2026-08-23T23:03:11.258Z",
     "origin": "https://vidrial.vercel.app",
     "inventoryCount": 78,
     "sitemapUrlCount": 51,
     "indexableCount": 51,
     "errorCount": 0,
     "non200Count": 0,
-    "missingCanonicalCount": 1,
+    "missingCanonicalCount": 0,
     "multipleCanonicalCount": 0,
     "nonSelfCanonicalCount": 0,
     "missingDescriptionCount": 0,
@@ -51,14 +51,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -141,14 +141,14 @@
       "openGraph": {
         "title": "Vidrial Acceptable Use Policy",
         "description": "Review the media rights, safety, abuse, impersonation and copyright rules that apply when using Vidrial.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/acceptable-use"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial Acceptable Use Policy",
         "description": "Review the media rights, safety, abuse, impersonation and copyright rules that apply when using Vidrial.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -230,14 +230,14 @@
       "openGraph": {
         "title": "AI Transparency at Vidrial",
         "description": "See where Vidrial uses AI, what project context models receive, how edit plans stay reviewable and how generated media is labelled.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/ai-transparency"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "AI Transparency at Vidrial",
         "description": "See where Vidrial uses AI, what project context models receive, how edit plans stay reviewable and how generated media is labelled.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -319,14 +319,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -392,14 +392,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -465,14 +465,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -538,14 +538,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -611,14 +611,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -684,14 +684,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -757,14 +757,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -830,14 +830,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -903,14 +903,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -976,14 +976,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -1049,14 +1049,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -1122,14 +1122,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -1195,14 +1195,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -1268,14 +1268,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -1341,14 +1341,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -1414,14 +1414,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -1487,14 +1487,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -1560,14 +1560,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -1633,14 +1633,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -1706,14 +1706,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -1785,14 +1785,14 @@
       "openGraph": {
         "title": "Vidrial Blog — Practical AI Video Editing Guides",
         "description": "Practical, sourced guides for AI video clipping, captions, podcast repurposing, YouTube Shorts and editable creator workflows.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial Blog — Practical AI Video Editing Guides",
         "description": "Practical, sourced guides for AI video clipping, captions, podcast repurposing, YouTube Shorts and editable creator workflows.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -1896,14 +1896,14 @@
       "openGraph": {
         "title": "How to Add Captions to YouTube Shorts Automatically | Vidrial",
         "description": "A practical guide to YouTube automatic captions, uploaded caption tracks, and burned-in captions, including the accuracy and timing checks each method needs.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/add-captions-to-youtube-shorts-automatically"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "How to Add Captions to YouTube Shorts Automatically | Vidrial",
         "description": "A practical guide to YouTube automatic captions, uploaded caption tracks, and burned-in captions, including the accuracy and timing checks each method needs.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -1994,14 +1994,14 @@
       "openGraph": {
         "title": "AI Video Clipping vs Manual Video Editing: When to Use Each | Vidrial",
         "description": "A practical decision guide for choosing AI clipping, manual editing, or a hybrid workflow based on context, risk, repetition, and creative control.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/ai-video-clipping-vs-manual-editing"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "AI Video Clipping vs Manual Video Editing: When to Use Each | Vidrial",
         "description": "A practical decision guide for choosing AI clipping, manual editing, or a hybrid workflow based on context, risk, repetition, and creative control.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -2091,14 +2091,14 @@
       "openGraph": {
         "title": "AI Video Editing for Beginners: From Raw Footage to Published Clips | Vidrial",
         "description": "A beginner-friendly AI video editing workflow that explains transcripts, timelines, captions, framing, export, and the checks needed before publishing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/ai-video-editing-for-beginners"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "AI Video Editing for Beginners: From Raw Footage to Published Clips | Vidrial",
         "description": "A beginner-friendly AI video editing workflow that explains transcripts, timelines, captions, framing, export, and the checks needed before publishing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -2187,14 +2187,14 @@
       "openGraph": {
         "title": "AI Video Clipping Guides | Vidrial Blog",
         "description": "Practical, sourced Vidrial guides about ai video clipping.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/category/ai-video-clipping"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "AI Video Clipping Guides | Vidrial Blog",
         "description": "Practical, sourced Vidrial guides about ai video clipping.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -2281,14 +2281,14 @@
       "openGraph": {
         "title": "Content Repurposing Guides | Vidrial Blog",
         "description": "Practical, sourced Vidrial guides about content repurposing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/category/content-repurposing"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Content Repurposing Guides | Vidrial Blog",
         "description": "Practical, sourced Vidrial guides about content repurposing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -2373,14 +2373,14 @@
       "openGraph": {
         "title": "Podcast Repurposing Guides | Vidrial Blog",
         "description": "Practical, sourced Vidrial guides about podcast repurposing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/category/podcast-repurposing"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Podcast Repurposing Guides | Vidrial Blog",
         "description": "Practical, sourced Vidrial guides about podcast repurposing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -2463,14 +2463,14 @@
       "openGraph": {
         "title": "YouTube Shorts Guides | Vidrial Blog",
         "description": "Practical, sourced Vidrial guides about youtube shorts.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/category/youtube-shorts"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "YouTube Shorts Guides | Vidrial Blog",
         "description": "Practical, sourced Vidrial guides about youtube shorts.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -2562,14 +2562,14 @@
       "openGraph": {
         "title": "How to Clip Podcasts for YouTube Shorts | Vidrial",
         "description": "Find self-contained podcast moments, edit them for vertical viewing, handle multiple speakers, and connect each Short to the full episode.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/clip-podcasts-for-youtube-shorts"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "How to Clip Podcasts for YouTube Shorts | Vidrial",
         "description": "Find self-contained podcast moments, edit them for vertical viewing, handle multiple speakers, and connect each Short to the full episode.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -2659,14 +2659,14 @@
       "openGraph": {
         "title": "How AI Finds the Best Moments in a Long Video | Vidrial",
         "description": "See how AI highlight detection segments a video, combines transcript, audio, and visual signals, ranks candidate moments, and where human review is still needed.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/how-ai-finds-video-highlights"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "How AI Finds the Best Moments in a Long Video | Vidrial",
         "description": "See how AI highlight detection segments a video, combines transcript, audio, and visual signals, ranks candidate moments, and where human review is still needed.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -2756,14 +2756,14 @@
       "openGraph": {
         "title": "How Many Shorts Can You Make From One Long Video? | Vidrial",
         "description": "Estimate how many publishable shorts a long video can support using idea density, context, visual fit, production capacity, and a practical yield audit.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/how-many-shorts-from-one-long-video"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "How Many Shorts Can You Make From One Long Video? | Vidrial",
         "description": "Estimate how many publishable shorts a long video can support using idea density, context, visual fit, production capacity, and a practical yield audit.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -2854,14 +2854,14 @@
       "openGraph": {
         "title": "How to Turn a YouTube Video Into Shorts | Vidrial",
         "description": "Choose the right YouTube-to-Shorts route, select a complete moment, fix vertical framing and captions, and upload an authorised clip without losing context.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/how-to-turn-a-youtube-video-into-shorts"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "How to Turn a YouTube Video Into Shorts | Vidrial",
         "description": "Choose the right YouTube-to-Shorts route, select a complete moment, fix vertical framing and captions, and upload an authorised clip without losing context.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -2952,14 +2952,14 @@
       "openGraph": {
         "title": "How to Turn Long Videos Into Shorts With AI | Vidrial",
         "description": "A review-first workflow for finding complete moments, fixing clip boundaries, reframing, correcting captions, and exporting Shorts from authorised long videos.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/how-to-turn-long-videos-into-shorts-with-ai"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "How to Turn Long Videos Into Shorts With AI | Vidrial",
         "description": "A review-first workflow for finding complete moments, fixing clip boundaries, reframing, correcting captions, and exporting Shorts from authorised long videos.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -3050,14 +3050,14 @@
       "openGraph": {
         "title": "How to Write a Strong Hook for YouTube Shorts | Vidrial",
         "description": "Write YouTube Shorts hooks that make the topic, tension, and payoff clear, then diagnose weak openings with the right Studio analytics.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/how-to-write-youtube-shorts-hooks"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "How to Write a Strong Hook for YouTube Shorts | Vidrial",
         "description": "Write YouTube Shorts hooks that make the topic, tension, and payoff clear, then diagnose weak openings with the right Studio analytics.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -3148,14 +3148,14 @@
       "openGraph": {
         "title": "The Complete Long-Form to Short-Form Video Workflow | Vidrial",
         "description": "A start-to-finish video repurposing workflow for choosing source material, accepting strong clips, editing for vertical viewing, publishing, and learning from results.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/long-form-to-short-form-video-workflow"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "The Complete Long-Form to Short-Form Video Workflow | Vidrial",
         "description": "A start-to-finish video repurposing workflow for choosing source material, accepting strong clips, editing for vertical viewing, publishing, and learning from results.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -3245,14 +3245,14 @@
       "openGraph": {
         "title": "How to Make YouTube Shorts From Long Videos Automatically | Vidrial",
         "description": "A review-first workflow for turning authorised long YouTube videos into Shorts with native tools or AI, without losing context, framing, or caption accuracy.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/make-youtube-shorts-from-long-videos-automatically"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "How to Make YouTube Shorts From Long Videos Automatically | Vidrial",
         "description": "A review-first workflow for turning authorised long YouTube videos into Shorts with native tools or AI, without losing context, framing, or caption accuracy.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -3343,14 +3343,14 @@
       "openGraph": {
         "title": "How to Reframe Landscape YouTube Videos Into 9:16 Shorts | Vidrial",
         "description": "Convert 16:9 video to 9:16 without cropping away speakers, screen details, or action. Choose the right framing treatment shot by shot.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/reframe-landscape-youtube-videos-into-vertical-shorts"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "How to Reframe Landscape YouTube Videos Into 9:16 Shorts | Vidrial",
         "description": "Convert 16:9 video to 9:16 without cropping away speakers, screen details, or action. Choose the right framing treatment shot by shot.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -3442,14 +3442,14 @@
       "openGraph": {
         "title": "How to Repurpose One Video Into a Week of Content | Vidrial",
         "description": "Turn one authorised video into a useful seven-day content plan with distinct jobs, channel-aware adaptations, an evidence map, and a practical review board.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/repurpose-one-video-into-a-week-of-content"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "How to Repurpose One Video Into a Week of Content | Vidrial",
         "description": "Turn one authorised video into a useful seven-day content plan with distinct jobs, channel-aware adaptations, an evidence map, and a practical review board.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -3541,14 +3541,14 @@
       "openGraph": {
         "title": "What Is an AI Video Clipper? Complete Guide for 2026 | Vidrial",
         "description": "Learn what an AI video clipper does, where automatic clip selection works, where it fails, and how to judge whether a tool will save real editing time.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/what-is-an-ai-video-clipper"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "What Is an AI Video Clipper? Complete Guide for 2026 | Vidrial",
         "description": "Learn what an AI video clipper does, where automatic clip selection works, where it fails, and how to judge whether a tool will save real editing time.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -3638,14 +3638,14 @@
       "openGraph": {
         "title": "How Often Should You Post YouTube Shorts in 2026? | Vidrial",
         "description": "Choose a YouTube Shorts posting frequency you can sustain, then use a four-week test to decide whether to publish more or protect quality.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/youtube-shorts-posting-frequency"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "How Often Should You Post YouTube Shorts in 2026? | Vidrial",
         "description": "Choose a YouTube Shorts posting frequency you can sustain, then use a four-week test to decide whether to publish more or protect quality.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -3735,14 +3735,14 @@
       "openGraph": {
         "title": "YouTube Shorts SEO: Titles, Descriptions, Keywords and Hashtags | Vidrial",
         "description": "Build accurate YouTube Shorts metadata that matches a real search query, then make the opening and video deliver the same promise.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/youtube-shorts-seo"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "YouTube Shorts SEO: Titles, Descriptions, Keywords and Hashtags | Vidrial",
         "description": "Build accurate YouTube Shorts metadata that matches a real search query, then make the opening and video deliver the same promise.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -3832,14 +3832,14 @@
       "openGraph": {
         "title": "YouTube Shorts Size, Length, Resolution and Aspect Ratio Guide 2026 | Vidrial",
         "description": "Use the current YouTube Shorts dimensions, length, aspect-ratio and export settings—and separate actual classification rules from practical recommendations.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/youtube-shorts-size-length-resolution-aspect-ratio"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "YouTube Shorts Size, Length, Resolution and Aspect Ratio Guide 2026 | Vidrial",
         "description": "Use the current YouTube Shorts dimensions, length, aspect-ratio and export settings—and separate actual classification rules from practical recommendations.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -3930,14 +3930,14 @@
       "openGraph": {
         "title": "YouTube Shorts vs Long-Form Video: How to Use Both Together | Vidrial",
         "description": "Give YouTube Shorts and long-form videos different jobs, align them around one audience problem, and measure whether viewers move between them.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/blog/youtube-shorts-vs-long-form-video"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "YouTube Shorts vs Long-Form Video: How to Use Both Together | Vidrial",
         "description": "Give YouTube Shorts and long-form videos different jobs, align them around one audience problem, and measure whether viewers move between them.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -4027,14 +4027,14 @@
       "openGraph": {
         "title": "Vidrial Changelog — AI Video Editor Updates",
         "description": "Track meaningful Vidrial releases across AI edit-plan review, media search, timeline editing and creator workflows.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/changelog"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial Changelog — AI Video Editor Updates",
         "description": "Track meaningful Vidrial releases across AI edit-plan review, media search, timeline editing and creator workflows.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -4116,14 +4116,14 @@
       "openGraph": {
         "title": "Contact Vidrial",
         "description": "Contact the Vidrial team about the AI video editor, billing, partnerships, security, privacy or product feedback.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/contact"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Contact Vidrial",
         "description": "Contact the Vidrial team about the AI video editor, billing, partnerships, security, privacy or product feedback.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -4205,14 +4205,14 @@
       "openGraph": {
         "title": "Vidrial Cookie Policy and Settings",
         "description": "Understand Vidrial's necessary cookies and consent-controlled analytics settings, which remain off until you opt in.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/cookies"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial Cookie Policy and Settings",
         "description": "Understand Vidrial's necessary cookies and consent-controlled analytics settings, which remain off until you opt in.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -4247,7 +4247,7 @@
         "https://vidrial.vercel.app/copyright",
         "https://vidrial.vercel.app/imprint"
       ],
-      "wordCount": 157,
+      "wordCount": 155,
       "modifiedDate": null,
       "sitemapLastmod": null,
       "duplicateTitle": false,
@@ -4294,14 +4294,14 @@
       "openGraph": {
         "title": "Vidrial Copyright and Takedown Policy",
         "description": "Learn how rightsholders and Vidrial users can submit copyright notices, counter-notices and supporting information.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/copyright"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial Copyright and Takedown Policy",
         "description": "Learn how rightsholders and Vidrial users can submit copyright notices, counter-notices and supporting information.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -4359,33 +4359,35 @@
       ],
       "httpStatus": 200,
       "finalUrl": "https://vidrial.vercel.app/design-system",
-      "canonicalUrl": null,
-      "canonicalUrls": [],
-      "canonicalCount": 0,
-      "canonicalIsSelf": false,
-      "eligibleForIndexing": true,
+      "canonicalUrl": "https://vidrial.vercel.app/design-system",
+      "canonicalUrls": [
+        "https://vidrial.vercel.app/design-system"
+      ],
+      "canonicalCount": 1,
+      "canonicalIsSelf": true,
+      "eligibleForIndexing": false,
       "indexable": false,
       "robotsAllowed": true,
-      "robotsMeta": "index,follow",
+      "robotsMeta": "noindex,nofollow",
       "xRobotsTag": null,
       "sitemapIncluded": false,
       "title": "Design system — Vidrial",
       "titleLength": 23,
-      "metaDescription": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-      "descriptionLength": 121,
+      "metaDescription": "Internal reference for Vidrial brand, interface, and component standards.",
+      "descriptionLength": 73,
       "h1": [],
       "h1Count": 0,
       "openGraph": {
-        "title": "Vidrial — AI video editing that understands your project",
-        "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
-        "url": "https://vidrial.vercel.app/"
+        "title": "Design system — Vidrial",
+        "description": "Internal reference for Vidrial brand, interface, and component standards.",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
+        "url": "https://vidrial.vercel.app/design-system"
       },
       "twitter": {
         "card": "summary_large_image",
-        "title": "Vidrial — AI video editing that understands your project",
-        "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "title": "Design system — Vidrial",
+        "description": "Internal reference for Vidrial brand, interface, and component standards.",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -4468,14 +4470,14 @@
       "openGraph": {
         "title": "Vidrial Documentation — From Media to Editable Video",
         "description": "Learn how to import media, direct Vidrial's AI-assisted editor, refine the timeline, manage captions and export finished video.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/docs"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial Documentation — From Media to Editable Video",
         "description": "Learn how to import media, direct Vidrial's AI-assisted editor, refine the timeline, manage captions and export finished video.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -4562,14 +4564,14 @@
       "openGraph": {
         "title": "Using the Vidrial AI Video Editor — Documentation",
         "description": "Write precise video-editing prompts, scope changes and review Vidrial's proposed operations before they reach the timeline.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/docs/ai-editor"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Using the Vidrial AI Video Editor — Documentation",
         "description": "Write precise video-editing prompts, scope changes and review Vidrial's proposed operations before they reach the timeline.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -4656,14 +4658,14 @@
       "openGraph": {
         "title": "Exporting Video from Vidrial — Documentation",
         "description": "Choose video resolution, aspect ratio and caption settings, review usage, then monitor Vidrial's render and delivery states.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/docs/exporting"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Exporting Video from Vidrial — Documentation",
         "description": "Choose video resolution, aspect ratio and caption settings, review usage, then monitor Vidrial's render and delivery states.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -4750,14 +4752,14 @@
       "openGraph": {
         "title": "Getting Started with Vidrial — Documentation",
         "description": "Create your first Vidrial project, review an AI-assisted edit plan and export a controlled preview from authorised media.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/docs/getting-started"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Getting Started with Vidrial — Documentation",
         "description": "Create your first Vidrial project, review an AI-assisted edit plan and export a controlled preview from authorised media.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -4844,14 +4846,14 @@
       "openGraph": {
         "title": "Video Timeline Editing Basics — Vidrial Documentation",
         "description": "Learn Vidrial's core timeline controls for moving, trimming, splitting, ripple deleting and snapping video clips.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/docs/timeline"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Video Timeline Editing Basics — Vidrial Documentation",
         "description": "Learn Vidrial's core timeline controls for moving, trimming, splitting, ripple deleting and snapping video clips.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -4938,14 +4940,14 @@
       "openGraph": {
         "title": "Uploading Video and Media — Vidrial Documentation",
         "description": "Review the supported video, audio, image, subtitle and text formats and learn how media roles guide Vidrial's editor.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/docs/uploading-media"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Uploading Video and Media — Vidrial Documentation",
         "description": "Review the supported video, audio, image, subtitle and text formats and learn how media roles guide Vidrial's editor.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -5032,14 +5034,14 @@
       "openGraph": {
         "title": "AI Video Editing Features — Vidrial",
         "description": "Explore Vidrial's media intelligence, AI edit planning, transcript editing, captions, reframing, timeline controls and export workflow.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/features"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "AI Video Editing Features — Vidrial",
         "description": "Explore Vidrial's media intelligence, AI edit planning, transcript editing, captions, reframing, timeline controls and export workflow.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -5119,14 +5121,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -5188,14 +5190,14 @@
       "openGraph": {
         "title": "How Vidrial's AI Video Editor Works",
         "description": "See how Vidrial turns authorised source media into a reviewable edit plan, non-destructive timeline, captions and export.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/how-it-works"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "How Vidrial's AI Video Editor Works",
         "description": "See how Vidrial turns authorised source media into a reviewable edit plan, non-destructive timeline, captions and export.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -5278,14 +5280,14 @@
       "openGraph": {
         "title": "Vidrial Imprint and Service Contacts",
         "description": "Find Vidrial's product-preview status and contact channels for general, privacy, copyright and security enquiries.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/imprint"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial Imprint and Service Contacts",
         "description": "Find Vidrial's product-preview status and contact channels for general, privacy, copyright and security enquiries.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -5366,14 +5368,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -5436,14 +5438,14 @@
       "openGraph": {
         "title": "Vidrial Pricing — AI Video Editing Plans",
         "description": "Compare Vidrial Free, Creator and Pro plans by source minutes, storage, export resolution, captions, watermarks and editing features.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/pricing"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial Pricing — AI Video Editing Plans",
         "description": "Compare Vidrial Free, Creator and Pro plans by source minutes, storage, export resolution, captions, watermarks and editing features.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -5526,14 +5528,14 @@
       "openGraph": {
         "title": "Vidrial Privacy Policy",
         "description": "Read how Vidrial collects, uses, protects, retains and deletes account, media, OAuth and optional analytics data.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/privacy"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial Privacy Policy",
         "description": "Read how Vidrial collects, uses, protects, retains and deletes account, media, OAuth and optional analytics data.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -5612,14 +5614,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -5680,14 +5682,14 @@
       "openGraph": {
         "title": "Vidrial Product Roadmap",
         "description": "Review Vidrial's current AI video-editing capabilities, near-term priorities and clearly labelled future plans.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/roadmap"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial Product Roadmap",
         "description": "Review Vidrial's current AI video-editing capabilities, near-term priorities and clearly labelled future plans.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -5769,14 +5771,14 @@
       "openGraph": {
         "title": "Vidrial Security and Media Privacy",
         "description": "Learn how Vidrial protects private media, uses signed URLs, handles deletion and limits AI training and analytics access.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/security"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial Security and Media Privacy",
         "description": "Learn how Vidrial protects private media, uses signed URLs, handles deletion and limits AI training and analytics access.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -5858,14 +5860,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -5926,14 +5928,14 @@
       "openGraph": {
         "title": "Vidrial Service Status Preview",
         "description": "A demonstration of Vidrial's planned service-status reporting surface.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/status"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial Service Status Preview",
         "description": "A demonstration of Vidrial's planned service-status reporting surface.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -6015,14 +6017,14 @@
       "openGraph": {
         "title": "Vidrial Terms of Service",
         "description": "Read the terms governing Vidrial accounts, authorised media, AI-assisted output, acceptable use, billing and service access.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/terms"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial Terms of Service",
         "description": "Read the terms governing Vidrial accounts, authorised media, AI-assisted output, acceptable use, billing and service access.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -6104,14 +6106,14 @@
       "openGraph": {
         "title": "AI Video Editing Use Cases — Vidrial",
         "description": "Explore Vidrial workflows for YouTube videos, podcast clipping, short-form repurposing, online courses and product demos.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/use-cases"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "AI Video Editing Use Cases — Vidrial",
         "description": "Explore Vidrial workflows for YouTube videos, podcast clipping, short-form repurposing, online courses and product demos.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -6194,14 +6196,14 @@
       "openGraph": {
         "title": "AI Video Editing for Online Courses — Vidrial",
         "description": "Create consistent online-course lessons with reviewable editing, pacing, captions, chapters and repeatable export settings.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/use-cases/courses"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "AI Video Editing for Online Courses — Vidrial",
         "description": "Create consistent online-course lessons with reviewable editing, pacing, captions, chapters and repeatable export settings.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -6284,14 +6286,14 @@
       "openGraph": {
         "title": "Podcast Clipping and Podcast-to-Shorts — Vidrial",
         "description": "Clean long video podcasts, identify complete moments, add captions and prepare editable short-form clips without losing context.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/use-cases/podcasts"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Podcast Clipping and Podcast-to-Shorts — Vidrial",
         "description": "Clean long video podcasts, identify complete moments, add captions and prepare editable short-form clips without losing context.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -6374,14 +6376,14 @@
       "openGraph": {
         "title": "AI Video Editing for Product Demos — Vidrial",
         "description": "Combine screen recording and camera footage into a concise, editable product demo with clear pacing and captions.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/use-cases/product-demos"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "AI Video Editing for Product Demos — Vidrial",
         "description": "Combine screen recording and camera footage into a concise, editable product demo with clear pacing and captions.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -6464,14 +6466,14 @@
       "openGraph": {
         "title": "Long-Form to Short-Form Video Repurposing — Vidrial",
         "description": "Find distinct hooks in long-form video and prepare editable vertical drafts with captions for Shorts, Reels and TikTok.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/use-cases/short-form"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Long-Form to Short-Form Video Repurposing — Vidrial",
         "description": "Find distinct hooks in long-form video and prepare editable vertical drafts with captions for Shorts, Reels and TikTok.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -6554,14 +6556,14 @@
       "openGraph": {
         "title": "AI Video Editing for YouTube Creators — Vidrial",
         "description": "Turn long YouTube recordings into a reviewable first cut, captions and vertical clip drafts while keeping manual timeline control.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/use-cases/youtube"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "AI Video Editing for YouTube Creators — Vidrial",
         "description": "Turn long YouTube recordings into a reviewable first cut, captions and vertical clip drafts while keeping manual timeline control.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -6641,14 +6643,14 @@
       "openGraph": {
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "Vidrial — AI video editing that understands your project",
         "description": "Turn authorised long-form video into explainable, editable short clips with AI-assisted planning, captions and reframing.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",
@@ -6709,14 +6711,14 @@
       "openGraph": {
         "title": "YouTube Video Clipper — Turn Long Videos Into Shorts | Vidrial",
         "description": "Find complete moments in authorised YouTube videos, correct captions and export editable clips for Shorts, Reels and TikTok.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png",
         "url": "https://vidrial.vercel.app/youtube-clipper"
       },
       "twitter": {
         "card": "summary_large_image",
         "title": "YouTube Video Clipper — Turn Long Videos Into Shorts | Vidrial",
         "description": "Find complete moments in authorised YouTube videos, correct captions and export editable clips for Shorts, Reels and TikTok.",
-        "image": "https://vidrial.vercel.app/social/vidrial-social-card.svg"
+        "image": "https://vidrial.vercel.app/social/vidrial-social-card.png"
       },
       "jsonLdTypes": [
         "Organization",

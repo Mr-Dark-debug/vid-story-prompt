@@ -21,8 +21,8 @@ The post-deploy crawl found 51 indexable URLs with no non-200 response, canonica
 | Content validation / audit / link audit | PASS / PASS / PASS (219 links checked) |
 | Google Search Console | URL-prefix property verified; data processing |
 | Google index baseline | No `site:vidrial.vercel.app` results observed on 2026-08-24 |
-| Lighthouse desktop | Performance 95, Accessibility 90, Best Practices 96, SEO 100 |
-| Lighthouse mobile | Performance 74, Accessibility 90, Best Practices 96, SEO 100 |
+| Lighthouse desktop | Performance 97, Accessibility 100, Best Practices 96, SEO 100 |
+| Lighthouse mobile | Performance 83, Accessibility 100, Best Practices 96, SEO 100 |
 
 Machine-readable crawl and Lighthouse evidence is under `artifacts/seo/2026-08-24/`.
 
@@ -79,7 +79,7 @@ The content program should prioritize refreshing the strongest already-reviewed 
 
 ## Performance and accessibility
 
-The initial production mobile Lighthouse score was 74, driven primarily by a throttled 4.5 s LCP/FCP rather than main-thread blocking (TBT 10 ms, CLS 0). The implementation now self-hosts the already-installed Manrope and JetBrains Mono packages and removes the render dependency on Google Fonts. Accessibility defects identified in the baseline were corrected in source. These changes require a new production deployment and post-deploy Lighthouse run before claiming improved scores.
+The initial production mobile Lighthouse score was 74, driven primarily by a throttled 4.5 s LCP/FCP rather than main-thread blocking (TBT 10 ms, CLS 0). After self-hosting the installed Manrope and JetBrains Mono packages and correcting the identified accessibility defects, the live post-deploy run improved mobile Performance to 83 and Accessibility to 100; LCP improved to 3.7 s, CLS measured 0.01, and TBT remained low at 20 ms. Desktop improved to Performance 97 and Accessibility 100, with 0.8 s LCP and 0 ms TBT. Best Practices remained 96 and SEO remained 100 on both profiles.
 
 ## Verification boundaries and blockers
 

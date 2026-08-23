@@ -89,3 +89,13 @@
 - The integrated revision again passed `npm run typecheck` and `npm run build`.
 - The integrated app suite passed 73 files plus 1 skipped file: 314 tests passed and 6 skipped.
 - The integrated worker suite passed 20 files and 103 tests.
+
+### 2026-08-24 — final production verification
+
+- `main` was pushed without force to commit `c5a1c6817550c758c6f7972ab1da75f741bfdbe9` after safely integrating concurrent Lovable-connected upstream work.
+- Vercel deployment `dpl_HntPGxes49Ds2TMtEkGpjKxd6TQo` reached `READY` and is assigned to `vidrial.vercel.app`.
+- The production alias returned HTTP 200, the PNG social card returned HTTP 200 as `image/png` with 21,718 bytes, rendered HTML referenced the PNG card and Google verification token, and CSP contained only the required Google tag/analytics additions alongside the existing protections.
+- The final production crawl recorded 78 inventory items, 51 sitemap URLs, 51 indexable pages, and zero errors across non-200 responses, missing/multiple/non-self canonicals, missing descriptions/H1s, duplicate indexable titles/descriptions, orphans, and invalid structured data.
+- Post-deploy Lighthouse scored desktop 97/100/96/100 and mobile 83/100/96/100 for Performance/Accessibility/Best Practices/SEO. Desktop LCP was 0.8 s with 0 ms TBT; mobile LCP was 3.7 s with CLS 0.01 and 20 ms TBT.
+- Remaining external operations are limited to provider-console submission/import actions and authenticated IndexNow execution; no such external success is inferred from the clean deployment.
+- A fresh production browser context confirmed zero Google requests and an empty data layer before consent. Clicking `Accept optional` loaded only `https://www.googletagmanager.com/gtag/js?id=G-GNXL7J1SBN`, stored analytics consent, denied all advertising consent fields, disabled Google signals, and queued the route page view. Reopening settings on `/cookies` and choosing `Only necessary` stored analytics denial, queued `analytics_storage: denied`, and set `ga-disable-G-GNXL7J1SBN` to `true`.
