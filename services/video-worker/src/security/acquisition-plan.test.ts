@@ -81,7 +81,7 @@ describe("YouTube acquisition planning", () => {
   });
 
   it("ends after Cobalt instead of requiring customer-side software", () => {
-    const strategies = ["standard", "web-safari", "web-embedded", "android-vr"] as const;
+    const strategies = ["standard", "web-safari", "web-embedded"] as const;
     const exhaustedWarp = warpMembers.flatMap((member) =>
       strategies.map((strategy) => prior("warp", strategy, member.egressFingerprint)),
     );

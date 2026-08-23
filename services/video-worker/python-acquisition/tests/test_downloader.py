@@ -1,9 +1,17 @@
+import os
 from pathlib import Path
 from threading import Event
 
 import pytest
+from pydantic import ValidationError
 
-from app.downloader import AcquisitionError, build_ydl_options, classify_failure, resolve_output_directory
+from app.downloader import (
+    AcquisitionError,
+    build_ydl_options,
+    classify_failure,
+    ensure_ffmpeg_on_path,
+    resolve_output_directory,
+)
 from app.models import DownloadRequest
 
 
@@ -24,6 +32,9 @@ def request_for(tmp_path: Path, **overrides) -> DownloadRequest:
 
 
 def test_plan_height_and_section_are_applied(tmp_path: Path) -> None:
+    ffmpeg = tmp_path / "bin" / "ffmpeg"
+    ffmpeg.parent.mkdir()
+    ffmpeg.write_bytes(b"test executable")
     request = request_for(
         tmp_path,
         source_section={"start_seconds": 30, "end_seconds": 45},
@@ -35,10 +46,26 @@ def test_plan_height_and_section_are_applied(tmp_path: Path) -> None:
         Event(),
         lambda *_: None,
         maximum_bytes=100_000,
+        ffmpeg_location=str(ffmpeg),
     )
     assert "height<=720" in options["format"]
     assert options["external_downloader"]["default"] == "ffmpeg"
     assert options["source_address"] == "0.0.0.0"
+    assert options["js_runtimes"] == {"node": {}}
+    assert options["ffmpeg_location"] == str(ffmpeg.parent)
+
+
+def test_retired_android_vr_strategy_is_rejected(tmp_path: Path) -> None:
+    with pytest.raises(ValidationError):
+        request_for(tmp_path, strategy="android-vr")
+
+
+def test_bundled_ffmpeg_directory_is_added_to_path(tmp_path: Path, monkeypatch) -> None:
+    ffmpeg = tmp_path / "ffmpeg.exe"
+    ffmpeg.write_bytes(b"test executable")
+    monkeypatch.setenv("PATH", "existing")
+    ensure_ffmpeg_on_path(str(ffmpeg))
+    assert os.environ["PATH"].split(os.pathsep) == [str(tmp_path), "existing"]
 
 
 def test_conservative_request_pacing_is_applied(tmp_path: Path) -> None:

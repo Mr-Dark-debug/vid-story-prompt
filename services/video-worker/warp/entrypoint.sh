@@ -39,7 +39,7 @@ while [ "$member" -lt "$WARP_POOL_SIZE" ]; do
   warp_pids="$warp_pids $member_pid"
   elapsed=0
   until curl -fsS --max-time 5 -x "http://127.0.0.1:${member_port}" \
-    https://cloudflare.com/cdn-cgi/trace/ | grep -Eq '^warp=(on|plus)$'; do
+    https://cloudflare.com/cdn-cgi/trace | grep -Eq '^warp=(on|plus)$'; do
     if ! kill -0 "$member_pid" 2>/dev/null; then
       echo "proxy=failed member=${member} reason=warp_process_exited" >&2
       exit 1

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 import re
 from pathlib import Path
 from threading import Event
@@ -64,11 +65,23 @@ def resolve_output_directory(requested: str, root: Path) -> Path:
     return resolved
 
 
+def ensure_ffmpeg_on_path(ffmpeg_location: str | None) -> None:
+    if not ffmpeg_location:
+        return
+    configured = Path(ffmpeg_location)
+    directory = configured.parent if configured.is_file() else configured if configured.is_dir() else None
+    if directory is None:
+        return
+    current = os.environ.get("PATH", "")
+    entries = [entry for entry in current.split(os.pathsep) if entry]
+    if str(directory).casefold() not in {entry.casefold() for entry in entries}:
+        os.environ["PATH"] = os.pathsep.join([str(directory), *entries])
+
+
 def _extractor_args(request: DownloadRequest, pot_provider_url: str | None) -> dict[str, dict[str, list[str]]]:
     client = {
         "web-safari": "web_safari",
         "web-embedded": "web_embedded",
-        "android-vr": "android_vr",
         "mweb-pot": "mweb",
     }.get(request.strategy)
     args: dict[str, dict[str, list[str]]] = {}
@@ -97,6 +110,7 @@ def build_ydl_options(
     progress: ProgressCallback,
     *,
     maximum_bytes: int,
+    ffmpeg_location: str | None = None,
     pot_provider_url: str | None = None,
     sleep_interval_seconds: float = 5.0,
     maximum_sleep_interval_seconds: float = 10.0,
@@ -165,6 +179,12 @@ def build_ydl_options(
         "logger": _CollectorLogger(),
     }
     if request.source_section:
+        if ffmpeg_location:
+            configured_ffmpeg = Path(ffmpeg_location)
+            if configured_ffmpeg.is_file():
+                options["ffmpeg_location"] = str(configured_ffmpeg.parent)
+            elif configured_ffmpeg.is_dir():
+                options["ffmpeg_location"] = str(configured_ffmpeg)
         options["external_downloader"] = {"default": "ffmpeg"}
         options["download_ranges"] = download_range_func(
             None,
@@ -246,6 +266,7 @@ def run_download(
     maximum_bytes: int,
     cancel_event: Event,
     progress: ProgressCallback,
+    ffmpeg_location: str | None = None,
     pot_provider_url: str | None = None,
     sleep_interval_seconds: float = 5.0,
     maximum_sleep_interval_seconds: float = 10.0,
@@ -256,12 +277,14 @@ def run_download(
         raise AcquisitionError(
             "output_directory_not_empty", "The isolated acquisition directory is not empty.", True
         )
+    ensure_ffmpeg_on_path(ffmpeg_location)
     options = build_ydl_options(
         request,
         output_directory,
         cancel_event,
         progress,
         maximum_bytes=maximum_bytes,
+        ffmpeg_location=ffmpeg_location,
         pot_provider_url=pot_provider_url,
         sleep_interval_seconds=sleep_interval_seconds,
         maximum_sleep_interval_seconds=maximum_sleep_interval_seconds,

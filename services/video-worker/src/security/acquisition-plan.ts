@@ -48,12 +48,9 @@ const terminalCodes = new Set([
 ]);
 
 function strategies(potProviderConfigured: boolean): YouTubeDownloadStrategy[] {
-  return [
-    "standard",
-    potProviderConfigured ? "mweb-pot" : "web-safari",
-    "web-embedded",
-    "android-vr",
-  ];
+  return potProviderConfigured
+    ? ["standard", "mweb-pot", "web-embedded", "web-safari"]
+    : ["standard", "web-safari", "web-embedded"];
 }
 
 function wasTried(

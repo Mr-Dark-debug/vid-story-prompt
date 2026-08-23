@@ -92,7 +92,7 @@ if [ "${ENABLE_EMBEDDED_WARP:-false}" = "true" ] \
     elapsed=0
     member_ready="false"
     until trace="$(curl -fsS --max-time 5 -x "http://127.0.0.1:${member_port}" \
-      https://cloudflare.com/cdn-cgi/trace/)" \
+      https://cloudflare.com/cdn-cgi/trace)" \
       && printf '%s\n' "$trace" | grep -Eq '^warp=(on|plus)$'; do
       if ! kill -0 "$member_pid" 2>/dev/null; then
         echo "proxy=failed tier=embedded_warp member=${member} reason=warp_process_exited" >&2
@@ -106,7 +106,7 @@ if [ "${ENABLE_EMBEDDED_WARP:-false}" = "true" ] \
       elapsed=$((elapsed + 1))
     done
     if trace="$(curl -fsS --max-time 5 -x "http://127.0.0.1:${member_port}" \
-      https://cloudflare.com/cdn-cgi/trace/ 2>/dev/null)" \
+      https://cloudflare.com/cdn-cgi/trace 2>/dev/null)" \
       && printf '%s\n' "$trace" | grep -Eq '^warp=(on|plus)$'; then
       member_ready="true"
     fi
