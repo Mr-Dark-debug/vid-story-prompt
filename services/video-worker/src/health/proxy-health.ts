@@ -210,13 +210,13 @@ export async function probeProxyHealth(
 
   try {
     const trace = await run(
-      "curl",
+      env.CURL_PATH,
       [
         "-fsS",
         "--max-time",
         String(Math.max(1, Math.ceil(timeoutMs / 1_000))),
         ...proxyArgs,
-        "https://cloudflare.com/cdn-cgi/trace/",
+        "https://cloudflare.com/cdn-cgi/trace",
       ],
       { env: proxyEnvironment(selection), timeout: timeoutMs },
     );
@@ -268,7 +268,7 @@ export async function probeProxyHealth(
         : null;
   const status: ProxyHealthStatus = errorCode
     ? "blocked"
-    : selection.tier === "direct" || ytdlpReachable === null
+    : (selection.tier === "direct" && !env.TRUST_DIRECT_EGRESS) || ytdlpReachable === null
       ? "degraded"
       : "healthy";
   return {

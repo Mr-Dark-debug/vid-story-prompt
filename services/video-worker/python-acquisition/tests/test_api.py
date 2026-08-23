@@ -30,6 +30,13 @@ def test_authentication_is_required(tmp_path: Path) -> None:
     assert response.status_code == 401
 
 
+def test_configured_python_token_authenticates(tmp_path: Path) -> None:
+    request = payload(tmp_path)
+    request["video_id"] = "short"
+    response = client.post("/v1/downloads", headers=TOKEN, json=request)
+    assert response.status_code == 422
+
+
 def test_invalid_video_id_is_rejected(tmp_path: Path) -> None:
     request = payload(tmp_path)
     request["video_id"] = "short"

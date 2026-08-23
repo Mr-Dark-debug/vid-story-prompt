@@ -147,6 +147,7 @@ class DownloadRegistry:
                 maximum_bytes=int(os.getenv("MAX_DIRECT_DOWNLOAD_BYTES", str(2 * 1024**3))),
                 cancel_event=cancellation,
                 progress=progress,
+                ffmpeg_location=os.getenv("FFMPEG_PATH"),
                 pot_provider_url=os.getenv("YTDLP_POT_PROVIDER_URL"),
                 sleep_interval_seconds=_bounded_float(
                     "YTDLP_SLEEP_INTERVAL_SECONDS", 5.0, 5.0, 10.0
@@ -179,7 +180,7 @@ app = FastAPI(
 
 
 def require_token(authorization: Annotated[str | None, Header()] = None) -> None:
-    secret = os.getenv("VIDRIAL_ACQUISITION_TOKEN")
+    secret = os.getenv("PYTHON_ACQUISITION_TOKEN") or os.getenv("VIDRIAL_ACQUISITION_TOKEN")
     expected = f"Bearer {secret}" if secret else ""
     if not expected or not authorization or not hmac.compare_digest(authorization, expected):
         raise HTTPException(status_code=401, detail="unauthorized")

@@ -7,6 +7,6 @@ member=0
 while [ "$member" -lt "$pool_size" ]; do
   port=$((base_port + member))
   curl -fsS --max-time 5 -x "http://127.0.0.1:${port}" \
-    https://cloudflare.com/cdn-cgi/trace/ | grep -Eq '^warp=(on|plus)$'
+    https://cloudflare.com/cdn-cgi/trace | grep -Eq '^warp=(on|plus)$'
   member=$((member + 1))
 done

@@ -33,7 +33,7 @@ class DownloadRequest(BaseModel):
     maximum_duration_seconds: float = Field(gt=0, le=21600)
     maximum_height: Literal[720, 1080, 2160]
     output_format: Literal["mp4", "webm", "mkv"] = "mp4"
-    strategy: Literal["standard", "web-safari", "mweb-pot", "web-embedded", "android-vr"]
+    strategy: Literal["standard", "web-safari", "mweb-pot", "web-embedded"]
     proxy_url: str | None = Field(default=None, max_length=2048)
     source_section: SourceSection | None = None
 

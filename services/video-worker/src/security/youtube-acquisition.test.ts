@@ -63,11 +63,11 @@ describe("YouTube acquisition runner", () => {
     const state = setup();
     const result = await acquireYouTubeSource(state.input);
     expect(result).toMatchObject({ sourceTier: "cobalt", proxyTier: "cobalt" });
-    expect(state.recorded).toHaveLength(9);
-    expect(state.recorded.slice(0, 4).map((item) => item.poolMemberIndex)).toEqual([0, 0, 0, 0]);
-    expect(state.recorded.slice(4, 8).map((item) => item.poolMemberIndex)).toEqual([1, 1, 1, 1]);
-    expect(state.recorded[8]).toMatchObject({ sourceTier: "cobalt", ordinal: 9 });
-    expect(state.finished.filter((item) => item.status === "failed")).toHaveLength(8);
+    expect(state.recorded).toHaveLength(7);
+    expect(state.recorded.slice(0, 3).map((item) => item.poolMemberIndex)).toEqual([0, 0, 0]);
+    expect(state.recorded.slice(3, 6).map((item) => item.poolMemberIndex)).toEqual([1, 1, 1]);
+    expect(state.recorded[6]).toMatchObject({ sourceTier: "cobalt", ordinal: 7 });
+    expect(state.finished.filter((item) => item.status === "failed")).toHaveLength(6);
   });
 
   it("uses the operator override before the WARP pool", async () => {
@@ -88,7 +88,7 @@ describe("YouTube acquisition runner", () => {
 
   it("does not retry a path that already has a terminal attempt", async () => {
     const previous = members.flatMap((member) =>
-      ["standard", "web-safari", "web-embedded", "android-vr"].map((strategy) => ({
+      ["standard", "web-safari", "web-embedded"].map((strategy) => ({
         sourceTier: "warp" as const,
         strategy: strategy as "standard",
         egressFingerprint: member.egressFingerprint,
@@ -98,7 +98,7 @@ describe("YouTube acquisition runner", () => {
     const state = setup({ previous });
     const result = await acquireYouTubeSource(state.input);
     expect(result.sourceTier).toBe("cobalt");
-    expect(state.recorded).toEqual([expect.objectContaining({ sourceTier: "cobalt", ordinal: 9 })]);
+    expect(state.recorded).toEqual([expect.objectContaining({ sourceTier: "cobalt", ordinal: 7 })]);
   });
 
   it("stops immediately for a terminal restriction", async () => {
@@ -119,7 +119,7 @@ describe("YouTube acquisition runner", () => {
   it("fails once without repeating cloud calls after all paths are recorded", async () => {
     const previous = [
       ...members.flatMap((member) =>
-        ["standard", "web-safari", "web-embedded", "android-vr"].map((strategy) => ({
+        ["standard", "web-safari", "web-embedded"].map((strategy) => ({
           sourceTier: "warp" as const,
           strategy: strategy as "standard",
           egressFingerprint: member.egressFingerprint,

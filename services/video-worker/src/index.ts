@@ -209,7 +209,9 @@ async function run() {
         await new Promise((resolve) => setTimeout(resolve, env.QUEUE_POLL_INTERVAL_MS));
         continue;
       }
-      const connectorTask = await claimConnectorTask();
+      const connectorTask = env.WORKER_CONNECTOR_TASKS_ENABLED
+        ? await claimConnectorTask()
+        : null;
       if (connectorTask) {
         await processConnectorTask(connectorTask);
         continue;

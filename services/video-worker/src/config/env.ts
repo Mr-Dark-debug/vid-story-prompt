@@ -13,7 +13,20 @@ export const env = z
     WORKER_WAKE_SECRET: optionalSecret,
     QUEUE_POLL_INTERVAL_MS: z.coerce.number().int().min(100).default(1000),
     TASK_VISIBILITY_TIMEOUT_SECONDS: z.coerce.number().int().min(30).default(120),
+    WORKER_TASK_INCLUDE_TYPES: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.string().optional(),
+    ),
+    WORKER_TASK_EXCLUDE_TYPES: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.string().optional(),
+    ),
+    WORKER_CONNECTOR_TASKS_ENABLED: z
+      .enum(["true", "false"])
+      .default("true")
+      .transform((value) => value === "true"),
     WORKER_TEMP_ROOT: z.string().default("/tmp/vidrial"),
+    CURL_PATH: z.string().min(1).default("curl"),
     FFMPEG_PATH: z.string().default("ffmpeg"),
     FFPROBE_PATH: z.string().default("ffprobe"),
     FFMPEG_THREADS: z.coerce.number().int().min(1).max(8).default(1),
@@ -59,6 +72,10 @@ export const env = z
     YTDLP_STARTUP_PROBE: z
       .enum(["true", "false"])
       .default("true")
+      .transform((value) => value === "true"),
+    TRUST_DIRECT_EGRESS: z
+      .enum(["true", "false"])
+      .default("false")
       .transform((value) => value === "true"),
     COBALT_API_URL: z.preprocess(
       (value) => (value === "" ? undefined : value),

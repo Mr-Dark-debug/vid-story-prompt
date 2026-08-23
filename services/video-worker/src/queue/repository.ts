@@ -1,14 +1,22 @@
 import { env } from "../config/env.js";
 import type { ClipTask, ConnectorTask, ConnectorTaskResult, TaskResult } from "../domain/types.js";
 import { supabase } from "../storage/client.js";
+import { parseTaskCapabilities } from "./task-capabilities.js";
+
+const taskCapabilities = parseTaskCapabilities(
+  env.WORKER_TASK_INCLUDE_TYPES,
+  env.WORKER_TASK_EXCLUDE_TYPES,
+);
 
 function first<T>(value: unknown): T | null {
   return Array.isArray(value) ? ((value[0] as T | undefined) ?? null) : (value as T | null);
 }
 export async function claimTask() {
-  const { data, error } = await supabase.rpc("claim_clip_task", {
+  const { data, error } = await supabase.rpc("claim_clip_task_for_capabilities", {
     p_worker_id: env.WORKER_ID,
     p_lease_seconds: env.TASK_VISIBILITY_TIMEOUT_SECONDS,
+    p_include_task_types: taskCapabilities.include,
+    p_exclude_task_types: taskCapabilities.exclude,
   });
   if (error) throw error;
   return first<ClipTask>(data);
