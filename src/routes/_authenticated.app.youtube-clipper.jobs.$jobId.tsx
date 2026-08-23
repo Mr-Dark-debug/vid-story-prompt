@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect } from "react";
 import { JobProgress } from "@/components/youtube-clipper/job-progress";
 import { getClipJob } from "@/services/clipping/server";
 import { getYouTubeConnection } from "@/services/youtube/oauth.server";
@@ -8,6 +9,7 @@ import {
   listSocialPublishingJobs,
 } from "@/services/connectors/publishing.server";
 import { getPublicConnectorCatalog } from "@/services/connectors/server";
+import { trackAnalyticsEvent } from "@/services/analytics/client";
 
 export const Route = createFileRoute("/_authenticated/app/youtube-clipper/jobs/$jobId")({
   loader: async ({ params }) => {
@@ -38,6 +40,11 @@ export const Route = createFileRoute("/_authenticated/app/youtube-clipper/jobs/$
 
 function ClipJobRoute() {
   const data = Route.useLoaderData();
+  useEffect(() => {
+    if (["ready", "completed"].includes(data.job.job.status)) {
+      trackAnalyticsEvent("clipper_job_completed");
+    }
+  }, [data.job.job.status]);
   return (
     <JobProgress
       data={data.job}

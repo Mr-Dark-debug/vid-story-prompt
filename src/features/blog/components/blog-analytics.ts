@@ -4,6 +4,7 @@ import { hasAnalyticsConsent } from "@/services/analytics/consent";
 type BlogEvent = Extract<
   AnalyticsEvent,
   | "blog_view"
+  | "blog_article_view"
   | "blog_search"
   | "blog_category_filter"
   | "blog_cta_click"

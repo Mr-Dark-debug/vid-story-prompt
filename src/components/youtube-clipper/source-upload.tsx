@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { userFacingError } from "@/lib/user-facing-error";
 import { completeSourceUpload, prepareSourceUpload } from "@/services/storage/server";
 import { startResumableUpload, type UploadController } from "@/services/storage/resumable-upload";
+import { trackAnalyticsEvent } from "@/services/analytics/client";
 
 export type UploadedSource = { assetId: string; filename: string; durationSeconds: number };
 
@@ -51,6 +52,7 @@ export function SourceUpload({
 
   const upload = async () => {
     if (!file) return;
+    trackAnalyticsEvent("upload_started", { source: "local_upload" });
     try {
       setState("uploading");
       setError(null);
@@ -79,6 +81,7 @@ export function SourceUpload({
             });
             setProgress(1);
             setState("complete");
+            trackAnalyticsEvent("upload_completed", { source: "local_upload" });
             onUploaded({
               assetId: prepared.assetId,
               filename: file.name,

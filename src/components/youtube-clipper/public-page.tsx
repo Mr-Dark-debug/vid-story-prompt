@@ -19,6 +19,7 @@ import { MarketingLayout } from "@/components/marketing/layout";
 import { Container, Eyebrow, Section, SectionHeader } from "@/components/primitives/section";
 import { userFacingError } from "@/lib/user-facing-error";
 import { getYouTubeMetadata } from "@/services/youtube/server";
+import { trackAnalyticsEvent } from "@/services/analytics/client";
 
 const demoClips = [
   {
@@ -87,6 +88,7 @@ export function YouTubeClipperPublicPage() {
   const [error, setError] = useState<string | null>(null);
   const analyse = async (event: FormEvent) => {
     event.preventDefault();
+    trackAnalyticsEvent("youtube_clipper_cta", { action: "analyse_video" });
     setLoading(true);
     setError(null);
     setMetadata(null);
@@ -146,6 +148,9 @@ export function YouTubeClipperPublicPage() {
               to="/login"
               search={{ redirect: "/app/youtube-clipper/new?source=upload" }}
               className="inline-flex items-center gap-1.5 font-medium text-ember-ink hover:underline"
+              onClick={() =>
+                trackAnalyticsEvent("youtube_clipper_cta", { action: "upload_original" })
+              }
             >
               <Upload className="h-3.5 w-3.5" />
               Upload original instead
@@ -186,6 +191,9 @@ export function YouTubeClipperPublicPage() {
             to="/login"
             search={{ redirect: "/app/youtube-clipper/new" }}
             className="mt-8 inline-flex items-center gap-2 rounded-xl bg-surface-page px-5 py-3 text-sm font-semibold text-ink"
+            onClick={() =>
+              trackAnalyticsEvent("youtube_clipper_cta", { action: "create_clips" })
+            }
           >
             Create clips free <ArrowRight className="h-4 w-4" />
           </Link>
@@ -287,7 +295,7 @@ function ClipDemo() {
               </button>
             </div>
             <div className="mt-5">
-              <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-wider text-white/45">
+              <div className="mb-3 flex items-center justify-between text-[10px] uppercase tracking-wider text-white/60">
                 <span>Source transcript</span>
                 <span>02:18 / 38:12</span>
               </div>
@@ -302,7 +310,7 @@ function ClipDemo() {
             </div>
           </div>
           <div className="max-h-[650px] overflow-y-auto p-4">
-            <div className="mb-3 px-1 text-[10px] uppercase tracking-wider text-white/45">
+            <div className="mb-3 px-1 text-[10px] uppercase tracking-wider text-white/60">
               Recommended moments
             </div>
             <div className="space-y-2">
@@ -323,7 +331,7 @@ function ClipDemo() {
                     </div>
                     <div className="min-w-0">
                       <div className="text-sm font-medium leading-snug">{clip.title}</div>
-                      <div className="mt-1 text-[11px] text-white/45">
+                      <div className="mt-1 text-[11px] text-white/60">
                         {clip.time} · Hook {clip.hook} · Clarity {clip.clarity}
                       </div>
                       <div className="mt-2 line-clamp-1 text-[11px] text-white/65">
@@ -332,7 +340,7 @@ function ClipDemo() {
                     </div>
                     <div className="text-right">
                       <div className="font-mono text-lg text-[#ffc177]">{clip.score}</div>
-                      <div className="text-[9px] uppercase text-white/35">strength</div>
+                      <div className="text-[9px] uppercase text-white/55">strength</div>
                       <div
                         className={`mt-3 ml-auto flex h-4 w-4 items-center justify-center rounded border ${checked ? "border-[#ed8e4d] bg-[#ed8e4d]" : "border-white/30"}`}
                       >

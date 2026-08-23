@@ -61,7 +61,7 @@ export function ArticlePage({
   const cta = ctaForCategory(article.category);
 
   useEffect(() => {
-    trackBlogEvent("blog_view", { slug: article.slug, category: article.category });
+    trackBlogEvent("blog_article_view", { slug: article.slug, category: article.category });
   }, [article.category, article.slug]);
 
   return (

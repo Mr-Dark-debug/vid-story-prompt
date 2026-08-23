@@ -138,7 +138,7 @@ export function BlogIndex({
       {!query && category === "All" && featured && (
         <section className="border-b border-line bg-brand-charcoal text-white">
           <div className="mx-auto grid w-full max-w-6xl gap-12 px-5 py-14 sm:px-8 sm:py-20 lg:grid-cols-[.42fr_1.3fr_.5fr] lg:items-end">
-            <div className="font-mono text-[5rem] leading-none text-white/14 sm:text-[7rem]">01</div>
+            <div className="font-mono text-[5rem] leading-none text-white/35 sm:text-[7rem]">01</div>
             <div>
               <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-coral">
                 Featured · {featured.category}

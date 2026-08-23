@@ -8,7 +8,7 @@ const map: Record<Variant, string> = {
   warning: "bg-warning/15 text-ink ring-warning/40",
   danger: "bg-danger/12 text-danger ring-danger/30",
   info: "bg-info/10 text-info ring-info/30",
-  muted: "bg-surface-sunken text-ink-mute ring-line",
+  muted: "bg-surface-sunken text-ink-soft ring-line",
 };
 
 export function StatusDot({

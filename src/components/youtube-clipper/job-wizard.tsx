@@ -20,6 +20,7 @@ import { SourceUpload, type UploadedSource } from "./source-upload";
 import { getYouTubeMetadata } from "@/services/youtube/server";
 import { parseYouTubeVideoId } from "@/services/youtube/parser";
 import { createClipJob } from "@/services/clipping/server";
+import { trackAnalyticsEvent } from "@/services/analytics/client";
 import { attachSourceToAutomationDraft } from "@/services/youtube/automation.server";
 import { resolvePodcastFeed } from "@/services/connectors/rss.server";
 import { CONNECTOR_REGISTRY, getConnector } from "@/domain/connectors/registry";
@@ -335,6 +336,11 @@ export function JobWizard({
           rightsAccepted: true,
           idempotencyKey: crypto.randomUUID(),
         },
+      });
+      trackAnalyticsEvent("clipper_job_started", {
+        source: sourceMode,
+        plan: context.plan,
+        clip_count: requestedClips,
       });
       await navigate({ to: "/app/youtube-clipper/jobs/$jobId", params: { jobId: result.jobId } });
     } catch (cause) {

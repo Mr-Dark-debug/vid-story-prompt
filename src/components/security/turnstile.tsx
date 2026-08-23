@@ -209,7 +209,8 @@ export function TurnstileWidget({
       ) : null}
       <div
         ref={container}
-        aria-label="Security verification"
+        aria-label={showChallenge ? "Security verification" : undefined}
+        role={showChallenge ? "group" : undefined}
         className="min-w-0 max-w-full overflow-hidden"
       />
       {!showChallenge && !error ? (

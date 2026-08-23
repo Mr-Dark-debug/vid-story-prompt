@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Check, HelpCircle } from "lucide-react";
 import { MarketingLayout } from "@/components/marketing/layout";
 import { Container, Section, SectionHeader } from "@/components/primitives/section";
@@ -7,6 +7,7 @@ import { MarketingPageHero, FinalCTA } from "@/components/marketing/page-shell";
 import { StatusDot } from "@/components/primitives/status-dot";
 import { Callout } from "@/components/primitives/section";
 import { pageMeta } from "@/config/seo";
+import { trackAnalyticsEvent } from "@/services/analytics/client";
 
 const plans = [
   {
@@ -77,6 +78,7 @@ export const Route = createFileRoute("/pricing")({
 
 function PricingPage() {
   const [annual, setAnnual] = useState(true);
+  useEffect(() => trackAnalyticsEvent("pricing_viewed"), []);
   return (
     <MarketingLayout>
       <MarketingPageHero

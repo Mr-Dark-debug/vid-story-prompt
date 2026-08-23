@@ -7,6 +7,7 @@ import { getPublicEnv } from "@/config/env";
 import { authService } from "@/services/auth";
 import { userFacingError } from "@/lib/user-facing-error";
 import { getCurrentSession } from "@/services/auth/server";
+import { trackAnalyticsEvent } from "@/services/analytics/client";
 
 function safeAuthenticatedDestination(value?: string) {
   return value?.startsWith("/") && !value.startsWith("//") ? value : "/app";
@@ -51,6 +52,7 @@ function SignupPage() {
     }
     setBusy(true);
     setError(null);
+    trackAnalyticsEvent("signup_started", { method: "google" });
     try {
       const { url } = await authService.googleSignIn(
         "signup",
@@ -74,6 +76,7 @@ function SignupPage() {
     setError(null);
     const form = new FormData(event.currentTarget);
     try {
+      trackAnalyticsEvent("signup_started", { method: "email" });
       if (redirect) sessionStorage.setItem("vidrial.auth.redirect", redirect);
       const result = await authService.signup(
         String(form.get("email")),
@@ -82,6 +85,10 @@ function SignupPage() {
         turnstileToken ?? undefined,
         redirect,
       );
+      trackAnalyticsEvent("signup_completed", {
+        method: "email",
+        confirmation_required: result.requiresEmailConfirmation,
+      });
       if (result.requiresEmailConfirmation) setSent(true);
       else
         window.location.assign(

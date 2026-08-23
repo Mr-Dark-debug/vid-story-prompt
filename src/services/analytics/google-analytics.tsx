@@ -7,6 +7,7 @@ import {
   hasAnalyticsConsent,
   type ConsentPreferences,
 } from "@/services/analytics/consent";
+import { trackAnalyticsEvent } from "@/services/analytics/client";
 
 declare global {
   interface Window {
@@ -96,6 +97,19 @@ export function GoogleAnalytics() {
       page_title: document.title,
     });
   }, [location.pathname, location.searchStr, measurementId]);
+
+  useEffect(() => {
+    const handleOutboundClick = (event: MouseEvent) => {
+      const anchor = (event.target as Element | null)?.closest("a[href]");
+      if (!(anchor instanceof HTMLAnchorElement)) return;
+      const destination = new URL(anchor.href, window.location.href);
+      if (!["http:", "https:"].includes(destination.protocol)) return;
+      if (destination.origin === window.location.origin) return;
+      trackAnalyticsEvent("outbound_click", { destination_host: destination.hostname });
+    };
+    document.addEventListener("click", handleOutboundClick);
+    return () => document.removeEventListener("click", handleOutboundClick);
+  }, []);
 
   return null;
 }

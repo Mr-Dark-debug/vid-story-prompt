@@ -22,6 +22,7 @@ import {
   requestClipExport,
 } from "@/services/exports/server";
 import { userFacingError } from "@/lib/user-facing-error";
+import { trackAnalyticsEvent } from "@/services/analytics/client";
 
 export const Route = createFileRoute("/_authenticated/app/projects/$projectId/exports")({
   loader: ({ params }) => listProjectExportData({ data: { projectId: params.projectId } }),
@@ -131,6 +132,7 @@ function ExportsPage() {
                     setBusy(item.id);
                     try {
                       const result = await getExportDownload({ data: { exportId: item.id } });
+                      trackAnalyticsEvent("clip_downloaded", { source: "project_exports" });
                       window.location.assign(result.url);
                     } catch (cause) {
                       toast.error(userFacingError(cause, "The download link could not be created."));

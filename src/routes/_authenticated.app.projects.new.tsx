@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { SourceUpload, type UploadedSource } from "@/components/youtube-clipper/source-upload";
 import { createProject, deleteProject, updateProject } from "@/services/projects/server";
 import { userFacingError } from "@/lib/user-facing-error";
+import { trackAnalyticsEvent } from "@/services/analytics/client";
 
 export const Route = createFileRoute("/_authenticated/app/projects/new")({
   head: () => ({ meta: [{ title: "New project — Vidrial" }] }),
@@ -41,6 +42,7 @@ function ProjectWizard() {
         const project = await createProject({ data: { name, aspect, brief: "" } });
         id = project.id;
         setProjectId(id);
+        trackAnalyticsEvent("project_created", { source: "project_wizard" });
       }
       if (step < steps.length - 1) setStep((value) => value + 1);
       else if (id) {

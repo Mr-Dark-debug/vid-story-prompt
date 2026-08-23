@@ -1,0 +1,9 @@
+{
+  "generatedAt": "2026-08-23T23:36:27.745Z",
+  "sourceInventoryGeneratedAt": "2026-08-23T23:03:11.258Z",
+  "publicArticleCount": 18,
+  "priorityUrlCount": 20,
+  "keywordTargetCount": 26,
+  "excludedDraftExample": "https://vidrial.vercel.app/blog/opusclip-alternatives",
+  "exclusionReason": "Frontmatter draft=true and independent review status REVISE; production returns 404."
+}

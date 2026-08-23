@@ -7,6 +7,7 @@ import { getPublicEnv } from "@/config/env";
 import { authService } from "@/services/auth";
 import { userFacingError } from "@/lib/user-facing-error";
 import { getCurrentSession } from "@/services/auth/server";
+import { trackAnalyticsEvent } from "@/services/analytics/client";
 
 function safeAuthenticatedDestination(value?: string) {
   return value?.startsWith("/") && !value.startsWith("//") ? value : "/app";
@@ -79,6 +80,7 @@ function LoginPage() {
         String(form.get("password")),
         turnstileToken ?? undefined,
       );
+      trackAnalyticsEvent("login_completed", { method: "email" });
       window.location.assign(redirect?.startsWith("/") ? redirect : "/app");
     } catch (cause) {
       setError(userFacingError(cause, "Sign-in failed. Check your details and retry."));
