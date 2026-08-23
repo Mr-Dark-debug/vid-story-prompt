@@ -82,3 +82,10 @@
 - `npm run worker:test` passed 19 files and 100 tests.
 - `npm run build` passed after validating all 60 published articles, all 60 paired research notes, and all 60 independent reviews.
 - `git diff --check` reported no whitespace errors. The source revision is ready to integrate with the remote Lovable-connected branch and deploy.
+
+### 2026-08-24 — upstream integration gate
+
+- Four upstream Lovable-connected commits were integrated with a normal merge; no published history was rewritten and the merge completed without conflicts.
+- The integrated revision again passed `npm run typecheck` and `npm run build`.
+- The integrated app suite passed 73 files plus 1 skipped file: 314 tests passed and 6 skipped.
+- The integrated worker suite passed 20 files and 103 tests.
