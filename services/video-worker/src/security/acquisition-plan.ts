@@ -61,6 +61,7 @@ function wasTried(
 ) {
   return previous.some(
     (attempt) =>
+      attempt.status !== "succeeded" &&
       attempt.sourceTier === tier &&
       attempt.strategy === strategy &&
       attempt.egressFingerprint === fingerprint,
