@@ -3,28 +3,59 @@ import { MarketingLayout } from "@/components/marketing/layout";
 import { Section, SectionHeader } from "@/components/primitives/section";
 import { MarketingPageHero, FinalCTA } from "@/components/marketing/page-shell";
 import { Callout } from "@/components/primitives/section";
+import { pageMeta } from "@/config/seo";
 
 const steps = [
-  { n: "01", t: "Upload or import media", d: "Video, audio, images, subtitles and reference text. Everything stays in your project." },
-  { n: "02", t: "Previews & project metadata", d: "We generate proxies and a project index so the editor is responsive from the first minute." },
-  { n: "03", t: "Speech, scenes & content analysis", d: "Transcription, speaker labels, scene cuts, quality checks and searchable tags." },
-  { n: "04", t: "Your goal or instruction", d: "Fill out a short brief, or just describe what you want in plain language." },
-  { n: "05", t: "Vidrial proposes a plan", d: "A structured list of operations with expected duration and usage estimates." },
-  { n: "06", t: "Confirm or change it", d: "Accept all, accept some, edit any step, or reject the plan entirely." },
-  { n: "07", t: "Non-destructive timeline", d: "Your originals are untouched. The timeline is a set of decisions you can rewind." },
-  { n: "08", t: "Refine & export", d: "Adjust manually, generate captions, render aspect variants, share." },
+  {
+    n: "01",
+    t: "Upload or import media",
+    d: "Video, audio, images, subtitles and reference text. Everything stays in your project.",
+  },
+  {
+    n: "02",
+    t: "Previews & project metadata",
+    d: "We generate proxies and a project index so the editor is responsive from the first minute.",
+  },
+  {
+    n: "03",
+    t: "Speech, scenes & content analysis",
+    d: "Transcription, speaker labels, scene cuts, quality checks and searchable tags.",
+  },
+  {
+    n: "04",
+    t: "Your goal or instruction",
+    d: "Fill out a short brief, or just describe what you want in plain language.",
+  },
+  {
+    n: "05",
+    t: "Vidrial proposes a plan",
+    d: "A structured list of operations with expected duration and usage estimates.",
+  },
+  {
+    n: "06",
+    t: "Confirm or change it",
+    d: "Accept all, accept some, edit any step, or reject the plan entirely.",
+  },
+  {
+    n: "07",
+    t: "Non-destructive timeline",
+    d: "Your originals are untouched. The timeline is a set of decisions you can rewind.",
+  },
+  {
+    n: "08",
+    t: "Refine & export",
+    d: "Adjust manually, generate captions, render aspect variants, share.",
+  },
 ];
 
 export const Route = createFileRoute("/how-it-works")({
-  head: () => ({
-    meta: [
-      { title: "How Vidrial works" },
-      { name: "description", content: "From raw footage to an editable timeline — the honest, step-by-step version." },
-      { property: "og:title", content: "How Vidrial works" },
-      { property: "og:url", content: "/how-it-works" },
-    ],
-    links: [{ rel: "canonical", href: "/how-it-works" }],
-  }),
+  head: () =>
+    pageMeta({
+      title: "How Vidrial's AI Video Editor Works",
+      description:
+        "See how Vidrial turns authorised source media into a reviewable edit plan, non-destructive timeline, captions and export.",
+      path: "/how-it-works",
+    }),
   component: HowItWorksPage,
 });
 
@@ -48,7 +79,8 @@ function HowItWorksPage() {
         </div>
         <div className="mt-8 max-w-3xl">
           <Callout title="Your originals are never modified" tone="info">
-            The timeline is a sequence of decisions layered over your source files. Delete a project and the source records go with it. Projects are private by default.
+            The timeline is a sequence of decisions layered over your source files. Delete a project
+            and the source records go with it. Projects are private by default.
           </Callout>
         </div>
       </Section>

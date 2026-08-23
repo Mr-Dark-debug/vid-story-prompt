@@ -3,6 +3,7 @@ import { MarketingLayout } from "@/components/marketing/layout";
 import { Container, Section, SectionHeader } from "@/components/primitives/section";
 import { MarketingPageHero, FinalCTA } from "@/components/marketing/page-shell";
 import { StatusDot } from "@/components/primitives/status-dot";
+import { pageMeta } from "@/config/seo";
 
 const features = [
   {
@@ -78,22 +79,13 @@ const features = [
 ];
 
 export const Route = createFileRoute("/features")({
-  head: () => ({
-    meta: [
-      { title: "Features — Vidrial" },
-      {
-        name: "description",
-        content: "The complete Vidrial workflow: understand, plan, edit, deliver.",
-      },
-      { property: "og:title", content: "Features — Vidrial" },
-      {
-        property: "og:description",
-        content: "Understand, plan, edit and deliver — grouped around real workflow.",
-      },
-      { property: "og:url", content: "/features" },
-    ],
-    links: [{ rel: "canonical", href: "/features" }],
-  }),
+  head: () =>
+    pageMeta({
+      title: "AI Video Editing Features — Vidrial",
+      description:
+        "Explore Vidrial's media intelligence, AI edit planning, transcript editing, captions, reframing, timeline controls and export workflow.",
+      path: "/features",
+    }),
   component: FeaturesPage,
 });
 

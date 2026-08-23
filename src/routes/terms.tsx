@@ -1,15 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SimpleMarketingPage } from "@/components/marketing/simple-page";
+import { pageMeta } from "@/config/seo";
 
 export const Route = createFileRoute("/terms")({
-  head: () => ({
-    meta: [
-      { title: "Terms — Vidrial" },
-      { name: "description", content: "Terms governing the use of Vidrial." },
-      { property: "og:url", content: "/terms" },
-    ],
-    links: [{ rel: "canonical", href: "/terms" }],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Vidrial Terms of Service",
+      description:
+        "Read the terms governing Vidrial accounts, authorised media, AI-assisted output, acceptable use, billing and service access.",
+      path: "/terms",
+    }),
   component: TermsPage,
 });
 

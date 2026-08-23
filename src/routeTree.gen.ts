@@ -42,6 +42,7 @@ import { Route as AcceptableUseRouteImport } from './routes/acceptable-use'
 import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as UseCasesIndexRouteImport } from './routes/use-cases.index'
+import { Route as DocsIndexRouteImport } from './routes/docs.index'
 import { Route as BlogIndexRouteImport } from './routes/blog.index'
 import { Route as UseCasesYoutubeRouteImport } from './routes/use-cases.youtube'
 import { Route as UseCasesShortFormRouteImport } from './routes/use-cases.short-form'
@@ -256,6 +257,11 @@ const UseCasesIndexRoute = UseCasesIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => UseCasesRoute,
+} as any)
+const DocsIndexRoute = DocsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DocsRoute,
 } as any)
 const BlogIndexRoute = BlogIndexRouteImport.update({
   id: '/',
@@ -581,6 +587,7 @@ export interface FileRoutesByFullPath {
   '/use-cases/short-form': typeof UseCasesShortFormRoute
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/blog/': typeof BlogIndexRoute
+  '/docs/': typeof DocsIndexRoute
   '/use-cases/': typeof UseCasesIndexRoute
   '/app/automations': typeof AuthenticatedAppAutomationsRouteWithChildren
   '/app/billing': typeof AuthenticatedAppBillingRoute
@@ -628,7 +635,6 @@ export interface FileRoutesByTo {
   '/cookies': typeof CookiesRoute
   '/copyright': typeof CopyrightRoute
   '/design-system': typeof DesignSystemRoute
-  '/docs': typeof DocsRouteWithChildren
   '/features': typeof FeaturesRoute
   '/forgot-password': typeof ForgotPasswordRoute
   '/how-it-works': typeof HowItWorksRoute
@@ -662,6 +668,7 @@ export interface FileRoutesByTo {
   '/use-cases/short-form': typeof UseCasesShortFormRoute
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/blog': typeof BlogIndexRoute
+  '/docs': typeof DocsIndexRoute
   '/use-cases': typeof UseCasesIndexRoute
   '/app/billing': typeof AuthenticatedAppBillingRoute
   '/app/feedback': typeof AuthenticatedAppFeedbackRoute
@@ -744,6 +751,7 @@ export interface FileRoutesById {
   '/use-cases/short-form': typeof UseCasesShortFormRoute
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/blog/': typeof BlogIndexRoute
+  '/docs/': typeof DocsIndexRoute
   '/use-cases/': typeof UseCasesIndexRoute
   '/_authenticated/app/automations': typeof AuthenticatedAppAutomationsRouteWithChildren
   '/_authenticated/app/billing': typeof AuthenticatedAppBillingRoute
@@ -830,6 +838,7 @@ export interface FileRouteTypes {
     | '/use-cases/short-form'
     | '/use-cases/youtube'
     | '/blog/'
+    | '/docs/'
     | '/use-cases/'
     | '/app/automations'
     | '/app/billing'
@@ -877,7 +886,6 @@ export interface FileRouteTypes {
     | '/cookies'
     | '/copyright'
     | '/design-system'
-    | '/docs'
     | '/features'
     | '/forgot-password'
     | '/how-it-works'
@@ -911,6 +919,7 @@ export interface FileRouteTypes {
     | '/use-cases/short-form'
     | '/use-cases/youtube'
     | '/blog'
+    | '/docs'
     | '/use-cases'
     | '/app/billing'
     | '/app/feedback'
@@ -992,6 +1001,7 @@ export interface FileRouteTypes {
     | '/use-cases/short-form'
     | '/use-cases/youtube'
     | '/blog/'
+    | '/docs/'
     | '/use-cases/'
     | '/_authenticated/app/automations'
     | '/_authenticated/app/billing'
@@ -1303,6 +1313,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/use-cases/'
       preLoaderRoute: typeof UseCasesIndexRouteImport
       parentRoute: typeof UseCasesRoute
+    }
+    '/docs/': {
+      id: '/docs/'
+      path: '/'
+      fullPath: '/docs/'
+      preLoaderRoute: typeof DocsIndexRouteImport
+      parentRoute: typeof DocsRoute
     }
     '/blog/': {
       id: '/blog/'
@@ -1826,6 +1843,7 @@ interface DocsRouteChildren {
   DocsGettingStartedRoute: typeof DocsGettingStartedRoute
   DocsTimelineRoute: typeof DocsTimelineRoute
   DocsUploadingMediaRoute: typeof DocsUploadingMediaRoute
+  DocsIndexRoute: typeof DocsIndexRoute
 }
 
 const DocsRouteChildren: DocsRouteChildren = {
@@ -1834,6 +1852,7 @@ const DocsRouteChildren: DocsRouteChildren = {
   DocsGettingStartedRoute: DocsGettingStartedRoute,
   DocsTimelineRoute: DocsTimelineRoute,
   DocsUploadingMediaRoute: DocsUploadingMediaRoute,
+  DocsIndexRoute: DocsIndexRoute,
 }
 
 const DocsRouteWithChildren = DocsRoute._addFileChildren(DocsRouteChildren)

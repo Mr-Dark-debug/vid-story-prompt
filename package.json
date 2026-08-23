@@ -21,6 +21,7 @@
     "content:audit": "node scripts/audit-blog-corpus.mjs",
     "content:links": "node scripts/check-blog-links.mjs",
     "indexnow:trigger": "node scripts/trigger-indexnow.mjs",
+    "seo:audit": "node scripts/audit-production-seo.mjs",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:reset": "supabase db reset",

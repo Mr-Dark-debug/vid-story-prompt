@@ -1,13 +1,22 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SimpleMarketingPage } from "@/components/marketing/simple-page";
+import { pageMeta } from "@/config/seo";
 
 export const Route = createFileRoute("/acceptable-use")({
-  head: () => ({
-    meta: [{ title: "Acceptable use — Vidrial" }, { name: "description", content: "What you can and can't do with Vidrial." }, { property: "og:url", content: "/acceptable-use" }],
-    links: [{ rel: "canonical", href: "/acceptable-use" }],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Vidrial Acceptable Use Policy",
+      description:
+        "Review the media rights, safety, abuse, impersonation and copyright rules that apply when using Vidrial.",
+      path: "/acceptable-use",
+    }),
   component: () => (
-    <SimpleMarketingPage eyebrow="Legal" title="Acceptable use policy" lead="Short, direct, non-negotiable." cta={false}>
+    <SimpleMarketingPage
+      eyebrow="Legal"
+      title="Acceptable use policy"
+      lead="Short, direct, non-negotiable."
+      cta={false}
+    >
       <p>You may not use Vidrial to create, host or distribute:</p>
       <ul>
         <li>Illegal content.</li>
@@ -19,8 +28,13 @@ export const Route = createFileRoute("/acceptable-use")({
         <li>Copyright infringement, including uploading media you don't have rights to.</li>
         <li>Attempts to attack, overload or misuse the service.</li>
       </ul>
-      <p>When you upload media, you confirm you have the rights and permissions needed to process it.</p>
-      <p>Violations may result in immediate suspension and, where required, disclosure to authorities.</p>
+      <p>
+        When you upload media, you confirm you have the rights and permissions needed to process it.
+      </p>
+      <p>
+        Violations may result in immediate suspension and, where required, disclosure to
+        authorities.
+      </p>
     </SimpleMarketingPage>
   ),
 });

@@ -1,15 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SimpleMarketingPage } from "@/components/marketing/simple-page";
+import { pageMeta } from "@/config/seo";
 
 export const Route = createFileRoute("/privacy")({
-  head: () => ({
-    meta: [
-      { title: "Privacy — Vidrial" },
-      { name: "description", content: "How Vidrial collects, uses, protects, and deletes data." },
-      { property: "og:url", content: "/privacy" },
-    ],
-    links: [{ rel: "canonical", href: "/privacy" }],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Vidrial Privacy Policy",
+      description:
+        "Read how Vidrial collects, uses, protects, retains and deletes account, media, OAuth and optional analytics data.",
+      path: "/privacy",
+    }),
   component: PrivacyPage,
 });
 

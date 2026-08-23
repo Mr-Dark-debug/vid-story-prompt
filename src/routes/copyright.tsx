@@ -1,15 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SimpleMarketingPage } from "@/components/marketing/simple-page";
+import { pageMeta } from "@/config/seo";
 
 export const Route = createFileRoute("/copyright")({
-  head: () => ({
-    meta: [
-      { title: "Copyright and takedown — Vidrial" },
-      { name: "description", content: "How to submit a copyright notice or counter-notice." },
-      { property: "og:url", content: "/copyright" },
-    ],
-    links: [{ rel: "canonical", href: "/copyright" }],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Vidrial Copyright and Takedown Policy",
+      description:
+        "Learn how rightsholders and Vidrial users can submit copyright notices, counter-notices and supporting information.",
+      path: "/copyright",
+    }),
   component: CopyrightPage,
 });
 

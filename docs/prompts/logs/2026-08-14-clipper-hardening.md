@@ -197,3 +197,19 @@
 - **Database/deployment:** all 28 local migrations match production. Linked database lint has no errors and only two pre-existing unused-variable warnings. Vercel production deployment `https://vidrial-h0cw8p9fj-prashant-project.vercel.app` is Ready and aliased to `https://vidrial.vercel.app`. Render serves worker revision `dc85033`; `/healthz`, `/readyz` and authenticated `/health/proxy` all return HTTP 200. Cobalt is live and authenticated.
 - **Live browser evidence:** authenticated desktop production showed the provider-neutral source-access UI and the newly deployed bounded retry on job `8422b2de-dfc3-469e-bda7-4b8785091efc`. The real retry reached the current worker and created a persisted Cobalt attempt. Local Playwright verified the public/auth flows and 360-pixel overflow containment; a real 360-pixel production browser emulation was not separately captured.
 - **Blocked end-to-end:** the live job stopped at source acquisition because YouTube challenges the available free datacenter paths. Therefore there is no honest production evidence for transcription, scored candidate previews, two rendered caption combinations, final download, or publishing. Unblock §4 with a clean operator proxy or approved paid egress, then run one fresh rights-attested job through the already-deployed downstream pipeline and provider publishing where credentials exist.
+
+## Round 2 — 2026-08-14 — durable home acquisition and first real end-to-end run
+
+### Kickoff and execution contract
+
+- Read the Round 2 brief and this complete continuous journal before making runtime or repository changes. Context compaction occurred while the brief was first being read, so the brief was reread in full afterward as explicitly required by the operator.
+- `main` started clean and synchronized with `origin/main` at `6e94e4f`. Docker was absent from `PATH`; `winget` and `wsl.exe` were present. The first combined `wsl --status`/version/list probe did not return within 34 seconds and was terminated by the command timeout; no prerequisite state is inferred from that timeout.
+- The implementation plan is `docs/superpowers/plans/2026-08-14-home-worker-e2e-publishing-prep.md`. The operator explicitly requested autonomous inline execution through every phase without confirmation pauses, so no execution-choice prompt or subagent dispatch is used.
+- The home-worker design is Docker Compose with an ignored local secret file, `NODE_ENV=development`, `ENABLE_EMBEDDED_WARP=false`, localhost-only health exposure, `restart: unless-stopped`, and a current-user Windows logon task that starts Docker Desktop and reconciles the Compose project.
+
+### Docker prerequisite attempt — operator action required
+
+- Windows 11 reports `HyperVisorPresent=True` and `CsHypervisorPresent=True`; `systeminfo.exe` independently reports that a hypervisor is detected. The earlier processor WMI flags were therefore not treated as proof that BIOS virtualization is disabled.
+- `winget` resolved Docker Desktop `4.86.0`, downloaded it from Docker's official Windows distribution endpoint, and verified the installer hash. Installation reached `Starting package install...` and explicitly reported that administrator approval was required.
+- Windows launched the secure UAC consent process. The unattended installer could not approve that secure-desktop prompt and was terminated after 164 seconds; winget returned `4294967291`. A follow-up check confirms Docker Desktop is not installed and no installer/consent process remains.
+- Per the Round 2 brief, no privilege workaround was attempted. The operator must rerun the Docker Desktop installation and click **Yes** on the UAC prompt. After that one approval, execution can resume at engine startup/build without repeating the audit or plan.

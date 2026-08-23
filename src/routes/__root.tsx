@@ -13,7 +13,15 @@ import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
 import { brand } from "../config/brand";
 import { getPublicEnv, publicEnvBootstrapScript } from "../config/env";
-import { absoluteUrl, verificationMeta } from "../config/seo";
+import {
+  absoluteUrl,
+  organizationJsonLd,
+  SEO_DEFAULT_DESCRIPTION,
+  SEO_DEFAULT_SOCIAL_IMAGE,
+  serializeJsonLd,
+  verificationMeta,
+  websiteJsonLd,
+} from "../config/seo";
 import { RouteProgress } from "../components/ui/route-progress";
 import { Toaster } from "../components/ui/sonner";
 
@@ -86,15 +94,22 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { charSet: "utf-8" },
         { name: "viewport", content: "width=device-width, initial-scale=1" },
         { title: `${brand.name} — ${brand.tagline}` },
-        { name: "description", content: brand.promise },
+        { name: "description", content: SEO_DEFAULT_DESCRIPTION },
         { name: "author", content: brand.name },
         { name: "robots", content: "index,follow" },
         { property: "og:site_name", content: brand.name },
         { property: "og:title", content: `${brand.name} — ${brand.tagline}` },
-        { property: "og:description", content: brand.promise },
+        { property: "og:description", content: SEO_DEFAULT_DESCRIPTION },
         { property: "og:type", content: "website" },
         { property: "og:url", content: absoluteUrl("/") },
-        { name: "twitter:card", content: "summary" },
+        { property: "og:image", content: absoluteUrl(SEO_DEFAULT_SOCIAL_IMAGE) },
+        { property: "og:image:width", content: "1200" },
+        { property: "og:image:height", content: "630" },
+        { property: "og:image:alt", content: "Vidrial — AI-assisted video editing" },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: `${brand.name} — ${brand.tagline}` },
+        { name: "twitter:description", content: SEO_DEFAULT_DESCRIPTION },
+        { name: "twitter:image", content: absoluteUrl(SEO_DEFAULT_SOCIAL_IMAGE) },
         { name: "theme-color", content: "#F6F7F7" },
         ...verificationMeta({
           google: publicEnv.VITE_GOOGLE_SITE_VERIFICATION,
@@ -131,6 +146,14 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en" suppressHydrationWarning>
       <head>
         <HeadContent />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(organizationJsonLd()) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(websiteJsonLd()) }}
+        />
       </head>
       <body suppressHydrationWarning>
         <script

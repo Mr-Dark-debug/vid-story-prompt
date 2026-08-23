@@ -6,6 +6,7 @@ import { Container, Section, SectionHeader } from "@/components/primitives/secti
 import { MarketingPageHero, FinalCTA } from "@/components/marketing/page-shell";
 import { StatusDot } from "@/components/primitives/status-dot";
 import { Callout } from "@/components/primitives/section";
+import { pageMeta } from "@/config/seo";
 
 const plans = [
   {
@@ -64,15 +65,13 @@ const plans = [
 ];
 
 export const Route = createFileRoute("/pricing")({
-  head: () => ({
-    meta: [
-      { title: "Pricing — Vidrial" },
-      { name: "description", content: "Simple plans, honest units. Source minutes for editing, credits for generation, top-ups when you need them." },
-      { property: "og:title", content: "Pricing — Vidrial" },
-      { property: "og:url", content: "/pricing" },
-    ],
-    links: [{ rel: "canonical", href: "/pricing" }],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Vidrial Pricing — AI Video Editing Plans",
+      description:
+        "Compare Vidrial Free, Creator and Pro plans by source minutes, storage, export resolution, captions, watermarks and editing features.",
+      path: "/pricing",
+    }),
   component: PricingPage,
 });
 
@@ -109,7 +108,9 @@ function PricingPage() {
               <div
                 key={p.name}
                 className={`flex flex-col rounded-2xl border p-6 ${
-                  p.featured ? "border-ember bg-surface-panel ring-2 ring-ember/20" : "border-line bg-surface-panel"
+                  p.featured
+                    ? "border-ember bg-surface-panel ring-2 ring-ember/20"
+                    : "border-line bg-surface-panel"
                 }`}
               >
                 <div className="flex items-center justify-between">
@@ -124,8 +125,8 @@ function PricingPage() {
                   {annual && p.annual > 0
                     ? `Billed annually — $${p.annual * 12}/year`
                     : p.monthly === 0
-                    ? "No credit card required"
-                    : "Billed monthly"}
+                      ? "No credit card required"
+                      : "Billed monthly"}
                 </div>
                 <ul className="mt-5 space-y-2 text-sm text-ink-soft">
                   {p.features.map((f) => (
@@ -146,7 +147,9 @@ function PricingPage() {
                 >
                   {p.cta}
                 </button>
-                <div className="mt-2 text-[11px] text-ink-mute">Checkout not connected — you'll join the waitlist.</div>
+                <div className="mt-2 text-[11px] text-ink-mute">
+                  Checkout not connected — you'll join the waitlist.
+                </div>
               </div>
             );
           })}
@@ -154,7 +157,9 @@ function PricingPage() {
 
         <div className="mt-10 max-w-3xl">
           <Callout title="What are source minutes?" tone="info">
-            One source minute is one minute of your uploaded media that Vidrial analyses (transcription, tags, scenes). Editing the timeline itself is unmetered. Generated media (voice, music, video) uses separate credits, always with a preview cost.
+            One source minute is one minute of your uploaded media that Vidrial analyses
+            (transcription, tags, scenes). Editing the timeline itself is unmetered. Generated media
+            (voice, music, video) uses separate credits, always with a preview cost.
           </Callout>
         </div>
 
@@ -214,11 +219,26 @@ function ComparisonTable() {
 
 function FAQ() {
   const items = [
-    { q: "What happens if I run out of source minutes?", a: "You can keep editing existing projects and buy a top-up. Nothing gets deleted." },
-    { q: "Do unused minutes roll over?", a: "Free minutes reset each month. Paid-plan overages become one-off top-ups you can revoke." },
-    { q: "Can I cancel any time?", a: "Yes. Paid plans keep working until the end of the billing period, then downgrade to Free." },
-    { q: "Is my footage used to train AI models?", a: "Not unless you explicitly opt in — off by default and revocable at any time." },
-    { q: "Where does rendering happen?", a: "In the cloud. During private beta, some heavy operations run in dedicated queues." },
+    {
+      q: "What happens if I run out of source minutes?",
+      a: "You can keep editing existing projects and buy a top-up. Nothing gets deleted.",
+    },
+    {
+      q: "Do unused minutes roll over?",
+      a: "Free minutes reset each month. Paid-plan overages become one-off top-ups you can revoke.",
+    },
+    {
+      q: "Can I cancel any time?",
+      a: "Yes. Paid plans keep working until the end of the billing period, then downgrade to Free.",
+    },
+    {
+      q: "Is my footage used to train AI models?",
+      a: "Not unless you explicitly opt in — off by default and revocable at any time.",
+    },
+    {
+      q: "Where does rendering happen?",
+      a: "In the cloud. During private beta, some heavy operations run in dedicated queues.",
+    },
   ];
   return (
     <div className="grid gap-3 md:grid-cols-2">
