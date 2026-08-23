@@ -112,3 +112,12 @@
 - Consent-aware product analytics now covers sign-up start/completion, email login completion, pricing view, clipper CTAs, project creation, local upload start/completion, clip-job start/completion, article view, export download, and external-domain clicks. An allow-list drops form contents, filenames, URLs, account/job identifiers, and any unrecognized property.
 - `npm run seo:report-artifacts` generated an 18-article public SEO inventory, 26-query no-fabrication keyword baseline, and 20-URL monitoring list from the production crawl plus validated article frontmatter.
 - Quality gate for this completion revision: TypeScript passed; ESLint passed with 0 errors and the same 7 Fast Refresh warnings; app tests passed 74 files plus 1 skipped file with 317 passed and 6 skipped tests; worker tests passed 20 files and 103 tests; all 60 content packages and 219 links passed; the production build passed.
+
+### 2026-08-24 — completion revision production evidence
+
+- Commit `38072e6` was pushed normally to `main`; Vercel deployment `dpl_BRh4kLfk5DJ7gpBcyCWk8QuqWxBZ` reached `READY` and assigned the canonical `vidrial.vercel.app` alias.
+- The post-deploy production crawl again recorded 78 inventory records, 51 sitemap/indexable URLs, 18 published articles, and zero errors across HTTP responses, canonicals, metadata/H1s, duplicate indexable titles/descriptions, orphans, and structured-data parsing.
+- Twelve sequential Lighthouse reports cover home, YouTube Clipper, pricing, blog hub, the longest published article, and sign-up on desktop and mobile. Accessibility scored 100 everywhere; public-page SEO scored 100; public desktop Performance scored 97–98 and public mobile Performance scored 85–95. Sign-up SEO scored 58 because it is intentionally `noindex,nofollow`.
+- Every Lighthouse JSON report has `runtimeError: null`. Windows sometimes returned `EPERM` while deleting the already-captured temporary Chrome profile; the summary script validates internal runtime state and rejects incomplete reports.
+- A fresh opted-in production Chromium session loaded the single GA script and, after navigation to `/pricing`, recorded `page_view` and `pricing_viewed`. Advertising consent remained denied. This verifies the deployed event path, not GA reporting latency.
+- The final 22-section report is `docs/seo/2026-08-24-production-seo-growth-report.md`; crawl/content/keyword/priority/Lighthouse evidence is under `artifacts/seo/2026-08-24/`.

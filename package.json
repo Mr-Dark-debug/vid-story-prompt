@@ -23,6 +23,7 @@
     "indexnow:trigger": "node scripts/trigger-indexnow.mjs",
     "seo:audit": "node scripts/audit-production-seo.mjs",
     "seo:report-artifacts": "node scripts/build-seo-report-artifacts.mjs",
+    "seo:lighthouse-summary": "node scripts/summarize-lighthouse-matrix.mjs",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:reset": "supabase db reset",

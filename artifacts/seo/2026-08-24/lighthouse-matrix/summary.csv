@@ -1,0 +1,13 @@
+Page,Profile,URL,Performance,Accessibility,Best Practices,SEO,FCP ms,LCP ms,TBT ms,CLS,Measured at,Note
+blog,desktop,https://vidrial.vercel.app/blog,97,100,96,100,541,541,93,0.1,2026-08-23T23:46:09.798Z,Public indexable page
+blog,mobile,https://vidrial.vercel.app/blog,92,100,96,100,2562,2562,148,0.001,2026-08-23T23:48:35.833Z,Public indexable page
+home,desktop,https://vidrial.vercel.app/,97,100,96,100,681,761,27,0.095,2026-08-23T23:44:05.376Z,Public indexable page
+home,mobile,https://vidrial.vercel.app/,85,100,96,100,3177,3402,69,0,2026-08-23T23:47:37.913Z,Public indexable page
+long-article,desktop,https://vidrial.vercel.app/blog/how-ai-finds-video-highlights,97,100,96,100,609,609,0,0.095,2026-08-23T23:46:43.080Z,Public indexable page
+long-article,mobile,https://vidrial.vercel.app/blog/how-ai-finds-video-highlights,89,100,96,100,3012,3012,22,0,2026-08-23T23:48:52.217Z,Public indexable page
+pricing,desktop,https://vidrial.vercel.app/pricing,98,100,96,100,520,520,0,0.095,2026-08-23T23:45:37.372Z,Public indexable page
+pricing,mobile,https://vidrial.vercel.app/pricing,95,100,96,100,2264,2264,121,0,2026-08-23T23:48:19.626Z,Public indexable page
+signup,desktop,https://vidrial.vercel.app/signup,100,100,96,58,498,530,0,0.001,2026-08-23T23:47:06.521Z,"SEO score reflects intentional noindex,nofollow account route"
+signup,mobile,https://vidrial.vercel.app/signup,93,100,96,58,2413,2713,0,0,2026-08-23T23:49:09.378Z,"SEO score reflects intentional noindex,nofollow account route"
+youtube-clipper,desktop,https://vidrial.vercel.app/youtube-clipper,97,100,96,100,519,539,0,0.109,2026-08-23T23:45:06.826Z,Public indexable page
+youtube-clipper,mobile,https://vidrial.vercel.app/youtube-clipper,89,100,96,100,2422,2497,275,0,2026-08-23T23:47:58.718Z,Public indexable page
