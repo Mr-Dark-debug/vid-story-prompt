@@ -8,7 +8,23 @@ $script:SecretsPath = Join-Path $script:StateRoot "secrets.env"
 $script:LogRoot = Join-Path $script:StateRoot "logs"
 $script:MediaRoot = Join-Path $script:StateRoot "media"
 $script:VenvRoot = Join-Path $script:StateRoot "venv"
+$script:ModePath = Join-Path $script:StateRoot "task-mode.txt"
 $script:TaskName = "Vidrial Home Acquisition Worker"
+
+function Set-HomeWorkerTaskMode {
+  param([Parameter(Mandatory = $true)][ValidateSet("AcquisitionOnly", "FullPipeline")][string]$Mode)
+  Initialize-StateDirectories
+  [System.IO.File]::WriteAllText($script:ModePath, $Mode, [System.Text.UTF8Encoding]::new($false))
+}
+
+function Get-HomeWorkerTaskMode {
+  if (-not (Test-Path -LiteralPath $script:ModePath)) { return "AcquisitionOnly" }
+  $mode = [System.IO.File]::ReadAllText($script:ModePath).Trim()
+  if ($mode -notin @("AcquisitionOnly", "FullPipeline")) {
+    throw "The home worker task mode is invalid. Re-run install.ps1 to repair it."
+  }
+  return $mode
+}
 
 function Import-EnvironmentFile {
   param([Parameter(Mandatory = $true)][string]$Path)
@@ -108,7 +124,9 @@ function Set-HomeWorkerEnvironment {
   [Environment]::SetEnvironmentVariable("VIDRIAL_ACQUISITION_WEBHOOK_URL", "http://127.0.0.1:18080/internal/python-acquisition/webhook", "Process")
   [Environment]::SetEnvironmentVariable("VIDRIAL_ACQUISITION_ROOT", $script:MediaRoot, "Process")
   [Environment]::SetEnvironmentVariable("WORKER_TEMP_ROOT", $script:MediaRoot, "Process")
-  [Environment]::SetEnvironmentVariable("WORKER_TASK_INCLUDE_TYPES", "download_youtube_source", "Process")
+  $taskMode = Get-HomeWorkerTaskMode
+  $taskInclude = if ($taskMode -eq "FullPipeline") { "" } else { "download_youtube_source" }
+  [Environment]::SetEnvironmentVariable("WORKER_TASK_INCLUDE_TYPES", $taskInclude, "Process")
   [Environment]::SetEnvironmentVariable("WORKER_TASK_EXCLUDE_TYPES", "", "Process")
   [Environment]::SetEnvironmentVariable("WORKER_CONNECTOR_TASKS_ENABLED", "false", "Process")
   [Environment]::SetEnvironmentVariable("YTDLP_PATH", $ytdlp, "Process")

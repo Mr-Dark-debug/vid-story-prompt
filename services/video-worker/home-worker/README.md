@@ -1,6 +1,8 @@
 # Vidrial home acquisition worker
 
-This Windows service gives only `download_youtube_source` tasks residential egress. It does not expose a public download API, accept browser-supplied storage credentials, or replace the Render worker. The Render service remains responsible for direct uploads, validation, transcription, planning, rendering, publishing, and cleanup.
+This Windows service gives `download_youtube_source` tasks residential egress. It does not expose a public download API or accept browser-supplied storage credentials. Its safe default is `AcquisitionOnly`, where Render remains responsible for direct uploads, validation, transcription, planning, rendering, publishing, and cleanup.
+
+When the cloud worker is suspended or unavailable, install with `-TaskMode FullPipeline`. This failover mode claims every clip-pipeline task through the same leased, idempotent Supabase queue while connector publishing remains disabled. It is intended as a zero-cost continuity path: the signed-in Windows machine must remain online, and the normal Render exclusion must remain configured so the two workers cannot race for YouTube acquisition.
 
 The installer creates an isolated Python virtual environment under `%LOCALAPPDATA%\Vidrial\home-worker`, installs the repository-pinned yt-dlp runtime, builds the Node worker, generates loopback API secrets with a user-only ACL, and registers a limited current-user Task Scheduler task at logon. The supervisor binds both health/API ports to localhost and restarts the processes after a failure.
 
@@ -10,6 +12,12 @@ Install and start:
 
 ```powershell
 powershell -NoProfile -ExecutionPolicy Bypass -File services/video-worker/home-worker/install.ps1
+```
+
+Full-pipeline failover:
+
+```powershell
+powershell -NoProfile -ExecutionPolicy Bypass -File services/video-worker/home-worker/install.ps1 -TaskMode FullPipeline
 ```
 
 For an isolated Git worktree whose `.env` remains in the primary checkout, pass
