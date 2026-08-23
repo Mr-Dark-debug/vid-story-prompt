@@ -39,7 +39,8 @@ export function getPublicEnv(): PublicEnv {
     VITE_GOOGLE_SITE_VERIFICATION:
       browserEnv?.VITE_GOOGLE_SITE_VERIFICATION ??
       import.meta.env.VITE_GOOGLE_SITE_VERIFICATION ??
-      processEnv?.VITE_GOOGLE_SITE_VERIFICATION,
+      processEnv?.VITE_GOOGLE_SITE_VERIFICATION ??
+      "3X4sNiR4A5uIQ1uzPN-jeIqr2Snd7fZiAwYYv6J2dt8",
     VITE_BING_SITE_VERIFICATION:
       browserEnv?.VITE_BING_SITE_VERIFICATION ??
       import.meta.env.VITE_BING_SITE_VERIFICATION ??

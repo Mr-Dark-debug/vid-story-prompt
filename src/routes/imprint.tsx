@@ -1,15 +1,15 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { SimpleMarketingPage } from "@/components/marketing/simple-page";
+import { pageMeta } from "@/config/seo";
 
 export const Route = createFileRoute("/imprint")({
-  head: () => ({
-    meta: [
-      { title: "Imprint — Vidrial" },
-      { name: "description", content: "Contact and service information for Vidrial." },
-      { property: "og:url", content: "/imprint" },
-    ],
-    links: [{ rel: "canonical", href: "/imprint" }],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Vidrial Imprint and Service Contacts",
+      description:
+        "Find Vidrial's product-preview status and contact channels for general, privacy, copyright and security enquiries.",
+      path: "/imprint",
+    }),
   component: ImprintPage,
 });
 

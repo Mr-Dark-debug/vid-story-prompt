@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { SelectField } from "@/components/ui/select-field";
 import { submitSupportRequest } from "@/services/support/server";
 import { userFacingError } from "@/lib/user-facing-error";
+import { pageMeta } from "@/config/seo";
 
 const schema = z.object({
   name: z.string().trim().min(1, "Please tell us your name").max(100),
@@ -18,14 +19,13 @@ const schema = z.object({
 });
 
 export const Route = createFileRoute("/contact")({
-  head: () => ({
-    meta: [
-      { title: "Contact — Vidrial" },
-      { name: "description", content: "Get in touch with the Vidrial team." },
-      { property: "og:url", content: "/contact" },
-    ],
-    links: [{ rel: "canonical", href: "/contact" }],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Contact Vidrial",
+      description:
+        "Contact the Vidrial team about the AI video editor, billing, partnerships, security, privacy or product feedback.",
+      path: "/contact",
+    }),
   component: ContactPage,
 });
 

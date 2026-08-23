@@ -1,5 +1,11 @@
 import type { BlogArticleMeta } from "@/features/blog/schema";
-import { absoluteUrl, SEO_EDITORIAL_AUTHOR, SEO_SITE_NAME } from "@/config/seo";
+import {
+  absoluteUrl,
+  pageMeta,
+  SEO_EDITORIAL_AUTHOR,
+  SEO_SITE_NAME,
+  serializeJsonLd,
+} from "@/config/seo";
 import { blogCategorySlug } from "@/features/blog/category";
 
 const publisher = {
@@ -17,28 +23,23 @@ const author = {
 } as const;
 
 export function articleMeta(article: BlogArticleMeta) {
-  const canonical = absoluteUrl(article.canonicalPath);
   const title = `${article.title} | ${SEO_SITE_NAME}`;
+  const base = pageMeta({
+    title,
+    description: article.description,
+    path: article.canonicalPath,
+    type: "article",
+  });
 
   return {
     meta: [
-      { title },
-      { name: "description", content: article.description },
+      ...base.meta,
       { name: "author", content: SEO_EDITORIAL_AUTHOR },
-      { name: "robots", content: "index,follow" },
-      { property: "og:site_name", content: SEO_SITE_NAME },
-      { property: "og:title", content: title },
-      { property: "og:description", content: article.description },
-      { property: "og:type", content: "article" },
-      { property: "og:url", content: canonical },
       { property: "article:published_time", content: article.publishedAt },
       { property: "article:modified_time", content: article.updatedAt },
       { property: "article:section", content: article.category },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:title", content: title },
-      { name: "twitter:description", content: article.description },
     ],
-    links: [{ rel: "canonical", href: canonical }],
+    links: base.links,
   };
 }
 
@@ -98,12 +99,4 @@ export function breadcrumbJsonLd(article: BlogArticleMeta) {
   };
 }
 
-/** Serialize structured data safely for an inline application/ld+json script. */
-export function serializeJsonLd(value: unknown): string {
-  return JSON.stringify(value)
-    .replaceAll("<", "\\u003c")
-    .replaceAll(">", "\\u003e")
-    .replaceAll("&", "\\u0026")
-    .replaceAll("\u2028", "\\u2028")
-    .replaceAll("\u2029", "\\u2029");
-}
+export { serializeJsonLd };

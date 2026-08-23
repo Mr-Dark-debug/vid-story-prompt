@@ -1,14 +1,14 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { pageMeta } from "@/config/seo";
 
 export const Route = createFileRoute("/docs/getting-started")({
-  head: () => ({
-    meta: [
-      { title: "Getting started — Vidrial docs" },
-      { name: "description", content: "Your first Vidrial project." },
-      { property: "og:url", content: "/docs/getting-started" },
-    ],
-    links: [{ rel: "canonical", href: "/docs/getting-started" }],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Getting Started with Vidrial — Documentation",
+      description:
+        "Create your first Vidrial project, review an AI-assisted edit plan and export a controlled preview from authorised media.",
+      path: "/docs/getting-started",
+    }),
   component: () => (
     <article className="prose max-w-none text-ink-soft">
       <h1 className="font-display text-3xl text-ink">Getting started</h1>

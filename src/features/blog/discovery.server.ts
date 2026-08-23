@@ -31,6 +31,12 @@ export const PUBLIC_SITEMAP_PATHS = [
   "/roadmap",
   "/changelog",
   "/contact",
+  "/privacy",
+  "/terms",
+  "/cookies",
+  "/acceptable-use",
+  "/copyright",
+  "/imprint",
 ] as const;
 
 function xmlEscape(value: string): string {

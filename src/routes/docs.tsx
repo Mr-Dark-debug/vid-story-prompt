@@ -30,14 +30,6 @@ const docsGroups = [
 ];
 
 export const Route = createFileRoute("/docs")({
-  head: () => ({
-    meta: [
-      { title: "Documentation — Vidrial" },
-      { name: "description", content: "How to use Vidrial, end to end." },
-      { property: "og:url", content: "/docs" },
-    ],
-    links: [{ rel: "canonical", href: "/docs" }],
-  }),
   component: DocsLayout,
 });
 
@@ -86,7 +78,7 @@ function DocsLayout() {
             setActiveId(visibleEntry.target.id);
           }
         },
-        { rootMargin: "-85px 0px -75% 0px" }
+        { rootMargin: "-85px 0px -75% 0px" },
       );
 
       headingElements.forEach((el) => observer.observe(el));
@@ -125,7 +117,7 @@ function DocsLayout() {
                             "group flex items-center gap-2 rounded-md px-3 py-2 text-sm font-medium transition-all",
                             active
                               ? "bg-surface-sunken text-ink font-semibold"
-                              : "text-ink-soft hover:bg-surface-sunken/50 hover:text-ink"
+                              : "text-ink-soft hover:bg-surface-sunken/50 hover:text-ink",
                           )}
                         >
                           {active ? (
@@ -145,7 +137,7 @@ function DocsLayout() {
 
           {/* Middle Column: Document Content */}
           <div className="flex-1 min-w-0">
-            {pathname === "/docs" ? <DocsIndex /> : <Outlet />}
+            <Outlet />
           </div>
 
           {/* Right Column: Outline Table of Contents */}
@@ -170,10 +162,10 @@ function DocsLayout() {
                         "block py-1.5 text-sm transition-all border-l-2 -ml-[2px] pr-2 break-words",
                         isActive
                           ? "border-primary text-ink font-medium"
-                          : "border-transparent text-ink-soft/75 hover:text-ink"
+                          : "border-transparent text-ink-soft/75 hover:text-ink",
                       )}
                       style={{
-                        paddingLeft: `${h.level === 1 ? '1rem' : h.level === 2 ? '2rem' : '3rem'}`
+                        paddingLeft: `${h.level === 1 ? "1rem" : h.level === 2 ? "2rem" : "3rem"}`,
                       }}
                     >
                       {h.text}
@@ -186,24 +178,5 @@ function DocsLayout() {
         </div>
       </Container>
     </MarketingLayout>
-  );
-}
-
-function DocsIndex() {
-  const docsNav = docsGroups.flatMap((g) => g.items).filter((n) => n.to !== "/docs");
-  return (
-    <article className="prose max-w-none text-ink-soft">
-      <h1 className="font-display text-3.5xl font-bold tracking-tight text-ink mb-6">Documentation</h1>
-      <p className="mt-3">
-        Start with <Link to="/docs/getting-started" className="text-ember-ink underline">Getting started</Link>, then dig into media, the AI editor, timeline and exporting.
-      </p>
-      <ul className="mt-8 grid gap-4 sm:grid-cols-2">
-        {docsNav.map((n) => (
-          <li key={n.to} className="rounded-xl border border-line bg-surface-panel p-5 hover:border-line-strong transition-colors duration-150">
-            <Link to={n.to} className="text-sm font-semibold text-ink hover:underline">{n.label}</Link>
-          </li>
-        ))}
-      </ul>
-    </article>
   );
 }

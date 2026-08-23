@@ -2,23 +2,39 @@ import { createFileRoute } from "@tanstack/react-router";
 import { MarketingLayout } from "@/components/marketing/layout";
 import { Section } from "@/components/primitives/section";
 import { MarketingPageHero } from "@/components/marketing/page-shell";
+import { pageMeta } from "@/config/seo";
 
 const entries = [
-  { date: "2026-07-01", title: "AI edit-plan review", body: "Every AI action now surfaces as a reviewable plan with per-operation accept/reject and duration estimates." },
-  { date: "2026-06-14", title: "Semantic media search", body: "Ask for footage in plain language — \"quiet room tone\", \"exterior at sunset\" — and the library ranks matches." },
-  { date: "2026-05-30", title: "Timeline prototype", body: "Multi-track timeline with trim, split, ripple-delete, snap and 500-step undo." },
-  { date: "2026-05-10", title: "Private beta opens", body: "First outside creators start using Vidrial. Feedback: keep the AI's work reviewable." },
+  {
+    date: "2026-07-01",
+    title: "AI edit-plan review",
+    body: "Every AI action now surfaces as a reviewable plan with per-operation accept/reject and duration estimates.",
+  },
+  {
+    date: "2026-06-14",
+    title: "Semantic media search",
+    body: 'Ask for footage in plain language — "quiet room tone", "exterior at sunset" — and the library ranks matches.',
+  },
+  {
+    date: "2026-05-30",
+    title: "Timeline prototype",
+    body: "Multi-track timeline with trim, split, ripple-delete, snap and 500-step undo.",
+  },
+  {
+    date: "2026-05-10",
+    title: "Private beta opens",
+    body: "First outside creators start using Vidrial. Feedback: keep the AI's work reviewable.",
+  },
 ];
 
 export const Route = createFileRoute("/changelog")({
-  head: () => ({
-    meta: [
-      { title: "Changelog — Vidrial" },
-      { name: "description", content: "Meaningful changes to Vidrial, in reverse chronological order." },
-      { property: "og:url", content: "/changelog" },
-    ],
-    links: [{ rel: "canonical", href: "/changelog" }],
-  }),
+  head: () =>
+    pageMeta({
+      title: "Vidrial Changelog — AI Video Editor Updates",
+      description:
+        "Track meaningful Vidrial releases across AI edit-plan review, media search, timeline editing and creator workflows.",
+      path: "/changelog",
+    }),
   component: ChangelogPage,
 });
 

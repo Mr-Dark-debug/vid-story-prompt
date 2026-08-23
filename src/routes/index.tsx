@@ -18,6 +18,7 @@ import {
   MonitorPlay,
 } from "lucide-react";
 import { brand } from "@/config/brand";
+import { pageMeta } from "@/config/seo";
 import { MarketingLayout } from "@/components/marketing/layout";
 import { Container, Section, SectionHeader } from "@/components/primitives/section";
 import { StatusDot } from "@/components/primitives/status-dot";
@@ -29,16 +30,13 @@ import { CTAButton, FinalCTA } from "@/components/marketing/page-shell";
 
 export const Route = createFileRoute("/")({
   component: Index,
-  head: () => ({
-    meta: [
-      { title: `${brand.name} — ${brand.tagline}` },
-      { name: "description", content: brand.promise },
-      { property: "og:title", content: `${brand.name} — ${brand.tagline}` },
-      { property: "og:description", content: brand.promise },
-      { property: "og:url", content: "/" },
-    ],
-    links: [{ rel: "canonical", href: "/" }],
-  }),
+  head: () =>
+    pageMeta({
+      title: `${brand.name} — ${brand.tagline}`,
+      description:
+        "Turn authorised long-form video into explainable, editable clips with AI-assisted planning, captions and reframing.",
+      path: "/",
+    }),
 });
 
 function Index() {
@@ -68,7 +66,6 @@ function Hero() {
     <Section className="pt-10 sm:pt-16">
       <div className="grid items-center gap-10 lg:grid-cols-[1.05fr_1fr]">
         <div>
-
           <h1 className="font-display text-[2.6rem] font-medium leading-[1.02] tracking-tight text-ink sm:text-[3.6rem]">
             {brand.headline}
           </h1>
@@ -270,7 +267,6 @@ function AssetsFirst() {
     <Section className="border-t border-line bg-surface-raised">
       <div className="grid items-center gap-10 lg:grid-cols-[1fr_1.1fr]">
         <div>
-
           <h2 className="font-display text-3xl leading-tight text-ink sm:text-4xl">
             Use what you already filmed.
           </h2>
@@ -334,7 +330,6 @@ function ManualControl() {
     <Section className="border-t border-line bg-surface-raised">
       <div className="grid gap-8 lg:grid-cols-2">
         <div>
-
           <h2 className="font-display text-3xl leading-tight text-ink sm:text-4xl">
             Ask for the first cut. Keep control of the final one.
           </h2>

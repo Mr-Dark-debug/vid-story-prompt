@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 
 import type { BlogArticleMeta } from "@/features/blog/schema";
-import { absoluteUrl, SEO_ORIGIN, verificationMeta } from "@/config/seo";
+import {
+  absoluteUrl,
+  organizationJsonLd,
+  pageMeta,
+  SEO_ORIGIN,
+  serializeJsonLd as serializeSiteJsonLd,
+  verificationMeta,
+  websiteJsonLd,
+} from "@/config/seo";
 import {
   articleMeta,
   blogPostingJsonLd,
@@ -48,6 +56,41 @@ describe("canonical SEO helpers", () => {
       { name: "google-site-verification", content: "google-token" },
       { name: "msvalidate.01", content: "bing-token" },
     ]);
+  });
+
+  it("builds one absolute canonical with complete Open Graph and Twitter metadata", () => {
+    const head = pageMeta({
+      title: "AI Video Clipper — Vidrial",
+      description: "Find useful moments and turn them into editable clips.",
+      path: "/youtube-clipper",
+    });
+
+    expect(head.links).toEqual([
+      { rel: "canonical", href: "https://vidrial.vercel.app/youtube-clipper" },
+    ]);
+    expect(head.meta).toContainEqual({
+      property: "og:url",
+      content: "https://vidrial.vercel.app/youtube-clipper",
+    });
+    expect(head.meta).toContainEqual({
+      property: "og:image",
+      content: "https://vidrial.vercel.app/social/vidrial-social-card.svg",
+    });
+    expect(head.meta).toContainEqual({ name: "twitter:card", content: "summary_large_image" });
+  });
+
+  it("publishes truthful site entity structured data", () => {
+    expect(organizationJsonLd()).toMatchObject({
+      "@type": "Organization",
+      name: "Vidrial",
+      url: "https://vidrial.vercel.app/",
+    });
+    expect(websiteJsonLd()).toMatchObject({
+      "@type": "WebSite",
+      name: "Vidrial",
+      url: "https://vidrial.vercel.app/",
+    });
+    expect(serializeSiteJsonLd({ value: "</script>" })).not.toContain("</script>");
   });
 });
 
