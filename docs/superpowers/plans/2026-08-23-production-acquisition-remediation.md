@@ -106,4 +106,3 @@
 - [ ] Verify persisted source asset, transcription, selected clips, rendered previews, playback, and authorized signed download.
 - [ ] Repeat desktop/360px auth and clipper checks, console/network scan, accessibility checks, SEO endpoints, and representative Lighthouse measurements.
 - [ ] Append exact commits, deployment IDs, task/job evidence, test counts, screenshots, verification boundaries, and residual risks to the worklogs.
-
