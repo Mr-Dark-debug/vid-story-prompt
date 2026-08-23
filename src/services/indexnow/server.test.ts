@@ -112,7 +112,9 @@ describe("IndexNow protocol boundary", () => {
       urlList: [url],
     });
     expect(INDEXNOW_KEY_LOCATION).toBe(`https://vidrial.vercel.app/${INDEXNOW_KEY}.txt`);
-    expect(proof).toBe(`${INDEXNOW_KEY}\n`);
+    // Git may materialize this text proof with CRLF on Windows; verify the
+    // protocol payload after newline normalization instead of the checkout mode.
+    expect(proof.replaceAll("\r\n", "\n")).toBe(`${INDEXNOW_KEY}\n`);
   });
 
   it("classifies successful, retryable, exhausted, and terminal statuses", () => {

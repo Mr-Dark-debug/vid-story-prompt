@@ -27,8 +27,8 @@ RUN apk add --no-cache git \
     && CGO_ENABLED=0 go build -trimpath -ldflags="-s -w -buildid=" -o /out/warp .
 
 FROM node:22-bookworm-slim
-ARG YTDLP_VERSION=2026.07.04
-ARG YTDLP_SHA256=495be29ff4d9d4e9be7eabdfef225221e5d5282e77f2f505abc6dca80349f3fd
+ARG YTDLP_VERSION=2026.08.19
+ARG YTDLP_SHA256=1fa6733c37ea6fb51c99ad8fe785e7b7e5f3246c9b980230329d4fb72ed8d4d6
 RUN apt-get update && apt-get install -y --no-install-recommends ffmpeg ca-certificates fonts-liberation python3 python3-pip curl tini && rm -rf /var/lib/apt/lists/* \
     && curl -fsSL "https://github.com/yt-dlp/yt-dlp/releases/download/${YTDLP_VERSION}/yt-dlp" -o /usr/local/bin/yt-dlp \
     && echo "${YTDLP_SHA256}  /usr/local/bin/yt-dlp" | sha256sum -c - \

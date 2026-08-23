@@ -91,6 +91,10 @@ services:
         value: "1500"
       - key: TASK_VISIBILITY_TIMEOUT_SECONDS
         value: "180"
+      - key: WORKER_TASK_EXCLUDE_TYPES
+        value: download_youtube_source
+      - key: WORKER_CONNECTOR_TASKS_ENABLED
+        value: "true"
       - key: MAX_DIRECT_DOWNLOAD_BYTES
         value: "2147483648"
       - key: DIRECT_DOWNLOAD_CONNECT_TIMEOUT_MS

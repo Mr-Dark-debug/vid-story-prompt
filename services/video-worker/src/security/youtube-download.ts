@@ -4,8 +4,7 @@ export type YouTubeDownloadStrategy =
   | "standard"
   | "web-safari"
   | "mweb-pot"
-  | "web-embedded"
-  | "android-vr";
+  | "web-embedded";
 
 export type YouTubeSourceSection = {
   endSeconds: number;
@@ -19,7 +18,6 @@ export function selectYouTubeDownloadStrategy(
   if (attempt <= 1) return "standard";
   if (attempt === 2) return potProviderConfigured ? "mweb-pot" : "web-safari";
   if (attempt === 3) return "web-embedded";
-  if (attempt === 4) return "android-vr";
   return potProviderConfigured ? "mweb-pot" : "web-safari";
 }
 

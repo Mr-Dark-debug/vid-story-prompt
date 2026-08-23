@@ -31,7 +31,7 @@ describe("YouTube download policy", () => {
       "standard",
       "mweb-pot",
       "web-embedded",
-      "android-vr",
+      "mweb-pot",
       "mweb-pot",
     ]);
     expect(selectYouTubeDownloadStrategy(2, false)).toBe("web-safari");

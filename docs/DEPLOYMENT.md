@@ -31,6 +31,8 @@ redeeming the same single-use token twice.
 
 Deploy `services/video-worker/Dockerfile` independently to Railway, Render, Fly.io, Cloud Run or another Docker host. Configure 4 vCPU, 8 GB RAM, 20 GB ephemeral disk, one render per container, health `/healthz`, readiness `/readyz`, graceful shutdown and JSON log collection. Scale on queue wait/depth and CPU while respecting provider rate limits. This system is not expected to run indefinitely on free tiers.
 
+For the zero-cost residential acquisition topology, apply `20260823220000_worker_task_capability_routing.sql` before deploying either worker. Render must set `WORKER_TASK_EXCLUDE_TYPES=download_youtube_source`. Install `services/video-worker/home-worker/install.ps1` from a non-administrator PowerShell session; it registers a limited current-user logon task that sets `WORKER_TASK_INCLUDE_TYPES=download_youtube_source` and `WORKER_CONNECTOR_TASKS_ENABLED=false`. Confirm `status.ps1` reports `worker=ready` and `acquisition_egress=healthy` before accepting URL jobs. The machine must remain signed in and online; Render continues downstream work if the acquisition machine disconnects after uploading the immutable source asset.
+
 ### Credential-gated social publishing
 
 Set the same `CONNECTOR_TOKEN_ENCRYPTION_KEY` on the web application and worker. Add only providers you have actually registered and reviewed:
