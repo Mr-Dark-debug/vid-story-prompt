@@ -1,260 +1,139 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { Check, HelpCircle } from "lucide-react";
+import { Check } from "lucide-react";
 import { MarketingLayout } from "@/components/marketing/layout";
-import { Container, Section, SectionHeader } from "@/components/primitives/section";
+import { Section } from "@/components/primitives/section";
 import { MarketingPageHero, FinalCTA } from "@/components/marketing/page-shell";
-import { StatusDot } from "@/components/primitives/status-dot";
-import { Callout } from "@/components/primitives/section";
+import { PLAN_ENTITLEMENTS, type PlanKey } from "@/domain/clipping/entitlements";
 import { pageMeta } from "@/config/seo";
 import { trackAnalyticsEvent } from "@/services/analytics/client";
 
-const plans = [
-  {
-    name: "Free",
-    monthly: 0,
-    annual: 0,
-    tag: "Try it end to end",
-    features: [
-      "3 active projects",
-      "60 source minutes / month",
-      "2 GB storage",
-      "720p exports",
-      "Watermarked exports",
-      "1 watermark-free trial export",
-      "Core transcription & cleanup",
-    ],
-    cta: "Create a free account",
-  },
-  {
-    name: "Creator",
-    monthly: 18,
-    annual: 15,
-    tag: "Recommended",
-    featured: true,
-    features: [
-      "600 source minutes / month",
-      "50 GB storage",
-      "1080p exports",
-      "No watermark",
-      "AI edit plans",
-      "Captions",
-      "Uploaded B-roll",
-      "Version history",
-      "Commercial use",
-    ],
-    cta: "Join Creator waitlist",
-  },
-  {
-    name: "Pro",
-    monthly: 39,
-    annual: 32,
-    tag: "For heavy weeks",
-    features: [
-      "1,800 source minutes / month",
-      "250 GB storage",
-      "4K exports",
-      "Multicam (planned)",
-      "Brand kits",
-      "Translation (planned)",
-      "Advanced audio",
-      "XML export (planned)",
-      "Priority processing",
-    ],
-    cta: "Join Pro waitlist",
-  },
-];
-
+const prices: Record<PlanKey, { monthly: number; annual: number }> = {
+  free: { monthly: 0, annual: 0 },
+  creator: { monthly: 18, annual: 15 },
+  pro: { monthly: 39, annual: 32 },
+};
 export const Route = createFileRoute("/pricing")({
   head: () =>
     pageMeta({
-      title: "Vidrial Pricing — AI Video Editing Plans",
+      title: "Video Clipping Plans & Pricing — Vidrial",
       description:
-        "Compare Vidrial Free, Creator and Pro plans by source minutes, storage, export resolution, captions, watermarks and editing features.",
+        "Compare clipping plans by source minutes, clips per job, export quality and retention. Start free; paid upgrades are not yet available.",
       path: "/pricing",
     }),
   component: PricingPage,
 });
-
 function PricingPage() {
-  const [annual, setAnnual] = useState(true);
+  const [annual, setAnnual] = useState(false);
   useEffect(() => trackAnalyticsEvent("pricing_viewed"), []);
   return (
     <MarketingLayout>
       <MarketingPageHero
-        eyebrow="Pricing"
-        title="Simple plans, honest units."
-        lead="Editing uses source minutes. Generated video, music and voice use separate credits. Vidrial always shows the cost before an expensive operation."
+        title="More moments. A plan that fits."
+        lead="Pay for source minutes and clipping capacity, not an online editor. Free is available now. Creator and Pro are planned offers; checkout is not open."
       />
-      <Section className="pt-0">
-        <div className="mb-8 flex items-center justify-center gap-2 text-sm">
-          <button
-            onClick={() => setAnnual(false)}
-            aria-pressed={!annual}
-            className={`rounded-full px-3 py-1.5 ${!annual ? "bg-ink text-surface-page" : "text-ink-soft"}`}
-          >
-            Monthly
-          </button>
-          <button
-            onClick={() => setAnnual(true)}
-            aria-pressed={annual}
-            className={`rounded-full px-3 py-1.5 ${annual ? "bg-ink text-surface-page" : "text-ink-soft"}`}
-          >
-            Annual · save 2 months
-          </button>
+      <Section>
+        <div className="mb-8 flex flex-wrap justify-center gap-2" aria-label="Price display">
+          {[false, true].map((value) => (
+            <button
+              key={String(value)}
+              onClick={() => setAnnual(value)}
+              aria-pressed={annual === value}
+              className={`min-h-11 rounded-full border border-line px-4 text-sm ${annual === value ? "bg-ink text-surface-page" : "text-ink-soft"}`}
+            >
+              {value ? "Annual pricing" : "Monthly pricing"}
+            </button>
+          ))}
         </div>
-        <div className="grid gap-4 md:grid-cols-3">
-          {plans.map((p) => {
-            const price = annual ? p.annual : p.monthly;
+        <div className="grid gap-4 lg:grid-cols-3">
+          {Object.values(PLAN_ENTITLEMENTS).map((plan) => {
+            const price = prices[plan.key][annual ? "annual" : "monthly"];
+            const features = [
+              `${(plan.monthlySourceSeconds / 60).toLocaleString("en")} source minutes / month`,
+              `Up to ${plan.maxSourceSecondsPerJob / 60} minutes per source`,
+              `Up to ${plan.maxClipsPerJob} clips per job`,
+              `${plan.maxConcurrentJobs} concurrent clipping ${plan.maxConcurrentJobs === 1 ? "job" : "jobs"}`,
+              `Up to ${plan.maxExport.height === 2160 ? "4K" : plan.maxExport.height + "p"} exports · ${plan.maxExport.fps} fps`,
+              plan.watermarkRequired
+                ? "Watermarked exports + 1 watermark-free trial export"
+                : "No Vidrial watermark",
+              `${plan.retentionDays}-day media retention`,
+            ];
             return (
-              <div
-                key={p.name}
-                className={`flex flex-col rounded-2xl border p-6 ${
-                  p.featured
-                    ? "border-ember bg-surface-panel ring-2 ring-ember/20"
-                    : "border-line bg-surface-panel"
-                }`}
+              <section
+                key={plan.key}
+                className="flex min-w-0 flex-col rounded-2xl border border-line bg-surface-panel p-6 sm:p-8"
               >
-                <div className="flex items-center justify-between">
-                  <div className="font-display text-xl text-ink">{p.name}</div>
-                  <StatusDot variant={p.featured ? "demo" : "muted"}>{p.tag}</StatusDot>
-                </div>
-                <div className="mt-3 font-display text-4xl text-ink">
+                <p className="text-xs text-ink-mute">
+                  {plan.key === "free" ? "Available now" : "Planned · not yet purchasable"}
+                </p>
+                <h2 className="mt-2 font-display text-2xl capitalize text-ink">{plan.key}</h2>
+                <p className="mt-5 font-display text-4xl text-ink">
                   ${price}
-                  <span className="text-base text-ink-mute">/mo</span>
-                </div>
-                <div className="mt-1 text-xs text-ink-mute">
-                  {annual && p.annual > 0
-                    ? `Billed annually — $${p.annual * 12}/year`
-                    : p.monthly === 0
-                      ? "No credit card required"
-                      : "Billed monthly"}
-                </div>
-                <ul className="mt-5 space-y-2 text-sm text-ink-soft">
-                  {p.features.map((f) => (
-                    <li key={f} className="flex items-start gap-2">
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-ember" />
-                      <span>{f}</span>
+                  <span className="text-base text-ink-soft"> / month</span>
+                </p>
+                <p className="mt-2 text-xs text-ink-mute">
+                  {price === 0
+                    ? "No card required"
+                    : annual
+                      ? `Planned annual total: $${price * 12}. No charge today.`
+                      : "Planned monthly price. No charge today."}
+                </p>
+                <ul className="my-6 space-y-3 text-sm text-ink-soft">
+                  {features.map((feature) => (
+                    <li key={feature} className="flex gap-2">
+                      <Check aria-hidden className="mt-0.5 h-4 w-4 shrink-0 text-success" />
+                      <span>{feature}</span>
                     </li>
                   ))}
                 </ul>
-                <button
-                  disabled
-                  title="Payments are not connected in this build"
-                  className={`mt-6 rounded-md px-3 py-2 text-sm font-medium ${
-                    p.featured
-                      ? "bg-ink text-surface-page opacity-90"
-                      : "border border-line bg-surface-panel text-ink"
-                  }`}
-                >
-                  {p.cta}
-                </button>
-                <div className="mt-2 text-[11px] text-ink-mute">
-                  Checkout not connected — you'll join the waitlist.
-                </div>
-              </div>
+                {plan.key === "free" ? (
+                  <Link
+                    to="/signup"
+                    className="mt-auto inline-flex min-h-11 items-center justify-center rounded-lg bg-ink px-4 py-3 text-sm font-medium text-surface-page"
+                  >
+                    Create free account
+                  </Link>
+                ) : (
+                  <Link
+                    to="/login"
+                    search={{ redirect: "/app/billing" }}
+                    className="mt-auto inline-flex min-h-11 items-center justify-center rounded-lg border border-line px-4 py-3 text-sm font-medium text-ink"
+                  >
+                    Register upgrade interest
+                  </Link>
+                )}
+              </section>
             );
           })}
         </div>
-
-        <div className="mt-10 max-w-3xl">
-          <Callout title="What are source minutes?" tone="info">
-            One source minute is one minute of your uploaded media that Vidrial analyses
-            (transcription, tags, scenes). Editing the timeline itself is unmetered. Generated media
-            (voice, music, video) uses separate credits, always with a preview cost.
-          </Callout>
-        </div>
-
-        <div className="mt-14">
-          <SectionHeader eyebrow="Compare" title="Plan comparison" />
-          <ComparisonTable />
-        </div>
-
-        <div className="mt-14">
-          <SectionHeader eyebrow="Billing FAQ" title="Common questions" />
-          <FAQ />
+        <div className="mt-12 grid gap-6 md:grid-cols-2">
+          {[
+            [
+              "What counts as a source minute?",
+              "The duration of source media analysed for a clipping job, not the combined length of exported clips. Your workspace shows reserved and used minutes.",
+            ],
+            [
+              "What happens when I reach a limit?",
+              "New work that exceeds your remaining allowance is blocked. Review usage or wait for the next allowance period. Paid top-ups are not currently offered.",
+            ],
+            [
+              "How long are clips kept?",
+              "Retention depends on your plan. Download finished clips before they expire; do not use Vidrial as your only archive.",
+            ],
+            [
+              "Does a plan guarantee YouTube downloads?",
+              "No. Network restrictions and source eligibility can prevent acquisition. Connecting a YouTube account lists authorised content but does not unlock downloading.",
+            ],
+          ].map(([title, body]) => (
+            <section key={title}>
+              <h2 className="font-display text-xl text-ink">{title}</h2>
+              <p className="mt-2 text-sm leading-relaxed text-ink-soft">{body}</p>
+            </section>
+          ))}
         </div>
       </Section>
-      <FinalCTA headline="Start on Free. Upgrade when it earns it." />
+      <FinalCTA headline="Start with one video." body="60 source minutes each month on Free." />
     </MarketingLayout>
-  );
-}
-
-function ComparisonTable() {
-  const rows: [string, string, string, string][] = [
-    ["Active projects", "3", "Unlimited", "Unlimited"],
-    ["Source minutes / mo", "60", "600", "1,800"],
-    ["Storage", "2 GB", "50 GB", "250 GB"],
-    ["Export resolution", "720p", "1080p", "4K"],
-    ["Watermark", "Yes", "No", "No"],
-    ["AI edit plans", "—", "Yes", "Yes"],
-    ["Captions", "Basic", "Full", "Full"],
-    ["Version history", "7 days", "90 days", "1 year"],
-    ["Priority processing", "—", "—", "Yes"],
-    ["Commercial use", "—", "Yes", "Yes"],
-  ];
-  return (
-    <div className="overflow-hidden rounded-2xl border border-line">
-      <table className="w-full text-sm">
-        <thead className="bg-surface-raised text-left text-[12px] uppercase tracking-widest text-ink-mute">
-          <tr>
-            <th className="px-4 py-3 font-medium">Feature</th>
-            <th className="px-4 py-3 font-medium">Free</th>
-            <th className="px-4 py-3 font-medium">Creator</th>
-            <th className="px-4 py-3 font-medium">Pro</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-line bg-surface-panel">
-          {rows.map((r) => (
-            <tr key={r[0]}>
-              <td className="px-4 py-2.5 text-ink">{r[0]}</td>
-              <td className="px-4 py-2.5 text-ink-soft">{r[1]}</td>
-              <td className="px-4 py-2.5 text-ink-soft">{r[2]}</td>
-              <td className="px-4 py-2.5 text-ink-soft">{r[3]}</td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
-  );
-}
-
-function FAQ() {
-  const items = [
-    {
-      q: "What happens if I run out of source minutes?",
-      a: "You can keep editing existing projects and buy a top-up. Nothing gets deleted.",
-    },
-    {
-      q: "Do unused minutes roll over?",
-      a: "Free minutes reset each month. Paid-plan overages become one-off top-ups you can revoke.",
-    },
-    {
-      q: "Can I cancel any time?",
-      a: "Yes. Paid plans keep working until the end of the billing period, then downgrade to Free.",
-    },
-    {
-      q: "Is my footage used to train AI models?",
-      a: "Not unless you explicitly opt in — off by default and revocable at any time.",
-    },
-    {
-      q: "Where does rendering happen?",
-      a: "In the cloud. During private beta, some heavy operations run in dedicated queues.",
-    },
-  ];
-  return (
-    <div className="grid gap-3 md:grid-cols-2">
-      {items.map((it) => (
-        <div key={it.q} className="rounded-2xl border border-line bg-surface-panel p-5">
-          <div className="flex items-start gap-2">
-            <HelpCircle className="mt-0.5 h-4 w-4 text-ember" />
-            <div>
-              <div className="font-medium text-ink">{it.q}</div>
-              <div className="mt-1 text-sm text-ink-soft">{it.a}</div>
-            </div>
-          </div>
-        </div>
-      ))}
-    </div>
   );
 }

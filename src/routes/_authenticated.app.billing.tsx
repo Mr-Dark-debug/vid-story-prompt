@@ -46,7 +46,7 @@ function Billing() {
           <div className="mt-5 grid gap-2 text-sm text-ink-soft">
             <span className="flex items-center gap-2">
               <Check className="h-4 w-4 text-success" />
-              Private projects and media
+              Private clipping jobs and media
             </span>
             <span className="flex items-center gap-2">
               <Check className="h-4 w-4 text-success" />

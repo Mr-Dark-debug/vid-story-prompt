@@ -47,7 +47,8 @@ const bandClasses: Record<ClipStrengthBand, string> = {
 function socialCopyEntries(value: unknown) {
   if (!value || typeof value !== "object" || Array.isArray(value)) return [];
   return Object.entries(value).filter(
-    (entry): entry is [string, string] => typeof entry[1] === "string" && entry[1].trim().length > 0,
+    (entry): entry is [string, string] =>
+      typeof entry[1] === "string" && entry[1].trim().length > 0,
   );
 }
 
@@ -102,21 +103,25 @@ export function ResultsGallery({
     if (!selectedClips.length) return;
     const completedClipIds = new Set(
       exports
-        .filter((item) => item.status === "complete" && item.export_type !== "batch" && item.clip_id)
+        .filter(
+          (item) => item.status === "complete" && item.export_type !== "batch" && item.clip_id,
+        )
         .map((item) => item.clip_id),
     );
-    if (
-      selectedClips.some(
-        (clip) => !clip.current_version_id || !completedClipIds.has(clip.id),
-      )
-    ) {
-      toast.error("Export each selected clip once before packaging the completed videos into a ZIP.");
+    if (selectedClips.some((clip) => !clip.current_version_id || !completedClipIds.has(clip.id))) {
+      toast.error(
+        "Export each selected clip once before packaging the completed videos into a ZIP.",
+      );
       return;
     }
     setExporting(true);
     try {
       await requestBatchExport({
-        data: { jobId, clipIds: selectedClips.map((clip) => clip.id), idempotencyKey: crypto.randomUUID() },
+        data: {
+          jobId,
+          clipIds: selectedClips.map((clip) => clip.id),
+          idempotencyKey: crypto.randomUUID(),
+        },
       });
       toast.success(`Batch export queued for ${selectedClips.length} clips.`);
       await router.invalidate();
@@ -175,7 +180,11 @@ export function ResultsGallery({
               onClick={() => void exportSelected()}
               className="inline-flex min-h-10 items-center gap-2 rounded-lg bg-ink px-4 text-sm font-semibold text-surface-page disabled:cursor-not-allowed disabled:opacity-45"
             >
-              {exporting ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Check className="h-4 w-4" />}
+              {exporting ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Check className="h-4 w-4" />
+              )}
               Export selected{selected.size ? ` (${selected.size})` : ""}
             </button>
           </div>
@@ -244,7 +253,9 @@ export function ResultsGallery({
                       #{candidate.rank ?? "—"}
                     </span>
                   </div>
-                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-ink-soft">{candidate.summary}</p>
+                  <p className="mt-2 line-clamp-2 text-sm leading-6 text-ink-soft">
+                    {candidate.summary}
+                  </p>
                   <div className="mt-4 grid grid-cols-4 gap-1 rounded-xl bg-surface-sunken p-2 text-center">
                     {[
                       ["Hook", candidate.hook_score],
@@ -253,25 +264,35 @@ export function ResultsGallery({
                       ["Story", candidate.story_score],
                     ].map(([label, value]) => (
                       <div key={String(label)} className="min-w-0 px-1">
-                        <div className="font-mono text-sm font-semibold text-ink">{Math.round(Number(value))}</div>
-                        <div className="truncate text-[9px] uppercase tracking-wide text-ink-mute">{label}</div>
+                        <div className="font-mono text-sm font-semibold text-ink">
+                          {Math.round(Number(value))}
+                        </div>
+                        <div className="truncate text-[9px] uppercase tracking-wide text-ink-mute">
+                          {label}
+                        </div>
                       </div>
                     ))}
                   </div>
                   <details className="mt-3 rounded-xl border border-line px-3 py-2 text-sm">
-                    <summary className="cursor-pointer font-semibold text-ink">Why this score</summary>
+                    <summary className="cursor-pointer font-semibold text-ink">
+                      Why this score
+                    </summary>
                     <p className="mt-2 leading-6 text-ink-soft">{candidate.selection_reason}</p>
                   </details>
                   {copy.length ? (
                     <details className="mt-2 rounded-xl border border-line px-3 py-2 text-sm">
-                      <summary className="cursor-pointer font-semibold text-ink">Platform copy</summary>
+                      <summary className="cursor-pointer font-semibold text-ink">
+                        Platform copy
+                      </summary>
                       <div className="mt-2 space-y-3">
                         {copy.map(([platform, value]) => (
                           <div key={platform}>
                             <div className="text-[10px] font-semibold uppercase tracking-wide text-ink-mute">
                               {platform.replace(/([A-Z])/g, " $1")}
                             </div>
-                            <p className="mt-1 whitespace-pre-line leading-5 text-ink-soft">{value}</p>
+                            <p className="mt-1 whitespace-pre-line leading-5 text-ink-soft">
+                              {value}
+                            </p>
                           </div>
                         ))}
                       </div>
@@ -284,7 +305,7 @@ export function ResultsGallery({
                         params={{ clipId: clip.id }}
                         className="inline-flex min-h-10 items-center gap-1.5 rounded-lg bg-ink px-3 text-sm font-semibold text-surface-page"
                       >
-                        Edit clip <ArrowRight className="h-4 w-4" />
+                        Clip settings <ArrowRight className="h-4 w-4" />
                       </Link>
                     ) : null}
                     {clip ? (
@@ -304,7 +325,9 @@ export function ResultsGallery({
                             await router.invalidate();
                           } catch (error) {
                             toast.error(
-                              error instanceof Error ? error.message : "The title could not be regenerated.",
+                              error instanceof Error
+                                ? error.message
+                                : "The title could not be regenerated.",
                             );
                           } finally {
                             setRegenerating(null);
@@ -312,7 +335,9 @@ export function ResultsGallery({
                         }}
                         className="inline-flex min-h-10 items-center gap-1.5 rounded-lg px-2 text-sm font-semibold text-ember-ink disabled:cursor-not-allowed disabled:text-ink-mute"
                       >
-                        <RefreshCw className={cn("h-4 w-4", regenerating === clip.id && "animate-spin")} />
+                        <RefreshCw
+                          className={cn("h-4 w-4", regenerating === clip.id && "animate-spin")}
+                        />
                         Regenerate title
                       </button>
                     ) : null}

@@ -48,7 +48,10 @@ test.describe("public blog", () => {
     );
 
     const jsonLd = await page.locator('script[type="application/ld+json"]').allTextContents();
-    expect(jsonLd).toHaveLength(2);
+    // The shared root now supplies Organization and WebSite in addition to article schemas.
+    expect(jsonLd.map((value) => JSON.parse(value)["@type"]).sort()).toEqual(
+      ["Organization", "WebSite", "BlogPosting", "BreadcrumbList"].sort(),
+    );
     expect(jsonLd.some((value) => value.includes('"@type":"BlogPosting"'))).toBe(true);
     expect(jsonLd.some((value) => value.includes('"@type":"BreadcrumbList"'))).toBe(true);
   });

@@ -43,7 +43,7 @@ The static browser icon is `public/favicon.svg` and uses the same geometry.
 | Favicon or compact app icon | Standalone mark in charcoal container        | Light            |
 | Spacious campaign lockup    | Horizontal or stacked lockup with descriptor | Match background |
 
-Use the descriptor “AI-assisted video editing” only where there is enough room to read it. Do not place it in compact navigation.
+Use the descriptor “AI-assisted video clipping” only where there is enough room to read it. Do not place it in compact navigation. Vidrial is a clipping product; do not advertise a standalone timeline editor.
 
 ## Spacing and minimum size
 

@@ -13,7 +13,7 @@ secondaryKeywords:
 searchIntent: "informational-commercial"
 author: "Vidrial Editorial Team"
 publishedAt: "2026-07-31"
-updatedAt: "2026-07-31"
+updatedAt: "2026-09-05"
 reviewedAt: "2026-07-31"
 readingTime: 8
 aiSummary:
@@ -105,13 +105,13 @@ A useful title does three jobs:
 
 Use one of these patterns when it fits the clip:
 
-| Intent | Weak title | Clearer title |
-| --- | --- | --- |
-| Direct answer | “Editing Tip #14” | “Remove a Jump Cut Without Hiding It” |
-| Diagnosis | “Your Audio Is Bad” | “Why Your Voice Sounds Boxy Indoors” |
-| Demonstration | “Look at This!” | “Turn One Key Light Into a Softer Source” |
-| Comparison | “Which Is Better?” | “Hard Captions vs YouTube Captions” |
-| Correction | “Stop Doing This” | “Do Not Export Vertical Video at 1920 × 1080” |
+| Intent        | Weak title          | Clearer title                                 |
+| ------------- | ------------------- | --------------------------------------------- |
+| Direct answer | “Editing Tip #14”   | “Remove a Jump Cut Without Hiding It”         |
+| Diagnosis     | “Your Audio Is Bad” | “Why Your Voice Sounds Boxy Indoors”          |
+| Demonstration | “Look at This!”     | “Turn One Key Light Into a Softer Source”     |
+| Comparison    | “Which Is Better?”  | “Hard Captions vs YouTube Captions”           |
+| Correction    | “Stop Doing This”   | “Do Not Export Vertical Video at 1920 × 1080” |
 
 Put the identifying words early when it reads naturally. Do not repeat the exact keyword to manufacture density: “YouTube Shorts SEO Tips for YouTube Shorts SEO” is less useful to a person and no more truthful to the system.
 
@@ -189,7 +189,7 @@ Related video: Full interview-audio setup guide
 
 Read it vertically. If any line changes the subject, the packet is not aligned. If the Related Video answers a different audience need, omit it. The guide to [using Shorts and long-form video together](/blog/youtube-shorts-vs-long-form-video) explains when that handoff is useful instead of forced.
 
-When the source is a longer authorised recording, [Vidrial's YouTube Clipper](/youtube-clipper) can help find reviewable moments, search a transcript by prompt, correct captions and rearrange an editable timeline before MP4 export. It does not turn metadata into proof of relevance; confirm that the selected moment answers the query without missing setup.
+When the source is a longer authorised recording, [Vidrial's YouTube Clipper](/youtube-clipper) can help find reviewable moments, search a transcript by prompt, correct captions and review clip settings before MP4 export. It does not turn metadata into proof of relevance; confirm that the selected moment answers the query without missing setup.
 
 ## Measure search separately from the Shorts feed
 
@@ -197,14 +197,14 @@ Do not call the SEO unsuccessful because a Short did not receive a large feed wa
 
 Track:
 
-| Signal | What it can tell you | What it cannot prove alone |
-| --- | --- | --- |
-| YouTube Search traffic | The Short is being found through queries | That the metadata caused every view |
-| Search terms | The language and intent bringing viewers | Exact market-wide keyword volume |
-| Viewed vs swiped away | Whether the feed opening earned attention | Whether the title matched a search query |
-| Average view duration and percentage viewed | Whether people stayed for the answer | Why a particular viewer left |
-| Comments | Follow-up questions and misunderstood points | A representative survey of all viewers |
-| Related Video clicks | Whether some viewers took the intended next step | That all Shorts viewers want long-form content |
+| Signal                                      | What it can tell you                             | What it cannot prove alone                     |
+| ------------------------------------------- | ------------------------------------------------ | ---------------------------------------------- |
+| YouTube Search traffic                      | The Short is being found through queries         | That the metadata caused every view            |
+| Search terms                                | The language and intent bringing viewers         | Exact market-wide keyword volume               |
+| Viewed vs swiped away                       | Whether the feed opening earned attention        | Whether the title matched a search query       |
+| Average view duration and percentage viewed | Whether people stayed for the answer             | Why a particular viewer left                   |
+| Comments                                    | Follow-up questions and misunderstood points     | A representative survey of all viewers         |
+| Related Video clicks                        | Whether some viewers took the intended next step | That all Shorts viewers want long-form content |
 
 Wait for a meaningful cohort before rewriting everything. Then make one change—usually the title or first description sentence—and annotate the date. If the retention graph drops in the opening, fix the video concept in the next Short rather than endlessly changing metadata on the existing one.
 

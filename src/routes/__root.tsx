@@ -106,7 +106,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
         { property: "og:image", content: absoluteUrl(SEO_DEFAULT_SOCIAL_IMAGE) },
         { property: "og:image:width", content: "1200" },
         { property: "og:image:height", content: "630" },
-        { property: "og:image:alt", content: "Vidrial — AI-assisted video editing" },
+        { property: "og:image:alt", content: "Vidrial — AI-assisted video clipping" },
         { name: "twitter:card", content: "summary_large_image" },
         { name: "twitter:title", content: `${brand.name} — ${brand.tagline}` },
         { name: "twitter:description", content: SEO_DEFAULT_DESCRIPTION },

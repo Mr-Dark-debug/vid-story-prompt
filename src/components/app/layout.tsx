@@ -78,13 +78,21 @@ export function AppLayout() {
         const notifyOnce = (
           key: string,
           message: string,
-          kind: "success" | "info" | "warning" = "success",
+          kind: "success" | "info" | "warning" | "error" = "success",
         ) => {
           const durableKey = `vidrial-notification:${key}`;
-          if (seenNotifications.current.has(key) || window.sessionStorage.getItem(durableKey))
-            return;
+          if (seenNotifications.current.has(key)) return;
+          try {
+            if (window.sessionStorage.getItem(durableKey)) return;
+          } catch {
+            /* Storage can be restricted by the browser. */
+          }
           seenNotifications.current.add(key);
-          window.sessionStorage.setItem(durableKey, "1");
+          try {
+            window.sessionStorage.setItem(durableKey, "1");
+          } catch {
+            /* In-memory deduplication remains active. */
+          }
           toast[kind](message);
         };
         channel = getSupabaseBrowserClient()
@@ -120,10 +128,16 @@ export function AppLayout() {
                   "warning",
                 );
               }
+              if (item.id && item.status === "failed")
+                notifyOnce(
+                  `job-failed-${item.id}`,
+                  "Clip processing stopped. Open the job to review the cause and saved work.",
+                  "error",
+                );
               if (
                 preferences.notifications.aiPlanComplete &&
                 item.id &&
-                ["ready", "completed"].includes(item.status ?? "")
+                ["ready", "partially_ready", "completed"].includes(item.status ?? "")
               )
                 notifyOnce(`job-${item.id}`, "Your clip analysis is ready to review.");
             },
@@ -327,8 +341,8 @@ function SidebarContent({
       <Tooltip>
         <TooltipTrigger asChild>
           <Link
-            to="/app/projects/new"
-            aria-label={collapsed ? "New project" : undefined}
+            to="/app/youtube-clipper/new"
+            aria-label={collapsed ? "New clipping job" : undefined}
             className={cn(
               "flex min-h-11 items-center justify-center gap-2 rounded-md bg-ink px-3 text-sm font-medium text-surface-page transition-colors hover:bg-ink/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember",
               collapsed && "px-0",
@@ -336,10 +350,10 @@ function SidebarContent({
             onClick={onNavigate}
           >
             <Plus className="h-4 w-4" />
-            {!collapsed ? "New project" : null}
+            {!collapsed ? "New clipping job" : null}
           </Link>
         </TooltipTrigger>
-        {collapsed ? <TooltipContent side="right">New project</TooltipContent> : null}
+        {collapsed ? <TooltipContent side="right">New clipping job</TooltipContent> : null}
       </Tooltip>
 
       <nav

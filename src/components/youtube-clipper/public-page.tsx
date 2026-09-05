@@ -191,9 +191,7 @@ export function YouTubeClipperPublicPage() {
             to="/login"
             search={{ redirect: "/app/youtube-clipper/new" }}
             className="mt-8 inline-flex items-center gap-2 rounded-xl bg-surface-page px-5 py-3 text-sm font-semibold text-ink"
-            onClick={() =>
-              trackAnalyticsEvent("youtube_clipper_cta", { action: "create_clips" })
-            }
+            onClick={() => trackAnalyticsEvent("youtube_clipper_cta", { action: "create_clips" })}
           >
             Create clips free <ArrowRight className="h-4 w-4" />
           </Link>
@@ -375,7 +373,7 @@ function FeatureStory() {
     {
       eyebrow: "Captions ready for social video",
       title: "Readable captions that remain editable.",
-      body: "Correct words, adjust timing, split or merge cues, and review the result in the editor. Final burned-in captions are rendered server-side for deterministic output.",
+      body: "Correct words, adjust timing, split or merge cues, and review the clip settings. Final burned-in captions are rendered server-side for deterministic output.",
       icon: Captions,
     },
     {
@@ -485,11 +483,15 @@ function PlanComparison() {
         eyebrow="Free versus paid"
         title="Start with a real workflow, then scale the limits."
       />
+      <p className="mb-5 text-sm text-ink-soft">
+        Free is available now. Paid upgrades are not yet purchasable; register interest from your
+        billing page.
+      </p>
       <div className="overflow-hidden rounded-2xl border border-line">
         <div className="hidden grid-cols-[1.4fr_1fr_1fr] bg-surface-raised px-5 py-3 text-xs font-semibold text-ink sm:grid">
           <span>Capability</span>
           <span>Free</span>
-          <span>Creator & Pro</span>
+          <span>Creator & Pro · planned</span>
         </div>
         {[
           ["Source minutes / month", "60", "600–1,800"],

@@ -16,7 +16,7 @@ import { getSupabaseBrowserClient } from "@/lib/supabase/client";
 import { formatUtcDate } from "@/lib/format-date";
 import { cancelClipJob, retryClipJobTask, type getClipJob } from "@/services/clipping/server";
 import { getExportDownload } from "@/services/exports/server";
-import { deriveJobStages, type DisplayStageState } from "@/domain/clipping/job-progress";
+import { ProcessingOverview } from "./processing-overview";
 import { cn } from "@/lib/utils";
 import { StatusDialog } from "@/components/ui/status-dialog";
 import { ConfirmationDialog } from "@/components/ui/status-dialog";
@@ -40,14 +40,6 @@ const retryableCodes = new Set([
   "temporary_failure",
 ]);
 
-const stageClasses: Record<DisplayStageState, string> = {
-  completed: "bg-success",
-  active: "bg-ember",
-  retrying: "bg-warning",
-  failed: "bg-danger",
-  pending: "bg-line",
-};
-
 export function JobProgress({
   data,
   youtubeConnection = null,
@@ -70,6 +62,14 @@ export function JobProgress({
   const [confirmCancel, setConfirmCancel] = useState(false);
   const [cancelling, setCancelling] = useState(false);
   useEffect(() => {
+    // Realtime can disconnect when mobile browsers sleep. Poll only visible active jobs.
+    const timer = window.setInterval(() => {
+      if (
+        document.visibilityState === "visible" &&
+        !["ready", "completed", "failed", "cancelled", "expired"].includes(job.status)
+      )
+        void router.invalidate();
+    }, 10_000);
     const channel = getSupabaseBrowserClient()
       .channel(`clip-job-${job.id}`)
       .on(
@@ -94,10 +94,10 @@ export function JobProgress({
       )
       .subscribe();
     return () => {
+      window.clearInterval(timer);
       void getSupabaseBrowserClient().removeChannel(channel);
     };
-  }, [job.id, router]);
-  const stages = useMemo(() => deriveJobStages(job, tasks), [job, tasks]);
+  }, [job.id, job.status, router]);
   const terminal = ["failed", "cancelled", "expired"].includes(job.status);
   const failedTask = [...tasks]
     .reverse()
@@ -117,7 +117,9 @@ export function JobProgress({
     ) &&
     !failedTask.force_proxy,
   );
-  const acquisitionMessage = sourceRecoveryMessage(failedTask?.error_code, job.error_message);
+  const acquisitionMessage = ["ready", "completed", "partially_ready"].includes(job.status)
+    ? null
+    : sourceRecoveryMessage(failedTask?.error_code, job.error_message);
   const orderedEvents = useMemo(() => [...events].reverse(), [events]);
 
   const retry = async (forceProxy = false) => {
@@ -146,7 +148,7 @@ export function JobProgress({
             {formatUtcDate(job.retention_expires_at)}
           </p>
         </div>
-        {!terminal && (
+        {!terminal && !["ready", "completed", "partially_ready"].includes(job.status) && (
           <button
             type="button"
             onClick={() => setConfirmCancel(true)}
@@ -174,23 +176,11 @@ export function JobProgress({
             )}
             <JobStatusBadge status={job.status} />
           </div>
-          <span className="max-w-sm text-xs leading-5 text-ink-mute sm:text-right">
-            Progress uses completed work, not estimated percentages
-          </span>
         </div>
         <div className="mt-4">
           <WorkerEgressBadge />
         </div>
-        <div className="mt-5 grid grid-cols-2 gap-x-2 gap-y-4 sm:grid-cols-5 lg:grid-cols-10">
-          {stages.map((stage) => (
-            <div key={stage.id} aria-label={`${stage.label}: ${stage.state}`}>
-              <div
-                className={cn("h-1.5 rounded-full transition-colors", stageClasses[stage.state])}
-              />
-              <div className="mt-1.5 truncate text-[10px] text-ink-mute">{stage.label}</div>
-            </div>
-          ))}
-        </div>
+        <ProcessingOverview job={job} tasks={tasks} />
         {acquisitionMessage && (
           <div
             className={cn(
@@ -326,7 +316,7 @@ export function JobProgress({
               return (
                 <div
                   key={event.id}
-                  className="relative grid grid-cols-[2rem_1fr_auto] gap-3 px-4 py-4 text-xs"
+                  className="relative grid grid-cols-[2rem_minmax(0,1fr)_auto] gap-2 px-3 py-4 text-xs sm:gap-3 sm:px-4"
                 >
                   {index < orderedEvents.length - 1 && (
                     <span
@@ -355,7 +345,9 @@ export function JobProgress({
                         </span>
                       ) : null}
                     </div>
-                    <p className="mt-1 leading-relaxed text-ink-soft">{event.message}</p>
+                    <p className="mt-1 break-words leading-relaxed text-ink-soft">
+                      {event.message}
+                    </p>
                     {event.progress_total ? (
                       <p className="mt-1 font-mono text-[10px] text-ink-mute">
                         {event.progress_current ?? 0}/{event.progress_total}

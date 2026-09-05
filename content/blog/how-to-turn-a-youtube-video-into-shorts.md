@@ -12,7 +12,7 @@ secondaryKeywords:
 searchIntent: "informational-commercial"
 author: "Vidrial Editorial Team"
 publishedAt: "2026-07-31"
-updatedAt: "2026-07-31"
+updatedAt: "2026-09-05"
 reviewedAt: "2026-07-31"
 readingTime: 9
 aiSummary:
@@ -68,14 +68,14 @@ Do not start by downloading a stranger's public video. Public viewing is not per
 
 The routes solve different jobs:
 
-| Need | YouTube Edit into a Short | Original file or authorised editor |
-| --- | --- | --- |
-| Source | Your own eligible public upload | Media you own or have permission to edit |
-| Selection | One continuous range, up to 60 seconds | Tool-dependent; can combine or reshape ranges |
-| Link to original | Added automatically | Add a Related Video after upload when eligible |
-| Detailed caption correction | Limited creation workflow | Usually easier in a full editor |
-| Complex vertical composition | Basic layout and crop controls | More control, depending on the editor |
-| Reusable clean master | Not the main purpose | Yes, when the editor exports one |
+| Need                         | YouTube Edit into a Short              | Original file or authorised editor             |
+| ---------------------------- | -------------------------------------- | ---------------------------------------------- |
+| Source                       | Your own eligible public upload        | Media you own or have permission to edit       |
+| Selection                    | One continuous range, up to 60 seconds | Tool-dependent; can combine or reshape ranges  |
+| Link to original             | Added automatically                    | Add a Related Video after upload when eligible |
+| Detailed caption correction  | Limited creation workflow              | Usually easier in a full editor                |
+| Complex vertical composition | Basic layout and crop controls         | More control, depending on the editor          |
+| Reusable clean master        | Not the main purpose                   | Yes, when the editor exports one               |
 
 Choose the built-in route for speed and attribution to the source. Choose an external workflow for editorial control. Neither route removes the need to check context, rights, framing, captions, and the final upload.
 
@@ -182,15 +182,15 @@ Do not substitute an ordinary URL in the Short's description and assume it is cl
 
 ## Troubleshoot the failure, not the symptom
 
-| Problem | Likely cause | Better next action |
-| --- | --- | --- |
-| Edit into a Short is missing | Source is not your eligible public upload, sampling is off, or a third-party claim exists | Check the official eligibility settings; use the authorised original file when appropriate |
-| Clip opens mid-thought | Selection followed the strongest sentence instead of the setup | Extend to the question or add one accurate line of context |
-| Vertical version hides the proof | Crop follows the face rather than the information | Compose the screen and speaker manually or choose another moment |
-| Captions look correct but feel late | Timing was not reviewed after boundary edits | Retimestamp captions against the final cut |
-| Short has no useful route to the source | A plain description URL was used | Add a supported Related Video when eligible |
-| Upload is blocked | Active claim or another rights problem | Review YouTube's claim details and your permissions; do not re-export to evade enforcement |
+| Problem                                 | Likely cause                                                                              | Better next action                                                                         |
+| --------------------------------------- | ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| Edit into a Short is missing            | Source is not your eligible public upload, sampling is off, or a third-party claim exists | Check the official eligibility settings; use the authorised original file when appropriate |
+| Clip opens mid-thought                  | Selection followed the strongest sentence instead of the setup                            | Extend to the question or add one accurate line of context                                 |
+| Vertical version hides the proof        | Crop follows the face rather than the information                                         | Compose the screen and speaker manually or choose another moment                           |
+| Captions look correct but feel late     | Timing was not reviewed after boundary edits                                              | Retimestamp captions against the final cut                                                 |
+| Short has no useful route to the source | A plain description URL was used                                                          | Add a supported Related Video when eligible                                                |
+| Upload is blocked                       | Active claim or another rights problem                                                    | Review YouTube's claim details and your permissions; do not re-export to evade enforcement |
 
 If the first source contains many possible moments, estimate [how many publishable Shorts it can actually support](/blog/how-many-shorts-from-one-long-video) before styling every candidate. To distribute those clips without repeating the same point all week, use the [one-video content repurposing plan](/blog/repurpose-one-video-into-a-week-of-content).
 
-Vidrial's [YouTube Clipper](/youtube-clipper) is designed for authorised sources, reviewable moment suggestions, transcript editing, caption correction, and editable timelines. Start with one specific audience question, inspect context around every candidate, and export only after the frame, words, rights, and final playback pass review. The shortcut is finding the moment faster. The editorial responsibility does not move to the tool.
+Vidrial's [YouTube Clipper](/youtube-clipper) is designed for authorised sources, reviewable moment suggestions, caption correction, clip-specific boundaries, and exports. Start with one specific audience question, inspect context around every candidate, and export only after the frame, words, rights, and final playback pass review. The shortcut is finding the moment faster. The editorial responsibility does not move to the tool.

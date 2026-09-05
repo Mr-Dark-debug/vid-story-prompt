@@ -22,10 +22,10 @@ describe("Vidrial logo", () => {
     render(<Logo showTagline />);
 
     expect(
-      screen.getByRole("link", { name: "Vidrial AI-assisted video editing home" }),
+      screen.getByRole("link", { name: "Vidrial AI-assisted video clipping home" }),
     ).toHaveAttribute("href", "/");
     expect(screen.getByText("Vidrial")).toBeInTheDocument();
-    expect(screen.getByText("AI-assisted video editing")).toBeInTheDocument();
+    expect(screen.getByText("AI-assisted video clipping")).toBeInTheDocument();
   });
 
   it("renders a compact app mark without duplicate visible text", () => {

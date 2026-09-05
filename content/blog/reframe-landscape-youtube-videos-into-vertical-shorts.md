@@ -12,7 +12,7 @@ secondaryKeywords:
 searchIntent: "informational-commercial"
 author: "Vidrial Editorial Team"
 publishedAt: "2026-07-31"
-updatedAt: "2026-07-31"
+updatedAt: "2026-09-05"
 reviewedAt: "2026-07-31"
 readingTime: 9
 aiSummary:
@@ -70,11 +70,11 @@ A 16:9 frame is wide; a 9:16 frame is tall. If a 1920×1080 source is enlarged t
 
 There are three basic ways to place landscape footage on a vertical canvas:
 
-| Treatment | What happens | Best for | Main cost |
-| --- | --- | --- | --- |
-| Fill and crop | Video fills the vertical canvas; left and right are removed | One clear subject, close framing | Wide context and edge details disappear |
-| Fit full frame | Whole 16:9 frame remains visible | Slides, screens, groups, comparisons | Image becomes smaller; space remains above and below |
-| Recompose | Crop, cuts, stacked regions, or overlays change by shot | Interviews, tutorials, gameplay, demonstrations | More editorial work and more points to check |
+| Treatment      | What happens                                                | Best for                                        | Main cost                                            |
+| -------------- | ----------------------------------------------------------- | ----------------------------------------------- | ---------------------------------------------------- |
+| Fill and crop  | Video fills the vertical canvas; left and right are removed | One clear subject, close framing                | Wide context and edge details disappear              |
+| Fit full frame | Whole 16:9 frame remains visible                            | Slides, screens, groups, comparisons            | Image becomes smaller; space remains above and below |
+| Recompose      | Crop, cuts, stacked regions, or overlays change by shot     | Interviews, tutorials, gameplay, demonstrations | More editorial work and more points to check         |
 
 Never stretch the 16:9 image to 9:16. Stretching keeps every pixel on screen by distorting faces, circles, text, and movement. Scale proportionally and accept either a crop or a designed layout.
 
@@ -195,4 +195,4 @@ Before uploading, watch once for story and once only for framing. Check:
 - the first frame still supports the [Shorts hook](/blog/how-to-write-youtube-shorts-hooks);
 - the export retains the source frame rate and sufficient quality for the chosen canvas.
 
-Vidrial's [YouTube clipper](/youtube-clipper) can help identify and edit a source moment, correct captions, and arrange its timeline. The final crop remains an editorial decision, especially for multi-person, screenshare, and fast-action footage. Approve the 9:16 version only when it preserves the evidence—not merely when it fills the screen.
+Vidrial's [YouTube clipper](/youtube-clipper) can help identify a source moment, correct captions, and choose clip-specific framing. The final crop remains an editorial decision, especially for multi-person, screenshare, and fast-action footage. Approve the 9:16 version only when it preserves the evidence—not merely when it fills the screen.

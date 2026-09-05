@@ -23,7 +23,7 @@ export const Route = createFileRoute("/contact")({
     pageMeta({
       title: "Contact Vidrial",
       description:
-        "Contact the Vidrial team about the AI video editor, billing, partnerships, security, privacy or product feedback.",
+        "Contact the Vidrial team about the video clipping product, billing, partnerships, security, privacy or product feedback.",
       path: "/contact",
     }),
   component: ContactPage,

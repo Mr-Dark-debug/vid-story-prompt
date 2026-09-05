@@ -1,34 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { UseCaseTemplate } from "@/components/marketing/use-case-template";
 import { pageMeta } from "@/config/seo";
-
 export const Route = createFileRoute("/use-cases/product-demos")({
   head: () =>
     pageMeta({
-      title: "AI Video Editing for Product Demos — Vidrial",
-      description:
-        "Combine screen recording and camera footage into a concise, editable product demo with clear pacing and captions.",
+      title: "Product demo clips — Vidrial",
+      description: "Create short walkthrough excerpts from your recorded product demonstrations.",
       path: "/use-cases/product-demos",
     }),
   component: () => (
     <UseCaseTemplate
-      eyebrow="Product demos"
-      title="A demo people actually finish."
-      lead="Screen capture and camera brought together into a tight, honest walkthrough."
-      scenario={
-        <>
-          You have 25 minutes of screen recording and a talking head. You need a 3-minute demo for
-          the homepage.
-        </>
-      }
+      eyebrow="Product demo clips"
+      title="Show one useful feature at a time."
+      lead="Create short walkthrough excerpts from your recorded product demonstrations."
+      scenario="You have a long demo and want a focused excerpt for a customer question or product update."
       prompts={[
-        "Draft a 3-minute demo. Prefer the passages where I explain the outcome, not the setup.",
-        'Cut to the screen when I say "here\'s how". Cut back to camera at the summary.',
+        "Find a complete demonstration of one feature without cutting off the outcome.",
+        "Keep the clip understandable without watching the full source.",
+        "Avoid excerpts that change the speaker's intended meaning.",
       ]}
       outcomes={[
-        "Tight 3-minute cut",
-        "Screen ↔ camera cadence handled",
-        "A longer 8-minute version saved as a variant",
+        "Short clip candidates with selection explanations",
+        "Captioned previews to review",
+        "Exports within your plan's quality limits",
       ]}
     />
   ),

@@ -35,11 +35,18 @@ export const env = z
       .int()
       .positive()
       .default(10 * 1024 ** 3),
+    STORAGE_UPLOAD_CHUNK_BYTES: z.coerce
+      .number()
+      .int()
+      .min(5 * 1024 ** 2)
+      .max(48 * 1024 ** 2)
+      .default(45 * 1024 ** 2),
     DIRECT_DOWNLOAD_CONNECT_TIMEOUT_MS: z.coerce.number().int().positive().default(10_000),
     DIRECT_DOWNLOAD_READ_TIMEOUT_MS: z.coerce.number().int().positive().default(300_000),
     DIRECT_DOWNLOAD_REDIRECT_LIMIT: z.coerce.number().int().min(0).max(8).default(4),
     YTDLP_PATH: z.string().min(1).default("yt-dlp"),
     YTDLP_TIMEOUT_MS: z.coerce.number().int().positive().default(600_000),
+    YTDLP_PROBE_VIDEO_ID: z.string().regex(/^[A-Za-z0-9_-]{11}$/).default("aqz-KE-bpKQ"),
     YTDLP_POT_PROVIDER_URL: z.preprocess(
       (value) => (value === "" ? undefined : value),
       z.string().url().optional(),

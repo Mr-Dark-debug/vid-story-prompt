@@ -9,8 +9,6 @@ export const Route = createFileRoute("/_authenticated/app/help")({
 const links = [
   { to: "/docs/getting-started", label: "Getting started" },
   { to: "/docs/uploading-media", label: "Uploading media" },
-  { to: "/docs/ai-editor", label: "Using the AI editor" },
-  { to: "/docs/timeline", label: "The timeline" },
   { to: "/docs/exporting", label: "Exporting" },
   { to: "/contact", label: "Contact support" },
 ] as const;
@@ -22,7 +20,10 @@ function Help() {
       <ul className="grid gap-3 sm:grid-cols-2">
         {links.map((l) => (
           <li key={l.to}>
-            <Link to={l.to} className="block rounded-xl border border-line bg-surface-panel p-4 text-ink hover:border-line-strong">
+            <Link
+              to={l.to}
+              className="block rounded-xl border border-line bg-surface-panel p-4 text-ink hover:border-line-strong"
+            >
               {l.label}
             </Link>
           </li>

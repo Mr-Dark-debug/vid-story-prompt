@@ -1,35 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { UseCaseTemplate } from "@/components/marketing/use-case-template";
 import { pageMeta } from "@/config/seo";
-
 export const Route = createFileRoute("/use-cases/youtube")({
   head: () =>
     pageMeta({
-      title: "AI Video Editing for YouTube Creators — Vidrial",
-      description:
-        "Turn long YouTube recordings into a reviewable first cut, captions and vertical clip drafts while keeping manual timeline control.",
+      title: "YouTube clips — Vidrial",
+      description: "Find self-contained explanations and highlights in videos you own.",
       path: "/use-cases/youtube",
     }),
   component: () => (
     <UseCaseTemplate
-      eyebrow="YouTube"
-      title="First cuts for YouTube — without the weekend."
-      lead="Explainers, interviews and vlogs, tightened around the strongest takes."
-      scenario={
-        <>
-          You filmed 90 minutes for a 10-minute explainer. Multiple takes of every section. A folder
-          of B-roll you shot the day before.
-        </>
-      }
+      eyebrow="YouTube clips"
+      title="Give your long videos a second audience."
+      lead="Find self-contained explanations and highlights in videos you own."
+      scenario="You have a published interview or explainer and want short excerpts for Shorts, Reels and TikTok."
       prompts={[
-        "10-minute first cut. Keep the strongest explanations. Remove pauses over 400 ms.",
-        "Use exterior clips as B-roll during the introduction section.",
-        "Add clean captions in a serif style and duck the music under my voice.",
+        "Find complete answers that stand on their own.",
+        "Keep the clip understandable without watching the full source.",
+        "Avoid excerpts that change the speaker's intended meaning.",
       ]}
       outcomes={[
-        "A named version you can restore later",
-        "A captioned 1080p master",
-        "Two vertical clips drafted from the same source",
+        "Short clip candidates with selection explanations",
+        "Captioned previews to review",
+        "Exports within your plan's quality limits",
       ]}
     />
   ),

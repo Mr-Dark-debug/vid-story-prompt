@@ -5,17 +5,15 @@ import { pageMeta } from "@/config/seo";
 const docsNav = [
   { to: "/docs/getting-started", label: "Getting started" },
   { to: "/docs/uploading-media", label: "Uploading media" },
-  { to: "/docs/ai-editor", label: "The AI editor" },
-  { to: "/docs/timeline", label: "Timeline basics" },
   { to: "/docs/exporting", label: "Exporting" },
 ] as const;
 
 export const Route = createFileRoute("/docs/")({
   head: () =>
     pageMeta({
-      title: "Vidrial Documentation — From Media to Editable Video",
+      title: "Vidrial Documentation — From Video to Clips",
       description:
-        "Learn how to import media, direct Vidrial's AI-assisted editor, refine the timeline, manage captions and export finished video.",
+        "Learn how to import authorised videos, create short clips, review captions and download finished exports.",
       path: "/docs",
     }),
   component: DocsIndex,
@@ -32,7 +30,7 @@ function DocsIndex() {
         <Link to="/docs/getting-started" className="text-ember-ink underline">
           Getting started
         </Link>
-        , then dig into media, the AI editor, timeline and exporting.
+        , then follow the guides for source uploads and clip exports.
       </p>
       <ul className="mt-8 grid gap-4 sm:grid-cols-2">
         {docsNav.map((item) => (

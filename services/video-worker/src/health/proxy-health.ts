@@ -247,7 +247,7 @@ export async function probeProxyHealth(
       "--force-ipv4",
     ];
     if (selection.url) args.push("--proxy", selection.url);
-    args.push("https://www.youtube.com/watch?v=dQw4w9WgXcQ");
+    args.push(`https://www.youtube.com/watch?v=${env.YTDLP_PROBE_VIDEO_ID}`);
     try {
       await run(options.ytdlpPath ?? env.YTDLP_PATH, args, {
         env: proxyEnvironment(selection),

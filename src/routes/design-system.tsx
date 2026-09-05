@@ -72,7 +72,7 @@ function DesignSystem() {
             Museum Sans
           </div>
           <div className="font-display text-3xl font-medium text-ink">
-            AI-assisted video editing
+            AI-assisted video clipping
           </div>
           <p className="max-w-2xl text-base leading-relaxed text-ink-soft">
             Museum Sans is the licensed brand typeface. Manrope is the approved web fallback until

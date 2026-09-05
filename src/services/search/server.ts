@@ -6,13 +6,6 @@ const searchSchema = z.object({ query: z.string().trim().min(2).max(100) });
 
 export type WorkspaceSearchResult =
   | {
-      type: "project";
-      id: string;
-      title: string;
-      detail: string;
-      to: string;
-    }
-  | {
       type: "upload";
       id: string;
       title: string;
@@ -51,14 +44,7 @@ export const searchWorkspace = createServerFn({ method: "GET" })
 
     const pattern = `%${escapeLikePattern(data.query)}%`;
     const workspaceId = membership.workspace_id;
-    const [projects, uploads, jobs] = await Promise.all([
-      supabase
-        .from("app_projects")
-        .select("id,name,status,updated_at")
-        .eq("workspace_id", workspaceId)
-        .ilike("name", pattern)
-        .order("updated_at", { ascending: false })
-        .limit(6),
+    const [uploads, jobs] = await Promise.all([
       supabase
         .from("media_assets")
         .select("id,display_name,status,updated_at")
@@ -76,17 +62,10 @@ export const searchWorkspace = createServerFn({ method: "GET" })
         .limit(6),
     ]);
 
-    const error = projects.error ?? uploads.error ?? jobs.error;
+    const error = uploads.error ?? jobs.error;
     if (error) throw new Error("Search is temporarily unavailable. Please try again.");
 
     const results: WorkspaceSearchResult[] = [
-      ...(projects.data ?? []).map((project) => ({
-        type: "project" as const,
-        id: project.id,
-        title: project.name,
-        detail: `Project · ${project.status}`,
-        to: `/app/projects/${project.id}`,
-      })),
       ...(uploads.data ?? []).map((upload) => ({
         type: "upload" as const,
         id: upload.id,

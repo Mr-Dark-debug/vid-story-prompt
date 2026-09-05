@@ -1,34 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { UseCaseTemplate } from "@/components/marketing/use-case-template";
 import { pageMeta } from "@/config/seo";
-
 export const Route = createFileRoute("/use-cases/courses")({
   head: () =>
     pageMeta({
-      title: "AI Video Editing for Online Courses — Vidrial",
-      description:
-        "Create consistent online-course lessons with reviewable editing, pacing, captions, chapters and repeatable export settings.",
+      title: "Course clips — Vidrial",
+      description: "Extract short learning moments from your own courses and webinars.",
       path: "/use-cases/courses",
     }),
   component: () => (
     <UseCaseTemplate
-      eyebrow="Courses"
-      title="Lessons that stay clear, week after week."
-      lead="Consistent captions, chaptering and pacing across an entire course."
-      scenario={
-        <>
-          You're producing a 12-lesson course. Each lesson is 8-15 minutes. Consistency matters more
-          than novelty.
-        </>
-      }
+      eyebrow="Course clips"
+      title="Make one useful lesson easy to share."
+      lead="Extract short learning moments from your own courses and webinars."
+      scenario="You want a concise example or lesson preview from a longer recording."
       prompts={[
-        "For each lesson: remove filler, keep pauses over 200 ms for teaching effect, add chapter markers.",
-        "Apply the Course Captions preset with locked 24pt sizing.",
+        "Select one concept with its explanation and practical example.",
+        "Keep the clip understandable without watching the full source.",
+        "Avoid excerpts that change the speaker's intended meaning.",
       ]}
       outcomes={[
-        "Consistent visual language",
-        "Uniform captions and chapters",
-        "Faster turnaround per lesson",
+        "Short clip candidates with selection explanations",
+        "Captioned previews to review",
+        "Exports within your plan's quality limits",
       ]}
     />
   ),

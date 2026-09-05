@@ -12,7 +12,7 @@ secondaryKeywords:
 searchIntent: "informational-commercial"
 author: "Vidrial Editorial Team"
 publishedAt: "2026-07-31"
-updatedAt: "2026-07-31"
+updatedAt: "2026-09-05"
 reviewedAt: "2026-07-31"
 readingTime: 9
 aiSummary:
@@ -132,14 +132,14 @@ Counting generated clips rewards noise. A tool that returns 30 candidates is not
 
 Use **approved clips per review hour** as the primary measure. Before a trial, take one representative source and ask an editor to mark the moments they would want. Then run the tool without changing the source and record:
 
-| Measure | What it reveals |
-| --- | --- |
-| Candidate recall | How many editor-marked moments appeared anywhere in the suggestions |
-| Approval rate | How many generated candidates were worth finishing |
-| Boundary repair | How often starts or endings needed meaningful adjustment |
-| Caption repair | How many important names, terms, or phrases were wrong |
-| Framing repair | How often the crop lost a speaker, slide, demonstration, or reaction |
-| Review time | The total human time from results page to approved batch |
+| Measure          | What it reveals                                                      |
+| ---------------- | -------------------------------------------------------------------- |
+| Candidate recall | How many editor-marked moments appeared anywhere in the suggestions  |
+| Approval rate    | How many generated candidates were worth finishing                   |
+| Boundary repair  | How often starts or endings needed meaningful adjustment             |
+| Caption repair   | How many important names, terms, or phrases were wrong               |
+| Framing repair   | How often the crop lost a speaker, slide, demonstration, or reaction |
+| Review time      | The total human time from results page to approved batch             |
 
 Run this test on the source you actually produce. A podcast demo tells you little about sports footage; a single-speaker tutorial does not test a panel discussion.
 
@@ -160,7 +160,7 @@ If you need the operational version, follow the [long-video-to-shorts workflow](
 
 ## How Vidrial approaches the category
 
-Vidrial treats AI output as a reviewable editing plan rather than a black-box final cut. Its current Available feature states include AI moment discovery, prompt-based moment search, complete-thought detection, hook-strength and standalone-clarity signals, transcript editing, caption correction, and timeline rearrangement. Those controls are meant to help you inspect and adjust a suggestion; they do not promise that a score predicts audience response.
+Vidrial treats AI output as a reviewable editing plan rather than a black-box final cut. Its current Available feature states include AI moment discovery, prompt-based moment search, complete-thought detection, hook-strength and standalone-clarity signals, caption correction and clip-specific settings. Those controls are meant to help you inspect and adjust a suggestion; they do not promise that a score predicts audience response.
 
 Some adjacent capabilities have narrower states. Dynamic caption presets are Beta. Subject tracking, multi-speaker layouts, filler-word removal, SRT/VTT export, and B-roll are Coming soon rather than generally Available. You can review the current workflow on the [Vidrial features page](/features) before deciding whether it matches your sources.
 

@@ -21,7 +21,6 @@ export const CLIPPING_FEATURES = {
   aiVoiceover: "planned",
   translation: "planned",
   dubbing: "planned",
-  timelineRearrangement: "available",
   clipDuplication: "planned",
   export720p: "available",
   export1080p: "available",

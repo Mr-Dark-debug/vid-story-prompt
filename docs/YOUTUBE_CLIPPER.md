@@ -16,6 +16,10 @@ Completed exports can be uploaded through the external worker with YouTube's off
 
 ## URL clipping, account connection, and recovery
 
+As of September 2026 Vidrial is clipping-only. Standalone project/editor/template routes redirect to the clipping workspace; saved records are not deleted. Clip settings retain captions, boundaries, framing and export controls without a timeline. Marketing and pricing describe clipping entitlements rather than general video editing or generated-media credits. Paid upgrade interest is not a purchase or an activated subscription.
+
+The progress summary groups actual tasks into Import, Understand, Create and Ready. Realtime updates are backed by active-job polling, and completion/failure notifications are deduplicated per browser session. Google OAuth app publication and verification remain operator requirements: External/Testing restricts who can connect and cannot be fixed by a browser retry.
+
 `Connect YouTube account` is optional YouTube Data API access for authorised channels, uploads, playlists, automation, and publishing. It does not authenticate or repair media downloads. `Clip a YouTube URL` accepts eligible public or unlisted URLs without an account connection and shows the worker's sanitized egress status.
 
 If every cloud source path is challenged, the job becomes action-required without losing its ID, metadata, rights attestation, clip settings, usage reservation, completed artifacts, or event history. The recovery panel offers:

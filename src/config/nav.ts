@@ -7,7 +7,7 @@ export const productMenu: NavItem[] = [
     description: "Turn long videos into editable short clips.",
   },
   { label: "Features", to: "/features", description: "The complete workflow" },
-  { label: "How it works", to: "/how-it-works", description: "From footage to first cut" },
+  { label: "How it works", to: "/how-it-works", description: "From source video to short clips" },
   { label: "AI transparency", to: "/ai-transparency", description: "What the AI sees and does" },
   { label: "Security & privacy", to: "/security", description: "Private by default" },
 ];
@@ -21,7 +21,7 @@ export const useCasesMenu: NavItem[] = [
 ];
 
 export const resourcesMenu: NavItem[] = [
-  { label: "Blog", to: "/blog", description: "Practical video editing guides" },
+  { label: "Blog", to: "/blog", description: "Practical video clipping guides" },
   { label: "Documentation", to: "/docs" },
   { label: "Changelog", to: "/changelog" },
   { label: "Roadmap", to: "/roadmap" },
@@ -72,8 +72,6 @@ export const appNav: NavItem[] = [
   { label: "Overview", to: "/app" },
   { label: "YouTube Clipper", to: "/app/youtube-clipper" },
   { label: "Automations", to: "/app/automations" },
-  { label: "Projects", to: "/app/projects" },
-  { label: "Templates", to: "/app/templates" },
   { label: "Uploads", to: "/app/uploads" },
   { label: "Usage", to: "/app/usage" },
   { label: "Billing", to: "/app/billing" },

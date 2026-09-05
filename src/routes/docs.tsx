@@ -22,8 +22,6 @@ const docsGroups = [
     title: "Guides & Concepts",
     items: [
       { to: "/docs/uploading-media", label: "Uploading media" },
-      { to: "/docs/ai-editor", label: "The AI editor" },
-      { to: "/docs/timeline", label: "Timeline basics" },
       { to: "/docs/exporting", label: "Exporting" },
     ],
   },

@@ -94,8 +94,9 @@ export const beginYouTubeConnection = createServerFn({ method: "POST" })
       response_type: "code",
       scope: requestedScopes(data.capability).join(" "),
       access_type: "offline",
-      include_granted_scopes: "true",
-      prompt: "consent",
+      // This Google project may host other apps. Do not aggregate their permissions.
+      include_granted_scopes: "false",
+      prompt: "select_account consent",
       code_challenge: challenge,
       code_challenge_method: "S256",
       state,

@@ -80,6 +80,19 @@ describe("YouTube acquisition planning", () => {
     });
   });
 
+  it("retries a provider path that downloaded successfully when later source persistence failed", () => {
+    expect(
+      nextAcquisitionAttempt({
+        cancelled: false,
+        cobaltEnabled: false,
+        potProviderConfigured: false,
+        previous: [{ ...prior("direct", "standard"), status: "succeeded" }],
+        production: false,
+        warpMembers: [],
+      }),
+    ).toMatchObject({ sourceTier: "direct", strategy: "standard" });
+  });
+
   it("ends after Cobalt instead of requiring customer-side software", () => {
     const strategies = ["standard", "web-safari", "web-embedded"] as const;
     const exhaustedWarp = warpMembers.flatMap((member) =>

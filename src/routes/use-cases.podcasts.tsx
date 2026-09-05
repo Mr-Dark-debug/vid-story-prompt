@@ -1,35 +1,29 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { UseCaseTemplate } from "@/components/marketing/use-case-template";
 import { pageMeta } from "@/config/seo";
-
 export const Route = createFileRoute("/use-cases/podcasts")({
   head: () =>
     pageMeta({
-      title: "Podcast Clipping and Podcast-to-Shorts — Vidrial",
+      title: "Podcast clips — Vidrial",
       description:
-        "Clean long video podcasts, identify complete moments, add captions and prepare editable short-form clips without losing context.",
+        "Turn your video podcast into short, captioned moments without losing the point.",
       path: "/use-cases/podcasts",
     }),
   component: () => (
     <UseCaseTemplate
-      eyebrow="Podcasts"
-      title="Video podcasts, without the dead air."
-      lead="Multi-mic conversations cleaned up, chaptered, ready to publish."
-      scenario={
-        <>
-          Two-camera, three-mic conversation. Long silences during questions. You want a 45-minute
-          cut plus a five-minute preview.
-        </>
-      }
+      eyebrow="Podcast clips"
+      title="Let a great conversation travel further."
+      lead="Turn your video podcast into short, captioned moments without losing the point."
+      scenario="You recorded a long conversation and want to share the most useful answers."
       prompts={[
-        "Remove pauses over 700 ms and the tangent about food between 22:00 and 27:00.",
-        "Draft a 5-minute preview highlighting the strongest questions.",
-        "Add chapters based on the transcript.",
+        "Choose moments with a clear question and a complete answer.",
+        "Keep the clip understandable without watching the full source.",
+        "Avoid excerpts that change the speaker's intended meaning.",
       ]}
       outcomes={[
-        "Cleaner-feeling conversation",
-        "One long cut, one preview cut",
-        "Chapters and captions ready for YouTube",
+        "Short clip candidates with selection explanations",
+        "Captioned previews to review",
+        "Exports within your plan's quality limits",
       ]}
     />
   ),
