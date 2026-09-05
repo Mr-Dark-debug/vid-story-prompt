@@ -28,7 +28,7 @@ import { Logo, LogoMark } from "@/components/primitives/logo";
 <LogoMark tone="dark" />
 ```
 
-The static browser icon is `public/favicon.svg` and uses the same geometry.
+Browser icons are generated from the shared `LogoMark` paths by `npm run brand:icons`. Commit the SVG, multi-size ICO and PNG outputs together. The versioned declarations in `src/config/brand-assets.ts` prevent stale template icons; `public/favicon.ico` and `public/favicon.svg` also serve the correct mark for browsers that probe those conventional paths. The 180 px PNG is used for Apple touch icons.
 
 ## Choosing a variant
 

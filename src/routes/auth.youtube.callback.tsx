@@ -1,6 +1,7 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { z } from "zod";
 import { finishYouTubeConnection } from "@/services/youtube/oauth.server";
+import { youtubeOAuthErrorMessage } from "@/services/youtube/oauth-errors";
 
 export const Route = createFileRoute("/auth/youtube/callback")({
   validateSearch: z.object({
@@ -12,7 +13,7 @@ export const Route = createFileRoute("/auth/youtube/callback")({
     if (search.error || !search.code || !search.state)
       throw redirect({
         to: "/app/settings/integrations",
-        search: { youtubeError: "YouTube permission was not granted. You can retry when ready." },
+        search: { youtubeError: youtubeOAuthErrorMessage(search.error) },
       });
     let result: Awaited<ReturnType<typeof finishYouTubeConnection>>;
     try {
