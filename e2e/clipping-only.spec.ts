@@ -1,5 +1,23 @@
 import { expect, test } from "@playwright/test";
 
+test("browser and Apple icons use Vidrial assets", async ({ page, request }) => {
+  await page.goto("/");
+  const icons = await page
+    .locator('link[rel="icon"]')
+    .evaluateAll((elements) => elements.map((element) => element.getAttribute("href")));
+  expect(icons).toContain("/icons/vidrial-v3.ico");
+  expect(icons).toContain("/icons/vidrial-v3.svg");
+  await expect(page.locator('link[rel="apple-touch-icon"]')).toHaveAttribute(
+    "href",
+    "/icons/vidrial-180-v3.png",
+  );
+  for (const path of [...icons, "/favicon.ico", "/favicon.svg", "/icons/vidrial-180-v3.png"]) {
+    const response = await request.get(path!);
+    expect(response.status()).toBe(200);
+    expect((await response.body()).length).toBeGreaterThan(100);
+  }
+});
+
 for (const width of [360, 1280]) {
   test(`clipping-only product pages fit a ${width}px viewport`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
