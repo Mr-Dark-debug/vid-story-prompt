@@ -5,6 +5,7 @@ import { Readable } from "node:stream";
 import { pipeline } from "node:stream/promises";
 import { env } from "../config/env.js";
 import { TaskFailure } from "../domain/types.js";
+import { uploadResumable } from "./resumable-upload.js";
 import {
   CHUNK_MANIFEST_CONTENT_TYPE,
   parseChunkManifest,
@@ -33,15 +34,30 @@ export async function downloadAsset(bucket: string, path: string, destination: s
   const response = await signedObjectResponse(bucket, path);
   const contentType = response.headers.get("content-type")?.split(";", 1)[0]?.trim().toLowerCase();
   if (contentType === CHUNK_MANIFEST_CONTENT_TYPE) {
-    const text = await response.text();
-    if (Buffer.byteLength(text) > 1024 * 1024) {
-      throw new TaskFailure("storage_manifest_invalid", "The private source manifest is invalid.", false);
+    const chunks: Buffer[] = [];
+    let manifestBytes = 0;
+    for await (const chunk of Readable.fromWeb(response.body as never)) {
+      const bytes = Buffer.from(chunk as Uint8Array);
+      manifestBytes += bytes.length;
+      if (manifestBytes > 1024 * 1024) {
+        throw new TaskFailure(
+          "storage_manifest_invalid",
+          "The private source manifest is invalid.",
+          false,
+        );
+      }
+      chunks.push(bytes);
     }
+    const text = Buffer.concat(chunks).toString("utf8");
     let manifest;
     try {
       manifest = parseChunkManifest(JSON.parse(text), path);
     } catch {
-      throw new TaskFailure("storage_manifest_invalid", "The private source manifest is invalid.", false);
+      throw new TaskFailure(
+        "storage_manifest_invalid",
+        "The private source manifest is invalid.",
+        false,
+      );
     }
     const output = await open(destination, "wx");
     let total = 0;
@@ -51,8 +67,20 @@ export async function downloadAsset(bucket: string, path: string, destination: s
         let received = 0;
         for await (const chunk of Readable.fromWeb(partResponse.body as never)) {
           const bytes = Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk as Uint8Array);
-          await output.write(bytes);
           received += bytes.length;
+          if (received > part.bytes) {
+            throw new TaskFailure(
+              "storage_manifest_invalid",
+              "A private source chunk exceeds its declared size.",
+              false,
+            );
+          }
+          // FileHandle.write may write fewer bytes than requested.
+          for (let offset = 0; offset < bytes.length;) {
+            const { bytesWritten } = await output.write(bytes, offset, bytes.length - offset);
+            if (bytesWritten === 0) throw new Error("Private source write made no progress.");
+            offset += bytesWritten;
+          }
         }
         if (received !== part.bytes) {
           throw new TaskFailure(
@@ -104,6 +132,7 @@ async function uploadObject(
         "x-upsert": "false",
       },
       body,
+      signal: AbortSignal.timeout(10 * 60_000),
       ...(typeof body === "string" ? {} : { duplex: "half" as const }),
     } as RequestInit & { duplex?: "half" },
   );
@@ -111,15 +140,38 @@ async function uploadObject(
     throw new TaskFailure(
       "storage_upload_failed",
       "Private media could not be saved to storage.",
-      true,
+      response.status === 408 || response.status === 429 || response.status >= 500,
       { status: response.status },
     );
   }
 }
 
-export async function uploadAsset(bucket: string, path: string, file: string, contentType: string) {
+export async function uploadAsset(
+  bucket: string,
+  path: string,
+  file: string,
+  contentType: string,
+  signal?: AbortSignal,
+) {
+  signal?.throwIfAborted();
   const size = (await stat(file)).size;
-  if (bucket !== "source-media" || size <= env.STORAGE_UPLOAD_CHUNK_BYTES) {
+  // These artifacts are read only by the worker's manifest-aware downloader.
+  // Browser previews and exports must remain ordinary, seekable media objects.
+  const internalArtifact = ["source-media", "source-proxies", "audio-artifacts"].includes(bucket);
+  if (!internalArtifact || size <= env.STORAGE_UPLOAD_CHUNK_BYTES) {
+    if (size > 6 * 1024 * 1024) {
+      await uploadResumable({
+        projectUrl: env.SUPABASE_URL,
+        key: env.SUPABASE_SERVICE_ROLE_KEY,
+        bucket,
+        path,
+        file,
+        size,
+        contentType,
+        signal,
+      });
+      return path;
+    }
     await uploadObject(
       bucket,
       path,
@@ -134,6 +186,7 @@ export async function uploadAsset(bucket: string, path: string, file: string, co
   const uploaded: string[] = [];
   try {
     for (const part of planned.parts) {
+      signal?.throwIfAborted();
       await uploadObject(
         bucket,
         part.path,
@@ -153,7 +206,10 @@ export async function uploadAsset(bucket: string, path: string, file: string, co
     );
   } catch (error) {
     if (uploaded.length) {
-      await supabase.storage.from(bucket).remove(uploaded).catch(() => undefined);
+      await supabase.storage
+        .from(bucket)
+        .remove(uploaded)
+        .catch(() => undefined);
     }
     throw error;
   }

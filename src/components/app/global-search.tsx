@@ -1,14 +1,5 @@
 import { useNavigate } from "@tanstack/react-router";
-import {
-  FileVideo2,
-  FolderKanban,
-  Gauge,
-  Plus,
-  Scissors,
-  Search,
-  Settings,
-  UploadCloud,
-} from "lucide-react";
+import { FileVideo2, Gauge, Plus, Scissors, Search, Settings, UploadCloud } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { appNavItems, commonActions, settingsNavItems } from "@/config/app-navigation";
 import { Button } from "@/components/ui/button";
@@ -26,7 +17,6 @@ import { userFacingError } from "@/lib/user-facing-error";
 import { searchWorkspace, type WorkspaceSearchResult } from "@/services/search/server";
 
 const resultIcons = {
-  project: FolderKanban,
   upload: FileVideo2,
   "clipping-job": Scissors,
 } as const;
@@ -105,12 +95,10 @@ export function GlobalSearch() {
     void navigate({ to: to as never });
   };
 
-  const projects = results.filter((result) => result.type === "project");
   const uploads = results.filter((result) => result.type === "upload");
   const jobs = results.filter((result) => result.type === "clipping-job");
   const hasAny =
-    projects.length +
-      uploads.length +
+    uploads.length +
       jobs.length +
       clientResults.actions.length +
       clientResults.pages.length +
@@ -135,7 +123,7 @@ export function GlobalSearch() {
         <CommandInput
           value={query}
           onValueChange={setQuery}
-          placeholder="Search projects, uploads, jobs, settings, and actions…"
+          placeholder="Search clips, uploads, jobs, settings, and actions…"
         />
         <CommandList className="max-h-[min(30rem,70vh)] py-2">
           {loading ? (
@@ -171,15 +159,12 @@ export function GlobalSearch() {
                     <span className="block truncate">{item.label}</span>
                     <span className="block truncate text-xs text-ink-mute">{item.description}</span>
                   </span>
-                  {!query.trim() && item.id === "new-project" ? (
+                  {!query.trim() && item.id === "new-clipping-job" ? (
                     <CommandShortcut>N</CommandShortcut>
                   ) : null}
                 </CommandItem>
               ))}
             </CommandGroup>
-          ) : null}
-          {projects.length ? (
-            <ResultGroup heading="Projects" items={projects} onSelect={go} />
           ) : null}
           {uploads.length ? <ResultGroup heading="Uploads" items={uploads} onSelect={go} /> : null}
           {jobs.length ? <ResultGroup heading="Clipping jobs" items={jobs} onSelect={go} /> : null}

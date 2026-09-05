@@ -34,7 +34,14 @@ async function requestTranscription(
     method: "POST",
     headers: { authorization: `Bearer ${key}` },
     body: form,
-    signal,
+    signal: signal
+      ? AbortSignal.any([signal, AbortSignal.timeout(120_000)])
+      : AbortSignal.timeout(120_000),
+  }).catch((error: unknown) => {
+    signal?.throwIfAborted();
+    throw new TaskFailure("provider_5xx", `${provider} transcription could not be reached.`, true, {
+      timeout: error instanceof Error && error.name === "TimeoutError",
+    });
   });
   if (!response.ok) {
     throw new TaskFailure(
@@ -70,7 +77,30 @@ export async function transcribeWithFallback(file: string, signal?: AbortSignal)
         signal,
       );
     } catch (error) {
-      if (!(error instanceof TaskFailure) || !error.retryable || !env.OPENAI_API_KEY) throw error;
+      signal?.throwIfAborted();
+      if (!(error instanceof TaskFailure) || !error.retryable) throw error;
+      // Some valid FLAC chunks consistently fail on Turbo but succeed on the full model.
+      // A rate limit applies to the account; switching models must not bypass its backoff.
+      if (error.code !== "rate_limit" && env.GROQ_TRANSCRIPTION_MODEL !== "whisper-large-v3") {
+        try {
+          return await requestTranscription(
+            "groq",
+            "https://api.groq.com/openai/v1/audio/transcriptions",
+            env.GROQ_API_KEY,
+            "whisper-large-v3",
+            file,
+            signal,
+          );
+        } catch (fallbackError) {
+          signal?.throwIfAborted();
+          if (
+            !(fallbackError instanceof TaskFailure) ||
+            !fallbackError.retryable ||
+            !env.OPENAI_API_KEY
+          )
+            throw fallbackError;
+        }
+      } else if (!env.OPENAI_API_KEY) throw error;
     }
   }
   return requestTranscription(

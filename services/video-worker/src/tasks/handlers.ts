@@ -149,12 +149,13 @@ async function validateSource(task: ClipTask): Promise<TaskResult> {
     if (usageError) throw usageError;
     return {
       output: { checksum, ...info },
-      jobStatus: "creating_proxy",
+      jobStatus: "extracting_audio",
       message: authorisedRecovery
         ? "Authorised replacement source matched and validated with FFprobe."
         : "Source validated with FFprobe.",
       children: [
-        { taskType: "create_proxy", input: {}, idempotencyKey: `${job.id}:proxy` },
+        // Clip editing uses rendered previews. A full-length source proxy has no
+        // consumer in this flow and can delay transcription by tens of minutes.
         { taskType: "extract_audio", input: {}, idempotencyKey: `${job.id}:audio` },
         { taskType: "detect_scenes", input: {}, idempotencyKey: `${job.id}:scenes` },
       ],
@@ -600,21 +601,21 @@ async function splitAudio(task: ClipTask): Promise<TaskResult> {
   });
 }
 
-async function transcribe(task: ClipTask): Promise<TaskResult> {
+async function transcribe(task: ClipTask, signal?: AbortSignal): Promise<TaskResult> {
   return withTaskDirectory(task, async (directory) => {
     const asset = await getAsset(uuid.parse(task.input_json.assetId));
     if (!asset.storage_bucket || !asset.storage_path)
       throw new TaskFailure("missing_audio", "Transcription chunk is missing.", false);
     const file = join(directory, "chunk.flac");
     await downloadAsset(asset.storage_bucket, asset.storage_path, file);
-    const result = await transcribeWithFallback(file);
+    const result = await transcribeWithFallback(file, signal);
     return {
       output: {
         ...result,
         sequence: Number(task.input_json.sequence ?? 0),
         offsetSeconds: Number(task.input_json.offsetSeconds ?? 0),
       },
-      message: `Chunk transcribed with ${result.provider}.`,
+      message: `Chunk transcribed with ${result.provider} (${result.model}).`,
     };
   });
 }
@@ -710,10 +711,7 @@ async function plan(task: ClipTask): Promise<TaskResult> {
     requestedClips: job.requested_clip_count,
     instruction: String(settings.instruction ?? ""),
   });
-  const candidates = selectDiverseCandidates(
-    planning.candidates,
-    job.requested_clip_count,
-  );
+  const candidates = selectDiverseCandidates(planning.candidates, job.requested_clip_count);
   const { data: planningRun, error: runError } = await supabase
     .from("planning_runs")
     .insert({
@@ -989,7 +987,7 @@ export async function handleTask(task: ClipTask, signal?: AbortSignal): Promise<
     case "split_audio":
       return splitAudio(task);
     case "transcribe_chunk":
-      return transcribe(task);
+      return transcribe(task, signal);
     case "merge_transcript":
       return mergeTranscript(task);
     case "generate_candidate_windows":

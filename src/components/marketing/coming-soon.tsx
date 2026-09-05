@@ -22,10 +22,9 @@ export function ComingSoonPage({
         <div className="mx-auto max-w-xl rounded-2xl border border-line bg-surface-panel p-6">
           <StatusDot variant="demo">In this build</StatusDot>
           <p className="mt-3 text-ink-soft">
-            This screen is scaffolded in the current preview build. The full interactive
-            experience — including the app dashboard, project editor, AI plan review and
-            timeline prototype — is under active development and will populate this
-            surface in subsequent updates.
+            This capability is not available yet. Vidrial is focused on importing authorised videos,
+            finding complete moments and exporting short clips. Future capabilities will be labelled
+            available only after their real workflow is verified.
           </p>
           {children}
         </div>

@@ -1,33 +1,40 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { pageMeta } from "@/config/seo";
-
+const sections = [
+  [
+    "Choose a video",
+    "Use a supported video file and check the size and duration limits shown by the upload flow. An original MP4 is a practical source for clipping.",
+  ],
+  [
+    "Keep the upload page open",
+    "Wait until the upload is confirmed before starting analysis. A file selection is not a completed upload; failures should be retried from the source step.",
+  ],
+  [
+    "Check your rights",
+    "Only process content you own or have permission to use. Uploaded files are private workspace media, not a public hosting service.",
+  ],
+  [
+    "YouTube acquisition is separate",
+    "Account connection lists authorised channel content through the YouTube Data API. It cannot fix a download blocked by YouTube's network checks. Uploading your original file avoids that acquisition step.",
+  ],
+];
 export const Route = createFileRoute("/docs/uploading-media")({
   head: () =>
     pageMeta({
-      title: "Uploading Video and Media — Vidrial Documentation",
-      description:
-        "Review the supported video, audio, image, subtitle and text formats and learn how media roles guide Vidrial's editor.",
+      title: "Upload a source video — Vidrial Documentation",
+      description: "Use the Upload tab in a new clipping job for your original media.",
       path: "/docs/uploading-media",
     }),
   component: () => (
-    <article className="prose max-w-none text-ink-soft">
-      <h1 className="font-display text-3xl text-ink">Uploading media</h1>
-      <p className="mt-2">
-        Vidrial accepts video, audio, images, subtitle files and text documents.
-      </p>
-      <h2 className="mt-6 font-display text-xl text-ink">Formats</h2>
-      <ul className="mt-2 list-disc pl-5">
-        <li>Video — .mp4, .mov, .mkv, .webm</li>
-        <li>Audio — .wav, .mp3, .m4a, .flac</li>
-        <li>Images — .jpg, .png, .webp</li>
-        <li>Subtitles — .srt, .vtt</li>
-        <li>Text — .md, .txt</li>
-      </ul>
-      <h2 className="mt-6 font-display text-xl text-ink">Roles</h2>
-      <p>
-        Assign roles (A-roll, B-roll, music, voiceover, image, reference, exclude) so the AI knows
-        what to reach for.
-      </p>
+    <article className="max-w-none text-ink-soft">
+      <h1 className="font-display text-3xl text-ink">Upload a source video</h1>
+      <p className="mt-4">Use the Upload tab in a new clipping job for your original media.</p>
+      {sections.map(([heading, body]) => (
+        <section key={heading} className="mt-8">
+          <h2 className="font-display text-xl text-ink">{heading}</h2>
+          <p className="mt-3 leading-relaxed">{body}</p>
+        </section>
+      ))}
     </article>
   ),
 });

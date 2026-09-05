@@ -1,34 +1,28 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { UseCaseTemplate } from "@/components/marketing/use-case-template";
 import { pageMeta } from "@/config/seo";
-
 export const Route = createFileRoute("/use-cases/short-form")({
   head: () =>
     pageMeta({
-      title: "Long-Form to Short-Form Video Repurposing — Vidrial",
-      description:
-        "Find distinct hooks in long-form video and prepare editable vertical drafts with captions for Shorts, Reels and TikTok.",
+      title: "Short-form clips — Vidrial",
+      description: "Create captioned clips for vertical feeds from authorised source video.",
       path: "/use-cases/short-form",
     }),
   component: () => (
     <UseCaseTemplate
-      eyebrow="Short-form"
-      title="Hook, hold, cut."
-      lead="Find distinct hooks first, then use Beta aspect-ratio and caption tools to prepare vertical drafts."
-      scenario={
-        <>
-          You have one long interview. You want three shortform pieces for Reels, Shorts and TikTok,
-          each with a different opening.
-        </>
-      }
+      eyebrow="Short-form clips"
+      title="One long video. More ways to share it."
+      lead="Create captioned clips for vertical feeds from authorised source video."
+      scenario="Your audience watches on a small screen. You need focused excerpts, not a shortened copy of the whole recording."
       prompts={[
-        "Rank ten hooks by strength. Draft three 30-45s vertical clips with different openings.",
-        "Add bold captions safe for 9:16 with a two-line maximum.",
+        "Find a strong opening and preserve enough context to understand it.",
+        "Keep the clip understandable without watching the full source.",
+        "Avoid excerpts that change the speaker's intended meaning.",
       ]}
       outcomes={[
-        "Three 9:16 drafts (Beta aspect-ratio adaptation)",
-        "Hook-first structure",
-        "Caption presets tuned for mobile (Beta)",
+        "Short clip candidates with selection explanations",
+        "Captioned previews to review",
+        "Exports within your plan's quality limits",
       ]}
     />
   ),

@@ -77,6 +77,12 @@ If the endpoint reports `operator_proxy_blocked`, rotate or repair the operator-
 
 ## Internal Python acquisition API
 
+### September 2026 clipping reliability changes
+
+New clipping jobs no longer enqueue a full-source preview proxy: clip review consumes rendered clip previews, not that large auxiliary object. The old task handler remains for compatibility. Groq retryable transcription failures get one `whisper-large-v3` fallback after the configured model; account rate limits retain queue backoff. Model and provider are included in the task-completion event.
+
+Ordinary private objects over 6 MiB use TUS with fixed 6 MiB chunks, bounded retries, cancellation and a ten-minute upload deadline. Both authorization and API-key headers are required. Worker-only source/audio/proxy artifacts larger than `STORAGE_UPLOAD_CHUNK_BYTES` use immutable chunk manifests; browser exports/previews remain ordinary media. This does not bypass the Supabase project's per-object limit for final exports. The opt-in `scripts/verify-production-storage.ts --write-storage` check verifies real upload/download byte equality and cleans up its exact disposable objects.
+
 `services/video-worker/python-acquisition` is packaged into the existing Render image and bound to `127.0.0.1:8090`. It is not a public downloader and is not deployed on Vercel. Vercel Functions are an unsuitable media plane because request/response bodies are limited and invocation lifetime is bounded; a separate free Render service would introduce another cold start and consume the same monthly free-instance pool.
 
 The Node worker submits an authenticated `POST /v1/downloads` and receives HTTP 202, then polls the status resource while maintaining the durable Supabase task heartbeat. Completed responses contain local artifact metadata, never media bytes. Node revalidates path containment, exact byte size, extension, malware/media properties, checksum and immutable Storage path before uploading directly to the private Supabase `source-media` bucket.

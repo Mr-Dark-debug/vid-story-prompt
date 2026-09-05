@@ -12,7 +12,7 @@ secondaryKeywords:
 searchIntent: "informational-commercial"
 author: "Vidrial Editorial Team"
 publishedAt: "2026-07-31"
-updatedAt: "2026-07-31"
+updatedAt: "2026-09-05"
 reviewedAt: "2026-07-31"
 readingTime: 10
 aiSummary:
@@ -190,7 +190,7 @@ Review patterns across several clips, not one outlier. Add notes about opening s
 
 ## Run this workflow in Vidrial
 
-Vidrial can handle the available stages that benefit from an editable AI first pass: authorised source ingestion, moment discovery, prompt search, complete-thought and standalone-clarity signals, transcript editing, caption correction, timeline rearrangement, MP4 export, and permission-dependent publishing or scheduling. The plans remain reviewable before they change the edit.
+Vidrial can handle the available stages that benefit from an editable AI first pass: authorised source ingestion, moment discovery, prompt search, complete-thought and standalone-clarity signals, caption correction, clip-specific settings and MP4 export within plan limits. Review generated clips before exporting; publishing connectors require separate permissions and availability checks.
 
 Do not plan the entire process around capabilities that are not generally Available. Animated caption presets, brand colours, long-silence removal, and team collaboration are Beta. Automated subject tracking, multi-speaker layouts, filler-word removal, B-roll, and SRT/VTT export are Coming soon. Use a manual step or another verified tool when your delivery requires them now.
 

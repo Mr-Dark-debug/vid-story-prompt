@@ -12,7 +12,7 @@ secondaryKeywords:
 searchIntent: "informational"
 author: "Vidrial Editorial Team"
 publishedAt: "2026-07-31"
-updatedAt: "2026-07-31"
+updatedAt: "2026-09-05"
 reviewedAt: "2026-07-31"
 readingTime: 10
 aiSummary:
@@ -190,14 +190,14 @@ Write the title and description after approving the story, not before. The packa
 
 When a clip feels weak, beginners often add effects. Diagnose the earlier pass instead.
 
-| Symptom | Return to | Likely fix |
-| --- | --- | --- |
-| “I don't know what this is about” | Story | Add the missing setup or choose another candidate |
-| The clip drags | Boundaries | Remove repetition; keep useful pauses |
-| A cut feels harsh | Boundaries or comprehension | Restore a breath, adjust the cut, or smooth the audio transition |
-| Captions feel tiring | Comprehension | Shorten phrases, correct timing, reduce decorative emphasis |
-| The crop feels frantic | Frame | Use fewer moves or a wider stable composition |
-| The upload looks or sounds worse | Delivery | Recheck the export preset and the platform's current guidance |
+| Symptom                           | Return to                   | Likely fix                                                       |
+| --------------------------------- | --------------------------- | ---------------------------------------------------------------- |
+| “I don't know what this is about” | Story                       | Add the missing setup or choose another candidate                |
+| The clip drags                    | Boundaries                  | Remove repetition; keep useful pauses                            |
+| A cut feels harsh                 | Boundaries or comprehension | Restore a breath, adjust the cut, or smooth the audio transition |
+| Captions feel tiring              | Comprehension               | Shorten phrases, correct timing, reduce decorative emphasis      |
+| The crop feels frantic            | Frame                       | Use fewer moves or a wider stable composition                    |
+| The upload looks or sounds worse  | Delivery                    | Recheck the export preset and the platform's current guidance    |
 
 This five-pass order is the main skill. It works in a simple browser editor or a professional timeline because it follows editorial dependencies: there is no point perfecting caption animation for a clip you later reject.
 
@@ -207,4 +207,4 @@ Vidrial's Available workflow can ingest authorised media, discover candidate mom
 
 Some common tutorial features are not generally Available in Vidrial today. Animated caption presets and long-silence removal are Beta. Filler-word removal, automated subject tracking, multi-speaker layouts, B-roll, translation, SRT/VTT export, and NLE XML export are Coming soon. Use manual steps or another verified tool if your current project depends on them.
 
-Once you can complete one clip with the five passes, move to the [complete video repurposing workflow](/blog/long-form-to-short-form-video-workflow) to plan a batch, delivery versions, approval states, and learning loop. Or take one authorised source into [Vidrial's AI editor documentation](/docs/ai-editor), write the one-sentence brief, and finish a single clip before increasing the batch size.
+Once you can complete one clip with the five passes, move to the [complete video repurposing workflow](/blog/long-form-to-short-form-video-workflow) to plan a batch, delivery versions, approval states, and learning loop. Or take one authorised source into [Vidrial's clipping guide](/docs/getting-started), write the one-sentence brief, and finish a single clip before increasing the batch size.

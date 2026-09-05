@@ -18,7 +18,7 @@ function ctaForCategory(category: string) {
     return {
       to: "/use-cases/podcasts" as const,
       title: "Keep the conversation. Cut the waiting.",
-      body: "See how Vidrial turns authorised podcast footage into reviewable clip suggestions and an editable timeline.",
+      body: "See how Vidrial turns authorised podcast footage into complete short clips with captions and reviewable selection explanations.",
       label: "Explore podcast workflows",
     };
   }
@@ -33,8 +33,8 @@ function ctaForCategory(category: string) {
   if (category === "Captions" || category === "Editing workflow") {
     return {
       to: "/features" as const,
-      title: "A first cut should still be yours to change.",
-      body: "Review Vidrial's available, beta and planned editing capabilities before you choose a workflow.",
+      title: "Keep the context. Share the moment.",
+      body: "Review Vidrial's clipping, caption and export workflow before choosing your source.",
       label: "See Vidrial features",
     };
   }
@@ -68,12 +68,21 @@ export function ArticlePage({
     <article>
       <header className="border-b border-line bg-surface-panel">
         <div className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8 sm:py-16">
-          <nav aria-label="Breadcrumb" className="flex flex-wrap items-center gap-2 text-xs text-ink-mute">
-            <Link to="/" className="rounded-sm hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember">
+          <nav
+            aria-label="Breadcrumb"
+            className="flex flex-wrap items-center gap-2 text-xs text-ink-mute"
+          >
+            <Link
+              to="/"
+              className="rounded-sm hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+            >
               Home
             </Link>
             <span aria-hidden>/</span>
-            <Link to="/blog" className="rounded-sm hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember">
+            <Link
+              to="/blog"
+              className="rounded-sm hover:text-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
+            >
               Blog
             </Link>
             <span aria-hidden>/</span>
@@ -94,7 +103,9 @@ export function ArticlePage({
               <h1 className="mt-5 max-w-4xl font-display text-[2.65rem] font-semibold leading-[1.01] tracking-[-0.052em] text-ink sm:text-[4.25rem]">
                 {article.title}
               </h1>
-              <p className="mt-6 max-w-3xl text-lg leading-8 text-ink-soft">{article.description}</p>
+              <p className="mt-6 max-w-3xl text-lg leading-8 text-ink-soft">
+                {article.description}
+              </p>
             </div>
             <dl className="grid grid-cols-2 gap-x-5 gap-y-4 border-t border-line pt-5 text-xs lg:grid-cols-1">
               <div>
@@ -135,7 +146,9 @@ export function ArticlePage({
 
         <div className="min-w-0">
           <details className="mb-8 border-y border-line py-4 lg:hidden">
-            <summary className="cursor-pointer text-sm font-semibold text-ink">Table of contents</summary>
+            <summary className="cursor-pointer text-sm font-semibold text-ink">
+              Table of contents
+            </summary>
             <div className="mt-4">
               <ArticleToc headings={article.headings} />
             </div>
@@ -145,24 +158,38 @@ export function ArticlePage({
           <ArticleBody body={article.body} headings={article.headings} />
 
           {article.sources.length > 0 && (
-            <section className="mt-14 border-t border-line pt-8" aria-labelledby="article-sources-title">
-              <h2 id="article-sources-title" className="font-display text-2xl font-semibold tracking-[-0.03em] text-ink">
+            <section
+              className="mt-14 border-t border-line pt-8"
+              aria-labelledby="article-sources-title"
+            >
+              <h2
+                id="article-sources-title"
+                className="font-display text-2xl font-semibold tracking-[-0.03em] text-ink"
+              >
                 Sources and further reading
               </h2>
               <ol className="mt-5 space-y-3">
                 {article.sources.map((source, index) => (
-                  <li key={source.url} className="grid grid-cols-[24px_1fr] gap-3 text-sm leading-6">
-                    <span className="font-mono text-[10px] text-ink-mute">{String(index + 1).padStart(2, "0")}</span>
+                  <li
+                    key={source.url}
+                    className="grid grid-cols-[24px_1fr] gap-3 text-sm leading-6"
+                  >
+                    <span className="font-mono text-[10px] text-ink-mute">
+                      {String(index + 1).padStart(2, "0")}
+                    </span>
                     <div>
                       <a
                         href={source.url}
                         rel="noreferrer noopener"
                         className="inline-flex items-start gap-1 font-semibold text-ink underline decoration-line-strong underline-offset-4 hover:decoration-ink focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ember"
                       >
-                        {source.title} <ExternalLink className="mt-1 h-3 w-3 shrink-0" aria-hidden />
+                        {source.title}{" "}
+                        <ExternalLink className="mt-1 h-3 w-3 shrink-0" aria-hidden />
                       </a>
                       {source.checkedAt && (
-                        <span className="ml-2 text-xs text-ink-mute">Checked {formatUtcDate(source.checkedAt)}</span>
+                        <span className="ml-2 text-xs text-ink-mute">
+                          Checked {formatUtcDate(source.checkedAt)}
+                        </span>
                       )}
                     </div>
                   </li>
@@ -172,8 +199,14 @@ export function ArticlePage({
           )}
 
           {article.faqs.length > 0 && (
-            <section className="mt-14 border-t border-line pt-8" aria-labelledby="article-faq-title">
-              <h2 id="article-faq-title" className="font-display text-2xl font-semibold tracking-[-0.03em] text-ink">
+            <section
+              className="mt-14 border-t border-line pt-8"
+              aria-labelledby="article-faq-title"
+            >
+              <h2
+                id="article-faq-title"
+                className="font-display text-2xl font-semibold tracking-[-0.03em] text-ink"
+              >
                 Questions creators ask
               </h2>
               <div className="mt-5 divide-y divide-line border-y border-line">
@@ -189,15 +222,25 @@ export function ArticlePage({
             </section>
           )}
 
-          <section className="mt-14 bg-brand-charcoal p-6 text-white sm:p-9" aria-labelledby="article-cta-title">
-            <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-coral">Put the guide to work</div>
-            <h2 id="article-cta-title" className="mt-4 max-w-xl font-display text-3xl font-semibold leading-tight tracking-[-0.04em] text-white">
+          <section
+            className="mt-14 bg-brand-charcoal p-6 text-white sm:p-9"
+            aria-labelledby="article-cta-title"
+          >
+            <div className="font-mono text-[10px] uppercase tracking-[0.16em] text-coral">
+              Put the guide to work
+            </div>
+            <h2
+              id="article-cta-title"
+              className="mt-4 max-w-xl font-display text-3xl font-semibold leading-tight tracking-[-0.04em] text-white"
+            >
               {cta.title}
             </h2>
             <p className="mt-3 max-w-xl text-sm leading-6 text-white/66">{cta.body}</p>
             <Link
               to={cta.to}
-              onClick={() => trackBlogEvent("blog_cta_click", { slug: article.slug, category: article.category })}
+              onClick={() =>
+                trackBlogEvent("blog_cta_click", { slug: article.slug, category: article.category })
+              }
               className="mt-7 inline-flex min-h-11 items-center gap-2 rounded-full bg-coral px-5 text-sm font-semibold text-brand-charcoal transition-transform hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white"
             >
               {cta.label} <ArrowRight className="h-4 w-4" aria-hidden />
@@ -208,7 +251,10 @@ export function ArticlePage({
 
           {relatedArticles.length > 0 && (
             <section className="mt-14" aria-labelledby="related-articles-title">
-              <h2 id="related-articles-title" className="font-display text-2xl font-semibold tracking-[-0.03em] text-ink">
+              <h2
+                id="related-articles-title"
+                className="font-display text-2xl font-semibold tracking-[-0.03em] text-ink"
+              >
                 Keep working through the topic
               </h2>
               <div className="mt-5 divide-y divide-line border-y border-line">

@@ -29,7 +29,7 @@ export function AuthShell({
         <Logo className="relative" tone="light" />
         <div className="relative my-auto max-w-md py-16">
           <h2 className="text-balance font-display text-4xl leading-[1.08] tracking-[-0.025em] text-white">
-            From source footage to an explainable first cut.
+            From one long video to clips worth sharing.
           </h2>
           <p className="mt-5 max-w-sm text-sm leading-6 text-white/65">
             Build editable video work with transparent AI plans, controlled media access, and a
@@ -66,7 +66,6 @@ export function AuthShell({
           {footer ? (
             <div className="mt-7 border-t border-line pt-5 text-sm text-ink-soft">{footer}</div>
           ) : null}
-
         </div>
       </section>
     </main>

@@ -6,33 +6,18 @@ import { pageMeta } from "@/config/seo";
 
 const entries = [
   {
-    date: "2026-07-01",
-    title: "AI edit-plan review",
-    body: "Every AI action now surfaces as a reviewable plan with per-operation accept/reject and duration estimates.",
-  },
-  {
-    date: "2026-06-14",
-    title: "Semantic media search",
-    body: 'Ask for footage in plain language — "quiet room tone", "exterior at sunset" — and the library ranks matches.',
-  },
-  {
-    date: "2026-05-30",
-    title: "Timeline prototype",
-    body: "Multi-track timeline with trim, split, ripple-delete, snap and 500-step undo.",
-  },
-  {
-    date: "2026-05-10",
-    title: "Private beta opens",
-    body: "First outside creators start using Vidrial. Feedback: keep the AI's work reviewable.",
+    date: "2026-09-05",
+    title: "A clipping-only product",
+    body: "Vidrial now focuses on authorised video imports, short-clip selection, captions and exports. Standalone editor pages and project templates have been retired; saved media has not been deleted.",
   },
 ];
 
 export const Route = createFileRoute("/changelog")({
   head: () =>
     pageMeta({
-      title: "Vidrial Changelog — AI Video Editor Updates",
+      title: "Vidrial Changelog — Video Clipping Updates",
       description:
-        "Track meaningful Vidrial releases across AI edit-plan review, media search, timeline editing and creator workflows.",
+        "Track changes to Vidrial's clipping workflow, source acquisition, clip review and exports.",
       path: "/changelog",
     }),
   component: ChangelogPage,

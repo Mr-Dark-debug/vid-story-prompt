@@ -10,8 +10,8 @@ export function MarketingFooter() {
         <div>
           <Logo tone="light" showTagline />
           <p className="mt-5 max-w-xs text-sm leading-relaxed text-white/65">
-            {brand.name} is a browser-first, project-aware AI video editor. Bring your footage,
-            describe the story.
+            {brand.name} turns long videos into short clips. Find complete moments, add captions and
+            export for your audience.
           </p>
         </div>
         {footerColumns.map((col) => (

@@ -19,8 +19,6 @@ export const appNavGroups: AppNavGroup[] = [
         to: "/app/youtube-clipper",
         description: "Create and manage clipping jobs",
       },
-      { label: "Projects", to: "/app/projects", description: "Browse your video projects" },
-      { label: "Templates", to: "/app/templates", description: "Reusable editing templates" },
       { label: "Uploads", to: "/app/uploads", description: "Manage authorised source media" },
     ],
   },
@@ -48,7 +46,7 @@ export const settingsNavItems = [
   {
     label: "Preferences",
     to: "/app/settings/preferences",
-    description: "Editing and workspace defaults",
+    description: "Clipping and workspace preferences",
   },
   {
     label: "Notifications",
@@ -68,13 +66,6 @@ export const settingsNavItems = [
 ] as const;
 
 export const commonActions = [
-  {
-    id: "new-project",
-    label: "Create a new project",
-    description: "Start an editable video project",
-    to: "/app/projects/new",
-    keywords: "create add project",
-  },
   {
     id: "new-clipping-job",
     label: "Start a clipping job",
@@ -131,7 +122,7 @@ export function getAppBreadcrumbs(pathname: string): BreadcrumbItem[] {
   if (pathname.startsWith("/app/youtube-clipper/")) {
     return [
       { label: "YouTube Clipper", to: "/app/youtube-clipper" },
-      { label: exact ?? (pathname.includes("/clips/") ? "Clip editor" : "Clipping job") },
+      { label: exact ?? (pathname.includes("/clips/") ? "Clip settings" : "Clipping job") },
     ];
   }
   return [{ label: exact ?? "Workspace" }];

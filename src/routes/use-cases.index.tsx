@@ -28,20 +28,20 @@ const cases = [
     to: "/use-cases/courses",
     i: GraduationCap,
     t: "Online lessons",
-    d: "Structured lessons with captions and chapters.",
+    d: "Share a complete learning moment from a longer lesson.",
   },
   {
     to: "/use-cases/product-demos",
     i: MonitorPlay,
     t: "Product demos",
-    d: "Screen and camera into a clear, tight demo.",
+    d: "Extract focused feature highlights from a recorded demo.",
   },
 ];
 
 export const Route = createFileRoute("/use-cases/")({
   head: () =>
     pageMeta({
-      title: "AI Video Editing Use Cases — Vidrial",
+      title: "Video Clipping Use Cases — Vidrial",
       description:
         "Explore Vidrial workflows for YouTube videos, podcast clipping, short-form repurposing, online courses and product demos.",
       path: "/use-cases",
@@ -51,7 +51,7 @@ export const Route = createFileRoute("/use-cases/")({
       <MarketingPageHero
         eyebrow="Use cases"
         title="Built for the way people make video."
-        lead="Same product, five distinct workflows."
+        lead="One clipping workflow for five kinds of source video."
       />
       <Section>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

@@ -46,20 +46,12 @@ export function CTAButton({
   );
 }
 
-export function ProseSection({
-  title,
-  children,
-}: {
-  title?: ReactNode;
-  children: ReactNode;
-}) {
+export function ProseSection({ title, children }: { title?: ReactNode; children: ReactNode }) {
   return (
     <section className="py-14">
       <Container>
         <div className="mx-auto max-w-3xl">
-          {title && (
-            <h2 className="mb-6 font-display text-2xl text-ink sm:text-3xl">{title}</h2>
-          )}
+          {title && <h2 className="mb-6 font-display text-2xl text-ink sm:text-3xl">{title}</h2>}
           <div className="space-y-4 text-[15.5px] leading-relaxed text-ink-soft [&_h3]:mt-8 [&_h3]:font-display [&_h3]:text-lg [&_h3]:text-ink [&_ul]:list-disc [&_ul]:pl-5 [&_a]:text-ember-ink [&_a]:underline">
             {children}
           </div>
@@ -72,7 +64,7 @@ export function ProseSection({
 export function FinalCTA({
   headline,
   body,
-  actionLabel = "Create your first project",
+  actionLabel = "Create your first clips",
   to = "/signup",
 }: {
   headline: ReactNode;
@@ -86,7 +78,7 @@ export function FinalCTA({
         <div className="mx-auto max-w-2xl text-center">
           <h2 className="font-display text-3xl text-ink sm:text-4xl">{headline}</h2>
           {body && <p className="mt-3 text-ink-soft">{body}</p>}
-          <div className="mt-6 flex justify-center gap-3">
+          <div className="mt-6 flex flex-wrap justify-center gap-3">
             <CTAButton to={to}>{actionLabel}</CTAButton>
             <CTAButton to="/how-it-works" variant="secondary">
               See how it works

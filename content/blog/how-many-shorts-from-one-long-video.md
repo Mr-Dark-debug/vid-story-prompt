@@ -12,7 +12,7 @@ secondaryKeywords:
 searchIntent: "informational-commercial"
 author: "Vidrial Editorial Team"
 publishedAt: "2026-07-31"
-updatedAt: "2026-07-31"
+updatedAt: "2026-09-05"
 reviewedAt: "2026-07-31"
 readingTime: 9
 aiSummary:
@@ -62,11 +62,11 @@ That distinction matters because a clipping tool may generate 20 candidates whil
 
 A long video moves through three counts:
 
-| Count | What it includes | What it is useful for |
-| --- | --- | --- |
-| Candidates | Every suggested or manually marked range | Estimating review workload |
-| Approved edits | Moments with a clear idea and repairable boundaries | Estimating production workload |
-| Publishable clips | Finished, checked versions assigned to a destination | Planning the content calendar |
+| Count             | What it includes                                     | What it is useful for          |
+| ----------------- | ---------------------------------------------------- | ------------------------------ |
+| Candidates        | Every suggested or manually marked range             | Estimating review workload     |
+| Approved edits    | Moments with a clear idea and repairable boundaries  | Estimating production workload |
+| Publishable clips | Finished, checked versions assigned to a destination | Planning the content calendar  |
 
 Do not quote the candidate count as the answer to "how many shorts can we make?" A candidate may start after the subject was named, repeat another result, rely on a slide that disappears in a vertical crop, or contain a claim that changes meaning outside the full conversation.
 
@@ -137,11 +137,11 @@ This sample is not a statistical forecast. It is an editorial diagnostic. It sho
 
 Use a simple ledger:
 
-| Timecode | Promise | Context repair | Visual plan | Decision |
-| --- | --- | --- | --- | --- |
-| 08:10 | Explain the revision-limit rule | Add the question | Stable speaker crop | Approve |
-| 14:42 | Describe the second mistake | Missing first mistake and example | Slide is off-screen | Reject |
-| 37:05 | Show the before-and-after result | None | Keep product screen visible | Approve |
+| Timecode | Promise                          | Context repair                    | Visual plan                 | Decision |
+| -------- | -------------------------------- | --------------------------------- | --------------------------- | -------- |
+| 08:10    | Explain the revision-limit rule  | Add the question                  | Stable speaker crop         | Approve  |
+| 14:42    | Describe the second mistake      | Missing first mistake and example | Slide is off-screen         | Reject   |
+| 37:05    | Show the before-and-after result | None                              | Keep product screen visible | Approve  |
 
 Your ledger should preserve why a moment failed. "Bad clip" teaches nothing. "Needs an unnamed earlier example" or "duplicates the pricing clip" gives you a better next prompt and a better recording plan.
 
@@ -191,4 +191,4 @@ When you receive too many, cluster them by promise before editing. Remove overla
 
 The practical [AI long-video-to-shorts guide](/blog/how-to-turn-long-videos-into-shorts-with-ai) explains how to repair candidates after discovery. If you need to spread the approved set across several days and formats, use the [one-video weekly repurposing plan](/blog/repurpose-one-video-into-a-week-of-content).
 
-Vidrial's [short-form use case](/use-cases/short-form) is built around authorised sources and reviewable suggestions. Moment discovery, prompt search, complete-thought and standalone-clarity signals, transcript editing, caption correction, and timeline rearrangement are Available. Treat each suggestion as a candidate and apply the yield gates before export. The useful answer is not the maximum number the source can be cut into. It is the number of clips that remain clear, different, accurate, and finishable.
+Vidrial's [short-form use case](/use-cases/short-form) is built around authorised sources and reviewable suggestions. Moment discovery, prompt search, complete-thought and standalone-clarity signals, caption correction and clip-boundary controls are part of the clipping workflow. Treat each suggestion as a candidate and apply the yield gates before export. The useful answer is not the maximum number the source can be cut into. It is the number of clips that remain clear, different, accurate, and finishable.

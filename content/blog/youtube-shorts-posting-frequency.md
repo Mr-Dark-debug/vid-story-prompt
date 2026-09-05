@@ -13,7 +13,7 @@ secondaryKeywords:
 searchIntent: "informational"
 author: "Vidrial Editorial Team"
 publishedAt: "2026-07-31"
-updatedAt: "2026-07-31"
+updatedAt: "2026-09-05"
 reviewedAt: "2026-07-31"
 readingTime: 8
 aiSummary:
@@ -74,13 +74,13 @@ YouTube's current guidance is unusually clear on the point most frequency articl
 
 Use this starting table when you do not yet have enough comparable Shorts to make a channel-specific decision.
 
-| Production situation | Starting cadence | Why |
-| --- | ---: | --- |
-| Solo creator learning the format | 2–3 per week | Enough repetitions to learn without making every day a deadline |
-| Long-form creator repurposing one weekly episode | 2–4 per week | Lets each clip cover a different question instead of slicing the episode mechanically |
-| Small team with an approved backlog | 3–5 per week | Supports regular testing while leaving room for review and community work |
-| News, sports or event-led channel | Set by the event | Timeliness matters more than an arbitrary weekly quota |
-| High-volume team with stable quality checks | Daily or more | Reasonable only when more output does not weaken topics or approvals |
+| Production situation                             | Starting cadence | Why                                                                                   |
+| ------------------------------------------------ | ---------------: | ------------------------------------------------------------------------------------- |
+| Solo creator learning the format                 |     2–3 per week | Enough repetitions to learn without making every day a deadline                       |
+| Long-form creator repurposing one weekly episode |     2–4 per week | Lets each clip cover a different question instead of slicing the episode mechanically |
+| Small team with an approved backlog              |     3–5 per week | Supports regular testing while leaving room for review and community work             |
+| News, sports or event-led channel                | Set by the event | Timeliness matters more than an arbitrary weekly quota                                |
+| High-volume team with stable quality checks      |    Daily or more | Reasonable only when more output does not weaken topics or approvals                  |
 
 These are editorial baselines, not promises about reach. [YouTube says](https://support.google.com/youtube/answer/141805?hl=en) its analyses have not found growth in views to correlate with the time between uploads. The same page says creators should take breaks when needed and prioritise quality over quantity.
 
@@ -100,7 +100,7 @@ Write 12 candidate promises a viewer could understand without context. For each 
 
 If six ideas pass, you have two weeks at three per week. You do not have a daily month. This simple inventory prevents a common failure: choosing “daily” and then turning near-duplicates, incomplete extracts or weak outtakes into obligations.
 
-For repurposed work, count complete moments rather than minutes of source footage. One interview may contain ten clean answers; another may need all of its context and yield one. Vidrial's [short-form workflow](/use-cases/short-form) can help search an authorised recording, review moment suggestions, correct transcripts and captions, and rearrange an editable timeline. It cannot decide that a thin source owes you a fixed quota.
+For repurposed work, count complete moments rather than minutes of source footage. One interview may contain ten clean answers; another may need all of its context and yield one. Vidrial's [short-form workflow](/use-cases/short-form) can help search an authorised recording, review moment suggestions, correct captions, and review clip-specific boundaries. It cannot decide that a thin source owes you a fixed quota.
 
 ## Run a four-week cadence test
 
@@ -176,12 +176,12 @@ If long-form is the main product, its production calendar comes first. Do not sp
 
 A workable weekly pattern might be:
 
-| Day | Publish | Role |
-| --- | --- | --- |
-| Tuesday | Short 1 | Answers a question the long video explores in depth |
-| Thursday | Long-form video | Delivers the full argument, tutorial or story |
-| Saturday | Short 2 | Gives one standalone example and points to the related video |
-| Monday | Short 3 | Responds to a comment or unresolved question |
+| Day      | Publish         | Role                                                         |
+| -------- | --------------- | ------------------------------------------------------------ |
+| Tuesday  | Short 1         | Answers a question the long video explores in depth          |
+| Thursday | Long-form video | Delivers the full argument, tutorial or story                |
+| Saturday | Short 2         | Gives one standalone example and points to the related video |
+| Monday   | Short 3         | Responds to a comment or unresolved question                 |
 
 The Shorts still need complete value. A clip that withholds the answer and says only “watch the full video” may lose the viewer before the bridge appears. Use [Shorts and long-form together](/blog/youtube-shorts-vs-long-form-video) by aligning the audience problem, then add YouTube's Related Video link when the longer piece is a genuinely useful next step.
 

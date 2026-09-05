@@ -1,144 +1,44 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { MarketingLayout } from "@/components/marketing/layout";
-import { Container, Section, SectionHeader } from "@/components/primitives/section";
-import { MarketingPageHero, FinalCTA } from "@/components/marketing/page-shell";
-import { StatusDot } from "@/components/primitives/status-dot";
+import { ClippingInfoPage } from "@/components/marketing/clipping-info-page";
 import { pageMeta } from "@/config/seo";
-
-const features = [
+const sections = [
   {
-    t: "Project media intelligence",
-    need: "You start with a folder, not a story.",
-    does: "We transcribe, tag, group and search every clip so the AI has real context.",
-    eg: 'Search "quiet room tone" and find only the shots you need.',
-    avail: "Available",
+    title: "Bring your source",
+    body: "Upload an original video or submit an eligible YouTube URL. Connecting a YouTube account is optional and only enables browsing authorised channel content; it does not unlock downloads.",
   },
   {
-    t: "AI edit planning",
-    need: "One prompt is never really one edit.",
-    does: "Turn a sentence into a reviewable list of operations with a duration estimate.",
-    eg: "Accept a pacing change and reject an unwanted trim in one click.",
-    avail: "Beta",
+    title: "Find complete moments",
+    body: "Transcription and scene analysis help identify self-contained clips. Selection explanations let you judge context, not just a score.",
   },
   {
-    t: "Transcript editing",
-    need: "Cutting by waveform is a nightmare.",
-    does: "Edit the words. The timeline follows. Or exclude words without touching text.",
-    eg: 'Highlight "um" markers and remove 143 in one action.',
-    avail: "Available",
+    title: "Choose the presentation",
+    body: "Set clip length, aspect ratio and captions for Shorts, Reels and TikTok. Review clip-specific settings before exporting.",
   },
   {
-    t: "Timeline editing",
-    need: "You still want the final call.",
-    does: "Multi-track timeline with trim, split, ripple-delete, snap, zoom and undo.",
-    eg: "Drag a clip 6 frames, ripple-close the gap, done.",
-    avail: "Available",
+    title: "Follow real progress",
+    body: "See acquisition, analysis and rendering stages. Failures show actionable explanations; a queued job is not presented as a finished download.",
   },
   {
-    t: "Caption creation",
-    need: "Every platform wants captions.",
-    does: "Correct caption text and timing, then render burned-in captions with beta animated presets.",
-    eg: "Clean Editorial preset for YouTube, Bold Hook for Reels.",
-    avail: "Beta",
+    title: "Download your clips",
+    body: "Preview results and request exports within your plan's resolution and watermark limits. Downloads use time-limited links to private storage.",
   },
   {
-    t: "Audio cleanup",
-    need: "Room tone kills good takes.",
-    does: "Dialogue enhancement, noise reduction, gain, ducking and loudness warnings.",
-    eg: "Duck music -8 dB whenever someone speaks.",
-    avail: "Beta",
-  },
-  {
-    t: "B-roll search & placement",
-    need: '"Wait, where\'s that shot?"',
-    does: "Semantic search over your uploads and one-click placement onto the timeline.",
-    eg: '"exterior sunset with no people" → 3 matches, ranked.',
-    avail: "Coming soon",
-  },
-  {
-    t: "Aspect-ratio adaptation",
-    need: "One shoot, four aspect ratios.",
-    does: "Reframe with safe-area guides for 16:9, 9:16, 1:1 and 4:5.",
-    eg: "Vertical version keeps the founder centred.",
-    avail: "Beta",
-  },
-  {
-    t: "Version history",
-    need: "Undo isn't enough.",
-    does: "Every meaningful AI action becomes a named, restorable version.",
-    eg: "Compare v3 and v5 side-by-side.",
-    avail: "Available",
-  },
-  {
-    t: "Export management",
-    need: "Renders shouldn't be a black box.",
-    does: "Queued → preparing → rendering → uploading, with retry and share links.",
-    eg: "Cancel a rogue 4K render before it finishes.",
-    avail: "Beta",
+    title: "Keep your workflow focused",
+    body: "Vidrial is a clipping tool, not a general-purpose online editor. Take exported clips into your preferred editor when you need a longer production.",
   },
 ];
-
 export const Route = createFileRoute("/features")({
   head: () =>
     pageMeta({
-      title: "AI Video Editing Features — Vidrial",
-      description:
-        "Explore Vidrial's media intelligence, AI edit planning, transcript editing, captions, reframing, timeline controls and export workflow.",
+      title: "Video clipping features — Vidrial",
+      description: "One focused workflow: import, find moments, review and export.",
       path: "/features",
     }),
-  component: FeaturesPage,
+  component: () => (
+    <ClippingInfoPage
+      title="Everything you need to go from long video to short clips."
+      lead="One focused workflow: import, find moments, review and export."
+      sections={sections}
+    />
+  ),
 });
-
-function FeaturesPage() {
-  return (
-    <MarketingLayout>
-      <MarketingPageHero
-        eyebrow="Features"
-        title="A full editor, organised around the way you actually work."
-        lead="No hundred-icon grid. Every feature earns its place in the workflow — and tells you honestly whether it's shipping today, in beta or planned."
-      />
-      <Section>
-        <div className="grid gap-4 md:grid-cols-2">
-          {features.map((f) => (
-            <article key={f.t} className="rounded-2xl border border-line bg-surface-panel p-6">
-              <div className="flex items-start justify-between gap-3">
-                <h3 className="font-display text-lg text-ink">{f.t}</h3>
-                <StatusDot
-                  variant={
-                    f.avail === "Available" ? "success" : f.avail === "Beta" ? "info" : "muted"
-                  }
-                >
-                  {f.avail}
-                </StatusDot>
-              </div>
-              <dl className="mt-4 space-y-2 text-sm">
-                <div>
-                  <dt className="text-[11px] font-medium uppercase tracking-widest text-ink-mute">
-                    The problem
-                  </dt>
-                  <dd className="text-ink-soft">{f.need}</dd>
-                </div>
-                <div>
-                  <dt className="text-[11px] font-medium uppercase tracking-widest text-ink-mute">
-                    What Vidrial does
-                  </dt>
-                  <dd className="text-ink">{f.does}</dd>
-                </div>
-                <div>
-                  <dt className="text-[11px] font-medium uppercase tracking-widest text-ink-mute">
-                    Example
-                  </dt>
-                  <dd className="text-ink-soft italic">{f.eg}</dd>
-                </div>
-              </dl>
-            </article>
-          ))}
-        </div>
-      </Section>
-      <FinalCTA
-        headline="See the workflow end to end."
-        body="Create an account and start with your own authorised media."
-      />
-    </MarketingLayout>
-  );
-}

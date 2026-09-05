@@ -139,7 +139,7 @@ export async function createProxy(source: string, output: string, signal?: Abort
       ...input,
       ...(hasVideo ? [] : ["-map", "0:v:0", "-map", "1:a:0", "-shortest"]),
       "-vf",
-      "scale='min(1280,iw)':-2",
+      "scale='min(1280,iw)':-2,fps=30",
       "-c:v",
       "libx264",
       "-threads",
@@ -159,10 +159,7 @@ export async function createProxy(source: string, output: string, signal?: Abort
     { timeout: 60 * 60_000, cancelSignal: signal },
   );
 }
-export async function renderClip(
-  input: RenderClipInput,
-  signal?: AbortSignal,
-) {
+export async function renderClip(input: RenderClipInput, signal?: AbortSignal) {
   const { hasAudio, hasVideo } = await probeMedia(input.source);
   const audioFilters = buildAudioFilters(input);
   await execa(
