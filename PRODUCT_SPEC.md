@@ -2,6 +2,13 @@
 
 ## Clip Studio reliability behavior
 
+Exact Cut is under implementation, not enabled in the creation wizard yet. Its
+range editor accepts seconds, MM:SS and H:MM:SS, with comma/newline bulk paste,
+labels, reordering and inline validation. User-selected ranges will remain unscored
+and use the same clip results/editor/export surfaces. Their intended charge is
+the sum of requested durations, including overlapping ranges, rounded up once;
+database accounting and full job verification remain release requirements.
+
 Acquisition errors distinguish temporary rate limits, sign-in/anti-bot challenges,
 HTTP access rejection, unavailable/private/age-restricted/region-restricted/DRM
 sources, and unknown causes. Known transient errors receive bounded automatic

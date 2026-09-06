@@ -2,6 +2,14 @@
 
 ## Clip Studio acquisition reliability
 
+Exact Cut foundation on `feat/clip-studio`: `clip_candidates.origin` distinguishes
+`ai_discovery`, `manual_timestamp` and `transcript_selection`. The migration
+backfills existing rows as AI discovery. Selected ranges have null metric columns
+and a null planning-run reference, not fabricated scores or a fake LLM run. The
+worker planner still validates only strictly scored AI output. The range editor
+and null-safe result presentation exist; transactional submission/materialization
+and the wizard mode are still in progress and must precede production enablement.
+
 Source failures are classified at the acquisition boundary and retained in durable
 attempt records, task errors and processing events. Known transient failures get
 one same-path retry with bounded backoff; restarts consult persisted attempts.

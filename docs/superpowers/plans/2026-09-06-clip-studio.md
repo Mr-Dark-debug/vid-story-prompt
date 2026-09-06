@@ -98,7 +98,7 @@ Phase 0 code is locally verified; production release acceptance remains open.
 
 ## Phase 1 — Exact Cut
 
-- [ ] Shared typed range parser: comma/newline paste, MM:SS and HH:MM:SS,
+- [x] Shared typed range parser: comma/newline paste, MM:SS and HH:MM:SS,
   finite times, end after start, source bounds, overlap warnings, stable row order.
 - [ ] Existing source wizard mode selector, accessible editable rows, captions
   explicitly off by default, live segment total/quota and canonical clip cap.
@@ -111,6 +111,31 @@ Phase 0 code is locally verified; production release acceptance remains open.
 - [ ] Reuse preview/editor/export/retention. Manual list must not show fake scores.
 - [ ] E2E five ranges, row editing/reorder/delete, over-limit and durable job/export.
 - [ ] Update PRODUCT_SPEC, ARCHITECTURE, ROUTES, CHANGELOG and verification evidence.
+
+Foundation progress (not an executable Exact Cut release):
+
+- Added a controlled, accessible range editor with atomic bulk paste, optional
+  labels, stable reorder/delete controls, inline source-bound validation, canonical
+  clip-count input, overlapping-range warnings and selected-duration accounting.
+  Integer milliseconds are summed before rounding usage up once. Overlaps are
+  intentionally charged as separate full ranges, not deduplicated.
+- Added candidate origin variants. Existing AI payloads default to `ai_discovery`;
+  the planner response remains AI-only and requires real numeric scores.
+  `manual_timestamp` and `transcript_selection` accept null scores only.
+- Added the candidate-origin/backfill migration and a local PostgreSQL contract
+  for legacy preservation, null scores, no fictitious planning run, valid origins
+  and finite nonnegative ranges. Test runner is now
+  `scripts/test-clip-studio-db.ps1`; both acquisition and origin contracts passed.
+- Results-gallery regression tests show no fabricated zero scores or AI rationale
+  for selected ranges. AI score filters retain user-selected ranges; title
+  regeneration is not offered for unscored ranges lacking planner context.
+- The new range editor is not yet mounted in the wizard. API schema projection,
+  transactional job creation/metering and worker materialization must be completed
+  before exposing the mode. No Exact Cut job/export or production migration has
+  been claimed as verified.
+- Foundation gates: 402 app tests passed (six skipped), 127 worker tests passed;
+  app/worker typecheck and app build passed, lint has the same seven existing
+  warnings and no errors. These do not substitute for the pending Exact Cut E2E.
 
 ## Phase 2 — AI Moments and goal-based discovery
 

@@ -17,6 +17,11 @@ All notable changes to Vidrial are documented here. Format follows
 
 ### Clip Studio reliability (2026-09-06)
 
+- Added the Exact Cut foundation (not enabled yet): range parser/editor tests,
+  null-scored manual/transcript candidate variants and origin/backfill migration.
+  Results distinguish selected ranges from AI recommendations instead of rendering
+  missing scores as zero. Submission, metering and worker wiring remain in progress.
+
 - Preserve distinct source-acquisition reasons through Python, worker attempts,
   database events and customer recovery copy. An unknown error or plain HTTP 403
   no longer asserts a confirmed IP block.
