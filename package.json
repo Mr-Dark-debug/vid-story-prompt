@@ -4,6 +4,7 @@
   "sideEffects": false,
   "type": "module",
   "scripts": {
+    "brand:icons": "node scripts/generate-brand-icons.mjs",
     "predev": "npm run content:validate",
     "dev": "vite dev",
     "prebuild": "npm run content:validate",
@@ -99,6 +100,7 @@
     "@fontsource/manrope": "5.2.6",
     "@lovable.dev/vite-tanstack-config": "^2.7.1",
     "@playwright/test": "^1.61.1",
+    "@resvg/resvg-js": "2.6.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.2",
     "@testing-library/user-event": "^14.6.1",

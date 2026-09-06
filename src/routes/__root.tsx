@@ -11,6 +11,7 @@ import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
 import { reportLovableError } from "../lib/lovable-error-reporting";
+import { browserIconLinks } from "@/config/brand-assets";
 import { brand } from "../config/brand";
 import { getPublicEnv, publicEnvBootstrapScript } from "../config/env";
 import {
@@ -119,8 +120,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       ],
       links: [
         { rel: "stylesheet", href: appCss },
-        { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
-        { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+        ...browserIconLinks,
         {
           rel: "alternate",
           type: "application/rss+xml",
