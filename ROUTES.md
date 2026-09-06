@@ -46,6 +46,11 @@ come only from validated, non-draft content with a PASS review status.
 `/status`, `/terms`, `/privacy`, `/cookies`, `/acceptable-use`,
 `/copyright`, `/imprint`.
 
+`/status` reads the sanitized source-access health server function. It does not
+claim to monitor transcription, rendering or export availability. Worker URLs,
+credentials and egress addresses remain server-side; individual job pages show
+their own actual task outcomes.
+
 ## Auth
 
 `/login`, `/signup`, `/forgot-password`, `/reset-password`,

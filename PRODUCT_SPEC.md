@@ -1,5 +1,16 @@
 # Vidrial Product Specification
 
+## Clip Studio reliability behavior
+
+Acquisition errors distinguish temporary rate limits, sign-in/anti-bot challenges,
+HTTP access rejection, unavailable/private/age-restricted/region-restricted/DRM
+sources, and unknown causes. Known transient errors receive bounded automatic
+retry; rights restrictions are not bypassed. Jobs that need an authorised original
+keep their saved work and show a paused recovery state instead of a busy spinner.
+Partial preview batches are identified as partial, with actual completed counts.
+The public status page checks source-access health only; a successful probe is not
+a promise that every video or downstream export is available.
+
 ## Vision
 
 Vidrial is a browser-first, AI-assisted video editor that turns authorised

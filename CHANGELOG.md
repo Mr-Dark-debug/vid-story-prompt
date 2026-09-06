@@ -15,6 +15,20 @@ All notable changes to Vidrial are documented here. Format follows
 
 ## [Unreleased]
 
+### Clip Studio reliability (2026-09-06)
+
+- Preserve distinct source-acquisition reasons through Python, worker attempts,
+  database events and customer recovery copy. An unknown error or plain HTTP 403
+  no longer asserts a confirmed IP block.
+- Retry known transient failures once on the same configured acquisition path,
+  with bounded, cancellation-aware backoff and restart-persistent attempt history.
+- Show partial render completion and source-waiting states accurately; announce
+  actual preview counts without fabricated percentages.
+- Replace the static `/status` demonstration with the existing sanitized worker
+  source-health check. An unreachable check is unknown, not a confirmed block.
+- Add isolated PostgreSQL failure-RPC contract tests and mobile/desktop status
+  regressions. Production migration and release verification remain pending.
+
 ### Added
 - Complete design system documentation (`DESIGN_SYSTEM.md`) with tokens,
   typography, and primitive index.

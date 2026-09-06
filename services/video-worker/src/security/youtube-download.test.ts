@@ -15,13 +15,22 @@ import {
 describe("YouTube download policy", () => {
   it.each([
     ["Sign in to confirm you’re not a bot", "provider_auth_challenge", true],
-    ["ERROR: HTTP Error 403: Forbidden", "provider_auth_challenge", true],
+    // HTTP 403 alone cannot prove that YouTube blocked an IP address.
+    ["ERROR: HTTP Error 403: Forbidden", "provider_access_denied", true],
     ["This video is age-restricted", "video_age_restricted", false],
     ["Private video", "video_private", false],
     ["HTTP Error 429: Too Many Requests", "provider_rate_limited", true],
     ["HTTP Error 503: Service Unavailable", "provider_temporary_failure", true],
     ["The operation timed out", "provider_temporary_failure", true],
     ["Video unavailable", "video_unavailable", false],
+    [
+      "The uploader has not made this video available in your country",
+      "video_region_restricted",
+      false,
+    ],
+    ["This video contains DRM", "video_drm_protected", false],
+    ["This content isn't available, try again later", "provider_rate_limited", true],
+    ["Unrecognized extractor response", "provider_unknown_failure", false],
   ])("classifies %s", (message, code, retryable) => {
     expect(classifyYouTubeDownloadFailure(message)).toMatchObject({ code, retryable });
   });
@@ -61,8 +70,8 @@ describe("YouTube download policy", () => {
     expect(
       classifyYouTubeExecutionFailure("ERROR: File is larger than max-filesize. Aborting."),
     ).toMatchObject({ code: "file_too_large", retryable: false });
-    expect(classifyYouTubeExecutionFailure("ERROR: Sign in to confirm you’re not a bot")).toMatchObject(
-      { code: "provider_auth_challenge", retryable: true },
-    );
+    expect(
+      classifyYouTubeExecutionFailure("ERROR: Sign in to confirm you’re not a bot"),
+    ).toMatchObject({ code: "provider_auth_challenge", retryable: true });
   });
 });

@@ -100,6 +100,7 @@ describe("worker domains", () => {
         { attempt: 5, max_attempts: 5 },
         { code: "provider_auth_challenge", message: "Vidrial will retry.", retryable: true },
       ).message,
-    ).toContain("after every protected download path");
+      // Exhausted attempts do not prove every configured network was tried.
+    ).toContain("Automatic retries are exhausted");
   });
 });

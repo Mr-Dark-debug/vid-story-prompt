@@ -1,5 +1,16 @@
 # Vidrial Architecture
 
+## Clip Studio acquisition reliability
+
+Source failures are classified at the acquisition boundary and retained in durable
+attempt records, task errors and processing events. Known transient failures get
+one same-path retry with bounded backoff; restarts consult persisted attempts.
+Private, age, region and DRM restrictions stop rather than triggering bypasses.
+Unknown errors and HTTP 403 responses do not establish an IP block on their own.
+The worker-only `fail_clip_task` RPC owns queue transitions and source-recovery
+state without releasing the existing reservation or resurrecting cancelled jobs.
+`/status` consumes only sanitized worker health, not provider credentials or URLs.
+
 ## Stack
 
 - **Framework**: TanStack Start v1 (React 19, SSR, file-based routing)

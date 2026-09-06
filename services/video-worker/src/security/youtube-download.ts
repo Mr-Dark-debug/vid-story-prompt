@@ -1,10 +1,6 @@
 import { TaskFailure } from "../domain/types.js";
 
-export type YouTubeDownloadStrategy =
-  | "standard"
-  | "web-safari"
-  | "mweb-pot"
-  | "web-embedded";
+export type YouTubeDownloadStrategy = "standard" | "web-safari" | "mweb-pot" | "web-embedded";
 
 export type YouTubeSourceSection = {
   endSeconds: number;
@@ -27,7 +23,11 @@ export function readYouTubeSourceSection(
   const raw = input.sourceSection;
   if (raw === undefined || raw === null) return undefined;
   if (typeof raw !== "object" || Array.isArray(raw)) {
-    throw new TaskFailure("invalid_source_section", "The YouTube source section is invalid.", false);
+    throw new TaskFailure(
+      "invalid_source_section",
+      "The YouTube source section is invalid.",
+      false,
+    );
   }
   const section = raw as Record<string, unknown>;
   if (
@@ -38,7 +38,11 @@ export function readYouTubeSourceSection(
     section.startSeconds < 0 ||
     section.endSeconds <= section.startSeconds
   ) {
-    throw new TaskFailure("invalid_source_section", "The YouTube source section is invalid.", false);
+    throw new TaskFailure(
+      "invalid_source_section",
+      "The YouTube source section is invalid.",
+      false,
+    );
   }
   return { startSeconds: section.startSeconds, endSeconds: section.endSeconds };
 }
@@ -56,20 +60,43 @@ export function classifyYouTubeDownloadFailure(input: string) {
     );
   }
   if (
-    message.includes("sign in to confirm") ||
-    message.includes("not a bot") ||
-    message.includes("proof of origin") ||
-    message.includes("po token") ||
-    message.includes("http error 403") ||
-    message.includes("remote server returned 403")
+    message.includes("not available in your country") ||
+    message.includes("not made this video available in your country") ||
+    message.includes("geo restriction") ||
+    message.includes("geo-restricted")
   ) {
     return new TaskFailure(
+      "video_region_restricted",
+      "This YouTube video is not available in the worker region.",
+      false,
+    );
+  }
+  if (message.includes("drm")) {
+    return new TaskFailure(
+      "video_drm_protected",
+      "This YouTube video is DRM-protected and cannot be imported.",
+      false,
+    );
+  }
+  if (message.includes("sign in to confirm") || message.includes("not a bot")) {
+    return new TaskFailure(
       "provider_auth_challenge",
-      "YouTube blocked this request from the server network.",
+      "YouTube requested a sign-in or anti-bot check from the server.",
       true,
     );
   }
-  if (message.includes("http error 429") || message.includes("too many requests")) {
+  if (message.includes("http error 403") || message.includes("remote server returned 403")) {
+    return new TaskFailure(
+      "provider_access_denied",
+      "YouTube rejected this media request (HTTP 403); the precise cause is not confirmed.",
+      true,
+    );
+  }
+  if (
+    message.includes("http error 429") ||
+    message.includes("too many requests") ||
+    message.includes("this content isn't available, try again later")
+  ) {
     return new TaskFailure(
       "provider_rate_limited",
       "YouTube temporarily rate-limited the video worker.",
@@ -79,6 +106,9 @@ export function classifyYouTubeDownloadFailure(input: string) {
   if (
     message.includes("etimedout") ||
     message.includes("timed out") ||
+    message.includes("connection reset") ||
+    message.includes("connection refused") ||
+    message.includes("temporary failure in name resolution") ||
     /http error 5\d\d/.test(message)
   ) {
     return new TaskFailure(
@@ -91,9 +121,9 @@ export function classifyYouTubeDownloadFailure(input: string) {
     return new TaskFailure("video_unavailable", "This YouTube video is unavailable.", false);
   }
   return new TaskFailure(
-    "provider_temporary_failure",
-    "YouTube could not be reached through this acquisition path.",
-    true,
+    "provider_unknown_failure",
+    "The YouTube request failed for an unrecognized reason.",
+    false,
   );
 }
 

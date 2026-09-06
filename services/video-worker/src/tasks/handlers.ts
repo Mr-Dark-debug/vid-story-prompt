@@ -378,11 +378,8 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
       downloaded = await acquireYouTubeSource({
         cancelled: () => cancellation.signal.aborted,
         cobaltEnabled: Boolean(env.COBALT_API_URL),
-        downloadCobalt: async () => {
-          const attemptDirectory = join(
-            directory,
-            `acquisition-cobalt-${priorAttempts.length + 1}`,
-          );
+        downloadCobalt: async (persistedAttemptId) => {
+          const attemptDirectory = join(directory, `acquisition-cobalt-${persistedAttemptId}`);
           await mkdir(attemptDirectory, { recursive: true });
           return cobaltClient.download({
             apiKey: env.COBALT_API_KEY,
@@ -396,10 +393,7 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
           });
         },
         downloadYtdlp: async (planned, persistedAttemptId) => {
-          const attemptDirectory = join(
-            directory,
-            `acquisition-${planned.sourceTier}-${planned.poolMemberIndex ?? "single"}-${planned.strategy}`,
-          );
+          const attemptDirectory = join(directory, `acquisition-${persistedAttemptId}`);
           await mkdir(attemptDirectory, { recursive: true });
           const proxy: YouTubeProxySelection =
             planned.sourceTier === "operator_proxy"
@@ -431,6 +425,7 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
         potProviderConfigured: Boolean(env.YTDLP_POT_PROVIDER_URL),
         previous: priorAttempts,
         production: process.env.NODE_ENV === "production",
+        forceProxy: task.input_json.forceProxy === true,
         recordAttempt: (planned, ordinal) => recordAcquisitionAttempt(task.id, planned, ordinal),
         warpMembers: getHealthyWarpMembers(),
       });
