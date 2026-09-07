@@ -15,7 +15,51 @@ All notable changes to Vidrial are documented here. Format follows
 
 ## [Unreleased]
 
+### Clip Studio Exact Cut wiring (2026-09-07, release pending)
+
+- Wired timestamp mode into the existing source wizard with a database capability
+  gate, live selected-duration quota, stable retry keys and canonical clip limits.
+- Added transactional range-only reservation, fingerprinted idempotency, source
+  ownership checks, immutable paid contracts and early-cancellation release.
+- Added leased, idempotent manual-candidate materialization directly into the
+  existing preview/editor/export pipeline without transcription or AI planning.
+- Added server-enforced edit-duration allowances, incremental extension debits,
+  quota rejection and clear pre-save copy. Restoring/shortening does not charge twice.
+- Fixed version activation through a scoped RPC: generic browser updates to clips
+  had no matching RLS policy and could silently leave the active version unchanged.
+- Added isolated PostgreSQL accounting/RLS contracts, 360px/desktop wizard tests
+  with explicit mocked-provider boundaries, and a real five-clip FFmpeg decode test.
+- Applied the five guarded Exact Cut migrations and rebuilt/restarted the
+  compatible home worker; production schema/worker checks passed. The matching
+  Vercel preview is green, but authenticated preview verification awaits owner MFA.
+- Tightened the legacy queue dispatch RPC to worker-only execution with explicit
+  anonymous/browser denial and service-role regression coverage.
+- Pending: authenticated acquisition-to-export E2E, schema type refresh, web
+  production release, and Clip Studio Phases 2–5. No full production-flow success
+  or stream-copy optimization is claimed by these checks.
+
+### Clip Studio reliability (2026-09-06)
+
+- Added the Exact Cut foundation (not enabled yet): range parser/editor tests,
+  null-scored manual/transcript candidate variants and origin/backfill migration.
+  Results distinguish selected ranges from AI recommendations instead of rendering
+  missing scores as zero. Submission, metering and worker wiring were added in
+  the subsequent unreleased slice above.
+
+- Preserve distinct source-acquisition reasons through Python, worker attempts,
+  database events and customer recovery copy. An unknown error or plain HTTP 403
+  no longer asserts a confirmed IP block.
+- Retry known transient failures once on the same configured acquisition path,
+  with bounded, cancellation-aware backoff and restart-persistent attempt history.
+- Show partial render completion and source-waiting states accurately; announce
+  actual preview counts without fabricated percentages.
+- Replace the static `/status` demonstration with the existing sanitized worker
+  source-health check. An unreachable check is unknown, not a confirmed block.
+- Add isolated PostgreSQL failure-RPC contract tests and mobile/desktop status
+  regressions. Production migration and release verification remain pending.
+
 ### Added
+
 - Complete design system documentation (`DESIGN_SYSTEM.md`) with tokens,
   typography, and primitive index.
 - Product specification (`PRODUCT_SPEC.md`) covering vision, users,
@@ -28,6 +72,7 @@ All notable changes to Vidrial are documented here. Format follows
 - Project `README.md`.
 
 ### Fixed
+
 - SSR 500 on `/` when Supabase env vars are absent — public env schema
   now treats Supabase credentials as optional so the marketing prototype
   renders without a configured backend.
@@ -35,6 +80,7 @@ All notable changes to Vidrial are documented here. Format follows
 ## [0.3.0] — Editor prototype
 
 ### Added
+
 - Timeline store with 50-level undo/redo, multi-track view, zoom, playhead.
 - AI panel with prompt → plan → per-operation accept/reject.
 - Interactive transcript with word-level exclusion.
@@ -44,6 +90,7 @@ All notable changes to Vidrial are documented here. Format follows
 ## [0.2.0] — App shell
 
 ### Added
+
 - Mock auth with `_authenticated` gate.
 - Dashboard, project list, 5-step creation wizard.
 - Tabbed project layout (Overview, Editor, Media, Transcript, Versions,
@@ -53,12 +100,14 @@ All notable changes to Vidrial are documented here. Format follows
 ## [0.1.0] — Foundations & marketing
 
 ### Added
+
 - Brand config, warm editorial design tokens (OKLCH), typography.
 - Shared primitives (`Logo`, `Section`, `StatusDot`, `TimelineRibbon`,
   `EmptyState`, `UsageMeter`).
 - Marketing site: home, features, how-it-works, pricing, use cases, docs,
   trust & legal pages.
 - `/design-system` reference route.
+
 # Changelog
 
 ## 2026-07-11

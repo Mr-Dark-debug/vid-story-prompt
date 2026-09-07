@@ -1,5 +1,44 @@
 # Vidrial Architecture
 
+## Clip Studio acquisition reliability
+
+Exact Cut on `feat/clip-studio`: `clip_candidates.origin` distinguishes
+`ai_discovery`, `manual_timestamp` and `transcript_selection`. The migration
+backfills existing rows as AI discovery. Selected ranges have null metric columns
+and a null planning-run reference, not fabricated scores or a fake LLM run. The
+worker planner still validates only strictly scored AI output.
+
+`create_clip_job` validates canonical plan limits, source ownership, rights,
+concurrency and timestamps in one workspace-serialized transaction. Exact Cut
+reserves `ceil(sum(range durations))`, not source runtime. Request fingerprints
+make retries idempotent and reject conflicting reuse. Immutable job contracts
+prevent browser mutation of the paid ranges. Early cancellation releases unused
+reservations, while committed processing is not refunded.
+
+After source validation, worker-only `materialize_exact_cut` verifies the live
+task lease and rights, creates unscored candidates/clips/immutable versions once,
+commits usage and returns ordinary preview children. There are no transcript,
+scene or planner children. External acquisition remains once per job; each
+preview may still retrieve the stored source. The existing transformed/watermarked
+renderer re-encodes; a stream-copy optimization has not been introduced.
+
+Private `clip_processing_allowances` and a version-insert trigger charge only
+extensions beyond a clip's paid duration. Quota failures roll back version and
+debit together. `activate_clip_version` checks workspace, retention and exact
+clip/version ownership without adding broad browser UPDATE access to clips.
+The wizard checks `clip_studio_capabilities`; apply the complete ordered migration
+set after deploying the compatible worker, then deploy the web app. Production
+database types must be regenerated after migration; live release remains pending.
+
+Source failures are classified at the acquisition boundary and retained in durable
+attempt records, task errors and processing events. Known transient failures get
+one same-path retry with bounded backoff; restarts consult persisted attempts.
+Private, age, region and DRM restrictions stop rather than triggering bypasses.
+Unknown errors and HTTP 403 responses do not establish an IP block on their own.
+The worker-only `fail_clip_task` RPC owns queue transitions and source-recovery
+state without releasing the existing reservation or resurrecting cancelled jobs.
+`/status` consumes only sanitized worker health, not provider credentials or URLs.
+
 ## Stack
 
 - **Framework**: TanStack Start v1 (React 19, SSR, file-based routing)
@@ -71,11 +110,13 @@
 ## SSR error handling
 
 `src/server.ts` wraps the TanStack Start server entry:
+
 - Lazy import so module-init throws are catchable
 - Response normalizer converts h3-swallowed 500s into branded HTML
 - `src/lib/error-capture.ts` records out-of-band errors for correlation
 - `src/start.ts` registers `errorMiddleware`
 - `__root.tsx` sets `errorComponent` and reports to Lovable
+
 # Architecture
 
 TanStack Start serves the marketing and authenticated application on Vercel/Lovable-compatible Nitro output. Supabase provides Auth, PostgreSQL, Realtime, private Storage and PGMQ. Cookie-backed server clients verify users; service-role clients exist only in trusted server/worker modules.

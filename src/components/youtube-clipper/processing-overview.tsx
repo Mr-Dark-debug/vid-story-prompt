@@ -21,11 +21,22 @@ export function ProcessingOverview({
   job,
   tasks,
 }: {
-  job: { status: string; completed_clip_count: number; requested_clip_count: number };
+  job: {
+    status: string;
+    completed_clip_count: number;
+    requested_clip_count: number;
+    settings_json?: unknown;
+  };
   tasks: ProgressTask[];
 }) {
   const stages = deriveJobStages(job, tasks);
-  const ready = ["ready", "partially_ready", "completed", "exporting"].includes(job.status);
+  const manual =
+    typeof job.settings_json === "object" &&
+    job.settings_json !== null &&
+    "mode" in job.settings_json &&
+    job.settings_json.mode === "manual_timestamp";
+  const ready = ["ready", "completed", "exporting"].includes(job.status);
+  const partiallyReady = job.status === "partially_ready";
   const stopped = ["failed", "cancelled", "expired"].includes(job.status);
   const waiting = ["awaiting_authorised_source", "awaiting_local_relay"].includes(job.status);
   const current =
@@ -35,15 +46,17 @@ export function ProcessingOverview({
   const transcription = tasks.filter(
     (task) => task.task_type === "transcribe_chunk" && task.status !== "superseded",
   );
-  const heading = ready
-    ? "Your clips are ready to review"
-    : waiting
-      ? "Your source needs attention"
-      : stopped
-        ? job.status === "failed"
-          ? "Processing needs attention"
-          : "Processing has stopped"
-        : (current?.label ?? "Waiting for a worker");
+  const heading = partiallyReady
+    ? "Some clips are ready to review"
+    : ready
+      ? "Your clips are ready to review"
+      : waiting
+        ? "Your source needs attention"
+        : stopped
+          ? job.status === "failed"
+            ? "Processing needs attention"
+            : "Processing has stopped"
+          : (current?.label ?? "Waiting for a worker");
   return (
     <div className="mt-5">
       <div
@@ -54,24 +67,30 @@ export function ProcessingOverview({
       >
         <p className="text-lg font-semibold text-ink">{heading}</p>
         <p className="mt-1 text-sm leading-6 text-ink-soft">
-          {ready
+          {ready || partiallyReady
             ? `${job.completed_clip_count} of ${job.requested_clip_count} clip previews available below.`
             : waiting || stopped
               ? "Completed work is saved. Check the message below for the next step."
               : current?.state === "retrying"
                 ? "A temporary interruption occurred. Your worker will retry automatically."
-                : transcription.length && current?.id === "transcribing"
-                  ? `${transcription.filter((task) => task.status === "succeeded").length} of ${transcription.length} audio sections transcribed.`
-                  : "You can leave this page. Processing continues and your clips appear as they finish."}
+                : current?.id === "rendering_previews"
+                  ? `${job.completed_clip_count} of ${job.requested_clip_count} clip previews rendered.`
+                  : transcription.length && current?.id === "transcribing"
+                    ? `${transcription.filter((task) => task.status === "succeeded").length} of ${transcription.length} audio sections transcribed.`
+                    : "You can leave this page. Processing continues and your clips appear as they finish."}
         </p>
       </div>
       <ol aria-label="Clipping progress" className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {phases.map((phase, index) => {
           const group = stages.filter((stage) => phase.stages.includes(stage.id));
+          const skipped = manual && index === 1;
           const failed = group.some((stage) => stage.state === "failed");
           const active =
+            !skipped &&
             !ready &&
+            !partiallyReady &&
             !stopped &&
+            !waiting &&
             group.some((stage) => ["active", "retrying"].includes(stage.state));
           const downstreamStarted = phases
             .slice(index + 1)
@@ -84,14 +103,23 @@ export function ProcessingOverview({
             );
           const complete =
             ready ||
-            (!failed && (downstreamStarted || group.every((stage) => stage.state === "completed")));
-          const label = complete
-            ? "Complete"
-            : failed
-              ? "Needs attention"
-              : active
-                ? "In progress"
-                : "Upcoming";
+            (!failed &&
+              !(partiallyReady && index >= 2) &&
+              !(waiting && index === 0) &&
+              (downstreamStarted || group.every((stage) => stage.state === "completed")));
+          const label = skipped
+            ? "Not needed for Exact Cut"
+            : waiting && index === 0
+              ? "Source needed"
+              : partiallyReady && index === 3
+                ? "Partially ready"
+                : complete
+                  ? "Complete"
+                  : failed
+                    ? "Needs attention"
+                    : active
+                      ? "In progress"
+                      : "Upcoming";
           const Icon = complete ? Check : failed ? AlertTriangle : active ? LoaderCircle : Clock3;
           return (
             <li

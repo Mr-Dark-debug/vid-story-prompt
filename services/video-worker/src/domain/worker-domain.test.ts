@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { clipCandidateSchema } from "../ai/schema.js";
+import { aiClipCandidateSchema } from "../ai/schema.js";
 import { overlapRatio, selectDiverseCandidates } from "../ai/selection.js";
 import { createSrt, createVtt } from "../media/captions.js";
 import { renderManifestHash } from "../media/manifest.js";
@@ -8,7 +8,7 @@ import { isForbiddenAddress } from "../security/addresses.js";
 import { dedupeFilename, safeFilename } from "../storage/filenames.js";
 import { mergeTranscriptChunks } from "../transcription/merge.js";
 const candidate = (start: number, end: number, title: string) =>
-  clipCandidateSchema.parse({
+  aiClipCandidateSchema.parse({
     startSeconds: start,
     endSeconds: end,
     title,
@@ -100,6 +100,7 @@ describe("worker domains", () => {
         { attempt: 5, max_attempts: 5 },
         { code: "provider_auth_challenge", message: "Vidrial will retry.", retryable: true },
       ).message,
-    ).toContain("after every protected download path");
+      // Exhausted attempts do not prove every configured network was tried.
+    ).toContain("Automatic retries are exhausted");
   });
 });

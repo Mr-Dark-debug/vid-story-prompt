@@ -1,17 +1,13 @@
 import type { YouTubeDownloadStrategy } from "./youtube-download.js";
 import type { UniquePoolMember } from "./youtube-egress-pool.js";
 
-export type AcquisitionSourceTier =
-  | "direct"
-  | "operator_proxy"
-  | "warp"
-  | "cobalt"
-  | "local_relay";
+export type AcquisitionSourceTier = "direct" | "operator_proxy" | "warp" | "cobalt" | "local_relay";
 
 export type PriorAcquisitionAttempt = {
   sourceTier: AcquisitionSourceTier;
   strategy?: YouTubeDownloadStrategy;
   egressFingerprint?: string;
+  errorCode?: string;
   status: "failed" | "succeeded" | "cancelled" | "superseded";
 };
 
@@ -31,6 +27,7 @@ type PlanInput = {
   potProviderConfigured: boolean;
   previous: PriorAcquisitionAttempt[];
   production: boolean;
+  forceProxy?: boolean;
   terminalCode?: string;
   warpMembers: UniquePoolMember[];
 };
@@ -53,18 +50,32 @@ function strategies(potProviderConfigured: boolean): YouTubeDownloadStrategy[] {
     : ["standard", "web-safari", "web-embedded"];
 }
 
+export const transientAcquisitionCodes = new Set([
+  "provider_rate_limited",
+  "provider_temporary_failure",
+  "python_acquisition_unavailable",
+  "download_timeout",
+  "cobalt_unavailable",
+]);
+
 function wasTried(
   previous: PriorAcquisitionAttempt[],
   tier: AcquisitionSourceTier,
   strategy?: YouTubeDownloadStrategy,
   fingerprint?: string,
 ) {
-  return previous.some(
+  const matching = previous.filter(
     (attempt) =>
       attempt.status !== "succeeded" &&
       attempt.sourceTier === tier &&
       attempt.strategy === strategy &&
       attempt.egressFingerprint === fingerprint,
+  );
+  // A transient failure gets one same-path retry, including after worker restart.
+  // Challenges and terminal restrictions must not repeatedly hit the same path.
+  return (
+    matching.length > 0 &&
+    !(matching.length < 2 && transientAcquisitionCodes.has(matching.at(-1)?.errorCode ?? ""))
   );
 }
 
@@ -80,7 +91,7 @@ export function nextAcquisitionAttempt(input: PlanInput): PlannedAcquisitionAtte
     }
   }
 
-  if (!input.production) {
+  if (!input.production && !input.forceProxy) {
     for (const strategy of clientStrategies) {
       if (!wasTried(input.previous, "direct", strategy)) return { sourceTier: "direct", strategy };
     }

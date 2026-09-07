@@ -461,6 +461,15 @@ export function ClipEditor({ data }: { data: EditorData }) {
 
           <section className="mt-6 border-t border-line pt-5">
             <h2 className="font-display text-lg text-ink">Timing</h2>
+            {data.processedSecondsAllowance != null && (
+              <p className="mt-2 text-xs leading-relaxed text-ink-mute" role="status">
+                Exact Cut includes {data.processedSecondsAllowance.toFixed(1)} seconds for this
+                clip.
+                {manifest.endSeconds - manifest.startSeconds > data.processedSecondsAllowance
+                  ? ` Saving this longer range uses ${Math.ceil(manifest.endSeconds - manifest.startSeconds - data.processedSecondsAllowance)} additional processing seconds.`
+                  : " Shortening or restoring within this duration does not use more processing minutes."}
+              </p>
+            )}
             <div className="mt-3 grid grid-cols-2 gap-3">
               <label className="grid gap-1 text-xs text-ink-mute">
                 Start
@@ -484,6 +493,7 @@ export function ClipEditor({ data }: { data: EditorData }) {
                   type="number"
                   step=".1"
                   min={manifest.startSeconds + 0.1}
+                  max={data.job.source_duration_seconds ?? undefined}
                   value={manifest.endSeconds}
                   onChange={(event) =>
                     updateManifest((current) => ({

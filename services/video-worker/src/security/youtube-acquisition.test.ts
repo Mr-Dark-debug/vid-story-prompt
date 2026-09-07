@@ -6,7 +6,7 @@ vi.hoisted(() => {
 });
 
 import { TaskFailure } from "../domain/types.js";
-import { acquireYouTubeSource } from "./youtube-acquisition.js";
+import { acquireYouTubeSource, acquisitionBackoffMilliseconds } from "./youtube-acquisition.js";
 
 const members = [
   {
@@ -53,6 +53,7 @@ function setup(overrides: Record<string, unknown> = {}) {
         return { id: `attempt-${ordinal}` };
       }),
       warpMembers: members,
+      waitBeforeRetry: vi.fn().mockResolvedValue(undefined),
       ...overrides,
     },
   };
@@ -130,9 +131,85 @@ describe("YouTube acquisition runner", () => {
     ];
     const state = setup({ previous });
     await expect(acquireYouTubeSource(state.input)).rejects.toMatchObject({
-      code: "provider_auth_challenge",
+      // Legacy attempt rows lack error codes; absence is not evidence of an IP block.
+      code: "provider_unknown_failure",
       retryable: false,
     });
     expect(state.recorded).toHaveLength(0);
+  });
+
+  it("retries a transient path once with backoff before switching clients", async () => {
+    const download = vi
+      .fn()
+      .mockRejectedValueOnce(new TaskFailure("provider_rate_limited", "Rate limited", true))
+      .mockResolvedValue({
+        bytes: 1,
+        filename: "/tmp/source.mp4",
+        format: "mp4",
+        proxyTier: "warp",
+        sectionApplied: false,
+      });
+    const state = setup({ downloadYtdlp: download });
+    await acquireYouTubeSource(state.input);
+    expect(state.recorded).toHaveLength(2);
+    expect(state.recorded.map((item) => item.strategy)).toEqual(["standard", "standard"]);
+    expect(state.recorded.map((item) => item.ordinal)).toEqual([1, 2]);
+    expect(state.input.waitBeforeRetry).toHaveBeenCalledOnce();
+    expect(state.input.waitBeforeRetry.mock.calls[0][0]).toBeGreaterThanOrEqual(5_000);
+  });
+
+  it("keeps transient retry counts bounded across restarts", async () => {
+    const previous = [1, 2].map(() => ({
+      sourceTier: "warp" as const,
+      strategy: "standard" as const,
+      egressFingerprint: members[0].egressFingerprint,
+      status: "failed" as const,
+      errorCode: "provider_temporary_failure",
+    }));
+    const state = setup({
+      previous,
+      downloadYtdlp: vi.fn().mockResolvedValue({
+        bytes: 1,
+        filename: "/tmp/source.mp4",
+        format: "mp4",
+        proxyTier: "warp",
+        sectionApplied: false,
+      }),
+    });
+    await acquireYouTubeSource(state.input);
+    expect(state.recorded[0]).toMatchObject({ strategy: "web-safari", ordinal: 3 });
+    expect(state.input.waitBeforeRetry).toHaveBeenCalledOnce();
+  });
+
+  it("stops cancellation during backoff before making another request", async () => {
+    let cancelled = false;
+    const state = setup({
+      cancelled: () => cancelled,
+      waitBeforeRetry: vi.fn(async () => {
+        cancelled = true;
+      }),
+    });
+    await expect(acquireYouTubeSource(state.input)).rejects.toMatchObject({ code: "cancelled" });
+    expect(state.recorded).toHaveLength(1);
+  });
+
+  it("does not infer an IP block when no production path is configured", async () => {
+    const state = setup({ warpMembers: [], cobaltEnabled: false });
+    await expect(acquireYouTubeSource(state.input)).rejects.toMatchObject({
+      code: "provider_unknown_failure",
+      retryable: false,
+    });
+    expect(state.input.downloadYtdlp).not.toHaveBeenCalled();
+  });
+
+  it("skips direct acquisition when forceProxy is requested in development", async () => {
+    const state = setup({ production: false, forceProxy: true });
+    await acquireYouTubeSource(state.input);
+    expect(state.recorded.every((item) => item.sourceTier !== "direct")).toBe(true);
+  });
+
+  it("bounds exponential backoff with positive jitter", () => {
+    expect(acquisitionBackoffMilliseconds(1, 0)).toBe(5_000);
+    expect(acquisitionBackoffMilliseconds(100, 1)).toBe(36_000);
   });
 });
