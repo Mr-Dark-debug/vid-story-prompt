@@ -50,6 +50,14 @@ try {
     if (-not $commitFunction) { throw "Could not locate real usage commit function" }
     $commitFunction | & (Join-Path $PostgresBin "psql.exe") @accountingArguments
     if ($LASTEXITCODE -ne 0) { throw "Usage commit function failed" }
+    # Load the actual dispatcher without installing pgmq. Empty-queue execution
+    # below never calls pgmq; this checks RPC grants, not queue transport.
+    $dispatchFunction = [regex]::Match($queueSql, '(?s)create or replace function public\.dispatch_clip_outbox\(.*?\$\$;').Value
+    if (-not $dispatchFunction) { throw "Could not locate real queue dispatcher" }
+    $dispatchFunction | & (Join-Path $PostgresBin "psql.exe") @accountingArguments
+    if ($LASTEXITCODE -ne 0) { throw "Queue dispatcher fixture failed" }
+    & (Join-Path $PostgresBin "psql.exe") @accountingArguments -f (Join-Path $repository "supabase\migrations\20260907165746_clip_queue_dispatch_permissions.sql") -f (Join-Path $repository "supabase\tests\clip-queue-dispatch-permissions.sql")
+    if ($LASTEXITCODE -ne 0) { throw "Queue dispatch permission assertions failed" }
     & (Join-Path $PostgresBin "psql.exe") @accountingArguments -f (Join-Path $repository "supabase\migrations\20260711230000_exports_retention_and_usage_release.sql") -f (Join-Path $repository "supabase\migrations\20260814020000_clipper_candidate_social_copy.sql") -f (Join-Path $repository "supabase\migrations\20260906165856_clip_candidate_origins.sql") -f (Join-Path $repository "supabase\migrations\20260906215051_exact_cut_job_accounting.sql") -f (Join-Path $repository "supabase\migrations\20260906215728_exact_cut_materialization.sql") -f (Join-Path $repository "supabase\migrations\20260907064926_exact_cut_edit_allowances.sql") -f (Join-Path $repository "supabase\tests\exact-cut-accounting.sql")
     if ($LASTEXITCODE -ne 0) { throw "Exact Cut accounting assertions failed" }
     Write-Output "exact_cut_accounting_contract=passed"

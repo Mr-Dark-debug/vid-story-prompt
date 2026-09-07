@@ -203,6 +203,35 @@ Foundation progress (not an executable Exact Cut release):
   weaken those guarantees merely to advertise a copy path. Full E2E and the
   deployment gate stay unchecked, so Phase 1 is not declared finished.
 
+### Hosted rollout verification — 2026-09-07
+
+- Rebuilt the actual worker distribution with `bun run build` from the worker
+  directory, then restarted the installed FullPipeline home worker while idle.
+  Fresh health reports worker ready and acquisition egress healthy. Health reports
+  revision `local`, not a Git SHA. This deployment requires the host PC to stay on;
+  it is not an always-on cloud service or a Render deployment.
+- Applied the five ordered migrations from immutable commit `5f819a6` to the
+  correct production project `vifcdussqjhvhurxzdwq` through the owner's SQL Editor.
+  Every migration and its history record committed together. Post-deploy query
+  confirms all five versions, allowance RLS, installed capability, zero active
+  tasks, and denied materialization execution for both anon and authenticated.
+- Latest pushed `d75ac5f` has a green Vercel preview:
+  https://vercel.com/prashant-project/vidrial/FtFuqFh3ZkkUmymfGGDDTDKANi8t .
+  Preview access reached Vercel's authenticator/passkey challenge; the user must
+  complete it in Chrome. No MFA workaround or production promotion was attempted.
+- Refreshed production security advisors: zero errors and 28 warnings. These
+  include intentionally authenticated definer RPCs as well as legacy PUBLIC
+  grants; they are not all equivalent to exploitable authorization defects.
+  One concrete gap is the internal `dispatch_clip_outbox(integer)` RPC's default
+  PUBLIC execute permission. Added an explicit worker-only grant migration and
+  actual function ACL/call regression tests (anon denied, browser denied,
+  service_role empty-queue dispatch succeeds). No queue transport is mocked as a
+  successful production dispatch. Isolated accounting and advisors pass; the
+  inherited local pgcrypto-in-public warning remains.
+- Hosted five-range upload → preview → edit → export, generated database types,
+  and the main/web release remain pending. Production schema/worker readiness
+  does not prove that user flow. PR #18 stays draft and unmerged.
+
 ## Phase 2 — AI Moments and goal-based discovery
 
 - [ ] Expose existing scores, topic, explanation and real Preview/Edit range/
