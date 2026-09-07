@@ -111,20 +111,28 @@ export function evaluateJobEntitlement(input: {
   activeJobs: number;
   reservedSeconds: number;
   committedSeconds: number;
+  processedSeconds?: number;
 }) {
   const plan = PLAN_ENTITLEMENTS[input.plan];
-  if (input.sourceSeconds <= 0)
+  const billableSeconds = input.processedSeconds ?? input.sourceSeconds;
+  if (
+    !Number.isFinite(input.sourceSeconds) ||
+    input.sourceSeconds <= 0 ||
+    !Number.isFinite(billableSeconds) ||
+    billableSeconds <= 0
+  )
     return { allowed: false as const, reason: "invalid_duration" as const };
   if (input.sourceSeconds > plan.maxSourceSecondsPerJob)
     return { allowed: false as const, reason: "source_too_long" as const };
-  if (input.requestedClips > plan.maxClipsPerJob)
+  if (
+    !Number.isInteger(input.requestedClips) ||
+    input.requestedClips < 1 ||
+    input.requestedClips > plan.maxClipsPerJob
+  )
     return { allowed: false as const, reason: "clip_limit" as const };
   if (input.activeJobs >= plan.maxConcurrentJobs)
     return { allowed: false as const, reason: "concurrent_job_limit" as const };
-  if (
-    input.reservedSeconds + input.committedSeconds + input.sourceSeconds >
-    plan.monthlySourceSeconds
-  )
+  if (input.reservedSeconds + input.committedSeconds + billableSeconds > plan.monthlySourceSeconds)
     return { allowed: false as const, reason: "insufficient_usage" as const };
   return { allowed: true as const, plan };
 }

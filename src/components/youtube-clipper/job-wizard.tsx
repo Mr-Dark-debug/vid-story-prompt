@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "@tanstack/react-router";
 import {
   CalendarDays,
@@ -38,6 +38,8 @@ import { ResilientThumbnail } from "@/components/media/resilient-thumbnail";
 import { SelectField, type SelectFieldOption } from "@/components/ui/select-field";
 import { StatusDialog } from "@/components/ui/status-dialog";
 import { WorkerEgressBadge } from "@/components/dashboard/WorkerEgressBadge";
+import { ExactCutEditor, type ExactCutEditorRow } from "./exact-cut-editor";
+import { validateExactCutRanges } from "@/domain/clipping/exact-cut";
 import {
   PLAN_ENTITLEMENTS,
   evaluateJobEntitlement,
@@ -73,6 +75,7 @@ export function JobWizard({
     activeJobs: number;
     reservedSeconds: number;
     committedSeconds: number;
+    exactCutAvailable?: boolean;
   };
 }) {
   const navigate = useNavigate();
@@ -92,6 +95,9 @@ export function JobWizard({
     committedSeconds: 0,
   };
   const [step, setStep] = useState(0);
+  const [clipMode, setClipMode] = useState<"ai_discovery" | "manual_timestamp">("ai_discovery");
+  const [exactRanges, setExactRanges] = useState<ExactCutEditorRow[]>([]);
+  const submission = useRef<{ fingerprint: string; key: string } | null>(null);
   const initialConnector =
     initialSource === "upload"
       ? "local_upload"
@@ -125,6 +131,17 @@ export function JobWizard({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<JobErrorPresentation | null>(null);
+  const currentSourceDuration =
+    uploaded?.durationSeconds || metadata?.durationSeconds || directDuration;
+  const remainingSeconds = Math.max(
+    0,
+    context.entitlement.monthlySourceSeconds - context.reservedSeconds - context.committedSeconds,
+  );
+  const exactValidation = validateExactCutRanges(exactRanges, {
+    sourceSeconds: currentSourceDuration,
+    remainingSeconds,
+    maximumClips: context.entitlement.maxClipsPerJob,
+  });
 
   useEffect(() => {
     if (sourceMode !== "youtube" || !youtubeUrl.trim()) return;
@@ -249,9 +266,16 @@ export function JobWizard({
       return;
     }
     setError(null);
+    if (step === 1 && clipMode === "manual_timestamp" && !exactValidation.valid) {
+      setError(
+        exactValidation.errors[0] ?? "Correct the highlighted clip ranges before continuing.",
+      );
+      return;
+    }
     setStep((value) => Math.min(2, value + 1));
   };
   const submit = async () => {
+    if (busy) return;
     setError(null);
     setSubmitError(null);
     try {
@@ -279,11 +303,15 @@ export function JobWizard({
       const entitlementCheck = evaluateJobEntitlement({
         plan: context.plan,
         sourceSeconds: sourceDuration,
-        requestedClips,
+        requestedClips: clipMode === "manual_timestamp" ? exactRanges.length : requestedClips,
+        processedSeconds:
+          clipMode === "manual_timestamp" ? exactValidation.billableSeconds : undefined,
         activeJobs: context.activeJobs,
         reservedSeconds: context.reservedSeconds,
         committedSeconds: context.committedSeconds,
       });
+      if (clipMode === "manual_timestamp" && !exactValidation.valid)
+        throw new Error("Correct the clip ranges before submitting.");
       if (!entitlementCheck.allowed) {
         setSubmitError(
           presentJobError(new Error(entitlementCheck.reason), context.plan, context.entitlement),
@@ -291,6 +319,24 @@ export function JobWizard({
         return;
       }
       setBusy(true);
+      const fingerprint = JSON.stringify({
+        sourceMode,
+        youtubeUrl,
+        directUrl,
+        sourceDuration,
+        uploaded,
+        metadata,
+        clipMode,
+        exactRanges,
+        requestedClips,
+        language,
+        contentType,
+        durationRange,
+        captionPreset,
+        instruction,
+      });
+      if (submission.current?.fingerprint !== fingerprint)
+        submission.current = { fingerprint, key: crypto.randomUUID() };
       const result = await createClipJob({
         data: {
           sourceType: ["direct_url", "other", "rss"].includes(sourceMode)
@@ -320,27 +366,30 @@ export function JobWizard({
             channelTitle: metadata?.channelTitle,
             thumbnailUrl: metadata?.thumbnailUrl,
           },
-          settings: {
-            language,
-            contentType,
-            targetPlatforms: ["youtube_shorts", "instagram_reels", "tiktok"],
-            aspectRatios: ["9:16"],
-            durationRange,
-            captionPreset,
-            instruction,
-            autoCrop: "centre",
-            removeLongPauses: true,
-            removeFillerWords: false,
-          },
-          requestedClipCount: requestedClips,
+          settings:
+            clipMode === "manual_timestamp"
+              ? { mode: clipMode, ranges: exactValidation.ranges, captionsRequested: false }
+              : {
+                  language,
+                  contentType,
+                  targetPlatforms: ["youtube_shorts", "instagram_reels", "tiktok"],
+                  aspectRatios: ["9:16"],
+                  durationRange,
+                  captionPreset,
+                  instruction,
+                  autoCrop: "centre",
+                  removeLongPauses: true,
+                  removeFillerWords: false,
+                },
+          requestedClipCount: clipMode === "manual_timestamp" ? exactRanges.length : requestedClips,
           rightsAccepted: true,
-          idempotencyKey: crypto.randomUUID(),
+          idempotencyKey: submission.current.key,
         },
       });
       trackAnalyticsEvent("clipper_job_started", {
         source: sourceMode,
         plan: context.plan,
-        clip_count: requestedClips,
+        clip_count: clipMode === "manual_timestamp" ? exactRanges.length : requestedClips,
       });
       await navigate({ to: "/app/youtube-clipper/jobs/$jobId", params: { jobId: result.jobId } });
     } catch (cause) {
@@ -411,7 +460,43 @@ export function JobWizard({
             setRights={setRights}
           />
         )}
-        {step === 1 && (
+        {step === 1 && creationContext?.exactCutAvailable && !initialDraft && (
+          <fieldset className="mb-6 grid gap-3 sm:grid-cols-2">
+            <legend className="mb-3 text-sm font-semibold text-ink">
+              How would you like to choose clips?
+            </legend>
+            {(
+              [
+                ["ai_discovery", "Find moments for me"],
+                ["manual_timestamp", "I already know my clips"],
+              ] as const
+            ).map(([mode, label]) => (
+              <label
+                key={mode}
+                className="flex min-h-14 cursor-pointer items-center gap-3 rounded-xl border border-line p-4 text-sm text-ink"
+              >
+                <input
+                  type="radio"
+                  name="clip-mode"
+                  value={mode}
+                  checked={clipMode === mode}
+                  onChange={() => setClipMode(mode)}
+                />
+                {label}
+              </label>
+            ))}
+          </fieldset>
+        )}
+        {step === 1 && clipMode === "manual_timestamp" && (
+          <ExactCutEditor
+            rows={exactRanges}
+            onChange={setExactRanges}
+            sourceSeconds={currentSourceDuration}
+            remainingSeconds={remainingSeconds}
+            maximumClips={context.entitlement.maxClipsPerJob}
+          />
+        )}
+        {step === 1 && clipMode === "ai_discovery" && (
           <Preferences
             requestedClips={requestedClips}
             setRequestedClips={setRequestedClips}
@@ -436,9 +521,16 @@ export function JobWizard({
             sourceMode={sourceMode}
             directUrl={directUrl}
             sourceSeconds={uploaded?.durationSeconds || metadata?.durationSeconds || directDuration}
-            requestedClips={requestedClips}
-            durationRange={durationRange}
-            captionPreset={captionPreset}
+            requestedClips={clipMode === "manual_timestamp" ? exactRanges.length : requestedClips}
+            durationRange={clipMode === "manual_timestamp" ? "Exact Cut ranges" : durationRange}
+            captionPreset={
+              clipMode === "manual_timestamp"
+                ? "Off — no transcription or AI planning"
+                : captionPreset
+            }
+            processedSeconds={
+              clipMode === "manual_timestamp" ? exactValidation.billableSeconds : undefined
+            }
             plan={context.plan}
             entitlement={context.entitlement}
           />
@@ -1429,6 +1521,7 @@ function Review({
   captionPreset,
   plan,
   entitlement,
+  processedSeconds,
 }: {
   metadata: YouTubeMetadata | null;
   uploaded: UploadedSource | null;
@@ -1440,11 +1533,17 @@ function Review({
   captionPreset: string;
   plan: PlanKey;
   entitlement: PlanEntitlement;
+  processedSeconds?: number;
 }) {
   const rows = [
     ["Source", metadata?.title ?? uploaded?.filename ?? directUrl],
     ["Source type", sourceMode],
-    ["Estimated usage", `${Math.ceil(sourceSeconds / 60)} source minutes`],
+    [
+      "Estimated usage",
+      processedSeconds === undefined
+        ? `${Math.ceil(sourceSeconds / 60)} source minutes`
+        : `${processedSeconds} selected-range seconds`,
+    ],
     ["Requested results", `${requestedClips} clips · ${durationRange}`],
     ["Captions", captionPreset],
     [

@@ -3,6 +3,22 @@ import { afterEach, describe, expect, it } from "vitest";
 import { ProcessingOverview } from "./processing-overview";
 afterEach(cleanup);
 describe("processing overview", () => {
+  it("identifies skipped AI work rather than claiming it completed for Exact Cut", () => {
+    render(
+      <ProcessingOverview
+        job={{
+          status: "rendering_previews",
+          completed_clip_count: 0,
+          requested_clip_count: 5,
+          settings_json: { mode: "manual_timestamp" },
+        }}
+        tasks={[{ task_type: "render_clip_preview", status: "running" }]}
+      />,
+    );
+    expect(
+      within(screen.getAllByRole("listitem")[1]).getByText("Not needed for Exact Cut"),
+    ).toBeInTheDocument();
+  });
   it("does not label a partially successful render batch as complete", () => {
     render(
       <ProcessingOverview

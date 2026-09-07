@@ -38,6 +38,7 @@ import { deleteExpiredAssets } from "./cleanup.js";
 import { renderBatchExport } from "./batch-export.js";
 import { publishYouTubeVideo } from "./youtube-publish.js";
 import { publishSocialVideo } from "./social-publish.js";
+import { materializeExactCut } from "./exact-cut.js";
 import {
   finishAcquisitionAttempt,
   loadPriorAcquisitionAttempts,
@@ -83,7 +84,7 @@ async function validateSource(task: ClipTask): Promise<TaskResult> {
     const { job, asset, target } = await downloadJobSource(task.clip_job_id, directory);
     const virusScan = await scanLocalFile(target);
     const info = await probeMedia(target);
-    if (!info.hasAudio)
+    if (!info.hasAudio && job.settings_json?.mode !== "manual_timestamp")
       throw new TaskFailure("missing_audio", "Speech clipping requires an audio stream.", false);
     const expectedDuration = Number(
       task.input_json.expectedDurationSeconds ?? job.source_duration_seconds,
@@ -145,6 +146,9 @@ async function validateSource(task: ClipTask): Promise<TaskResult> {
         .eq("id", job.id);
       if (matchError) throw matchError;
     }
+    if (job.settings_json?.mode === "manual_timestamp") {
+      return materializeExactCut(task, job.settings_json, info.durationSeconds);
+    }
     const { error: usageError } = await supabase.rpc("commit_source_usage", { p_job_id: job.id });
     if (usageError) throw usageError;
     return {
@@ -171,7 +175,7 @@ async function downloadDirect(task: ClipTask): Promise<TaskResult> {
     const downloaded = await downloadDirectMedia(url, target);
     const virusScan = await scanLocalFile(target);
     const info = await probeMedia(target);
-    if (!info.hasAudio)
+    if (!info.hasAudio && job.settings_json?.mode !== "manual_timestamp")
       throw new TaskFailure("missing_audio", "Speech clipping requires an audio stream.", false);
     const checksum = await sha256(target);
     const path = immutablePath(job, "source", "bin");
@@ -439,7 +443,7 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
     }
     const virusScan = await scanLocalFile(downloaded.filename);
     const info = await probeMedia(downloaded.filename);
-    if (!info.hasAudio)
+    if (!info.hasAudio && job.settings_json?.mode !== "manual_timestamp")
       throw new TaskFailure("missing_audio", "Speech clipping requires an audio stream.", false);
     const checksum = await sha256(downloaded.filename);
     const path = `${job.workspace_id}/${job.user_id}/${job.id}/source/${task.id}.${downloaded.format}`;

@@ -68,13 +68,13 @@ Primary research:
 ## Phase 0 — acquisition reliability
 
 - [x] Specific safe error codes/copy: rate limit, challenge, rejected request,
-  private, age, geography, unavailable, known transient and unknown.
+      private, age, geography, unavailable, known transient and unknown.
 - [x] Persist one bounded same-path retry for a known transient failure; delayed
-  tier escalation; cancellation during backoff; no rights-restriction retries.
+      tier escalation; cancellation during backoff; no rights-restriction retries.
 - [x] Preserve the last classified failure across worker restarts. Never infer an
-  IP block merely because no path is configured or a response is unknown.
+      IP block merely because no path is configured or a response is unknown.
 - [x] Reuse existing sanitized acquisition health; explain that a probe does
-  not guarantee every video. Correct paused/partial-completion progress states.
+      not guarantee every video. Correct paused/partial-completion progress states.
 - [x] Python, worker and app regression tests; typecheck/lint/build gates.
 
 Local verification, 2026-09-06:
@@ -99,15 +99,16 @@ Phase 0 code is locally verified; production release acceptance remains open.
 ## Phase 1 — Exact Cut
 
 - [x] Shared typed range parser: comma/newline paste, MM:SS and HH:MM:SS,
-  finite times, end after start, source bounds, overlap warnings, stable row order.
-- [ ] Existing source wizard mode selector, accessible editable rows, captions
-  explicitly off by default, live segment total/quota and canonical clip cap.
-- [ ] Transactional job creation/reservation: unchanged versioned rights, source
-  ownership, concurrency, source-duration cap; bill ceil(sum segment durations),
-  with idempotent reservation/commit/release and no browser-selected entitlement.
-- [ ] Validate source then materialize manual clips/versions idempotently, queue
-  previews directly. No full transcript/planning/scenes when captions are off.
-- [ ] Optional bounded per-segment transcription only; rebase caption timings.
+      finite times, end after start, source bounds, overlap warnings, stable row order.
+- [x] Existing source wizard mode selector, accessible editable rows, captions
+      explicitly off by default, live segment total/quota and canonical clip cap.
+- [x] Transactional job creation/reservation: unchanged versioned rights, source
+      ownership, concurrency, source-duration cap; bill ceil(sum segment durations),
+      with idempotent reservation/commit/release and no browser-selected entitlement.
+- [x] Validate source then materialize manual clips/versions idempotently, queue
+      previews directly. No full transcript/planning/scenes when captions are off.
+- [ ] Optional automatic per-segment transcription: follow-up, not implicitly
+      enabled. Users can explicitly enter captions in the existing per-clip editor.
 - [ ] Reuse preview/editor/export/retention. Manual list must not show fake scores.
 - [ ] E2E five ranges, row editing/reorder/delete, over-limit and durable job/export.
 - [ ] Update PRODUCT_SPEC, ARCHITECTURE, ROUTES, CHANGELOG and verification evidence.
@@ -129,7 +130,7 @@ Foundation progress (not an executable Exact Cut release):
 - Results-gallery regression tests show no fabricated zero scores or AI rationale
   for selected ranges. AI score filters retain user-selected ranges; title
   regeneration is not offered for unscored ranges lacking planner context.
-- The new range editor is not yet mounted in the wizard. API schema projection,
+- At foundation commit `552ed8e`, the new range editor was not mounted in the wizard. API schema projection,
   transactional job creation/metering and worker materialization must be completed
   before exposing the mode. No Exact Cut job/export or production migration has
   been claimed as verified.
@@ -137,15 +138,71 @@ Foundation progress (not an executable Exact Cut release):
   app/worker typecheck and app build passed, lint has the same seven existing
   warnings and no errors. These do not substitute for the pending Exact Cut E2E.
 
+### Executable wiring and edge cases — 2026-09-07
+
+- Re-fetched `origin/main`; it remains `461ba8b`. Existing foundation is preserved.
+- Mounted Exact Cut behind `clip_studio_capabilities` (only installed by the final
+  accounting migration). The API rejects manual mode before this capability exists.
+- Added job-creation fingerprints/workspace serialization, immutable paid source
+  contracts, range-only reservation, idempotent materialization and cancellation
+  release. No new limit: `maxClipsPerJob` and matching database plans remain canonical.
+- Manual validation queues only existing preview tasks and supports sources with
+  no audio. Initial source acquisition is once; stored-source reads may repeat.
+- Found two editor/accounting gaps during integration: longer saved ranges could
+  evade selected-duration metering, and existing browser clip updates lacked an
+  UPDATE policy. Added private per-clip paid allowances and a narrow activation RPC.
+  Longer saves debit only extra seconds; rounded paid capacity survives repeated
+  saves/restores. Source-bound, quota and expiry failures reject changes.
+- Skill-driven Supabase review retained empty definer search paths, explicit
+  execute grants, membership checks and rollback-safe database enforcement.
+  Official reference: https://supabase.com/docs/guides/database/functions .
+- PostgreSQL 17 contracts now load actual foundation RLS and the changed migrations
+  against local auth/storage stand-ins. Verified 5 ranges -> 5 clips/versions with
+  no planning runs; 50 seconds charged for a 600-second source; idempotent replay;
+  conflicting retry keys; missing lease/rights/source bounds; foreign access;
+  quota/concurrency limits; cancellation release; paid extensions; zero extra
+  debit for shorter/restored ranges; cross-clip version rejection. This is not
+  the complete hosted Supabase migration/auth/Storage environment.
+- Real FFmpeg generated one silent source, rendered five non-keyframe 2-second
+  selections through the existing watermarked renderer, and decoded every output.
+  The test is opt-in with `TEST_REAL_FFMPEG=1`, `TEST_FFMPEG_PATH` and
+  `TEST_FFPROBE_PATH`; its default skip is explicit, not a success assertion.
+- Browser UI contracts pass at 360px and 1280px: bulk paste, row edit, overlap
+  warning, 5-range payload, selected-duration review and over-limit rejection.
+  Screenshots: `output/playwright/exact-cut-360.png` and `exact-cut-1280.png`.
+  Dedicated test-only Vite fixture uses mocked provider boundaries and no env
+  files; it does not prove authentication, provider acquisition or hosted export.
+- Existing 14 Playwright cases also passed. App/worker typecheck, lint, app tests
+  and build passed before final documentation refresh; worker suite passed all
+  131 tests with real FFmpeg enabled. Final gate counts are recorded in the PR.
+- Production not migrated/deployed. Release order: compatible worker, all ordered
+  Clip Studio migrations including allowances/capability, regenerated database
+  types, then matching web app. Never deploy an AI-only worker after enabling
+  the Exact Cut capability. PR #18 remains draft until authenticated export and
+  subsequent required phases are verified.
+- Final local gates: 413 app tests passed, seven skipped (six pre-existing plus
+  the explicitly opt-in real-media test); 131 worker tests passed with real-media
+  enabled; both typechecks and production build passed; lint retains seven
+  existing warnings and zero errors. All 17 Playwright cases passed. The fixture
+  now has a separate Vite dependency cache to avoid interference with the app.
+- Release access refreshed: Chrome works again, and the existing GitHub sign-in
+  opened the correct `vidrial` production Supabase dashboard as `Mr-Dark-debug`.
+  The Supabase MCP connection still belongs to the unrelated account, so it must
+  not be used for migrations. No production schema changes were made in this slice.
+- Deviation: no stream-copy shortcut yet. Current defaults resize and watermark,
+  requiring encoding; non-keyframe exact boundaries also require it. Do not
+  weaken those guarantees merely to advertise a copy path. Full E2E and the
+  deployment gate stay unchecked, so Phase 1 is not declared finished.
+
 ## Phase 2 — AI Moments and goal-based discovery
 
 - [ ] Expose existing scores, topic, explanation and real Preview/Edit range/
-  Add to clips/Reject actions. Retain existing diversity selection, not a new dedup engine.
+      Add to clips/Reject actions. Retain existing diversity selection, not a new dedup engine.
 - [ ] Structured content-type, audience, platform, target-duration and free-text
-  goal inputs feed the existing planner instruction and relevance scoring.
+      goal inputs feed the existing planner instruction and relevance scoring.
 
 - [ ] Upload a controlled fixture through normal source/rights flow; verify ranked
-  results, score/hook/clarity presentation, multiselect export and quota enforcement.
+      results, score/hook/clarity presentation, multiselect export and quota enforcement.
 - [ ] Repeat source routing tests for protected HTTPS/RSS. Fix only actual gaps.
 
 ## Phase 3 — transcript-first discovery
@@ -153,26 +210,26 @@ Foundation progress (not an executable Exact Cut release):
 - [ ] Source player and transcript with click-to-seek and text-selection clipping.
 - [ ] Keyword/phrase search, jump to match and create clip from match.
 - [ ] Pad and snap ranges using the existing sentence-boundary convention;
-  use `transcript_selection` candidates and the ordinary clip pipeline.
+      use `transcript_selection` candidates and the ordinary clip pipeline.
 
 ## Phase 4 — context repair and topic chapters
 
 - [ ] Suggest, never silently apply, sentence-boundary extensions for selected
-  ranges. Missing transcript means no invented context-repair suggestion.
+      ranges. Missing transcript means no invented context-repair suggestion.
 - [ ] Navigable chapter anchors from real candidate topics; accurately describe
-  coverage rather than imply sparse top moments cover the entire source.
+      coverage rather than imply sparse top moments cover the entire source.
 
 ## Phase 5 — job-only review links
 
 - [ ] Owner-only create/revoke with random scoped capability, hash at rest,
-  expiry capped by source retention, safe no-store/referrer controls.
+      expiry capped by source retention, safe no-store/referrer controls.
 - [ ] Anonymous review session limited to one job; no workspace/billing/profile data.
 - [ ] Revalidate link for list, preview bytes and each export request. Revocation
-  immediately blocks subsequent access, including existing review sessions.
+      immediately blocks subsequent access, including existing review sessions.
 - [ ] Owner-derived entitlement and original rights on transactional exports;
-  idempotent review request, bounded selection, audit actor `review-link visitor`.
+      idempotent review request, bounded selection, audit actor `review-link visitor`.
 - [ ] Compact responsive owner share action and visitor multiselect UI; loading,
-  expired/revoked, empty, partial/error and export progress states.
+      expired/revoked, empty, partial/error and export progress states.
 - [ ] DB isolation/revocation/accounting tests and review-flow E2E.
 
 ## Release gates

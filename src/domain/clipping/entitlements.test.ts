@@ -6,6 +6,27 @@ import {
   requiresWatermark,
 } from "./entitlements";
 describe("plan entitlements", () => {
+  it("checks full source limits separately from selected processing seconds", () => {
+    const request = {
+      plan: "free" as const,
+      sourceSeconds: 600,
+      requestedClips: 5,
+      activeJobs: 0,
+      reservedSeconds: 3550,
+      committedSeconds: 0,
+      processedSeconds: 50,
+    };
+    expect(evaluateJobEntitlement(request).allowed).toBe(true);
+    expect(evaluateJobEntitlement({ ...request, sourceSeconds: 1801 }).reason).toBe(
+      "source_too_long",
+    );
+    expect(evaluateJobEntitlement({ ...request, processedSeconds: 51 }).reason).toBe(
+      "insufficient_usage",
+    );
+    expect(evaluateJobEntitlement({ ...request, sourceSeconds: Infinity }).reason).toBe(
+      "invalid_duration",
+    );
+  });
   it("looks up canonical plans", () =>
     expect(getPlanEntitlement("free").monthlySourceSeconds).toBe(3600));
   it("rejects unknown plans", () => expect(() => getPlanEntitlement("enterprise")).toThrow());

@@ -6,6 +6,7 @@ import { wakeVideoWorker } from "@/services/worker/server";
 import { getPlanEntitlement, type PlanKey } from "@/domain/clipping/entitlements";
 import { getServerEnv } from "@/config/env.server";
 import { editManifestSchema } from "@/domain/clipping/edit-manifest";
+import { prepareClipJobSettings } from "@/domain/clipping/job-settings";
 
 const sourceType = z.enum([
   "local_upload",
@@ -71,7 +72,7 @@ type AttachmentClient = {
   from(table: string): {
     insert(
       values: Record<string, unknown> | Record<string, unknown>[],
-    ): PromiseLike<{ error: { message: string } | null }>;
+    ): PromiseLike<{ error: { message: string; code?: string } | null }>;
   };
 };
 
@@ -81,22 +82,34 @@ export const getClipJobCreationContext = createServerFn({ method: "GET" }).handl
   const planKey: PlanKey =
     session.plan === "creator" || session.plan === "pro" ? session.plan : "free";
   const supabase = getSupabaseServerClient();
-  const [{ data: period }, { count: activeJobs }] = await Promise.all([
-    supabase
-      .from("usage_periods")
-      .select("source_seconds_reserved,source_seconds_committed")
-      .eq("workspace_id", session.workspaceId)
-      .order("period_start", { ascending: false })
-      .limit(1)
-      .maybeSingle(),
-    supabase
-      .from("clip_jobs")
-      .select("id", { count: "exact", head: true })
-      .eq("workspace_id", session.workspaceId)
-      .not("status", "in", '("completed","failed","cancelled","expiring","expired")'),
-  ]);
+  const [{ data: period }, { count: activeJobs }, { data: studioCapabilities }] = await Promise.all(
+    [
+      supabase
+        .from("usage_periods")
+        .select("source_seconds_reserved,source_seconds_committed")
+        .eq("workspace_id", session.workspaceId)
+        .order("period_start", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("clip_jobs")
+        .select("id", { count: "exact", head: true })
+        .eq("workspace_id", session.workspaceId)
+        .not(
+          "status",
+          "in",
+          '("ready","partially_ready","completed","failed","cancelled","expiring","expired")',
+        ),
+      (supabase as unknown as RpcClient).rpc("clip_studio_capabilities", {}),
+    ],
+  );
   return {
     plan: planKey,
+    exactCutAvailable:
+      typeof studioCapabilities === "object" &&
+      studioCapabilities !== null &&
+      "exactCut" in studioCapabilities &&
+      studioCapabilities.exactCut === true,
     entitlement: getPlanEntitlement(planKey),
     activeJobs: activeJobs ?? 0,
     reservedSeconds: Number(period?.source_seconds_reserved ?? 0),
@@ -110,6 +123,28 @@ export const createClipJob = createServerFn({ method: "POST" })
     const session = await getCurrentSession();
     if (!session?.workspaceId) throw new Error("A workspace is required.");
     const client = getSupabaseServerClient() as unknown as RpcClient;
+    const plan = getPlanEntitlement(
+      session.plan === "creator" || session.plan === "pro" ? session.plan : "free",
+    );
+    const settings = prepareClipJobSettings(data.settings, {
+      sourceSeconds: data.sourceDurationSeconds,
+      requestedClips: data.requestedClipCount,
+      maximumClips: plan.maxClipsPerJob,
+    });
+    if (settings.mode === "manual_timestamp") {
+      const { data: capabilities, error: capabilityError } = await client.rpc(
+        "clip_studio_capabilities",
+        {},
+      );
+      if (
+        capabilityError ||
+        typeof capabilities !== "object" ||
+        capabilities === null ||
+        !("exactCut" in capabilities) ||
+        capabilities.exactCut !== true
+      )
+        throw new Error("Exact Cut is not enabled on this deployment yet.");
+    }
     const { data: jobId, error } = await client.rpc("create_clip_job", {
       p_workspace_id: session.workspaceId,
       p_source_type: data.sourceType,
@@ -118,7 +153,7 @@ export const createClipJob = createServerFn({ method: "POST" })
       p_source_duration_seconds: data.sourceDurationSeconds,
       p_source_asset_id: data.sourceAssetId,
       p_source_metadata: data.sourceMetadata,
-      p_settings: data.settings,
+      p_settings: settings,
       p_requested_clip_count: data.requestedClipCount,
       p_attestation_version: "youtube-clipper-rights-v1",
       p_policy_version: "vidrial-content-policy-v1",
@@ -144,6 +179,7 @@ export const createClipJob = createServerFn({ method: "POST" })
           media_asset_id: data.sourceAssetId,
           youtube_video_id: null,
           relationship: "primary",
+          idempotency_key: jobId,
           match_confidence: 1,
           match_reason: "Explicitly selected by the user",
         },
@@ -164,8 +200,21 @@ export const createClipJob = createServerFn({ method: "POST" })
       const { error: attachmentError } = await attachmentClient
         .from("source_attachments")
         .insert(attachments);
-      if (attachmentError)
-        throw new Error(`Source provenance could not be recorded: ${attachmentError.message}`);
+      if (attachmentError) {
+        const { data: existingAttachment } =
+          attachmentError.code === "23505"
+            ? await getSupabaseServerClient()
+                .from("source_attachments")
+                .select("id")
+                .eq("idempotency_key", jobId)
+                .eq("clip_job_id", jobId)
+                .eq("media_asset_id", data.sourceAssetId)
+                .eq("relationship", "primary")
+                .maybeSingle()
+            : { data: null };
+        if (!existingAttachment)
+          throw new Error(`Source provenance could not be recorded: ${attachmentError.message}`);
+      }
     }
     const workerWake = await wakeVideoWorker();
     return { jobId, workerWake };
@@ -242,9 +291,7 @@ export const getClipJob = createServerFn({ method: "GET" })
       supabase.from("oauth_connections").select("provider").eq("status", "connected"),
       supabase
         .from("clip_candidates")
-        .select(
-          "id,clip_job_id,start_seconds,end_seconds,title,hook,summary,topic,transcript_excerpt,standalone_score,hook_score,clarity_score,story_score,relevance_score,technical_score,overall_score,selection_reason,social_copy_json,rank,status",
-        )
+        .select("*")
         .eq("clip_job_id", data.jobId)
         .order("rank", { ascending: true }),
     ]);
@@ -275,9 +322,19 @@ export const getClipJob = createServerFn({ method: "GET" })
       events: events ?? [],
       clips: (clips ?? []).map((clip) => ({
         ...clip,
-        preview_url: clip.preview_asset_id ? (previewUrls.get(clip.preview_asset_id) ?? null) : null,
+        preview_url: clip.preview_asset_id
+          ? (previewUrls.get(clip.preview_asset_id) ?? null)
+          : null,
       })),
-      candidates: candidates ?? [],
+      candidates: (candidates ?? []).map((candidate) => ({
+        ...candidate,
+        // The published type snapshot predates this additive migration. Missing
+        // origin is supported during rollout; regenerate types after deployment.
+        origin: z
+          .enum(["ai_discovery", "manual_timestamp", "transcript_selection"])
+          .default("ai_discovery")
+          .parse((candidate as unknown as { origin?: unknown }).origin),
+      })),
       exports: exports ?? [],
       tasks: (tasks ?? []).map(({ input_json, ...task }) => ({
         ...task,
@@ -393,14 +450,17 @@ export const regenerateClipTitle = createServerFn({ method: "POST" })
     const envelope = z
       .object({ choices: z.array(z.object({ message: z.object({ content: z.string() }) })).min(1) })
       .parse(await response.json());
-    const regenerated = regeneratedCopySchema.parse(JSON.parse(envelope.choices[0].message.content));
+    const regenerated = regeneratedCopySchema.parse(
+      JSON.parse(envelope.choices[0].message.content),
+    );
     const client = supabase as unknown as RpcClient;
     const { data: updated, error: updateError } = await client.rpc("update_clip_candidate_copy", {
       p_clip_id: data.clipId,
       p_title: regenerated.title,
       p_social_copy_json: regenerated.socialCopy,
     });
-    if (updateError || updated !== true) throw new Error("The regenerated title could not be saved.");
+    if (updateError || updated !== true)
+      throw new Error("The regenerated title could not be saved.");
     return regenerated;
   });
 
@@ -512,7 +572,7 @@ export const cancelClipJob = createServerFn({ method: "POST" })
         updated_at: new Date().toISOString(),
       })
       .eq("id", data.jobId)
-      .not("status", "in", '("completed","expired")');
+      .not("status", "in", '("completed","expiring","expired")');
     if (error) throw new Error(error.message);
     return { ok: true };
   });
@@ -552,7 +612,7 @@ export const getClipForEditor = createServerFn({ method: "GET" })
       .eq("workspace_id", session.workspaceId)
       .single();
     if (jobError || !job) throw new Error("This clip is not available in your workspace.");
-    const [{ data: versions }, { data: candidate }] = await Promise.all([
+    const [{ data: versions }, { data: candidate }, { data: allowance }] = await Promise.all([
       supabase
         .from("clip_versions")
         .select("*")
@@ -565,6 +625,9 @@ export const getClipForEditor = createServerFn({ method: "GET" })
             .eq("id", clip.clip_candidate_id)
             .single()
         : Promise.resolve({ data: null }),
+      (supabase as unknown as RpcClient).rpc("get_clip_processing_allowance", {
+        p_clip_id: data.clipId,
+      }),
     ]);
     let previewUrl: string | null = null;
     if (clip.preview_asset_id) {
@@ -587,8 +650,12 @@ export const getClipForEditor = createServerFn({ method: "GET" })
       candidate,
       versions: versions ?? [],
       previewUrl,
+      processedSecondsAllowance:
+        typeof allowance === "number" && Number.isFinite(allowance) ? allowance : null,
       titleRegenerationAvailable: Boolean(
-        serverEnv.OPENROUTER_API_KEY && serverEnv.OPENROUTER_CLIP_MODEL,
+        candidate?.overall_score != null &&
+        serverEnv.OPENROUTER_API_KEY &&
+        serverEnv.OPENROUTER_CLIP_MODEL,
       ),
     };
   });
@@ -647,15 +714,10 @@ export const saveClipVersion = createServerFn({ method: "POST" })
       .select("id")
       .single();
     if (error) throw new Error(error.message);
-    const { error: updateError } = await supabase
-      .from("clips")
-      .update({
-        current_version_id: version.id,
-        title: data.manifest.title,
-        duration_seconds: data.manifest.endSeconds - data.manifest.startSeconds,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", data.clipId);
+    const { error: updateError } = await (supabase as unknown as RpcClient).rpc(
+      "activate_clip_version",
+      { p_clip_id: data.clipId, p_version_id: version.id },
+    );
     if (updateError) throw new Error(updateError.message);
     return { versionId: version.id, versionNumber };
   });
@@ -713,15 +775,10 @@ export const restoreClipVersion = createServerFn({ method: "POST" })
       .select("id,version_number")
       .single();
     if (restoreError) throw new Error(restoreError.message);
-    const { error: updateError } = await supabase
-      .from("clips")
-      .update({
-        current_version_id: restored.id,
-        title: manifest.title,
-        duration_seconds: manifest.endSeconds - manifest.startSeconds,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("id", data.clipId);
+    const { error: updateError } = await (supabase as unknown as RpcClient).rpc(
+      "activate_clip_version",
+      { p_clip_id: data.clipId, p_version_id: restored.id },
+    );
     if (updateError) throw new Error(updateError.message);
     return restored;
   });

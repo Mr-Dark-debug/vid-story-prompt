@@ -2,12 +2,21 @@
 
 ## Clip Studio reliability behavior
 
-Exact Cut is under implementation, not enabled in the creation wizard yet. Its
+Exact Cut is implemented behind a database capability gate (production release
+verification is pending). Its
 range editor accepts seconds, MM:SS and H:MM:SS, with comma/newline bulk paste,
-labels, reordering and inline validation. User-selected ranges will remain unscored
-and use the same clip results/editor/export surfaces. Their intended charge is
+labels, reordering and inline validation. User-selected ranges remain unscored
+and use the same clip results/editor/export surfaces. The initial charge is
 the sum of requested durations, including overlapping ranges, rounded up once;
-database accounting and full job verification remain release requirements.
+the worker skips transcription and AI planning. The full source-duration cap still
+applies. The canonical `maxClipsPerJob` also caps Exact Cut ranges.
+
+Editing beyond a clip's paid duration debits only additional processing seconds,
+rounded up to a second, in the current usage period. The rounded allowance is
+retained: shortening, restoring and repeated saves within it do not charge again.
+The editor discloses this before saving; insufficient quota rejects the version
+transaction. No automatic transcription is implied by entering Exact Cut.
+Full authenticated source-to-export and production verification remain release gates.
 
 Acquisition errors distinguish temporary rate limits, sign-in/anti-bot challenges,
 HTTP access rejection, unavailable/private/age-restricted/region-restricted/DRM
@@ -45,6 +54,7 @@ the AI proposes is a reviewable plan — never a black box.
 ## Feature surface (implemented as mock prototype)
 
 ### Marketing site
+
 Home, Features, How it Works, Pricing, Use Cases (Podcasts, Courses,
 Product Demos, Short-form, YouTube), Docs (Getting Started, Uploading,
 AI Editor, Timeline, Exporting), Security, AI Transparency, Roadmap,
@@ -52,6 +62,7 @@ Changelog, Contact, Status, Legal (Terms, Privacy, Cookies, AUP,
 Copyright, Imprint), Design System.
 
 ### Authenticated app
+
 - Dashboard with recent projects and usage
 - 5-step project creation wizard
 - Project tabs: Overview, Editor, Media, Transcript, Versions, Exports
@@ -65,6 +76,7 @@ Copyright, Imprint), Design System.
 - Settings: Profile, Preferences, Notifications, Privacy, Integrations
 
 ### YouTube Clipper
+
 Dedicated flow for authorised YouTube sources with rights attestation,
 plan-based clip selection, job progress, and per-clip editor.
 
@@ -80,6 +92,7 @@ plan-based clip selection, job progress, and per-clip editor.
 - ≥ 80% of AI-proposed operations accepted without edit
 - Zero rights-violation incidents
 - WCAG 2.2 AA conformance across all shipped routes
+
 # Product specification
 
 YouTube Clipper turns one authorised long-form source into multiple complete, editable short clips. It prioritises standalone clarity, story completeness, transparent selection reasoning, durable processing and copyright compliance. It never promises virality.

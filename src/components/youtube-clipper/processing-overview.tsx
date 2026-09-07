@@ -21,10 +21,20 @@ export function ProcessingOverview({
   job,
   tasks,
 }: {
-  job: { status: string; completed_clip_count: number; requested_clip_count: number };
+  job: {
+    status: string;
+    completed_clip_count: number;
+    requested_clip_count: number;
+    settings_json?: unknown;
+  };
   tasks: ProgressTask[];
 }) {
   const stages = deriveJobStages(job, tasks);
+  const manual =
+    typeof job.settings_json === "object" &&
+    job.settings_json !== null &&
+    "mode" in job.settings_json &&
+    job.settings_json.mode === "manual_timestamp";
   const ready = ["ready", "completed", "exporting"].includes(job.status);
   const partiallyReady = job.status === "partially_ready";
   const stopped = ["failed", "cancelled", "expired"].includes(job.status);
@@ -73,8 +83,10 @@ export function ProcessingOverview({
       <ol aria-label="Clipping progress" className="mt-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
         {phases.map((phase, index) => {
           const group = stages.filter((stage) => phase.stages.includes(stage.id));
+          const skipped = manual && index === 1;
           const failed = group.some((stage) => stage.state === "failed");
           const active =
+            !skipped &&
             !ready &&
             !partiallyReady &&
             !stopped &&
@@ -95,8 +107,9 @@ export function ProcessingOverview({
               !(partiallyReady && index >= 2) &&
               !(waiting && index === 0) &&
               (downstreamStarted || group.every((stage) => stage.state === "completed")));
-          const label =
-            waiting && index === 0
+          const label = skipped
+            ? "Not needed for Exact Cut"
+            : waiting && index === 0
               ? "Source needed"
               : partiallyReady && index === 3
                 ? "Partially ready"
