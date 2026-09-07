@@ -189,6 +189,15 @@ Foundation progress (not an executable Exact Cut release):
   opened the correct `vidrial` production Supabase dashboard as `Mr-Dark-debug`.
   The Supabase MCP connection still belongs to the unrelated account, so it must
   not be used for migrations. No production schema changes were made in this slice.
+- Production read-only compatibility check confirmed no leased/running clip tasks,
+  no candidate origin column, latest migration `20260823220000`, and zero clips
+  UPDATE/ALL policies. This verifies the activation gap against the deployed schema.
+- Optional `-Advisors` now runs Supabase CLI security advisors against the isolated
+  test database with loopback-only non-TLS connection. No errors; one inherited
+  warning for the foundation's `pgcrypto` extension in public. No unrelated
+  production extension/schema relocation was attempted.
+- Vercel preview for pushed `5f819a6` passed:
+  https://vercel.com/prashant-project/vidrial/79ofSh5f5csj16fvCKz7H6HycxEd .
 - Deviation: no stream-copy shortcut yet. Current defaults resize and watermark,
   requiring encoding; non-keyframe exact boundaries also require it. Do not
   weaken those guarantees merely to advertise a copy path. Full E2E and the

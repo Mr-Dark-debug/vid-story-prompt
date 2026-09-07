@@ -1,6 +1,7 @@
 param(
   [string]$PostgresBin = "C:\Program Files\PostgreSQL\17\bin",
-  [ValidateSet("all", "acquisition", "candidates", "accounting")][string]$Suite = "all"
+  [ValidateSet("all", "acquisition", "candidates", "accounting")][string]$Suite = "all",
+  [switch]$Advisors
 )
 
 # Isolated PostgreSQL contract test. Never connects to the product database.
@@ -52,6 +53,10 @@ try {
     & (Join-Path $PostgresBin "psql.exe") @accountingArguments -f (Join-Path $repository "supabase\migrations\20260711230000_exports_retention_and_usage_release.sql") -f (Join-Path $repository "supabase\migrations\20260814020000_clipper_candidate_social_copy.sql") -f (Join-Path $repository "supabase\migrations\20260906165856_clip_candidate_origins.sql") -f (Join-Path $repository "supabase\migrations\20260906215051_exact_cut_job_accounting.sql") -f (Join-Path $repository "supabase\migrations\20260906215728_exact_cut_materialization.sql") -f (Join-Path $repository "supabase\migrations\20260907064926_exact_cut_edit_allowances.sql") -f (Join-Path $repository "supabase\tests\exact-cut-accounting.sql")
     if ($LASTEXITCODE -ne 0) { throw "Exact Cut accounting assertions failed" }
     Write-Output "exact_cut_accounting_contract=passed"
+    if ($Advisors) {
+      & bunx supabase db advisors --db-url "postgresql://vidrial_test@127.0.0.1:$port/exact_cut_test?sslmode=disable" --type security --level warn --fail-on error
+      if ($LASTEXITCODE -ne 0) { throw "Isolated database advisors failed" }
+    }
   }
 } finally {
   if ($started) {
