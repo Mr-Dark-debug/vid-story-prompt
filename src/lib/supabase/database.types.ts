@@ -543,37 +543,41 @@ export type Database = {
         };
         Relationships: [];
       };
-      "clip_candidates": {
+      "blog_feedback": {
         Row: {
           "id": string;
-          "clip_job_id": string;
-          "planning_run_id": string;
-          "start_seconds": number;
-          "end_seconds": number;
-          "title": string;
-          "hook": string;
-          "summary": string;
-          "topic": string;
-          "transcript_excerpt": string;
-          "standalone_score": number;
-          "hook_score": number;
-          "clarity_score": number;
-          "story_score": number;
-          "relevance_score": number;
-          "technical_score": number;
-          "overall_score": number;
-          "selection_reason": string;
-          "social_copy_json": Json;
-          "overlap_group": string | null;
-          "rank": number | null;
-          "status": string;
+          "article_slug": string;
+          "user_id": string | null;
+          "anonymous_session_hash": string | null;
+          "vote": string;
           "created_at": string;
           "updated_at": string;
         };
         Insert: {
           "id"?: string;
+          "article_slug": string;
+          "user_id"?: string | null;
+          "anonymous_session_hash"?: string | null;
+          "vote": string;
+          "created_at"?: string;
+          "updated_at"?: string;
+        };
+        Update: {
+          "id"?: string;
+          "article_slug"?: string;
+          "user_id"?: string | null;
+          "anonymous_session_hash"?: string | null;
+          "vote"?: string;
+          "created_at"?: string;
+          "updated_at"?: string;
+        };
+        Relationships: [];
+      };
+      "clip_candidates": {
+        Row: {
+          "id": string;
           "clip_job_id": string;
-          "planning_run_id": string;
+          "planning_run_id": string | null;
           "start_seconds": number;
           "end_seconds": number;
           "title": string;
@@ -581,25 +585,55 @@ export type Database = {
           "summary": string;
           "topic": string;
           "transcript_excerpt": string;
-          "standalone_score": number;
-          "hook_score": number;
-          "clarity_score": number;
-          "story_score": number;
-          "relevance_score": number;
-          "technical_score": number;
-          "overall_score": number;
+          "standalone_score": number | null;
+          "hook_score": number | null;
+          "clarity_score": number | null;
+          "story_score": number | null;
+          "relevance_score": number | null;
+          "technical_score": number | null;
+          "overall_score": number | null;
           "selection_reason": string;
-          "social_copy_json"?: Json;
+          "overlap_group": string | null;
+          "rank": number | null;
+          "status": string;
+          "created_at": string;
+          "updated_at": string;
+          "social_copy_json": Json;
+          "origin": string;
+          "selection_key": string | null;
+        };
+        Insert: {
+          "id"?: string;
+          "clip_job_id": string;
+          "planning_run_id"?: string | null;
+          "start_seconds": number;
+          "end_seconds": number;
+          "title": string;
+          "hook"?: string;
+          "summary"?: string;
+          "topic"?: string;
+          "transcript_excerpt"?: string;
+          "standalone_score"?: number | null;
+          "hook_score"?: number | null;
+          "clarity_score"?: number | null;
+          "story_score"?: number | null;
+          "relevance_score"?: number | null;
+          "technical_score"?: number | null;
+          "overall_score"?: number | null;
+          "selection_reason"?: string;
           "overlap_group"?: string | null;
           "rank"?: number | null;
           "status": string;
           "created_at"?: string;
           "updated_at"?: string;
+          "social_copy_json": Json;
+          "origin"?: string;
+          "selection_key"?: string | null;
         };
         Update: {
           "id"?: string;
           "clip_job_id"?: string;
-          "planning_run_id"?: string;
+          "planning_run_id"?: string | null;
           "start_seconds"?: number;
           "end_seconds"?: number;
           "title"?: string;
@@ -607,20 +641,22 @@ export type Database = {
           "summary"?: string;
           "topic"?: string;
           "transcript_excerpt"?: string;
-          "standalone_score"?: number;
-          "hook_score"?: number;
-          "clarity_score"?: number;
-          "story_score"?: number;
-          "relevance_score"?: number;
-          "technical_score"?: number;
-          "overall_score"?: number;
+          "standalone_score"?: number | null;
+          "hook_score"?: number | null;
+          "clarity_score"?: number | null;
+          "story_score"?: number | null;
+          "relevance_score"?: number | null;
+          "technical_score"?: number | null;
+          "overall_score"?: number | null;
           "selection_reason"?: string;
-          "social_copy_json"?: Json;
           "overlap_group"?: string | null;
           "rank"?: number | null;
           "status"?: string;
           "created_at"?: string;
           "updated_at"?: string;
+          "social_copy_json"?: Json;
+          "origin"?: string;
+          "selection_key"?: string | null;
         };
         Relationships: [];
       };
@@ -661,6 +697,8 @@ export type Database = {
           "completed_at": string | null;
           "cancelled_at": string | null;
           "source_match_json": Json;
+          "creation_idempotency_key": string | null;
+          "creation_request_fingerprint": string | null;
         };
         Insert: {
           "id"?: string;
@@ -698,6 +736,8 @@ export type Database = {
           "completed_at"?: string | null;
           "cancelled_at"?: string | null;
           "source_match_json": Json;
+          "creation_idempotency_key"?: string | null;
+          "creation_request_fingerprint"?: string | null;
         };
         Update: {
           "id"?: string;
@@ -735,6 +775,26 @@ export type Database = {
           "completed_at"?: string | null;
           "cancelled_at"?: string | null;
           "source_match_json"?: Json;
+          "creation_idempotency_key"?: string | null;
+          "creation_request_fingerprint"?: string | null;
+        };
+        Relationships: [];
+      };
+      "clip_processing_allowances": {
+        Row: {
+          "clip_id": string;
+          "clip_job_id": string;
+          "duration_seconds": number;
+        };
+        Insert: {
+          "clip_id": string;
+          "clip_job_id": string;
+          "duration_seconds": number;
+        };
+        Update: {
+          "clip_id"?: string;
+          "clip_job_id"?: string;
+          "duration_seconds"?: number;
         };
         Relationships: [];
       };
@@ -1191,6 +1251,48 @@ export type Database = {
           "expires_at"?: string;
           "created_at"?: string;
           "completed_at"?: string | null;
+        };
+        Relationships: [];
+      };
+      "indexnow_submissions": {
+        Row: {
+          "id": string;
+          "url": string;
+          "fingerprint": string;
+          "reason": string;
+          "response_status": number | null;
+          "attempt_count": number;
+          "retry_state": string;
+          "last_attempt_at": string | null;
+          "submitted_at": string | null;
+          "created_at": string;
+          "updated_at": string;
+        };
+        Insert: {
+          "id"?: string;
+          "url": string;
+          "fingerprint": string;
+          "reason": string;
+          "response_status"?: number | null;
+          "attempt_count"?: number;
+          "retry_state"?: string;
+          "last_attempt_at"?: string | null;
+          "submitted_at"?: string | null;
+          "created_at"?: string;
+          "updated_at"?: string;
+        };
+        Update: {
+          "id"?: string;
+          "url"?: string;
+          "fingerprint"?: string;
+          "reason"?: string;
+          "response_status"?: number | null;
+          "attempt_count"?: number;
+          "retry_state"?: string;
+          "last_attempt_at"?: string | null;
+          "submitted_at"?: string | null;
+          "created_at"?: string;
+          "updated_at"?: string;
         };
         Relationships: [];
       };
@@ -1865,13 +1967,6 @@ export type Database = {
           "clip_job_id": string;
           "export_id": string;
           "youtube_channel_id": string | null;
-          "platform": string;
-          "connection_id": string | null;
-          "target_account_id": string | null;
-          "caption": string;
-          "platform_options_json": Json;
-          "approval_mode": string;
-          "approved_at": string | null;
           "title": string;
           "description": string;
           "tags": string[];
@@ -1891,6 +1986,13 @@ export type Database = {
           "updated_at": string;
           "started_at": string | null;
           "completed_at": string | null;
+          "platform": string;
+          "connection_id": string | null;
+          "target_account_id": string | null;
+          "caption": string;
+          "platform_options_json": Json;
+          "approval_mode": string;
+          "approved_at": string | null;
         };
         Insert: {
           "id"?: string;
@@ -1899,13 +2001,6 @@ export type Database = {
           "clip_job_id": string;
           "export_id": string;
           "youtube_channel_id"?: string | null;
-          "platform"?: string;
-          "connection_id"?: string | null;
-          "target_account_id"?: string | null;
-          "caption"?: string;
-          "platform_options_json"?: Json;
-          "approval_mode"?: string;
-          "approved_at"?: string | null;
           "title": string;
           "description"?: string;
           "tags"?: string[];
@@ -1925,6 +2020,13 @@ export type Database = {
           "updated_at"?: string;
           "started_at"?: string | null;
           "completed_at"?: string | null;
+          "platform"?: string;
+          "connection_id"?: string | null;
+          "target_account_id"?: string | null;
+          "caption"?: string;
+          "platform_options_json": Json;
+          "approval_mode"?: string;
+          "approved_at"?: string | null;
         };
         Update: {
           "id"?: string;
@@ -1933,13 +2035,6 @@ export type Database = {
           "clip_job_id"?: string;
           "export_id"?: string;
           "youtube_channel_id"?: string | null;
-          "platform"?: string;
-          "connection_id"?: string | null;
-          "target_account_id"?: string | null;
-          "caption"?: string;
-          "platform_options_json"?: Json;
-          "approval_mode"?: string;
-          "approved_at"?: string | null;
           "title"?: string;
           "description"?: string;
           "tags"?: string[];
@@ -1959,6 +2054,13 @@ export type Database = {
           "updated_at"?: string;
           "started_at"?: string | null;
           "completed_at"?: string | null;
+          "platform"?: string;
+          "connection_id"?: string | null;
+          "target_account_id"?: string | null;
+          "caption"?: string;
+          "platform_options_json"?: Json;
+          "approval_mode"?: string;
+          "approved_at"?: string | null;
         };
         Relationships: [];
       };

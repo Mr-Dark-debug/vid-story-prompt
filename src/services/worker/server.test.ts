@@ -11,7 +11,9 @@ describe("source access health boundary", () => {
 
     expect(result).toEqual({
       checkedAt: "2026-07-18T20:00:00.000Z",
-      message: "Automatic source access is available.",
+      // A successful probe is not a guarantee that every individual source can be acquired.
+      message:
+        "The latest source-access probe passed. Individual videos may still be unavailable or restricted.",
       status: "healthy",
     });
   });

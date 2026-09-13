@@ -120,8 +120,16 @@ const failureMessages: Record<string, { message: string; retryable: boolean }> =
     retryable: false,
   },
   provider_auth_challenge: {
-    message: "YouTube blocked this request from the server network.",
+    message: "YouTube requested a sign-in or anti-bot check from the server.",
     retryable: true,
+  },
+  provider_access_denied: {
+    message: "YouTube rejected this media request (HTTP 403); the precise cause is not confirmed.",
+    retryable: true,
+  },
+  provider_unknown_failure: {
+    message: "The YouTube request failed for an unrecognized reason.",
+    retryable: false,
   },
   provider_configuration_error: {
     message: "The protected YouTube acquisition path is not configured correctly.",
@@ -229,7 +237,9 @@ export async function downloadYouTubeWithPython(
     if (status.state !== "completed" || !status.result) {
       terminal = true;
       const reportedCode = status.error_code ?? "";
-      const knownCode = reportedCode in failureMessages ? reportedCode : "provider_temporary_failure";
+      const knownCode = Object.hasOwn(failureMessages, reportedCode)
+        ? reportedCode
+        : "provider_unknown_failure";
       const failure = failureMessages[knownCode]!;
       throw new TaskFailure(
         status.state === "cancelled" ? "cancelled" : knownCode,

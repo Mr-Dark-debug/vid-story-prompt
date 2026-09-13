@@ -1,24 +1,31 @@
-import { render, screen } from "@testing-library/react";
-import { describe, expect, it, vi } from "vitest";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it, vi } from "vitest";
+
+afterEach(cleanup);
 
 vi.mock("@/services/worker/server", () => ({
   getWorkerEgressHealth: vi.fn(),
 }));
 
 import { WorkerEgressBadge } from "./WorkerEgressBadge";
+import { getWorkerEgressHealth } from "@/services/worker/server";
 
 describe("WorkerEgressBadge", () => {
+  it("reports an unavailable check without inventing a confirmed block", async () => {
+    vi.mocked(getWorkerEgressHealth).mockRejectedValueOnce(new Error("offline"));
+    render(<WorkerEgressBadge />);
+    expect(screen.getByRole("status", { name: "Source access: Checking" })).toBeInTheDocument();
+    expect(
+      await screen.findByRole("status", { name: "Source access: Unavailable" }),
+    ).toBeInTheDocument();
+  });
   it.each([
     ["healthy", "Healthy"],
     ["degraded", "Degraded"],
     ["blocked", "Blocked"],
     ["unknown", "Unavailable"],
   ] as const)("renders the %s state with text, not color alone", (status, label) => {
-    render(
-      <WorkerEgressBadge
-        health={{ checkedAt: null, message: `${label} detail`, status }}
-      />,
-    );
+    render(<WorkerEgressBadge health={{ checkedAt: null, message: `${label} detail`, status }} />);
     expect(screen.getByRole("status", { name: `Source access: ${label}` })).toHaveTextContent(
       `Source access: ${label}`,
     );

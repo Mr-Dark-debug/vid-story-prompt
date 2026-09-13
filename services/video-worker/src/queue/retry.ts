@@ -45,7 +45,7 @@ export function failureForTaskAttempt(
     return {
       ...failure,
       message:
-        "YouTube blocked this cloud worker after every protected download path was tried. Try again later, or use an original file or owner-controlled direct media link.",
+        "YouTube requested a sign-in or anti-bot check. Automatic retries are exhausted. Use an authorised original file or owner-controlled direct media link to continue.",
     };
   }
   if (failure.code === "provider_rate_limited") {

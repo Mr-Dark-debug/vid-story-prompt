@@ -26,7 +26,7 @@ export function mapWorkerProxyHealth(input: WorkerProxyHealthResponse): WorkerEg
       : "unknown";
   const message =
     status === "healthy"
-      ? "Automatic source access is available."
+      ? "The latest source-access probe passed. Individual videos may still be unavailable or restricted."
       : status === "degraded"
         ? "Automatic source access is available but may need another safe connection attempt."
         : status === "blocked"
@@ -59,7 +59,7 @@ export const getWorkerEgressHealth = createServerFn({ method: "GET" }).handler(a
     return {
       checkedAt: null,
       message: "Automatic source access could not be checked.",
-      status: "blocked",
+      status: "unknown",
     } satisfies WorkerEgressHealth;
   }
 });

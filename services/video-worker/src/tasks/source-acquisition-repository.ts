@@ -12,12 +12,13 @@ type AttemptRow = {
   strategy: PriorAcquisitionAttempt["strategy"] | null;
   egress_fingerprint: string | null;
   status: string;
+  error_code: string | null;
 };
 
 export async function loadPriorAcquisitionAttempts(jobTaskId: string) {
   const { data, error } = await supabase
     .from("source_acquisition_attempts")
-    .select("id,source_tier,strategy,egress_fingerprint,status")
+    .select("id,source_tier,strategy,egress_fingerprint,status,error_code")
     .eq("job_task_id", jobTaskId)
     .order("ordinal", { ascending: true });
   if (error) throw error;
@@ -35,14 +36,17 @@ export async function loadPriorAcquisitionAttempts(jobTaskId: string) {
       row.status = "superseded";
     }
   }
-  return rows.map((row): PriorAcquisitionAttempt => ({
-    sourceTier: row.source_tier,
-    strategy: row.strategy ?? undefined,
-    egressFingerprint: row.egress_fingerprint ?? undefined,
-    status: ["succeeded", "cancelled", "superseded"].includes(row.status)
-      ? (row.status as PriorAcquisitionAttempt["status"])
-      : "failed",
-  }));
+  return rows.map(
+    (row): PriorAcquisitionAttempt => ({
+      sourceTier: row.source_tier,
+      strategy: row.strategy ?? undefined,
+      egressFingerprint: row.egress_fingerprint ?? undefined,
+      errorCode: row.error_code ?? undefined,
+      status: ["succeeded", "cancelled", "superseded"].includes(row.status)
+        ? (row.status as PriorAcquisitionAttempt["status"])
+        : "failed",
+    }),
+  );
 }
 
 export async function recordAcquisitionAttempt(

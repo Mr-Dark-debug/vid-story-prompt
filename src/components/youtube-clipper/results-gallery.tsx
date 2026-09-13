@@ -5,6 +5,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import {
   clipStrengthBand,
+  candidateScore,
   clipStrengthLabel,
   type ClipStrengthBand,
 } from "@/domain/clipping/score-presentation";
@@ -13,16 +14,17 @@ import { requestBatchExport } from "@/services/exports/server";
 
 type Candidate = {
   id: string;
+  origin?: "ai_discovery" | "manual_timestamp" | "transcript_selection";
   start_seconds: number;
   end_seconds: number;
   title: string;
   summary: string;
-  standalone_score: number;
-  hook_score: number;
-  clarity_score: number;
-  story_score: number;
-  relevance_score: number;
-  overall_score: number;
+  standalone_score: number | null;
+  hook_score: number | null;
+  clarity_score: number | null;
+  story_score: number | null;
+  relevance_score: number | null;
+  overall_score: number | null;
   selection_reason: string;
   social_copy_json: unknown;
   rank: number | null;
@@ -71,11 +73,21 @@ export function ResultsGallery({
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [regenerating, setRegenerating] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const hasScoredCandidates = candidates.some(
+    (item) => candidateScore(item.overall_score, item.origin) !== null,
+  );
+  const hasSelectedCandidates = candidates.some(
+    (item) => item.origin && item.origin !== "ai_discovery",
+  );
   const rows = useMemo(() => {
     const clipByCandidate = new Map(clips.map((clip) => [clip.clip_candidate_id, clip]));
     return candidates
       .map((candidate) => ({ candidate, clip: clipByCandidate.get(candidate.id) ?? null }))
-      .filter((row) => Number(row.candidate.overall_score) >= minimumScore)
+      .filter((row) => {
+        const score = candidateScore(row.candidate.overall_score, row.candidate.origin);
+        // Strength filters do not hide ranges the user explicitly selected.
+        return score === null || score >= minimumScore;
+      })
       .sort((a, b) => {
         if (sort === "rank") return (a.candidate.rank ?? 999) - (b.candidate.rank ?? 999);
         if (sort === "duration") {
@@ -85,7 +97,13 @@ export function ResultsGallery({
             (Number(a.candidate.end_seconds) - Number(a.candidate.start_seconds))
           );
         }
-        return Number(b.candidate.overall_score) - Number(a.candidate.overall_score);
+        const aScore = candidateScore(a.candidate.overall_score, a.candidate.origin);
+        const bScore = candidateScore(b.candidate.overall_score, b.candidate.origin);
+        if (aScore === null && bScore === null)
+          return (a.candidate.rank ?? 999) - (b.candidate.rank ?? 999);
+        if (aScore === null) return 1;
+        if (bScore === null) return -1;
+        return bScore - aScore;
       });
   }, [candidates, clips, minimumScore, sort]);
 
@@ -141,18 +159,23 @@ export function ResultsGallery({
               <Sparkles className="h-3.5 w-3.5" aria-hidden="true" /> Explainable selection
             </div>
             <h2 id="clip-results-heading" className="mt-1 font-display text-2xl text-ink">
-              Recommended moments
+              {hasSelectedCandidates ? "Your selected moments" : "Recommended moments"}
             </h2>
             <p className="mt-1 max-w-2xl text-sm leading-6 text-ink-soft">
-              Scores compare hook, clarity, standalone meaning, and story completeness. They are
-              editing guidance, not a promise of reach.
+              {hasScoredCandidates
+                ? "Scores compare hook, clarity, standalone meaning, and story completeness. They are editing guidance, not a promise of reach."
+                : "You chose these ranges. They are not AI-ranked or scored."}
+              {hasSelectedCandidates && hasScoredCandidates
+                ? " Your selected ranges stay visible regardless of the score filter."
+                : ""}
             </p>
           </div>
           <div className="flex flex-wrap items-end gap-3">
             <label className="text-xs font-medium text-ink-soft">
-              Minimum strength
+              AI minimum strength
               <select
                 value={minimumScore}
+                disabled={!hasScoredCandidates}
                 onChange={(event) => setMinimumScore(Number(event.target.value))}
                 className="mt-1 block min-h-10 rounded-lg border border-line bg-surface-page px-3 text-sm text-ink"
               >
@@ -169,8 +192,12 @@ export function ResultsGallery({
                 onChange={(event) => setSort(event.target.value as typeof sort)}
                 className="mt-1 block min-h-10 rounded-lg border border-line bg-surface-page px-3 text-sm text-ink"
               >
-                <option value="score">Highest score</option>
-                <option value="rank">Recommended order</option>
+                <option value="score">
+                  {hasScoredCandidates ? "Highest score" : "Selected order"}
+                </option>
+                <option value="rank">
+                  {hasSelectedCandidates ? "Clip order" : "Recommended order"}
+                </option>
                 <option value="duration">Longest first</option>
               </select>
             </label>
@@ -194,8 +221,14 @@ export function ResultsGallery({
       {rows.length ? (
         <div className="mt-4 grid gap-4 md:grid-cols-2 xl:grid-cols-3">
           {rows.map(({ candidate, clip }) => {
-            const score = Math.round(Number(candidate.overall_score));
-            const band = clipStrengthBand(score);
+            const score = candidateScore(candidate.overall_score, candidate.origin);
+            const band = score === null ? null : clipStrengthBand(score);
+            const originLabel =
+              candidate.origin === "manual_timestamp"
+                ? "Exact Cut"
+                : candidate.origin === "transcript_selection"
+                  ? "Transcript selection"
+                  : "Not scored";
             const copy = socialCopyEntries(candidate.social_copy_json);
             const isSelected = clip ? selected.has(clip.id) : false;
             return (
@@ -226,16 +259,23 @@ export function ResultsGallery({
                   <div
                     className={cn(
                       "absolute left-3 top-3 rounded-full border px-3 py-1 text-xs font-bold backdrop-blur",
-                      bandClasses[band],
+                      band ? bandClasses[band] : bandClasses.limited,
                     )}
-                    aria-label={`${clipStrengthLabel[band]} clip strength: ${score} out of 100`}
+                    aria-label={
+                      band
+                        ? `${clipStrengthLabel[band]} clip strength: ${score} out of 100`
+                        : `${originLabel} · Not scored`
+                    }
                   >
-                    {score} · {clipStrengthLabel[band]}
+                    {band
+                      ? `${score} · ${clipStrengthLabel[band]}`
+                      : `${originLabel}${originLabel === "Not scored" ? "" : " · Not scored"}`}
                   </div>
                   {clip ? (
                     <label className="absolute right-3 top-3 inline-flex min-h-9 cursor-pointer items-center gap-2 rounded-full border border-white/20 bg-black/65 px-3 text-xs font-semibold text-white backdrop-blur">
                       <input
                         type="checkbox"
+                        aria-label={`Select ${candidate.title}`}
                         checked={isSelected}
                         onChange={() => toggle(clip.id)}
                         className="h-4 w-4 accent-[var(--color-ember)]"
@@ -254,31 +294,38 @@ export function ResultsGallery({
                     </span>
                   </div>
                   <p className="mt-2 line-clamp-2 text-sm leading-6 text-ink-soft">
-                    {candidate.summary}
+                    {candidate.summary ||
+                      (candidate.origin === "manual_timestamp"
+                        ? "Selected by timestamp. Review your cut and adjust its settings before exporting."
+                        : "Selected from the source transcript.")}
                   </p>
-                  <div className="mt-4 grid grid-cols-4 gap-1 rounded-xl bg-surface-sunken p-2 text-center">
-                    {[
-                      ["Hook", candidate.hook_score],
-                      ["Clarity", candidate.clarity_score],
-                      ["Standalone", candidate.standalone_score],
-                      ["Story", candidate.story_score],
-                    ].map(([label, value]) => (
-                      <div key={String(label)} className="min-w-0 px-1">
-                        <div className="font-mono text-sm font-semibold text-ink">
-                          {Math.round(Number(value))}
+                  {score !== null && (
+                    <div className="mt-4 grid grid-cols-4 gap-1 rounded-xl bg-surface-sunken p-2 text-center">
+                      {[
+                        ["Hook", candidate.hook_score],
+                        ["Clarity", candidate.clarity_score],
+                        ["Standalone", candidate.standalone_score],
+                        ["Story", candidate.story_score],
+                      ].map(([label, value]) => (
+                        <div key={String(label)} className="min-w-0 px-1">
+                          <div className="font-mono text-sm font-semibold text-ink">
+                            {candidateScore(value, candidate.origin) ?? "—"}
+                          </div>
+                          <div className="truncate text-[9px] uppercase tracking-wide text-ink-mute">
+                            {label}
+                          </div>
                         </div>
-                        <div className="truncate text-[9px] uppercase tracking-wide text-ink-mute">
-                          {label}
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                  <details className="mt-3 rounded-xl border border-line px-3 py-2 text-sm">
-                    <summary className="cursor-pointer font-semibold text-ink">
-                      Why this score
-                    </summary>
-                    <p className="mt-2 leading-6 text-ink-soft">{candidate.selection_reason}</p>
-                  </details>
+                      ))}
+                    </div>
+                  )}
+                  {score !== null && (
+                    <details className="mt-3 rounded-xl border border-line px-3 py-2 text-sm">
+                      <summary className="cursor-pointer font-semibold text-ink">
+                        Why this score
+                      </summary>
+                      <p className="mt-2 leading-6 text-ink-soft">{candidate.selection_reason}</p>
+                    </details>
+                  )}
                   {copy.length ? (
                     <details className="mt-2 rounded-xl border border-line px-3 py-2 text-sm">
                       <summary className="cursor-pointer font-semibold text-ink">
@@ -308,7 +355,7 @@ export function ResultsGallery({
                         Clip settings <ArrowRight className="h-4 w-4" />
                       </Link>
                     ) : null}
-                    {clip ? (
+                    {clip && score !== null ? (
                       <button
                         type="button"
                         disabled={!titleRegenerationAvailable || regenerating === clip.id}

@@ -118,6 +118,14 @@ def test_output_directory_must_be_beneath_worker_root(tmp_path: Path) -> None:
         ("HTTP Error 429", "provider_rate_limited", True),
         ("Private video", "video_private", False),
         ("This video contains DRM", "video_drm_protected", False),
+        ("HTTP Error 403: Forbidden", "provider_access_denied", True),
+        ("HTTP Error 503", "provider_temporary_failure", True),
+        ("Connection reset", "provider_temporary_failure", True),
+        ("This content isn't available, try again later", "provider_rate_limited", True),
+        ("The uploader has not made this video available in your country", "video_region_restricted", False),
+        ("This video is age-restricted", "video_age_restricted", False),
+        ("Video unavailable", "video_unavailable", False),
+        ("Unrecognized extractor response", "provider_unknown_failure", False),
     ],
 )
 def test_failure_classification(details: str, code: str, retryable: bool) -> None:

@@ -26,9 +26,9 @@ describe("Python acquisition webhook", () => {
   it("rejects tampering and unknown states", () => {
     const body = Buffer.from(JSON.stringify(payload));
     const signature = `sha256=${createHmac("sha256", secret).update(body).digest("hex")}`;
-    expect(() => verifyPythonAcquisitionWebhook(Buffer.concat([body, Buffer.from(" ")]), signature, secret)).toThrow(
-      "invalid_signature",
-    );
+    expect(() =>
+      verifyPythonAcquisitionWebhook(Buffer.concat([body, Buffer.from(" ")]), signature, secret),
+    ).toThrow("invalid_signature");
     const invalidBody = Buffer.from(JSON.stringify({ ...payload, state: "shell" }));
     const invalidSignature = `sha256=${createHmac("sha256", secret).update(invalidBody).digest("hex")}`;
     expect(() => verifyPythonAcquisitionWebhook(invalidBody, invalidSignature, secret)).toThrow();
@@ -37,7 +37,9 @@ describe("Python acquisition webhook", () => {
   it("uses fixed product copy instead of callback-controlled messages", () => {
     expect(pythonAcquisitionEventCopy.failed).toEqual({
       severity: "warning",
-      message: "This protected acquisition path was blocked; the worker will try the next configured path.",
+      // The callback reports failure, not its cause or whether another tier exists.
+      message:
+        "This source download attempt did not complete. The worker is checking whether it can retry safely.",
     });
   });
 });

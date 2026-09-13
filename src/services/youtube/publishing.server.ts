@@ -59,6 +59,7 @@ export const createYouTubePublishingJob = createServerFn({ method: "POST" })
           description: data.description,
           tags: data.tags,
           category_id: data.categoryId,
+          platform_options_json: {},
           made_for_kids: data.madeForKids,
           privacy_status: data.privacyStatus,
           scheduled_for: data.scheduledFor,

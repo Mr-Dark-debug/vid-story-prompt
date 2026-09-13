@@ -4,6 +4,7 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
 vi.mock("@/services/youtube/server", () => ({ getYouTubeMetadata: vi.fn() }));
 vi.mock("@/services/clipping/server", () => ({ createClipJob: vi.fn() }));
+vi.mock("@/services/analytics/client", () => ({ trackAnalyticsEvent: vi.fn() }));
 vi.mock("@/services/worker/server", () => ({
   getWorkerEgressHealth: vi.fn().mockResolvedValue({
     checkedAt: "2026-07-18T21:00:00.000Z",
@@ -30,10 +31,92 @@ vi.mock("./source-upload", () => ({
 
 import { getYouTubeMetadata } from "@/services/youtube/server";
 import { JobWizard } from "./job-wizard";
+import { createClipJob } from "@/services/clipping/server";
+import { PLAN_ENTITLEMENTS } from "@/domain/clipping/entitlements";
 
 afterEach(() => cleanup());
 
 describe("job wizard", () => {
+  it("submits five Exact Cut ranges while charging the selected duration in the quota preview", async () => {
+    vi.mocked(createClipJob).mockResolvedValueOnce({
+      jobId: "11111111-1111-4111-8111-111111111111",
+      workerWake: "accepted",
+    });
+    render(
+      <JobWizard
+        initialSource="upload"
+        creationContext={{
+          plan: "free",
+          entitlement: PLAN_ENTITLEMENTS.free,
+          activeJobs: 0,
+          reservedSeconds: 3540,
+          committedSeconds: 0,
+          exactCutAvailable: true,
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Complete mock upload" }));
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.click(await screen.findByRole("radio", { name: "I already know my clips" }));
+    fireEvent.change(screen.getByLabelText("Paste timestamp ranges"), {
+      target: { value: "0-10,10-20,20-30,30-40,40-50" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Add pasted ranges" }));
+    fireEvent.change(screen.getByLabelText("End for clip 1"), { target: { value: "12" } });
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(await screen.findByText("52 selected-range seconds")).toBeInTheDocument();
+    expect(screen.getByText("Off — no transcription or AI planning")).toBeInTheDocument();
+    fireEvent.click(screen.getByRole("button", { name: "Create clipping job" }));
+    await waitFor(() =>
+      expect(createClipJob).toHaveBeenCalledWith({
+        data: expect.objectContaining({
+          rightsAccepted: true,
+          requestedClipCount: 5,
+          sourceDurationSeconds: 120,
+          settings: {
+            mode: "manual_timestamp",
+            captionsRequested: false,
+            ranges: [
+              { startSeconds: 0, endSeconds: 12 },
+              { startSeconds: 10, endSeconds: 20 },
+              { startSeconds: 20, endSeconds: 30 },
+              { startSeconds: 30, endSeconds: 40 },
+              { startSeconds: 40, endSeconds: 50 },
+            ],
+          },
+        }),
+      }),
+    );
+  });
+  it("blocks an over-limit range batch before review", async () => {
+    render(
+      <JobWizard
+        initialSource="upload"
+        creationContext={{
+          plan: "free",
+          entitlement: PLAN_ENTITLEMENTS.free,
+          activeJobs: 0,
+          reservedSeconds: 0,
+          committedSeconds: 0,
+          exactCutAvailable: true,
+        }}
+      />,
+    );
+    fireEvent.click(screen.getByRole("button", { name: "Complete mock upload" }));
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.click(await screen.findByRole("radio", { name: "I already know my clips" }));
+    fireEvent.change(screen.getByLabelText("Paste timestamp ranges"), {
+      target: { value: "0-10,10-20,20-30,30-40,40-50,50-60" },
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Add pasted ranges" }));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    expect(screen.getByRole("alert")).toHaveTextContent("up to 5 clips");
+    expect(
+      screen.queryByRole("heading", { name: "Review the clipping job" }),
+    ).not.toBeInTheDocument();
+  });
   const chooseSource = (name: string) => {
     fireEvent.click(screen.getByRole("button", { name: "Choose video source" }));
     fireEvent.change(screen.getByLabelText("Search sources"), { target: { value: name } });

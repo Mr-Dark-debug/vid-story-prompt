@@ -1,6 +1,7 @@
 import { TaskFailure } from "../domain/types.js";
 import {
   nextAcquisitionAttempt,
+  transientAcquisitionCodes,
   type PlannedAcquisitionAttempt,
   type PriorAcquisitionAttempt,
 } from "./acquisition-plan.js";
@@ -21,7 +22,9 @@ type PersistedAttempt = { id: string };
 type AcquisitionRunnerInput = {
   cancelled: () => boolean;
   cobaltEnabled: boolean;
-  downloadCobalt: () => Promise<Omit<AcquiredYouTubeSource, "sourceTier">>;
+  downloadCobalt: (
+    persistedAttemptId: string,
+  ) => Promise<Omit<AcquiredYouTubeSource, "sourceTier">>;
   downloadYtdlp: (
     attempt: PlannedAcquisitionAttempt,
     persistedAttemptId: string,
@@ -35,6 +38,8 @@ type AcquisitionRunnerInput = {
   potProviderConfigured: boolean;
   previous: PriorAcquisitionAttempt[];
   production: boolean;
+  forceProxy?: boolean;
+  waitBeforeRetry?: (milliseconds: number) => Promise<void>;
   recordAttempt: (attempt: PlannedAcquisitionAttempt, ordinal: number) => Promise<PersistedAttempt>;
   warpMembers: UniquePoolMember[];
 };
@@ -56,10 +61,27 @@ const terminalFailureCodes = new Set([
 function sanitizedFailure(error: unknown) {
   if (error instanceof TaskFailure) return error;
   return new TaskFailure(
-    "provider_temporary_failure",
-    "The configured source path was temporarily unavailable.",
-    true,
+    "provider_unknown_failure",
+    "The source request failed for an unrecognized reason.",
+    false,
   );
+}
+
+export function acquisitionBackoffMilliseconds(attempt: number, jitter = Math.random()) {
+  return Math.round(
+    Math.min(30_000, 5_000 * 2 ** Math.min(3, Math.max(0, attempt - 1))) *
+      (1 + Math.min(1, Math.max(0, jitter)) * 0.2),
+  );
+}
+
+async function waitForRetry(input: AcquisitionRunnerInput, milliseconds: number) {
+  if (input.waitBeforeRetry) return input.waitBeforeRetry(milliseconds);
+  // Keep shutdown/cancellation responsive while the existing queue heartbeat runs.
+  for (let remaining = milliseconds; remaining > 0; remaining -= 250) {
+    if (input.cancelled())
+      throw new TaskFailure("cancelled", "The YouTube acquisition job was cancelled.", false);
+    await new Promise((resolve) => setTimeout(resolve, Math.min(250, remaining)));
+  }
 }
 
 export async function acquireYouTubeSource(
@@ -67,7 +89,14 @@ export async function acquireYouTubeSource(
 ): Promise<AcquiredYouTubeSource> {
   const previous = [...input.previous];
   let ordinal = previous.length + 1;
-  let lastProviderFailure: TaskFailure | null = null;
+  const priorCode = previous.at(-1)?.errorCode;
+  let lastProviderFailure: TaskFailure | null = priorCode
+    ? new TaskFailure(
+        priorCode,
+        "The recorded acquisition attempts were unsuccessful.",
+        transientAcquisitionCodes.has(priorCode),
+      )
+    : null;
 
   for (;;) {
     if (input.cancelled()) {
@@ -80,14 +109,22 @@ export async function acquireYouTubeSource(
       potProviderConfigured: input.potProviderConfigured,
       previous,
       production: input.production,
+      forceProxy: input.forceProxy,
       warpMembers: input.warpMembers,
     });
     if (!planned) {
       throw new TaskFailure(
-        lastProviderFailure?.code ?? "provider_auth_challenge",
-        "YouTube blocked every configured cloud acquisition path. Attach an authorised original file or owner-controlled source to continue this job.",
+        lastProviderFailure?.code ?? previous.at(-1)?.errorCode ?? "provider_unknown_failure",
+        lastProviderFailure?.message ??
+          "No unused acquisition path is available. An IP block has not been confirmed.",
         false,
       );
+    }
+
+    if (lastProviderFailure?.retryable) {
+      await waitForRetry(input, acquisitionBackoffMilliseconds(ordinal - 1));
+      if (input.cancelled())
+        throw new TaskFailure("cancelled", "The YouTube acquisition job was cancelled.", false);
     }
     if (planned.sourceTier === "local_relay") {
       throw new TaskFailure(
@@ -101,7 +138,7 @@ export async function acquireYouTubeSource(
     try {
       const result =
         planned.sourceTier === "cobalt"
-          ? await input.downloadCobalt()
+          ? await input.downloadCobalt(persisted.id)
           : await input.downloadYtdlp(planned, persisted.id);
       await input.finishAttempt(persisted.id, "succeeded");
       return {
@@ -118,9 +155,12 @@ export async function acquireYouTubeSource(
         strategy: planned.strategy,
         egressFingerprint: planned.egressFingerprint,
         status: cancelled ? "cancelled" : "failed",
+        errorCode: failure.code,
       });
       ordinal += 1;
       if (cancelled || terminalFailureCodes.has(failure.code)) throw failure;
+      // Unknown failures may use a different configured path, but are not
+      // represented as a known transient network error or retried on this path.
       lastProviderFailure = failure;
     }
   }

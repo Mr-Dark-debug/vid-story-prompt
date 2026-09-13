@@ -38,6 +38,7 @@ import { deleteExpiredAssets } from "./cleanup.js";
 import { renderBatchExport } from "./batch-export.js";
 import { publishYouTubeVideo } from "./youtube-publish.js";
 import { publishSocialVideo } from "./social-publish.js";
+import { materializeExactCut } from "./exact-cut.js";
 import {
   finishAcquisitionAttempt,
   loadPriorAcquisitionAttempts,
@@ -83,7 +84,7 @@ async function validateSource(task: ClipTask): Promise<TaskResult> {
     const { job, asset, target } = await downloadJobSource(task.clip_job_id, directory);
     const virusScan = await scanLocalFile(target);
     const info = await probeMedia(target);
-    if (!info.hasAudio)
+    if (!info.hasAudio && job.settings_json?.mode !== "manual_timestamp")
       throw new TaskFailure("missing_audio", "Speech clipping requires an audio stream.", false);
     const expectedDuration = Number(
       task.input_json.expectedDurationSeconds ?? job.source_duration_seconds,
@@ -145,6 +146,9 @@ async function validateSource(task: ClipTask): Promise<TaskResult> {
         .eq("id", job.id);
       if (matchError) throw matchError;
     }
+    if (job.settings_json?.mode === "manual_timestamp") {
+      return materializeExactCut(task, job.settings_json, info.durationSeconds);
+    }
     const { error: usageError } = await supabase.rpc("commit_source_usage", { p_job_id: job.id });
     if (usageError) throw usageError;
     return {
@@ -171,7 +175,7 @@ async function downloadDirect(task: ClipTask): Promise<TaskResult> {
     const downloaded = await downloadDirectMedia(url, target);
     const virusScan = await scanLocalFile(target);
     const info = await probeMedia(target);
-    if (!info.hasAudio)
+    if (!info.hasAudio && job.settings_json?.mode !== "manual_timestamp")
       throw new TaskFailure("missing_audio", "Speech clipping requires an audio stream.", false);
     const checksum = await sha256(target);
     const path = immutablePath(job, "source", "bin");
@@ -378,11 +382,8 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
       downloaded = await acquireYouTubeSource({
         cancelled: () => cancellation.signal.aborted,
         cobaltEnabled: Boolean(env.COBALT_API_URL),
-        downloadCobalt: async () => {
-          const attemptDirectory = join(
-            directory,
-            `acquisition-cobalt-${priorAttempts.length + 1}`,
-          );
+        downloadCobalt: async (persistedAttemptId) => {
+          const attemptDirectory = join(directory, `acquisition-cobalt-${persistedAttemptId}`);
           await mkdir(attemptDirectory, { recursive: true });
           return cobaltClient.download({
             apiKey: env.COBALT_API_KEY,
@@ -396,10 +397,7 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
           });
         },
         downloadYtdlp: async (planned, persistedAttemptId) => {
-          const attemptDirectory = join(
-            directory,
-            `acquisition-${planned.sourceTier}-${planned.poolMemberIndex ?? "single"}-${planned.strategy}`,
-          );
+          const attemptDirectory = join(directory, `acquisition-${persistedAttemptId}`);
           await mkdir(attemptDirectory, { recursive: true });
           const proxy: YouTubeProxySelection =
             planned.sourceTier === "operator_proxy"
@@ -431,6 +429,7 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
         potProviderConfigured: Boolean(env.YTDLP_POT_PROVIDER_URL),
         previous: priorAttempts,
         production: process.env.NODE_ENV === "production",
+        forceProxy: task.input_json.forceProxy === true,
         recordAttempt: (planned, ordinal) => recordAcquisitionAttempt(task.id, planned, ordinal),
         warpMembers: getHealthyWarpMembers(),
       });
@@ -444,7 +443,7 @@ async function downloadYouTube(task: ClipTask, signal?: AbortSignal): Promise<Ta
     }
     const virusScan = await scanLocalFile(downloaded.filename);
     const info = await probeMedia(downloaded.filename);
-    if (!info.hasAudio)
+    if (!info.hasAudio && job.settings_json?.mode !== "manual_timestamp")
       throw new TaskFailure("missing_audio", "Speech clipping requires an audio stream.", false);
     const checksum = await sha256(downloaded.filename);
     const path = `${job.workspace_id}/${job.user_id}/${job.id}/source/${task.id}.${downloaded.format}`;

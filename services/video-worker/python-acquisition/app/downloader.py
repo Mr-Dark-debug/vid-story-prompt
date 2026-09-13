@@ -203,7 +203,10 @@ def classify_failure(details: str, cancelled: bool = False) -> AcquisitionError:
         return AcquisitionError(
             "video_age_restricted", "This YouTube video is age-restricted and cannot be imported.", False
         )
-    if "not available in your country" in message or "geo restriction" in message:
+    if any(text in message for text in (
+        "not available in your country", "not made this video available in your country",
+        "geo restriction", "geo-restricted",
+    )):
         return AcquisitionError(
             "video_region_restricted", "This YouTube video is not available in the worker region.", False
         )
@@ -211,11 +214,17 @@ def classify_failure(details: str, cancelled: bool = False) -> AcquisitionError:
         return AcquisitionError(
             "video_drm_protected", "This YouTube video is DRM-protected and cannot be imported.", False
         )
-    if "sign in to confirm" in message or "not a bot" in message or "http error 403" in message:
+    if "sign in to confirm" in message or "not a bot" in message:
         return AcquisitionError(
-            "provider_auth_challenge", "YouTube blocked this request from the server network.", True
+            "provider_auth_challenge", "YouTube requested a sign-in or anti-bot check from the server.", True
         )
-    if "http error 429" in message or "too many requests" in message:
+    if "http error 403" in message or "remote server returned 403" in message:
+        return AcquisitionError(
+            "provider_access_denied", "YouTube rejected this media request (HTTP 403); the precise cause is not confirmed.", True
+        )
+    if any(text in message for text in (
+        "http error 429", "too many requests", "this content isn't available, try again later",
+    )):
         return AcquisitionError(
             "provider_rate_limited", "YouTube temporarily rate-limited the acquisition worker.", True
         )
@@ -229,8 +238,14 @@ def classify_failure(details: str, cancelled: bool = False) -> AcquisitionError:
         return AcquisitionError(
             "file_too_large", "The YouTube video exceeds the configured maximum file size.", False
         )
+    if any(text in message for text in (
+        "timed out", "etimedout", "connection reset", "connection refused", "temporary failure in name resolution",
+    )) or re.search(r"http error 5\d\d", message):
+        return AcquisitionError(
+            "provider_temporary_failure", "YouTube was temporarily unavailable or the network request timed out.", True
+        )
     return AcquisitionError(
-        "provider_temporary_failure", "YouTube could not be reached through this acquisition path.", True
+        "provider_unknown_failure", "The YouTube request failed for an unrecognized reason.", False
     )
 
 

@@ -61,7 +61,7 @@ export function WorkerEgressBadge({ health }: { health?: WorkerEgressHealth }) {
           setCurrent({
             checkedAt: null,
             message: "Automatic source access could not be checked.",
-            status: "blocked",
+            status: "unknown",
           });
           setChecking(false);
         }
@@ -83,9 +83,7 @@ export function WorkerEgressBadge({ health }: { health?: WorkerEgressHealth }) {
       )}
     >
       <state.Icon className="h-3.5 w-3.5 shrink-0" aria-hidden="true" />
-      <span className="truncate">
-        Source access: {state.label}
-      </span>
+      <span className="truncate">Source access: {state.label}</span>
     </div>
   );
 }
