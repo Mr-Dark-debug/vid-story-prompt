@@ -228,6 +228,8 @@ suite(
           technical_score: 90,
           overall_score: 90,
           selection_reason: "Complete",
+          // Explicit JSON value matches the current generated database contract.
+          social_copy_json: {},
           status: "selected",
         })
         .select("id")

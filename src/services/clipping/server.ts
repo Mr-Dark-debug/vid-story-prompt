@@ -328,12 +328,12 @@ export const getClipJob = createServerFn({ method: "GET" })
       })),
       candidates: (candidates ?? []).map((candidate) => ({
         ...candidate,
-        // The published type snapshot predates this additive migration. Missing
-        // origin is supported during rollout; regenerate types after deployment.
+        // Keep runtime validation at the database boundary, including the
+        // legacy AI default for older restored snapshots.
         origin: z
           .enum(["ai_discovery", "manual_timestamp", "transcript_selection"])
           .default("ai_discovery")
-          .parse((candidate as unknown as { origin?: unknown }).origin),
+          .parse(candidate.origin),
       })),
       exports: exports ?? [],
       tasks: (tasks ?? []).map(({ input_json, ...task }) => ({

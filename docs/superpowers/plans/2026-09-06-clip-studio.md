@@ -232,6 +232,41 @@ Foundation progress (not an executable Exact Cut release):
   and the main/web release remain pending. Production schema/worker readiness
   does not prove that user flow. PR #18 stays draft and unmerged.
 
+### Schema refresh and resumed acceptance — 2026-09-13
+
+- The queue-dispatch migration was applied on September 7 and verified in
+  production: anon=false, authenticated=false, service_role=true, history=true.
+  This is six applied Clip Studio/reliability migrations in total.
+- Re-fetched main (`461ba8b`, unchanged); PR #18 remains draft/open with head
+  `9daafd4`, and its Vercel deployment is READY. Fresh home-worker health reports
+  ready/healthy in FullPipeline mode; the Windows scheduled-task state is ready,
+  not running, while the actual worker health endpoints are responding.
+- Refreshed 52 table definitions using the repository's existing PostgREST
+  generator, with an explicit production-host assertion before sending credentials.
+  This now describes candidate origins, nullable scores/planning runs, creation
+  fingerprints and paid allowances. It also picks up previously deployed table
+  metadata and column ordering; no additional database schema was changed.
+- Kept conservative generated JSON insert requirements and supplied explicit
+  empty JSON fields in the integration fixture and legacy YouTube publisher.
+  Removed the candidate-origin type cast; runtime origin validation remains.
+  The repository generator still has its existing limited RPC catalog; this is
+  not a claim that all RPCs/relationships are fully generated. Official reference:
+  https://supabase.com/docs/guides/api/rest/generating-types .
+- The correctly authorized Vercel connector can issue expiring preview access,
+  so owner MFA is no longer the immediate acceptance blocker. Do not publish
+  temporary access URLs. Chrome now refuses automation because an extension UI
+  is open; requested that the user dismiss it. No alternate browser-control
+  mechanism or security-protection change was attempted.
+- Prepared generated, silent 600-second test media under ignored
+  `output/exact-cut-acceptance-600s.mp4` (13,265,907 bytes). It has not yet been
+  uploaded or passed through the authenticated hosted flow. Five selected
+  10-second ranges should debit 50 seconds, not 600; that remains an acceptance
+  assertion to verify, not a production result.
+- Fresh post-refresh gates on September 13: app typecheck passed, lint has zero
+  errors and the same seven warnings, 413 tests passed/seven skipped, and the
+  production build passed. Worker code is unchanged from its 131-test verified
+  revision; hosted acquisition/export acceptance remains blocked on Chrome UI.
+
 ## Phase 2 — AI Moments and goal-based discovery
 
 - [ ] Expose existing scores, topic, explanation and real Preview/Edit range/

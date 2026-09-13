@@ -34,7 +34,9 @@ All notable changes to Vidrial are documented here. Format follows
   Vercel preview is green, but authenticated preview verification awaits owner MFA.
 - Tightened the legacy queue dispatch RPC to worker-only execution with explicit
   anonymous/browser denial and service-role regression coverage.
-- Pending: authenticated acquisition-to-export E2E, schema type refresh, web
+- Refreshed the live table type snapshot, including selected candidate origins,
+  nullable scores, idempotency fields and edit allowances.
+- Pending: authenticated acquisition-to-export E2E, web
   production release, and Clip Studio Phases 2–5. No full production-flow success
   or stream-copy optimization is claimed by these checks.
 
