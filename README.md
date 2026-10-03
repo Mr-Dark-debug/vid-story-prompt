@@ -124,6 +124,9 @@ bun run worker:dev
 | `bun run supabase:types` | Regenerate Supabase DB types |
 | `bun run worker:dev` | Run the external video worker locally |
 | `bun run worker:test` | Run the video worker test suite |
+| `bun run ai:sync` / `bun run ai:check` | Regenerate / verify the worker's copy of `src/domain/ai` (run after editing the AI domain) |
+| `pwsh scripts/test-ai-byok-db.ps1` | Isolated PostgreSQL contract tests for the BYOK migrations (needs a local PostgreSQL 17; redirect output to a file) |
+| `npx playwright test e2e/ai-byok.spec.ts` | AI UI contract tests against fake server functions and a fake provider |
 
 Before opening a PR, run:
 
