@@ -65,9 +65,17 @@ select public.record_motion_prompt_event('20000000-0000-4000-8000-000000000001',
 select public.record_motion_prompt_event('20000000-0000-4000-8000-000000000001','like',repeat('a',64),'00000000-0000-4000-8000-000000000001');
 do $$begin if not exists(select 1 from public.motion_prompts where id='20000000-0000-4000-8000-000000000001' and view_count=1 and like_count=1) then raise exception 'Real counters not transactional/deduplicated';end if;end $$;
 set local role anon;
+do $$begin
+ if has_column_privilege('anon','public.motion_prompts','author_user_id','select') then raise exception 'Private author IDs exposed';end if;
+ if has_table_privilege('anon','public.motion_public_catalog','insert') or has_table_privilege('authenticated','public.motion_public_catalog','update') then raise exception 'Public projection writes exposed';end if;
+ if exists(select 1 from public.motion_public_catalog where status<>'approved') then raise exception 'Unmoderated public projection';end if;
+ if not exists(select 1 from public.motion_public_catalog where id='20000000-0000-4000-8000-000000000001' and view_count=1 and like_count=1) then raise exception 'Public counters did not synchronize';end if;
+end $$;
 do $$begin if (select count(*) from public.approved_motion_prompts)<>1 then raise exception 'Public view exposes pending rows';end if;if has_table_privilege('anon','public.motion_prompts','select') then raise exception 'Public table bypasses view';end if;end $$;
 reset role;
 -- Bounded crash retry and stale-lease fencing preserve the same reservation.
+update public.motion_prompts set status='rejected' where id='20000000-0000-4000-8000-000000000002';
+do $$begin if exists(select 1 from public.motion_public_catalog where id='20000000-0000-4000-8000-000000000002') then raise exception 'Rejected public projection';end if;end $$;
 set local role authenticated;
 update motion_test_ids set task_id=(public.enqueue_motion_task(project_id,'motion_render',gen_random_uuid(),version_id)->>'taskId')::uuid;
 reset role;
