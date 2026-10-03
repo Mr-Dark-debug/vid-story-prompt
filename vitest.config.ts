@@ -6,7 +6,8 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     setupFiles: ["./src/test/setup.ts"],
-    include: ["src/**/*.test.{ts,tsx}", "services/**/*.test.ts"],
+    // services/video-worker tests run under Bun (`npm run worker:test`), not this jsdom project.
+    include: ["src/**/*.test.{ts,tsx}"],
     coverage: {
       provider: "v8",
       reporter: ["text", "html"],
