@@ -5,7 +5,7 @@ import type { MotionLintIssue, MotionLintReport } from "./types.js";
 
 // Conservative admission check, not a sandbox. Browser/OS policy remains mandatory.
 // Reject even a forbidden identifier in a string/comment: an LLM can repair it.
-export function lintMotionHtml(source: string): MotionLintReport {
+export function lintMotionHtml(source: string, expectedDurationSeconds?: number): MotionLintReport {
   const errors: MotionLintIssue[] = [];
   const add = (code: string, message: string) => errors.push({ code, message });
   if (new TextEncoder().encode(source).length > MOTION_LIMITS.maxSourceBytes)
@@ -72,6 +72,11 @@ export function lintMotionHtml(source: string): MotionLintReport {
     add("missing_duration", "Set window.DURATION to a numeric literal followed by a semicolon.");
   else if (Number(duration[1]) < 1 || Number(duration[1]) > MOTION_LIMITS.maxDurationSeconds)
     add("invalid_duration", "Duration must be between 1 and 60 seconds.");
+  else if (
+    expectedDurationSeconds !== undefined &&
+    Math.abs(Number(duration[1]) - expectedDurationSeconds) > 0.000001
+  )
+    add("duration_mismatch", "Scene duration must match the project's render duration.");
   if (!/\bwindow\s*\.\s*seek\s*=\s*(?:async\s+)?(?:function\b|\(?\s*\w+\s*\)?\s*=>)/.test(source))
     add("missing_seek", "Expose window.seek(t) as a function.");
   return { ok: errors.length === 0, errors, warnings: [] };

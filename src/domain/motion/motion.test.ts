@@ -20,6 +20,11 @@ const spec: MotionRenderSpec = {
 };
 const scene = (script = "") =>
   `<!doctype html><html><head><style>body{margin:0}</style></head><body><canvas id="scene"></canvas><script>window.DURATION = 5; window.seek = async function(t) { ${script} };</script></body></html>`;
+
+it("rejects a linted scene whose duration disagrees with its project spec", () => {
+  expect(lintMotionHtml(scene(), 5).ok).toBe(true);
+  expect(lintMotionHtml(scene(), 8).errors.map((issue) => issue.code)).toContain("duration_mismatch");
+});
 describe("motion admission", () => {
   it("admits a deterministic seek scene", () => expect(lintMotionHtml(scene()).ok).toBe(true));
   it("admits literal arrays of supplied labels", () =>

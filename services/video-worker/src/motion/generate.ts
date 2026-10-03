@@ -58,7 +58,7 @@ export async function generateScene(
     signal.throwIfAborted();
     await onStage?.("linting");
     const htmlSource = result.text.replace(/^\s*```(?:html)?\s*\n?|\n?```\s*$/g, "").trim();
-    const lintReport = lintMotionHtml(htmlSource);
+    const lintReport = lintMotionHtml(htmlSource, input.spec.durationSeconds);
     if (lintReport.ok)
       return {
         htmlSource,

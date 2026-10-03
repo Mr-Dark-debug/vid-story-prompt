@@ -284,7 +284,8 @@ export const saveMotionVersion = createServerFn({ method: "POST" })
   )
   .handler(async ({ data }) => {
     const owned = await ownedProject(data.projectId);
-    const lintReport = lintMotionHtml(data.htmlSource);
+    const spec = motionRenderSpecSchema.parse(owned.project.render_spec);
+    const lintReport = lintMotionHtml(data.htmlSource, spec.durationSeconds);
     if (!lintReport.ok) throw new Error(lintReport.errors.map((issue) => issue.message).join(" "));
     // Service-only RPC prevents a client from claiming a fabricated passing report.
     return z.object({ versionId: uuid }).parse(

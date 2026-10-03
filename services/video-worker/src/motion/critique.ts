@@ -62,7 +62,7 @@ export async function critiqueScene(
   renderKeyframes: RenderMotionKeyframes,
 ) {
   signal.throwIfAborted();
-  const initialLint = lintMotionHtml(initial.htmlSource);
+  const initialLint = lintMotionHtml(initial.htmlSource, input.spec.durationSeconds);
   if (!initialLint.ok) throw new Error("motion_lint_failed");
   let scene: MotionSceneCandidate = {
     ...initial,
@@ -105,7 +105,7 @@ export async function critiqueScene(
     signal.throwIfAborted();
     scene.tokensUsed = addTokens(scene.tokensUsed, repaired.tokensUsed);
     const htmlSource = repaired.text.replace(/^\s*```(?:html)?\s*\n?|\n?```\s*$/g, "").trim();
-    const lintReport = lintMotionHtml(htmlSource);
+    const lintReport = lintMotionHtml(htmlSource, input.spec.durationSeconds);
     if (!lintReport.ok) {
       // Retain the passing version; never send a failed repair into Chromium.
       issues = [
