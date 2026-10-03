@@ -1,0 +1,15 @@
+.git
+.env
+.env.*
+*.local
+node_modules
+**/node_modules
+**/dist
+.output
+.tanstack
+output
+test-results
+playwright-report
+.codex-*
+public/motion-demos
+services/video-worker/motion-fonts

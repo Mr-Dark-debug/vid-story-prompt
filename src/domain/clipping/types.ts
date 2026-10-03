@@ -64,3 +64,7 @@ export const clipTaskTypes = [
   "delete_expired_assets",
 ] as const;
 export type ClipTaskType = (typeof clipTaskTypes)[number];
+
+/** Independent leased motion lane; never attached to a fictional clip/source job. */
+export const motionTaskTypes = ["motion_generate", "motion_render", "motion_analyze_reference"] as const;
+export type MotionTaskType = (typeof motionTaskTypes)[number];

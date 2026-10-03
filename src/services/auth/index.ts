@@ -41,10 +41,18 @@ export function useSessionState() {
         .catch(() => active && setState({ user: null, isLoading: false }));
     };
     refresh();
-    const { data } = getSupabaseBrowserClient().auth.onAuthStateChange(() => refresh());
+    let unsubscribe: (() => void) | undefined;
+    try {
+      const { data } = getSupabaseBrowserClient().auth.onAuthStateChange(() => refresh());
+      unsubscribe = () => data.subscription.unsubscribe();
+    } catch {
+      // Public pages remain readable when this deployment has no auth configuration.
+      // Actual authentication actions still fail explicitly through the server service.
+      setState({ user: null, isLoading: false });
+    }
     return () => {
       active = false;
-      data.subscription.unsubscribe();
+      unsubscribe?.();
     };
   }, []);
   return state;

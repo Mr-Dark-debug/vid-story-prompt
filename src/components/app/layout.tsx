@@ -26,6 +26,7 @@ import { getAccountPreferences } from "@/services/settings/server";
 const navIcons = {
   "/app": LayoutDashboard,
   "/app/youtube-clipper": Scissors,
+  "/app/motion": Layers3,
   "/app/chat": MessagesSquare,
   "/app/projects": FolderKanban,
   "/app/templates": Layers3,

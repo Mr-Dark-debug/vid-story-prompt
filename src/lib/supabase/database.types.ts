@@ -1,4 +1,5 @@
-// Generated from the live Supabase PostgREST schema by scripts/generate-database-types.mjs.
+// Generated from Supabase PostgREST; Motion Studio additions introspected from migrated local PostgreSQL.
+// Refresh additions with scripts/generate-motion-database-types.mjs; full hosted regeneration remains a release gate.
 // Do not edit manually.
 
 export type Json = string | number | boolean | null | { [key: string]: Json | undefined } | Json[];
@@ -2117,7 +2118,19 @@ export type Database = {
           "s3_connector_enabled": boolean;
           "publishing_connections_enabled": boolean;
           "api_beta_enabled": boolean;
-        };
+
+"motion_watermark_required": boolean;
+
+"max_motion_fps": number;
+
+"max_motion_height": number;
+
+"max_motion_width": number;
+
+"max_motion_seconds_per_video": number;
+
+"monthly_motion_render_seconds": number;
+};
         Insert: {
           "key": string;
           "name": string;
@@ -2140,7 +2153,19 @@ export type Database = {
           "s3_connector_enabled"?: boolean;
           "publishing_connections_enabled"?: boolean;
           "api_beta_enabled"?: boolean;
-        };
+
+"motion_watermark_required"?: boolean;
+
+"max_motion_fps"?: number;
+
+"max_motion_height"?: number;
+
+"max_motion_width"?: number;
+
+"max_motion_seconds_per_video"?: number;
+
+"monthly_motion_render_seconds"?: number;
+};
         Update: {
           "key"?: string;
           "name"?: string;
@@ -2163,7 +2188,19 @@ export type Database = {
           "s3_connector_enabled"?: boolean;
           "publishing_connections_enabled"?: boolean;
           "api_beta_enabled"?: boolean;
-        };
+
+"motion_watermark_required"?: boolean;
+
+"max_motion_fps"?: number;
+
+"max_motion_height"?: number;
+
+"max_motion_width"?: number;
+
+"max_motion_seconds_per_video"?: number;
+
+"monthly_motion_render_seconds"?: number;
+};
         Relationships: [];
       };
       "processing_events": {
@@ -3111,8 +3148,384 @@ export type Database = {
         };
         Relationships: [];
       };
-    };
-    Views: Record<string, never>;
+
+"motion_versions": { Row: {"id": string;
+"project_id": string;
+"workspace_id": string;
+"html_source": string;
+"content_hash": string;
+"critique_report": Json;
+"lint_report": Json;
+"model_used": string | null;
+"tokens_used": number;
+"parent_version_id": string | null;
+"created_at": string;}; Insert: {"id"?: string;
+"project_id": string;
+"workspace_id": string;
+"html_source": string;
+"content_hash": string;
+"critique_report"?: Json;
+"lint_report": Json;
+"model_used"?: string | null;
+"tokens_used"?: number;
+"parent_version_id"?: string | null;
+"created_at"?: string;}; Update: {"id"?: string;
+"project_id"?: string;
+"workspace_id"?: string;
+"html_source"?: string;
+"content_hash"?: string;
+"critique_report"?: Json;
+"lint_report"?: Json;
+"model_used"?: string | null;
+"tokens_used"?: number;
+"parent_version_id"?: string | null;
+"created_at"?: string;}; Relationships: []; };
+
+"motion_usage_periods": { Row: {"workspace_id": string;
+"period_start": string;
+"seconds_reserved": number;
+"seconds_committed": number;}; Insert: {"workspace_id": string;
+"period_start": string;
+"seconds_reserved"?: number;
+"seconds_committed"?: number;}; Update: {"workspace_id"?: string;
+"period_start"?: string;
+"seconds_reserved"?: number;
+"seconds_committed"?: number;}; Relationships: []; };
+
+"motion_tasks": { Row: {"id": string;
+"workspace_id": string;
+"project_id": string;
+"user_id": string;
+"task_type": string;
+"version_id": string | null;
+"render_id": string | null;
+"reference_id": string | null;
+"payload_json": Json;
+"status": string;
+"attempt": number;
+"max_attempts": number;
+"lease_token": string | null;
+"leased_until": string | null;
+"worker_id": string | null;
+"progress": number;
+"reserved_seconds": number;
+"usage_period_start": string;
+"idempotency_key": string;
+"error_code": string | null;
+"available_at": string;
+"created_at": string;
+"completed_at": string | null;}; Insert: {"id"?: string;
+"workspace_id": string;
+"project_id": string;
+"user_id": string;
+"task_type": string;
+"version_id"?: string | null;
+"render_id"?: string | null;
+"reference_id"?: string | null;
+"payload_json"?: Json;
+"status"?: string;
+"attempt"?: number;
+"max_attempts"?: number;
+"lease_token"?: string | null;
+"leased_until"?: string | null;
+"worker_id"?: string | null;
+"progress"?: number;
+"reserved_seconds"?: number;
+"usage_period_start"?: string;
+"idempotency_key": string;
+"error_code"?: string | null;
+"available_at"?: string;
+"created_at"?: string;
+"completed_at"?: string | null;}; Update: {"id"?: string;
+"workspace_id"?: string;
+"project_id"?: string;
+"user_id"?: string;
+"task_type"?: string;
+"version_id"?: string | null;
+"render_id"?: string | null;
+"reference_id"?: string | null;
+"payload_json"?: Json;
+"status"?: string;
+"attempt"?: number;
+"max_attempts"?: number;
+"lease_token"?: string | null;
+"leased_until"?: string | null;
+"worker_id"?: string | null;
+"progress"?: number;
+"reserved_seconds"?: number;
+"usage_period_start"?: string;
+"idempotency_key"?: string;
+"error_code"?: string | null;
+"available_at"?: string;
+"created_at"?: string;
+"completed_at"?: string | null;}; Relationships: []; };
+
+"motion_runtime_config": { Row: {"singleton": boolean;
+"generation_enabled": boolean;
+"render_enabled": boolean;
+"reference_enabled": boolean;
+"allowed_models": string[];}; Insert: {"singleton"?: boolean;
+"generation_enabled"?: boolean;
+"render_enabled"?: boolean;
+"reference_enabled"?: boolean;
+"allowed_models"?: string[];}; Update: {"singleton"?: boolean;
+"generation_enabled"?: boolean;
+"render_enabled"?: boolean;
+"reference_enabled"?: boolean;
+"allowed_models"?: string[];}; Relationships: []; };
+
+"motion_renders": { Row: {"id": string;
+"project_id": string;
+"workspace_id": string;
+"version_id": string;
+"render_spec": Json;
+"render_manifest": Json | null;
+"job_task_id": string | null;
+"status": string;
+"progress": number;
+"output_asset_path": string | null;
+"duration_seconds": number | null;
+"size_bytes": number | null;
+"error_code": string | null;
+"watermarked": boolean;
+"created_at": string;
+"completed_at": string | null;}; Insert: {"id"?: string;
+"project_id": string;
+"workspace_id": string;
+"version_id": string;
+"render_spec": Json;
+"render_manifest"?: Json | null;
+"job_task_id"?: string | null;
+"status"?: string;
+"progress"?: number;
+"output_asset_path"?: string | null;
+"duration_seconds"?: number | null;
+"size_bytes"?: number | null;
+"error_code"?: string | null;
+"watermarked": boolean;
+"created_at"?: string;
+"completed_at"?: string | null;}; Update: {"id"?: string;
+"project_id"?: string;
+"workspace_id"?: string;
+"version_id"?: string;
+"render_spec"?: Json;
+"render_manifest"?: Json | null;
+"job_task_id"?: string | null;
+"status"?: string;
+"progress"?: number;
+"output_asset_path"?: string | null;
+"duration_seconds"?: number | null;
+"size_bytes"?: number | null;
+"error_code"?: string | null;
+"watermarked"?: boolean;
+"created_at"?: string;
+"completed_at"?: string | null;}; Relationships: []; };
+
+"motion_reference_analyses": { Row: {"id": string;
+"project_id": string;
+"workspace_id": string;
+"media_asset_id": string;
+"brief_json": Json | null;
+"model_used": string | null;
+"status": string;
+"error_code": string | null;
+"rights_accepted_at": string;
+"rights_user_id": string;
+"created_at": string;}; Insert: {"id"?: string;
+"project_id": string;
+"workspace_id": string;
+"media_asset_id": string;
+"brief_json"?: Json | null;
+"model_used"?: string | null;
+"status"?: string;
+"error_code"?: string | null;
+"rights_accepted_at": string;
+"rights_user_id": string;
+"created_at"?: string;}; Update: {"id"?: string;
+"project_id"?: string;
+"workspace_id"?: string;
+"media_asset_id"?: string;
+"brief_json"?: Json | null;
+"model_used"?: string | null;
+"status"?: string;
+"error_code"?: string | null;
+"rights_accepted_at"?: string;
+"rights_user_id"?: string;
+"created_at"?: string;}; Relationships: []; };
+
+"motion_prompts": { Row: {"id": string;
+"slug": string;
+"title": string;
+"prompt": string;
+"category": string;
+"tags": string[];
+"aspect": string;
+"duration_seconds": number;
+"recommended_model": string | null;
+"source": string;
+"author_user_id": string | null;
+"author_display_name": string;
+"license": string;
+"status": string;
+"preview_asset_path": string | null;
+"poster_path": string | null;
+"view_count": number;
+"like_count": number;
+"copy_count": number;
+"use_count": number;
+"created_at": string;}; Insert: {"id"?: string;
+"slug": string;
+"title": string;
+"prompt": string;
+"category": string;
+"tags"?: string[];
+"aspect": string;
+"duration_seconds": number;
+"recommended_model"?: string | null;
+"source": string;
+"author_user_id"?: string | null;
+"author_display_name": string;
+"license": string;
+"status"?: string;
+"preview_asset_path"?: string | null;
+"poster_path"?: string | null;
+"view_count"?: number;
+"like_count"?: number;
+"copy_count"?: number;
+"use_count"?: number;
+"created_at"?: string;}; Update: {"id"?: string;
+"slug"?: string;
+"title"?: string;
+"prompt"?: string;
+"category"?: string;
+"tags"?: string[];
+"aspect"?: string;
+"duration_seconds"?: number;
+"recommended_model"?: string | null;
+"source"?: string;
+"author_user_id"?: string | null;
+"author_display_name"?: string;
+"license"?: string;
+"status"?: string;
+"preview_asset_path"?: string | null;
+"poster_path"?: string | null;
+"view_count"?: number;
+"like_count"?: number;
+"copy_count"?: number;
+"use_count"?: number;
+"created_at"?: string;}; Relationships: []; };
+
+"motion_prompt_submissions": { Row: {"prompt_id": string;
+"project_id": string;
+"workspace_id": string;
+"version_id": string;
+"render_id": string;
+"license_version": string;}; Insert: {"prompt_id": string;
+"project_id": string;
+"workspace_id": string;
+"version_id": string;
+"render_id": string;
+"license_version"?: string;}; Update: {"prompt_id"?: string;
+"project_id"?: string;
+"workspace_id"?: string;
+"version_id"?: string;
+"render_id"?: string;
+"license_version"?: string;}; Relationships: []; };
+
+"motion_prompt_reports": { Row: {"id": string;
+"prompt_id": string;
+"user_id": string;
+"reason": string;
+"created_at": string;}; Insert: {"id"?: string;
+"prompt_id": string;
+"user_id": string;
+"reason": string;
+"created_at"?: string;}; Update: {"id"?: string;
+"prompt_id"?: string;
+"user_id"?: string;
+"reason"?: string;
+"created_at"?: string;}; Relationships: []; };
+
+"motion_prompt_likes": { Row: {"prompt_id": string;
+"user_id": string;
+"created_at": string;}; Insert: {"prompt_id": string;
+"user_id": string;
+"created_at"?: string;}; Update: {"prompt_id"?: string;
+"user_id"?: string;
+"created_at"?: string;}; Relationships: []; };
+
+"motion_prompt_events": { Row: {"prompt_id": string;
+"event": string;
+"session_hash": string;
+"event_day": string;
+"created_at": string;}; Insert: {"prompt_id": string;
+"event": string;
+"session_hash": string;
+"event_day"?: string;
+"created_at"?: string;}; Update: {"prompt_id"?: string;
+"event"?: string;
+"session_hash"?: string;
+"event_day"?: string;
+"created_at"?: string;}; Relationships: []; };
+
+"motion_projects": { Row: {"id": string;
+"workspace_id": string;
+"user_id": string;
+"title": string;
+"source_prompt_id": string | null;
+"prompt_text": string;
+"model_id": string;
+"credential_ref": string | null;
+"render_spec": Json;
+"status": string;
+"idempotency_key": string;
+"created_at": string;
+"updated_at": string;}; Insert: {"id"?: string;
+"workspace_id": string;
+"user_id": string;
+"title": string;
+"source_prompt_id"?: string | null;
+"prompt_text": string;
+"model_id": string;
+"credential_ref"?: string | null;
+"render_spec": Json;
+"status"?: string;
+"idempotency_key": string;
+"created_at"?: string;
+"updated_at"?: string;}; Update: {"id"?: string;
+"workspace_id"?: string;
+"user_id"?: string;
+"title"?: string;
+"source_prompt_id"?: string | null;
+"prompt_text"?: string;
+"model_id"?: string;
+"credential_ref"?: string | null;
+"render_spec"?: Json;
+"status"?: string;
+"idempotency_key"?: string;
+"created_at"?: string;
+"updated_at"?: string;}; Relationships: []; };
+};
+    Views: { "approved_motion_prompts": { Row: {"id": string | null;
+"slug": string | null;
+"title": string | null;
+"prompt": string | null;
+"category": string | null;
+"tags": string[] | null;
+"aspect": string | null;
+"duration_seconds": number | null;
+"recommended_model": string | null;
+"source": string | null;
+"author_display_name": string | null;
+"license": string | null;
+"status": string | null;
+"preview_asset_path": string | null;
+"poster_path": string | null;
+"view_count": number | null;
+"like_count": number | null;
+"copy_count": number | null;
+"use_count": number | null;
+"created_at": string | null;}; Relationships: []; }; };
     Functions: {
       create_automated_clip_job: {
         Args: {
@@ -3123,7 +3536,74 @@ export type Database = {
         };
         Returns: string;
       };
-    };
+
+"update_motion_task_stage": { Args: {"p_task_id": string;
+"p_lease_token": string;
+"p_stage": string;}; Returns: boolean; };
+
+"save_motion_version": { Args: {"p_project_id": string;
+"p_user_id": string;
+"p_html_source": string;
+"p_lint_report": Json;
+"p_parent_version_id"?: string;}; Returns: Json; };
+
+"report_motion_prompt": { Args: {"p_prompt_id": string;
+"p_reason": string;}; Returns: Json; };
+
+"record_motion_prompt_event": { Args: {"p_prompt_id": string;
+"p_event": string;
+"p_session_hash": string;
+"p_user_id"?: string;}; Returns: Json; };
+
+"publish_motion_prompt": { Args: {"p_project_id": string;
+"p_version_id": string;
+"p_title": string;
+"p_prompt": string;
+"p_category": string;
+"p_tags": string[];
+"p_license_granted": boolean;}; Returns: Json; };
+
+"motion_studio_capabilities": { Args: Record<string, never>; Returns: Json; };
+
+"heartbeat_motion_task": { Args: {"p_task_id": string;
+"p_lease_token": string;
+"p_progress"?: number;}; Returns: Json; };
+
+"get_motion_usage": { Args: {"p_workspace_id": string;}; Returns: Json; };
+
+"fail_motion_task": { Args: {"p_task_id": string;
+"p_lease_token": string;
+"p_error_code": string;
+"p_retryable"?: boolean;}; Returns: boolean; };
+
+"enqueue_motion_task": { Args: {"p_project_id": string;
+"p_type": string;
+"p_idempotency_key": string;
+"p_version_id"?: string;
+"p_payload"?: Json;}; Returns: Json; };
+
+"create_motion_project": { Args: {"p_workspace_id": string;
+"p_title": string;
+"p_prompt": string;
+"p_model_id": string;
+"p_render_spec": Json;
+"p_idempotency_key": string;
+"p_source_prompt_id"?: string;}; Returns: Json; };
+
+"complete_motion_task": { Args: {"p_task_id": string;
+"p_lease_token": string;
+"p_result": Json;}; Returns: boolean; };
+
+"claim_motion_task": { Args: {"p_worker_id": string;
+"p_include_types": string[];
+"p_lease_seconds"?: number;}; Returns: Json; };
+
+"cancel_motion_task": { Args: {"p_task_id": string;}; Returns: Json; };
+
+"approve_motion_prompt": { Args: {"p_prompt_id": string;
+"p_preview_path": string;
+"p_poster_path": string;}; Returns: Json; };
+};
     Enums: Record<string, never>;
     CompositeTypes: Record<string, never>;
   };

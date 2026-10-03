@@ -45,3 +45,4 @@ supabase/.temp
 .vercel
 .env*
 !.env.example
+services/video-worker/motion-fonts/

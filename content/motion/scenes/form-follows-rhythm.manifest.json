@@ -1,0 +1,30 @@
+{
+  "sizeBytes": 26557,
+  "durationSeconds": 8,
+  "hasAudio": false,
+  "spec": {
+    "width": 1280,
+    "height": 720,
+    "fps": 24,
+    "durationSeconds": 8,
+    "aspect": "16:9"
+  },
+  "frameCount": 192,
+  "watermarked": false,
+  "sourceHash": "67bd174f1e36a3f9f0cc1a3f3dff0103032ae6c24169dd08b60ea5a14971697e",
+  "quality": [
+    {
+      "mean": 237.76388888888889,
+      "deviation": 6.554908160123633
+    },
+    {
+      "mean": 237.93359375,
+      "deviation": 7.420026154039324
+    },
+    {
+      "mean": 237.99131944444446,
+      "deviation": 6.718025684112783
+    }
+  ],
+  "contract": "vidrial-seek-v1"
+}

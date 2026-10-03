@@ -1,4 +1,5 @@
 const taskTypePattern = /^[a-z][a-z0-9_]{1,63}$/;
+export const MOTION_TASK_TYPES = ["motion_generate", "motion_render", "motion_analyze_reference"] as const;
 
 function parseList(value: string | undefined, label: string): string[] | null {
   if (!value?.trim()) return null;

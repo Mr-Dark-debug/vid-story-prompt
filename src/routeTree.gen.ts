@@ -15,6 +15,7 @@ import { Route as AcceptableUseRouteImport } from './routes/acceptable-use'
 import { Route as AiTransparencyRouteImport } from './routes/ai-transparency'
 import { Route as BlogRouteImport } from './routes/blog'
 import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as ClaudeMotionGraphicsRouteImport } from './routes/claude-motion-graphics'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as CookiesRouteImport } from './routes/cookies'
 import { Route as CopyrightRouteImport } from './routes/copyright'
@@ -34,6 +35,7 @@ import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
 import { Route as SecurityRouteImport } from './routes/security'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as SitemapBlogDotxmlRouteImport } from './routes/sitemap-blog[.]xml'
+import { Route as SitemapMotionDotxmlRouteImport } from './routes/sitemap-motion[.]xml'
 import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as StatusRouteImport } from './routes/status'
@@ -50,8 +52,11 @@ import { Route as DocsAiEditorRouteImport } from './routes/docs.ai-editor'
 import { Route as DocsBringYourOwnKeyRouteImport } from './routes/docs.bring-your-own-key'
 import { Route as DocsExportingRouteImport } from './routes/docs.exporting'
 import { Route as DocsGettingStartedRouteImport } from './routes/docs.getting-started'
+import { Route as DocsMotionStudioRouteImport } from './routes/docs.motion-studio'
 import { Route as DocsTimelineRouteImport } from './routes/docs.timeline'
 import { Route as DocsUploadingMediaRouteImport } from './routes/docs.uploading-media'
+import { Route as PromptsIndexRouteImport } from './routes/prompts.index'
+import { Route as PromptsSlugRouteImport } from './routes/prompts.$slug'
 import { Route as UseCasesIndexRouteImport } from './routes/use-cases.index'
 import { Route as UseCasesCoursesRouteImport } from './routes/use-cases.courses'
 import { Route as UseCasesPodcastsRouteImport } from './routes/use-cases.podcasts'
@@ -79,6 +84,10 @@ import { Route as AuthenticatedAppAutomationsAutomationIdRouteImport } from './r
 import { Route as AuthenticatedAppAutomationsNewRouteImport } from './routes/_authenticated.app.automations.new'
 import { Route as AuthenticatedAppChatIndexRouteImport } from './routes/_authenticated.app.chat.index'
 import { Route as AuthenticatedAppChatThreadIdRouteImport } from './routes/_authenticated.app.chat.$threadId'
+import { Route as AuthenticatedAppMotionIndexRouteImport } from './routes/_authenticated.app.motion.index'
+import { Route as AuthenticatedAppMotionProjectIdRouteImport } from './routes/_authenticated.app.motion.$projectId'
+import { Route as AuthenticatedAppMotionGalleryRouteImport } from './routes/_authenticated.app.motion.gallery'
+import { Route as AuthenticatedAppMotionNewRouteImport } from './routes/_authenticated.app.motion.new'
 import { Route as AuthenticatedAppProjectsIndexRouteImport } from './routes/_authenticated.app.projects.index'
 import { Route as AuthenticatedAppProjectsProjectIdRouteImport } from './routes/_authenticated.app.projects.$projectId'
 import { Route as AuthenticatedAppProjectsNewRouteImport } from './routes/_authenticated.app.projects.new'
@@ -127,6 +136,11 @@ const BlogRoute = BlogRouteImport.update({
 const ChangelogRoute = ChangelogRouteImport.update({
   id: '/changelog',
   path: '/changelog',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ClaudeMotionGraphicsRoute = ClaudeMotionGraphicsRouteImport.update({
+  id: '/claude-motion-graphics',
+  path: '/claude-motion-graphics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ContactRoute = ContactRouteImport.update({
@@ -224,6 +238,11 @@ const SitemapBlogDotxmlRoute = SitemapBlogDotxmlRouteImport.update({
   path: '/sitemap-blog.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
+const SitemapMotionDotxmlRoute = SitemapMotionDotxmlRouteImport.update({
+  id: '/sitemap-motion.xml',
+  path: '/sitemap-motion.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
   id: '/sitemap-pages.xml',
   path: '/sitemap-pages.xml',
@@ -304,6 +323,11 @@ const DocsGettingStartedRoute = DocsGettingStartedRouteImport.update({
   path: '/getting-started',
   getParentRoute: () => DocsRoute,
 } as any)
+const DocsMotionStudioRoute = DocsMotionStudioRouteImport.update({
+  id: '/motion-studio',
+  path: '/motion-studio',
+  getParentRoute: () => DocsRoute,
+} as any)
 const DocsTimelineRoute = DocsTimelineRouteImport.update({
   id: '/timeline',
   path: '/timeline',
@@ -313,6 +337,16 @@ const DocsUploadingMediaRoute = DocsUploadingMediaRouteImport.update({
   id: '/uploading-media',
   path: '/uploading-media',
   getParentRoute: () => DocsRoute,
+} as any)
+const PromptsIndexRoute = PromptsIndexRouteImport.update({
+  id: '/prompts/',
+  path: '/prompts/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PromptsSlugRoute = PromptsSlugRouteImport.update({
+  id: '/prompts/$slug',
+  path: '/prompts/$slug',
+  getParentRoute: () => rootRouteImport,
 } as any)
 const UseCasesIndexRoute = UseCasesIndexRouteImport.update({
   id: '/',
@@ -459,6 +493,30 @@ const AuthenticatedAppChatThreadIdRoute =
     path: '/$threadId',
     getParentRoute: () => AuthenticatedAppChatRoute,
   } as any)
+const AuthenticatedAppMotionIndexRoute =
+  AuthenticatedAppMotionIndexRouteImport.update({
+    id: '/motion/',
+    path: '/motion/',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppMotionProjectIdRoute =
+  AuthenticatedAppMotionProjectIdRouteImport.update({
+    id: '/motion/$projectId',
+    path: '/motion/$projectId',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppMotionGalleryRoute =
+  AuthenticatedAppMotionGalleryRouteImport.update({
+    id: '/motion/gallery',
+    path: '/motion/gallery',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppMotionNewRoute =
+  AuthenticatedAppMotionNewRouteImport.update({
+    id: '/motion/new',
+    path: '/motion/new',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
 const AuthenticatedAppProjectsIndexRoute =
   AuthenticatedAppProjectsIndexRouteImport.update({
     id: '/projects/',
@@ -586,6 +644,7 @@ export interface FileRoutesByFullPath {
   '/ai-transparency': typeof AiTransparencyRoute
   '/blog': typeof BlogRouteWithChildren
   '/changelog': typeof ChangelogRoute
+  '/claude-motion-graphics': typeof ClaudeMotionGraphicsRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/copyright': typeof CopyrightRoute
@@ -605,6 +664,7 @@ export interface FileRoutesByFullPath {
   '/security': typeof SecurityRoute
   '/signup': typeof SignupRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
+  '/sitemap-motion.xml': typeof SitemapMotionDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
@@ -619,8 +679,10 @@ export interface FileRoutesByFullPath {
   '/docs/bring-your-own-key': typeof DocsBringYourOwnKeyRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
+  '/docs/motion-studio': typeof DocsMotionStudioRoute
   '/docs/timeline': typeof DocsTimelineRoute
   '/docs/uploading-media': typeof DocsUploadingMediaRoute
+  '/prompts/$slug': typeof PromptsSlugRoute
   '/use-cases/courses': typeof UseCasesCoursesRoute
   '/use-cases/podcasts': typeof UseCasesPodcastsRoute
   '/use-cases/product-demos': typeof UseCasesProductDemosRoute
@@ -628,6 +690,7 @@ export interface FileRoutesByFullPath {
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/blog/': typeof BlogIndexRoute
   '/docs/': typeof DocsIndexRoute
+  '/prompts/': typeof PromptsIndexRoute
   '/use-cases/': typeof UseCasesIndexRoute
   '/app/automations': typeof AuthenticatedAppAutomationsRouteWithChildren
   '/app/billing': typeof AuthenticatedAppBillingRoute
@@ -648,6 +711,9 @@ export interface FileRoutesByFullPath {
   '/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
   '/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
   '/app/chat/$threadId': typeof AuthenticatedAppChatThreadIdRoute
+  '/app/motion/$projectId': typeof AuthenticatedAppMotionProjectIdRoute
+  '/app/motion/gallery': typeof AuthenticatedAppMotionGalleryRoute
+  '/app/motion/new': typeof AuthenticatedAppMotionNewRoute
   '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/settings/ai-providers': typeof AuthenticatedAppSettingsAiProvidersRoute
@@ -659,6 +725,7 @@ export interface FileRoutesByFullPath {
   '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
   '/app/automations/': typeof AuthenticatedAppAutomationsIndexRoute
   '/app/chat/': typeof AuthenticatedAppChatIndexRoute
+  '/app/motion/': typeof AuthenticatedAppMotionIndexRoute
   '/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
   '/app/settings/': typeof AuthenticatedAppSettingsIndexRoute
   '/app/youtube-clipper/': typeof AuthenticatedAppYoutubeClipperIndexRoute
@@ -676,6 +743,7 @@ export interface FileRoutesByTo {
   '/acceptable-use': typeof AcceptableUseRoute
   '/ai-transparency': typeof AiTransparencyRoute
   '/changelog': typeof ChangelogRoute
+  '/claude-motion-graphics': typeof ClaudeMotionGraphicsRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/copyright': typeof CopyrightRoute
@@ -694,6 +762,7 @@ export interface FileRoutesByTo {
   '/security': typeof SecurityRoute
   '/signup': typeof SignupRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
+  '/sitemap-motion.xml': typeof SitemapMotionDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
@@ -706,8 +775,10 @@ export interface FileRoutesByTo {
   '/docs/bring-your-own-key': typeof DocsBringYourOwnKeyRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
+  '/docs/motion-studio': typeof DocsMotionStudioRoute
   '/docs/timeline': typeof DocsTimelineRoute
   '/docs/uploading-media': typeof DocsUploadingMediaRoute
+  '/prompts/$slug': typeof PromptsSlugRoute
   '/use-cases/courses': typeof UseCasesCoursesRoute
   '/use-cases/podcasts': typeof UseCasesPodcastsRoute
   '/use-cases/product-demos': typeof UseCasesProductDemosRoute
@@ -715,6 +786,7 @@ export interface FileRoutesByTo {
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/blog': typeof BlogIndexRoute
   '/docs': typeof DocsIndexRoute
+  '/prompts': typeof PromptsIndexRoute
   '/use-cases': typeof UseCasesIndexRoute
   '/app/billing': typeof AuthenticatedAppBillingRoute
   '/app/feedback': typeof AuthenticatedAppFeedbackRoute
@@ -731,6 +803,9 @@ export interface FileRoutesByTo {
   '/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
   '/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
   '/app/chat/$threadId': typeof AuthenticatedAppChatThreadIdRoute
+  '/app/motion/$projectId': typeof AuthenticatedAppMotionProjectIdRoute
+  '/app/motion/gallery': typeof AuthenticatedAppMotionGalleryRoute
+  '/app/motion/new': typeof AuthenticatedAppMotionNewRoute
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/settings/ai-providers': typeof AuthenticatedAppSettingsAiProvidersRoute
   '/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
@@ -741,6 +816,7 @@ export interface FileRoutesByTo {
   '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
   '/app/automations': typeof AuthenticatedAppAutomationsIndexRoute
   '/app/chat': typeof AuthenticatedAppChatIndexRoute
+  '/app/motion': typeof AuthenticatedAppMotionIndexRoute
   '/app/projects': typeof AuthenticatedAppProjectsIndexRoute
   '/app/settings': typeof AuthenticatedAppSettingsIndexRoute
   '/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperIndexRoute
@@ -761,6 +837,7 @@ export interface FileRoutesById {
   '/ai-transparency': typeof AiTransparencyRoute
   '/blog': typeof BlogRouteWithChildren
   '/changelog': typeof ChangelogRoute
+  '/claude-motion-graphics': typeof ClaudeMotionGraphicsRoute
   '/contact': typeof ContactRoute
   '/cookies': typeof CookiesRoute
   '/copyright': typeof CopyrightRoute
@@ -780,6 +857,7 @@ export interface FileRoutesById {
   '/security': typeof SecurityRoute
   '/signup': typeof SignupRoute
   '/sitemap-blog.xml': typeof SitemapBlogDotxmlRoute
+  '/sitemap-motion.xml': typeof SitemapMotionDotxmlRoute
   '/sitemap-pages.xml': typeof SitemapPagesDotxmlRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/status': typeof StatusRoute
@@ -794,8 +872,10 @@ export interface FileRoutesById {
   '/docs/bring-your-own-key': typeof DocsBringYourOwnKeyRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
+  '/docs/motion-studio': typeof DocsMotionStudioRoute
   '/docs/timeline': typeof DocsTimelineRoute
   '/docs/uploading-media': typeof DocsUploadingMediaRoute
+  '/prompts/$slug': typeof PromptsSlugRoute
   '/use-cases/courses': typeof UseCasesCoursesRoute
   '/use-cases/podcasts': typeof UseCasesPodcastsRoute
   '/use-cases/product-demos': typeof UseCasesProductDemosRoute
@@ -803,6 +883,7 @@ export interface FileRoutesById {
   '/use-cases/youtube': typeof UseCasesYoutubeRoute
   '/blog/': typeof BlogIndexRoute
   '/docs/': typeof DocsIndexRoute
+  '/prompts/': typeof PromptsIndexRoute
   '/use-cases/': typeof UseCasesIndexRoute
   '/_authenticated/app/automations': typeof AuthenticatedAppAutomationsRouteWithChildren
   '/_authenticated/app/billing': typeof AuthenticatedAppBillingRoute
@@ -823,6 +904,9 @@ export interface FileRoutesById {
   '/_authenticated/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
   '/_authenticated/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
   '/_authenticated/app/chat/$threadId': typeof AuthenticatedAppChatThreadIdRoute
+  '/_authenticated/app/motion/$projectId': typeof AuthenticatedAppMotionProjectIdRoute
+  '/_authenticated/app/motion/gallery': typeof AuthenticatedAppMotionGalleryRoute
+  '/_authenticated/app/motion/new': typeof AuthenticatedAppMotionNewRoute
   '/_authenticated/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   '/_authenticated/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/_authenticated/app/settings/ai-providers': typeof AuthenticatedAppSettingsAiProvidersRoute
@@ -834,6 +918,7 @@ export interface FileRoutesById {
   '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
   '/_authenticated/app/automations/': typeof AuthenticatedAppAutomationsIndexRoute
   '/_authenticated/app/chat/': typeof AuthenticatedAppChatIndexRoute
+  '/_authenticated/app/motion/': typeof AuthenticatedAppMotionIndexRoute
   '/_authenticated/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
   '/_authenticated/app/settings/': typeof AuthenticatedAppSettingsIndexRoute
   '/_authenticated/app/youtube-clipper/': typeof AuthenticatedAppYoutubeClipperIndexRoute
@@ -854,6 +939,7 @@ export interface FileRouteTypes {
     | '/ai-transparency'
     | '/blog'
     | '/changelog'
+    | '/claude-motion-graphics'
     | '/contact'
     | '/cookies'
     | '/copyright'
@@ -873,6 +959,7 @@ export interface FileRouteTypes {
     | '/security'
     | '/signup'
     | '/sitemap-blog.xml'
+    | '/sitemap-motion.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/status'
@@ -887,8 +974,10 @@ export interface FileRouteTypes {
     | '/docs/bring-your-own-key'
     | '/docs/exporting'
     | '/docs/getting-started'
+    | '/docs/motion-studio'
     | '/docs/timeline'
     | '/docs/uploading-media'
+    | '/prompts/$slug'
     | '/use-cases/courses'
     | '/use-cases/podcasts'
     | '/use-cases/product-demos'
@@ -896,6 +985,7 @@ export interface FileRouteTypes {
     | '/use-cases/youtube'
     | '/blog/'
     | '/docs/'
+    | '/prompts/'
     | '/use-cases/'
     | '/app/automations'
     | '/app/billing'
@@ -916,6 +1006,9 @@ export interface FileRouteTypes {
     | '/app/automations/$automationId'
     | '/app/automations/new'
     | '/app/chat/$threadId'
+    | '/app/motion/$projectId'
+    | '/app/motion/gallery'
+    | '/app/motion/new'
     | '/app/projects/$projectId'
     | '/app/projects/new'
     | '/app/settings/ai-providers'
@@ -927,6 +1020,7 @@ export interface FileRouteTypes {
     | '/auth/connectors/$connectorId/callback'
     | '/app/automations/'
     | '/app/chat/'
+    | '/app/motion/'
     | '/app/projects/'
     | '/app/settings/'
     | '/app/youtube-clipper/'
@@ -944,6 +1038,7 @@ export interface FileRouteTypes {
     | '/acceptable-use'
     | '/ai-transparency'
     | '/changelog'
+    | '/claude-motion-graphics'
     | '/contact'
     | '/cookies'
     | '/copyright'
@@ -962,6 +1057,7 @@ export interface FileRouteTypes {
     | '/security'
     | '/signup'
     | '/sitemap-blog.xml'
+    | '/sitemap-motion.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/status'
@@ -974,8 +1070,10 @@ export interface FileRouteTypes {
     | '/docs/bring-your-own-key'
     | '/docs/exporting'
     | '/docs/getting-started'
+    | '/docs/motion-studio'
     | '/docs/timeline'
     | '/docs/uploading-media'
+    | '/prompts/$slug'
     | '/use-cases/courses'
     | '/use-cases/podcasts'
     | '/use-cases/product-demos'
@@ -983,6 +1081,7 @@ export interface FileRouteTypes {
     | '/use-cases/youtube'
     | '/blog'
     | '/docs'
+    | '/prompts'
     | '/use-cases'
     | '/app/billing'
     | '/app/feedback'
@@ -999,6 +1098,9 @@ export interface FileRouteTypes {
     | '/app/automations/$automationId'
     | '/app/automations/new'
     | '/app/chat/$threadId'
+    | '/app/motion/$projectId'
+    | '/app/motion/gallery'
+    | '/app/motion/new'
     | '/app/projects/new'
     | '/app/settings/ai-providers'
     | '/app/settings/integrations'
@@ -1009,6 +1111,7 @@ export interface FileRouteTypes {
     | '/auth/connectors/$connectorId/callback'
     | '/app/automations'
     | '/app/chat'
+    | '/app/motion'
     | '/app/projects'
     | '/app/settings'
     | '/app/youtube-clipper'
@@ -1028,6 +1131,7 @@ export interface FileRouteTypes {
     | '/ai-transparency'
     | '/blog'
     | '/changelog'
+    | '/claude-motion-graphics'
     | '/contact'
     | '/cookies'
     | '/copyright'
@@ -1047,6 +1151,7 @@ export interface FileRouteTypes {
     | '/security'
     | '/signup'
     | '/sitemap-blog.xml'
+    | '/sitemap-motion.xml'
     | '/sitemap-pages.xml'
     | '/sitemap.xml'
     | '/status'
@@ -1061,8 +1166,10 @@ export interface FileRouteTypes {
     | '/docs/bring-your-own-key'
     | '/docs/exporting'
     | '/docs/getting-started'
+    | '/docs/motion-studio'
     | '/docs/timeline'
     | '/docs/uploading-media'
+    | '/prompts/$slug'
     | '/use-cases/courses'
     | '/use-cases/podcasts'
     | '/use-cases/product-demos'
@@ -1070,6 +1177,7 @@ export interface FileRouteTypes {
     | '/use-cases/youtube'
     | '/blog/'
     | '/docs/'
+    | '/prompts/'
     | '/use-cases/'
     | '/_authenticated/app/automations'
     | '/_authenticated/app/billing'
@@ -1090,6 +1198,9 @@ export interface FileRouteTypes {
     | '/_authenticated/app/automations/$automationId'
     | '/_authenticated/app/automations/new'
     | '/_authenticated/app/chat/$threadId'
+    | '/_authenticated/app/motion/$projectId'
+    | '/_authenticated/app/motion/gallery'
+    | '/_authenticated/app/motion/new'
     | '/_authenticated/app/projects/$projectId'
     | '/_authenticated/app/projects/new'
     | '/_authenticated/app/settings/ai-providers'
@@ -1101,6 +1212,7 @@ export interface FileRouteTypes {
     | '/auth/connectors/$connectorId/callback'
     | '/_authenticated/app/automations/'
     | '/_authenticated/app/chat/'
+    | '/_authenticated/app/motion/'
     | '/_authenticated/app/projects/'
     | '/_authenticated/app/settings/'
     | '/_authenticated/app/youtube-clipper/'
@@ -1121,6 +1233,7 @@ export interface RootRouteChildren {
   AiTransparencyRoute: typeof AiTransparencyRoute
   BlogRoute: typeof BlogRouteWithChildren
   ChangelogRoute: typeof ChangelogRoute
+  ClaudeMotionGraphicsRoute: typeof ClaudeMotionGraphicsRoute
   ContactRoute: typeof ContactRoute
   CookiesRoute: typeof CookiesRoute
   CopyrightRoute: typeof CopyrightRoute
@@ -1140,6 +1253,7 @@ export interface RootRouteChildren {
   SecurityRoute: typeof SecurityRoute
   SignupRoute: typeof SignupRoute
   SitemapBlogDotxmlRoute: typeof SitemapBlogDotxmlRoute
+  SitemapMotionDotxmlRoute: typeof SitemapMotionDotxmlRoute
   SitemapPagesDotxmlRoute: typeof SitemapPagesDotxmlRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   StatusRoute: typeof StatusRoute
@@ -1148,6 +1262,8 @@ export interface RootRouteChildren {
   VerifyEmailRoute: typeof VerifyEmailRoute
   YoutubeClipperRoute: typeof YoutubeClipperRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  PromptsSlugRoute: typeof PromptsSlugRoute
+  PromptsIndexRoute: typeof PromptsIndexRoute
   ApiAiChatRoute: typeof ApiAiChatRoute
   ApiIndexnowPublishRoute: typeof ApiIndexnowPublishRoute
   ApiYoutubeWebhookRoute: typeof ApiYoutubeWebhookRoute
@@ -1197,6 +1313,13 @@ declare module '@tanstack/react-router' {
       path: '/changelog'
       fullPath: '/changelog'
       preLoaderRoute: typeof ChangelogRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/claude-motion-graphics': {
+      id: '/claude-motion-graphics'
+      path: '/claude-motion-graphics'
+      fullPath: '/claude-motion-graphics'
+      preLoaderRoute: typeof ClaudeMotionGraphicsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/contact': {
@@ -1332,6 +1455,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SitemapBlogDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/sitemap-motion.xml': {
+      id: '/sitemap-motion.xml'
+      path: '/sitemap-motion.xml'
+      fullPath: '/sitemap-motion.xml'
+      preLoaderRoute: typeof SitemapMotionDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/sitemap-pages.xml': {
       id: '/sitemap-pages.xml'
       path: '/sitemap-pages.xml'
@@ -1444,6 +1574,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof DocsGettingStartedRouteImport
       parentRoute: typeof DocsRoute
     }
+    '/docs/motion-studio': {
+      id: '/docs/motion-studio'
+      path: '/motion-studio'
+      fullPath: '/docs/motion-studio'
+      preLoaderRoute: typeof DocsMotionStudioRouteImport
+      parentRoute: typeof DocsRoute
+    }
     '/docs/timeline': {
       id: '/docs/timeline'
       path: '/timeline'
@@ -1457,6 +1594,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/docs/uploading-media'
       preLoaderRoute: typeof DocsUploadingMediaRouteImport
       parentRoute: typeof DocsRoute
+    }
+    '/prompts/': {
+      id: '/prompts/'
+      path: '/prompts'
+      fullPath: '/prompts/'
+      preLoaderRoute: typeof PromptsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/prompts/$slug': {
+      id: '/prompts/$slug'
+      path: '/prompts/$slug'
+      fullPath: '/prompts/$slug'
+      preLoaderRoute: typeof PromptsSlugRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/use-cases/': {
       id: '/use-cases/'
@@ -1646,6 +1797,34 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/chat/$threadId'
       preLoaderRoute: typeof AuthenticatedAppChatThreadIdRouteImport
       parentRoute: typeof AuthenticatedAppChatRoute
+    }
+    '/_authenticated/app/motion/': {
+      id: '/_authenticated/app/motion/'
+      path: '/motion'
+      fullPath: '/app/motion/'
+      preLoaderRoute: typeof AuthenticatedAppMotionIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/motion/$projectId': {
+      id: '/_authenticated/app/motion/$projectId'
+      path: '/motion/$projectId'
+      fullPath: '/app/motion/$projectId'
+      preLoaderRoute: typeof AuthenticatedAppMotionProjectIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/motion/gallery': {
+      id: '/_authenticated/app/motion/gallery'
+      path: '/motion/gallery'
+      fullPath: '/app/motion/gallery'
+      preLoaderRoute: typeof AuthenticatedAppMotionGalleryRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/motion/new': {
+      id: '/_authenticated/app/motion/new'
+      path: '/motion/new'
+      fullPath: '/app/motion/new'
+      preLoaderRoute: typeof AuthenticatedAppMotionNewRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/projects/': {
       id: '/_authenticated/app/projects/'
@@ -1917,8 +2096,12 @@ interface AuthenticatedAppRouteChildren {
   AuthenticatedAppUsageRoute: typeof AuthenticatedAppUsageRoute
   AuthenticatedAppYoutubeClipperRoute: typeof AuthenticatedAppYoutubeClipperRouteWithChildren
   AuthenticatedAppIndexRoute: typeof AuthenticatedAppIndexRoute
+  AuthenticatedAppMotionProjectIdRoute: typeof AuthenticatedAppMotionProjectIdRoute
+  AuthenticatedAppMotionGalleryRoute: typeof AuthenticatedAppMotionGalleryRoute
+  AuthenticatedAppMotionNewRoute: typeof AuthenticatedAppMotionNewRoute
   AuthenticatedAppProjectsProjectIdRoute: typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   AuthenticatedAppProjectsNewRoute: typeof AuthenticatedAppProjectsNewRoute
+  AuthenticatedAppMotionIndexRoute: typeof AuthenticatedAppMotionIndexRoute
   AuthenticatedAppProjectsIndexRoute: typeof AuthenticatedAppProjectsIndexRoute
 }
 
@@ -1936,9 +2119,13 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppYoutubeClipperRoute:
     AuthenticatedAppYoutubeClipperRouteWithChildren,
   AuthenticatedAppIndexRoute: AuthenticatedAppIndexRoute,
+  AuthenticatedAppMotionProjectIdRoute: AuthenticatedAppMotionProjectIdRoute,
+  AuthenticatedAppMotionGalleryRoute: AuthenticatedAppMotionGalleryRoute,
+  AuthenticatedAppMotionNewRoute: AuthenticatedAppMotionNewRoute,
   AuthenticatedAppProjectsProjectIdRoute:
     AuthenticatedAppProjectsProjectIdRouteWithChildren,
   AuthenticatedAppProjectsNewRoute: AuthenticatedAppProjectsNewRoute,
+  AuthenticatedAppMotionIndexRoute: AuthenticatedAppMotionIndexRoute,
   AuthenticatedAppProjectsIndexRoute: AuthenticatedAppProjectsIndexRoute,
 }
 
@@ -1976,6 +2163,7 @@ interface DocsRouteChildren {
   DocsBringYourOwnKeyRoute: typeof DocsBringYourOwnKeyRoute
   DocsExportingRoute: typeof DocsExportingRoute
   DocsGettingStartedRoute: typeof DocsGettingStartedRoute
+  DocsMotionStudioRoute: typeof DocsMotionStudioRoute
   DocsTimelineRoute: typeof DocsTimelineRoute
   DocsUploadingMediaRoute: typeof DocsUploadingMediaRoute
   DocsIndexRoute: typeof DocsIndexRoute
@@ -1986,6 +2174,7 @@ const DocsRouteChildren: DocsRouteChildren = {
   DocsBringYourOwnKeyRoute: DocsBringYourOwnKeyRoute,
   DocsExportingRoute: DocsExportingRoute,
   DocsGettingStartedRoute: DocsGettingStartedRoute,
+  DocsMotionStudioRoute: DocsMotionStudioRoute,
   DocsTimelineRoute: DocsTimelineRoute,
   DocsUploadingMediaRoute: DocsUploadingMediaRoute,
   DocsIndexRoute: DocsIndexRoute,
@@ -2022,6 +2211,7 @@ const rootRouteChildren: RootRouteChildren = {
   AiTransparencyRoute: AiTransparencyRoute,
   BlogRoute: BlogRouteWithChildren,
   ChangelogRoute: ChangelogRoute,
+  ClaudeMotionGraphicsRoute: ClaudeMotionGraphicsRoute,
   ContactRoute: ContactRoute,
   CookiesRoute: CookiesRoute,
   CopyrightRoute: CopyrightRoute,
@@ -2041,6 +2231,7 @@ const rootRouteChildren: RootRouteChildren = {
   SecurityRoute: SecurityRoute,
   SignupRoute: SignupRoute,
   SitemapBlogDotxmlRoute: SitemapBlogDotxmlRoute,
+  SitemapMotionDotxmlRoute: SitemapMotionDotxmlRoute,
   SitemapPagesDotxmlRoute: SitemapPagesDotxmlRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   StatusRoute: StatusRoute,
@@ -2049,6 +2240,8 @@ const rootRouteChildren: RootRouteChildren = {
   VerifyEmailRoute: VerifyEmailRoute,
   YoutubeClipperRoute: YoutubeClipperRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  PromptsSlugRoute: PromptsSlugRoute,
+  PromptsIndexRoute: PromptsIndexRoute,
   ApiAiChatRoute: ApiAiChatRoute,
   ApiIndexnowPublishRoute: ApiIndexnowPublishRoute,
   ApiYoutubeWebhookRoute: ApiYoutubeWebhookRoute,

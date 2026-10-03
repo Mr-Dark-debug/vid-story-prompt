@@ -58,5 +58,6 @@
   { "id": 57, "title": "How to Automate Video Clipping From New YouTube Uploads", "slug": "automate-video-clipping-from-youtube-uploads", "primaryKeyword": "automate youtube clips", "priority": "P0", "cluster": "Automation and imports" },
   { "id": 58, "title": "How to Automatically Turn Podcast RSS Episodes Into Social Clips", "slug": "automate-podcast-rss-to-social-clips", "primaryKeyword": "podcast clipping automation", "priority": "P1", "cluster": "Automation and imports" },
   { "id": 59, "title": "How Batch Video Clipping Works for Creators and Agencies", "slug": "how-batch-video-clipping-works", "primaryKeyword": "batch video clipping", "priority": "P1", "cluster": "Automation and imports" },
-  { "id": 60, "title": "How to Choose a Secure Cloud AI Video Editor for Private Footage", "slug": "choose-a-secure-cloud-ai-video-editor", "primaryKeyword": "secure ai video editor", "priority": "P1", "cluster": "Security" }
+  { "id": 60, "title": "How to Choose a Secure Cloud AI Video Editor for Private Footage", "slug": "choose-a-secure-cloud-ai-video-editor", "primaryKeyword": "secure ai video editor", "priority": "P1", "cluster": "Security" },
+  {"id": 61, "title": "Claude Motion Graphics:  Five Original Briefs and a Practical Workflow", "slug": "claude-motion-graphics", "primaryKeyword": "claude motion graphics", "priority": "P0", "cluster": "Motion Graphics", "published": true}
 ]

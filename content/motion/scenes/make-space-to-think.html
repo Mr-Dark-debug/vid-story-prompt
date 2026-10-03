@@ -1,0 +1,36 @@
+<!doctype html><html><head><meta charset="utf-8"><style>body{margin:0;background:#efefec}canvas{display:block;width:100vw;height:100vh}</style></head><body><canvas id="scene" width="1280" height="720"></canvas><script>
+// Original Vidrial authored illustration. No model output or upstream artwork.
+const C={"slug":"make-space-to-think","title":"Make space to think","w":1280,"h":720},g=document.getElementById('scene').getContext('2d');
+window.DURATION=8;
+const mix=(a,b,p)=>a+(b-a)*p, clamp=v=>Math.min(1,Math.max(0,v)), ease=v=>{const p=clamp(v);return p*p*(3-2*p)}, charcoal='#1d1d1b', cool='#a3a7ae', coral='#ef8668', paper='#efefec';
+function rect(x,y,w,h,color=charcoal){g.fillStyle=color;g.fillRect(x,y,w,h)}
+function line(x,y,u,v,color=charcoal,weight=3){g.strokeStyle=color;g.lineWidth=weight;g.beginPath();g.moveTo(x,y);g.lineTo(u,v);g.stroke()}
+function dot(x,y,r,color=charcoal){g.fillStyle=color;g.beginPath();g.arc(x,y,r,0,Math.PI*2);g.fill()}
+function text(value,x,y,size=42,color=charcoal,align='center'){g.fillStyle=color;g.font='400 '+size+'px Manrope, sans-serif';g.textAlign=align;g.textBaseline='middle';while(g.measureText(value).width>840&&size>18){size-=2;g.font='400 '+size+'px Manrope, sans-serif'}g.fillText(value,x,y)}
+function card(x,y,w,h,label=''){rect(x,y,w,h,'#fff');line(x,y,x+w,y,cool,2);if(label)text(label,x+w/2,y+h/2,30)}
+function caption(value){text(value,500,680,40)}
+window.seek=async function(t){
+g.setTransform(1,0,0,1,0,0);rect(0,0,C.w,C.h,paper);const scale=Math.min(C.w/1000,C.h/800);g.translate((C.w-1000*scale)/2,(C.h-800*scale)/2);g.scale(scale,scale);const p=ease(t/5),q=ease((t-4)/2),phase=Math.min(2,Math.floor(t/2.4));
+switch(C.slug){
+case 'a-small-start':for(let i=0;i<8;i++){let x=mix(170+(i*137)%660,300+(i%4)*105,p),y=mix(160+(i*83)%300,240+Math.floor(i/4)*90,p);rect(x,y,75,12,i===7&&p>.7?coral:charcoal)}text('Outline',500,520,68);caption('Make room for the next idea');break;
+case 'open-the-day':for(let i=0;i<5;i++)rect(260,mix(290+i*24,140+i*85,p),480,16,i===2?coral:cool);text('Daylight',500,610,70);text(q>.5?'Available when you are':'A little space to begin',500,700,34);break;
+case 'one-card-three-steps':card(200+40*Math.sin(t*.5),230,560,210,'Our next small idea');for(let i=0;i<3;i++){dot(330+i*170,520,10,i===phase?coral:cool);text(['Write','Arrange','Share'][i],330+i*170,570,28,i===phase?charcoal:cool)}break;
+case 'focus-window':for(let i=0;i<3;i++){let y=180+i*130;card(210,y,580,100,['An unfinished thought','The idea and its context','A note for tomorrow'][i]);if(i===phase){g.strokeStyle=coral;g.lineWidth=5;g.strokeRect(200,y-10,600,120)}}caption(['Find the idea','Keep its context','Ready to review'][phase]);break;
+case 'form-follows-rhythm':if(t<2.5){for(let i=0;i<5;i++)line(220,180+i*70,780,180+i*70,i===2?coral:cool)}else if(t<5.2){for(let i=0;i<5;i++){let a=t*.5+i*Math.PI*2/5;dot(500+170*Math.cos(a),340+130*Math.sin(a),18,i===2?coral:cool)}}else line(250,450,750,450,coral,8);text('Form follows rhythm',500,570,52);break;
+case 'the-spacing-study':g.strokeStyle=charcoal;g.lineWidth=4;g.strokeRect(180,140,640,410);rect(250+90*p,220,120+160*p,210,coral);caption(['Scale','Space','Balance'][phase]);break;
+case 'keep-a-little-room':for(let i=0;i<6;i++){let x=210+(i%2)*300,y=160+Math.floor(i/2)*140;card(x,y,260,100,i===5?'':'An idea');if(i===5){g.strokeStyle=coral;g.lineWidth=4;g.strokeRect(x,y,260,100)}}caption(t<3?'Keep a little room':t<6?'For an unfinished idea':'Room');break;
+case 'a-second-look':for(let i=0;i<8;i++)line(210,160+i*43,790,160+i*43,i===3?coral:cool,8);rect(mix(320,510,p),155,60,330,paper);caption(t<3?'A second look':t<6?'Changes the picture':'Look again');break;
+case 'from-signal-to-pattern':for(let i=0;i<6;i++){let x=mix(190+i*120,i<3?300+(i%3)*70:580+(i%3)*70,p),y=mix(220+(i%2)*140,290+(i%2)*80,p);dot(x,y,24,i>=3?coral:charcoal)}caption(['Observe','Group','Notice a pattern'][phase]);break;
+case 'the-review-loop':for(let i=0;i<3;i++){let a=-Math.PI/2+i*Math.PI*2/3,x=500+220*Math.cos(a),y=330+180*Math.sin(a);dot(x,y,12,i===phase?coral:cool);text(['Draft','Review','Refine'][i],x,y+45,30)}let a=-Math.PI/2+Math.PI*2*t/8;card(500+180*Math.cos(a)-55,330+120*Math.sin(a)-25,110,50);caption(t>6?'Review':'The review loop');break;
+case 'align-before-you-style':for(let i=0;i<4;i++){let x=230+i*130,y=mix(170+(i*79)%130,240,p);rect(x,y,90,180,cool)}line(210,420,790,420,coral,4);caption(['Find the baseline','Align the edges','Give it space'][phase]);break;
+case 'three-beats-one-story':g.strokeStyle=cool;g.lineWidth=5;g.strokeRect(300,200,400,350);rect(275,350,50,100,paper);rect(mix(170,475,p),375,50,50,coral);caption(['Before','Change','After'][phase]);break;
+case 'words-with-weight':text('Small steps.',500,220,62,t>=0?charcoal:cool);text('Clear direction.',500,355,62,t>=2.4?charcoal:cool);text('Keep going.',500,490,62,t>=4.8?coral:cool);break;
+case 'make-space-to-think':for(let i=0;i<4;i++)text(['Make','space','to','think'][i],mix(400+i*60,190+i*205,p),340,50);line(200,455,800,455,coral,3);break;
+case 'line-to-letter':line(350,470,500,200,charcoal,12);line(500,200,650,470,charcoal,12);line(415,355,mix(415,585,p),355,coral,10);caption('Aperture Notes');break;
+case 'a-circle-finds-its-name':g.strokeStyle=coral;g.lineWidth=6;for(let i=0;i<3;i++){g.beginPath();g.arc(500,300,130,-.7+i*2.1+(1-p)*i*.4,.65+i*2.1+(1-p)*i*.4);g.stroke()}caption('Common Ground');break;
+case 'three-days-of-reading':text('Example reading log',500,130,46);text('Fictional data',500,190,24,cool);line(240,510,780,510,charcoal,2);text('0',210,510,24);for(let i=0;i<3;i++){let v=[12,18,15][i],h=v*13*ease(t/3);rect(300+i*170,510-h,100,h,i===1?coral:cool);text(String(v),350+i*170,480-h,26);text(['Monday','Tuesday','Wednesday'][i],350+i*170,555,25)}text('Pages',500,625,28);break;
+case 'a-clear-budget-picture':text('Example project allocation',500,150,44);text('Fictional data',500,215,26,cool);let values=[50,30,20],labels=['Materials','Time','Testing'],offset=200;for(let i=0;i<3;i++){let w=values[i]*6;rect(offset,300,w*ease(t/3),90,[charcoal,cool,coral][i]);text(labels[i]+' '+values[i]+' parts',500,450+i*60,30);offset+=w}break;
+case 'orbiting-planes':rect(70,100,860,560,charcoal);for(let i=0;i<3;i++){let a=t*Math.PI/4+i*Math.PI*2/3,x=500+130*Math.sin(a),stretch=.35+.65*Math.abs(Math.cos(a));g.save();g.translate(x,350+i*20);g.rotate(Math.sin(a)*.25);g.strokeStyle=i===1?coral:cool;g.lineWidth=4;g.strokeRect(-120*stretch,-100,240*stretch,200);g.restore()}text('Orbiting planes',500,710,34);break;
+case 'the-folded-grid':rect(70,100,860,540,charcoal);for(let j=0;j<9;j++){g.strokeStyle=j===4?coral:cool;g.lineWidth=2;g.beginPath();for(let i=0;i<=24;i++){let x=180+i*27,y=220+j*34+25*Math.sin(i*.3+j*.2+t*Math.PI/4);if(i===0)g.moveTo(x,y);else g.lineTo(x,y)}g.stroke()}for(let i=0;i<=24;i+=2){g.strokeStyle=cool;g.beginPath();for(let j=0;j<9;j++){let x=180+i*27,y=220+j*34+25*Math.sin(i*.3+j*.2+t*Math.PI/4);if(j===0)g.moveTo(x,y);else g.lineTo(x,y)}g.stroke()}text('The folded grid',500,710,34);break;
+}
+};</script></body></html>

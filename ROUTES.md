@@ -1,5 +1,16 @@
 # Vidrial Routes
 
+## Motion Studio
+
+- `/prompts` — original HTML motion brief library, filters, real database metrics and approved entries.
+- `/prompts/$slug` — shared resolver for data-defined collections (including `claude-opus-5-5`) and individual prompts; missing slugs return 404.
+- `/claude-motion-graphics` — original gallery and private brief handoff to the app.
+- `/blog/claude-motion-graphics` — normal validated Markdown article with allowlisted original prompt embeds.
+- `/docs/motion-studio` — contract, prompts, limits, isolation and model privacy.
+- `/app/motion`, `/app/motion/new`, `/app/motion/$projectId`, `/app/motion/gallery` — workspace-private project, brief, version/export and gallery surfaces. Actual schema/model/worker availability controls execution.
+
+Public routes have unique canonical metadata; FAQ and VideoObject data describe only visible facts and verified clips. Library/demo provenance never implies a successful model call or hosted deployment. Signup redirects use an opaque browser draft identifier, never private text.
+
 File-based routing via TanStack Router. Files live in `src/routes/`.
 Dots in filenames map to URL slashes; `$param` is dynamic; underscore
 prefixes are layout/pathless routes.

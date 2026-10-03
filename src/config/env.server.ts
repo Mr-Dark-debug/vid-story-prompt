@@ -51,6 +51,11 @@ const serverEnvSchema = z.object({
   WORKER_WAKE_SECRET: z.string().min(20).optional(),
   OPENROUTER_API_KEY: z.string().min(10).optional(),
   OPENROUTER_CLIP_MODEL: z.string().min(3).optional(),
+  WORKER_MOTION_ENABLED: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
+  MOTION_GENERATION_ENABLED: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
+  MOTION_REFERENCE_ENABLED: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
+  MOTION_ALLOWED_MODELS: z.string().default(""),
+  MOTION_VISION_MODELS: z.string().default(""),
   // Bring-your-own-key AI credentials. Must match the worker. Rotate by raising the VERSION label
   // and moving the old material into KEYS_PREVIOUS (`version:material,...`) until rows are re-encrypted.
   AI_CREDENTIAL_ENCRYPTION_KEY: z.string().min(32).optional(),
@@ -101,6 +106,11 @@ export function getServerEnv() {
     WORKER_WAKE_SECRET: process.env.WORKER_WAKE_SECRET,
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
     OPENROUTER_CLIP_MODEL: process.env.OPENROUTER_CLIP_MODEL,
+    WORKER_MOTION_ENABLED: process.env.WORKER_MOTION_ENABLED,
+    MOTION_GENERATION_ENABLED: process.env.MOTION_GENERATION_ENABLED,
+    MOTION_REFERENCE_ENABLED: process.env.MOTION_REFERENCE_ENABLED,
+    MOTION_ALLOWED_MODELS: process.env.MOTION_ALLOWED_MODELS,
+    MOTION_VISION_MODELS: process.env.MOTION_VISION_MODELS,
     AI_CREDENTIAL_ENCRYPTION_KEY: process.env.AI_CREDENTIAL_ENCRYPTION_KEY || undefined,
     AI_CREDENTIAL_ENCRYPTION_KEY_VERSION:
       process.env.AI_CREDENTIAL_ENCRYPTION_KEY_VERSION || undefined,

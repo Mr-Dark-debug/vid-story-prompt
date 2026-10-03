@@ -3,14 +3,21 @@ import { AppPageHeader } from "@/components/app/layout";
 import { UsageMeter } from "@/components/primitives/usage-meter";
 import { Callout } from "@/components/primitives/section";
 import { getUsageOverview } from "@/services/usage/server";
+import { getMotionUsage } from "@/services/motion/server";
 
 export const Route = createFileRoute("/_authenticated/app/usage")({
   head: () => ({ meta: [{ title: "Usage — Vidrial" }] }),
-  loader: () => getUsageOverview(),
+  loader: async () => {
+    const [overview, motion] = await Promise.all([
+      getUsageOverview(),
+      getMotionUsage().catch(() => null),
+    ]);
+    return { ...overview, motion };
+  },
   component: Usage,
 });
 function Usage() {
-  const { period, ledger, storageBytes, exportCount, plan } = Route.useLoaderData();
+  const { period, ledger, storageBytes, exportCount, plan, motion } = Route.useLoaderData();
   const sourceUsed = Math.ceil(
     (Number(period.source_seconds_committed) + Number(period.source_seconds_reserved)) / 60,
   );
@@ -28,6 +35,24 @@ function Usage() {
       <div className="grid gap-4 md:grid-cols-2">
         <div className="space-y-5 rounded-2xl border border-line bg-surface-panel p-5">
           <UsageMeter label="Source minutes" used={sourceUsed} total={sourceLimit} unit="min" />
+          {motion ? (
+            <div className="space-y-2">
+              <UsageMeter
+                label="Motion render seconds"
+                used={motion.committedSeconds + motion.reservedSeconds}
+                total={motion.limitSeconds}
+                unit="sec"
+              />
+              <p className="text-xs text-ink-mute">
+                {motion.committedSeconds}s committed · {motion.reservedSeconds}s reserved. Cancelled
+                unused reservations are released.
+              </p>
+            </div>
+          ) : (
+            <p className="text-xs text-ink-mute">
+              Motion usage is unavailable until this deployment enables Motion Studio.
+            </p>
+          )}
           {Number(period.generation_credits_limit) > 0 ? (
             <UsageMeter
               label="Generation credits"

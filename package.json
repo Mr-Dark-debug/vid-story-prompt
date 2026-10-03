@@ -98,6 +98,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.32.0",
+    "@fontsource/eb-garamond": "5.2.6",
     "@fontsource/jetbrains-mono": "5.2.6",
     "@fontsource/manrope": "5.2.6",
     "@lovable.dev/vite-tanstack-config": "^2.7.1",

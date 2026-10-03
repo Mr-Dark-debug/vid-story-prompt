@@ -22,6 +22,19 @@ function PrivacyPage() {
       cta={false}
     >
       <p>Last updated: 3 October 2026.</p>
+      <h3>Motion Studio</h3>
+      <p>
+        Motion briefs, generated scene code, immutable versions, render files and operational usage
+        records are stored privately in your workspace. When model generation is enabled, your
+        brief, exact text and relevant previous code are sent to the selected configured provider;
+        the current platform adapter uses OpenRouter. Rights-attested reference analysis, when
+        enabled, sends sampled frames and pacing instructions to a vision model. Provider
+        credentials remain server-side. Before sign-in, a motion draft is retained in this browser
+        tab's session storage for up to 24 hours, with only an opaque identifier in the redirect.
+        Public gallery publication requires separate consent, a user-granted license and moderation.
+        Public example assets are publicly accessible; private renders use expiring signed download
+        links.
+      </p>
 
       <h3>Data we collect</h3>
       <ul>

@@ -1,0 +1,142 @@
+{
+  "a-small-start": {
+    "videoUrl": "/motion-demos/a-small-start.mp4",
+    "posterUrl": "/motion-demos/a-small-start.jpg",
+    "width": 1280,
+    "height": 720,
+    "durationSeconds": 8
+  },
+  "open-the-day": {
+    "videoUrl": "/motion-demos/open-the-day.mp4",
+    "posterUrl": "/motion-demos/open-the-day.jpg",
+    "width": 720,
+    "height": 1280,
+    "durationSeconds": 8
+  },
+  "one-card-three-steps": {
+    "videoUrl": "/motion-demos/one-card-three-steps.mp4",
+    "posterUrl": "/motion-demos/one-card-three-steps.jpg",
+    "width": 1280,
+    "height": 720,
+    "durationSeconds": 8
+  },
+  "focus-window": {
+    "videoUrl": "/motion-demos/focus-window.mp4",
+    "posterUrl": "/motion-demos/focus-window.jpg",
+    "width": 720,
+    "height": 720,
+    "durationSeconds": 8
+  },
+  "form-follows-rhythm": {
+    "videoUrl": "/motion-demos/form-follows-rhythm.mp4",
+    "posterUrl": "/motion-demos/form-follows-rhythm.jpg",
+    "width": 1280,
+    "height": 720,
+    "durationSeconds": 8
+  },
+  "the-spacing-study": {
+    "videoUrl": "/motion-demos/the-spacing-study.mp4",
+    "posterUrl": "/motion-demos/the-spacing-study.jpg",
+    "width": 720,
+    "height": 1280,
+    "durationSeconds": 8
+  },
+  "keep-a-little-room": {
+    "videoUrl": "/motion-demos/keep-a-little-room.mp4",
+    "posterUrl": "/motion-demos/keep-a-little-room.jpg",
+    "width": 720,
+    "height": 1280,
+    "durationSeconds": 8
+  },
+  "a-second-look": {
+    "videoUrl": "/motion-demos/a-second-look.mp4",
+    "posterUrl": "/motion-demos/a-second-look.jpg",
+    "width": 720,
+    "height": 720,
+    "durationSeconds": 8
+  },
+  "from-signal-to-pattern": {
+    "videoUrl": "/motion-demos/from-signal-to-pattern.mp4",
+    "posterUrl": "/motion-demos/from-signal-to-pattern.jpg",
+    "width": 1280,
+    "height": 720,
+    "durationSeconds": 8
+  },
+  "the-review-loop": {
+    "videoUrl": "/motion-demos/the-review-loop.mp4",
+    "posterUrl": "/motion-demos/the-review-loop.jpg",
+    "width": 720,
+    "height": 720,
+    "durationSeconds": 8
+  },
+  "align-before-you-style": {
+    "videoUrl": "/motion-demos/align-before-you-style.mp4",
+    "posterUrl": "/motion-demos/align-before-you-style.jpg",
+    "width": 1280,
+    "height": 720,
+    "durationSeconds": 8
+  },
+  "three-beats-one-story": {
+    "videoUrl": "/motion-demos/three-beats-one-story.mp4",
+    "posterUrl": "/motion-demos/three-beats-one-story.jpg",
+    "width": 720,
+    "height": 1280,
+    "durationSeconds": 8
+  },
+  "words-with-weight": {
+    "videoUrl": "/motion-demos/words-with-weight.mp4",
+    "posterUrl": "/motion-demos/words-with-weight.jpg",
+    "width": 720,
+    "height": 1280,
+    "durationSeconds": 8
+  },
+  "make-space-to-think": {
+    "videoUrl": "/motion-demos/make-space-to-think.mp4",
+    "posterUrl": "/motion-demos/make-space-to-think.jpg",
+    "width": 1280,
+    "height": 720,
+    "durationSeconds": 8
+  },
+  "line-to-letter": {
+    "videoUrl": "/motion-demos/line-to-letter.mp4",
+    "posterUrl": "/motion-demos/line-to-letter.jpg",
+    "width": 720,
+    "height": 720,
+    "durationSeconds": 8
+  },
+  "a-circle-finds-its-name": {
+    "videoUrl": "/motion-demos/a-circle-finds-its-name.mp4",
+    "posterUrl": "/motion-demos/a-circle-finds-its-name.jpg",
+    "width": 1280,
+    "height": 720,
+    "durationSeconds": 8
+  },
+  "three-days-of-reading": {
+    "videoUrl": "/motion-demos/three-days-of-reading.mp4",
+    "posterUrl": "/motion-demos/three-days-of-reading.jpg",
+    "width": 1280,
+    "height": 720,
+    "durationSeconds": 8
+  },
+  "a-clear-budget-picture": {
+    "videoUrl": "/motion-demos/a-clear-budget-picture.mp4",
+    "posterUrl": "/motion-demos/a-clear-budget-picture.jpg",
+    "width": 720,
+    "height": 720,
+    "durationSeconds": 8
+  },
+  "orbiting-planes": {
+    "videoUrl": "/motion-demos/orbiting-planes.mp4",
+    "posterUrl": "/motion-demos/orbiting-planes.jpg",
+    "width": 720,
+    "height": 720,
+    "durationSeconds": 8
+  },
+  "the-folded-grid": {
+    "videoUrl": "/motion-demos/the-folded-grid.mp4",
+    "posterUrl": "/motion-demos/the-folded-grid.jpg",
+    "width": 1280,
+    "height": 720,
+    "durationSeconds": 8
+  }
+}

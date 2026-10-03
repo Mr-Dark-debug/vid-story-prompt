@@ -15,6 +15,13 @@ All notable changes to Vidrial are documented here. Format follows
 
 ## [Unreleased]
 
+### Motion Studio (2026-10-03, deployment gated)
+
+- Added original motion prompt library, collection/detail resolver, generator gallery and private signup draft handoff.
+- Added twenty original briefs, two per canonical category, with truthful demo provenance and zero-initialized counters; verified assets appear through a manifest.
+- Added motion guide through the existing validated article pipeline, allowlisted prompt embeds, documentation, trust copy and public discovery links.
+- Public previews respect reduced motion and data-saving preferences. Gallery metrics use approved database rows rather than invented engagement.
+- Generation and export availability depend on the deployed schema, allowed provider models and isolated worker. Local implementation does not establish production verification.
 ### Bring-your-own-key AI layer (2026-10-03, branch `feat/byok-ai`, live-provider verification pending)
 
 - Added a single provider registry (`src/domain/ai/providers.ts`) with fetch-only adapters for

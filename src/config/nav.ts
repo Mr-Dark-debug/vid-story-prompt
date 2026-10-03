@@ -2,6 +2,11 @@ export type NavItem = { label: string; to: string; description?: string };
 
 export const productMenu: NavItem[] = [
   {
+    label: "Motion Studio",
+    to: "/claude-motion-graphics",
+    description: "Original briefs for code-drawn motion graphics.",
+  },
+  {
     label: "YouTube Clipper",
     to: "/youtube-clipper",
     description: "Turn long videos into editable short clips.",
@@ -21,6 +26,7 @@ export const useCasesMenu: NavItem[] = [
 ];
 
 export const resourcesMenu: NavItem[] = [
+  { label: "Motion prompts", to: "/prompts", description: "Original HTML animation briefs" },
   { label: "Blog", to: "/blog", description: "Practical video clipping guides" },
   { label: "Documentation", to: "/docs" },
   { label: "Changelog", to: "/changelog" },
@@ -34,6 +40,7 @@ export const footerColumns: { title: string; items: NavItem[] }[] = [
     title: "Product",
     items: [
       { label: "Features", to: "/features" },
+      { label: "Motion Studio", to: "/claude-motion-graphics" },
       { label: "How it works", to: "/how-it-works" },
       { label: "Pricing", to: "/pricing" },
       { label: "Roadmap", to: "/roadmap" },
@@ -48,6 +55,7 @@ export const footerColumns: { title: string; items: NavItem[] }[] = [
     title: "Resources",
     items: [
       { label: "Blog", to: "/blog" },
+      { label: "Motion prompts", to: "/prompts" },
       { label: "Documentation", to: "/docs" },
       { label: "AI transparency", to: "/ai-transparency" },
       { label: "Security", to: "/security" },

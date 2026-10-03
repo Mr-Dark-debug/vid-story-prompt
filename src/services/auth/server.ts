@@ -30,6 +30,13 @@ function authError(message: string) {
 }
 
 export const getCurrentSession = createServerFn({ method: "GET" }).handler(async () => {
+  // Missing auth configuration cannot establish a session on public previews.
+  // Sign-in and signup submissions still validate their backend configuration.
+  if (
+    !(process.env.SUPABASE_URL ?? process.env.VITE_SUPABASE_URL) ||
+    !(process.env.SUPABASE_ANON_KEY ?? process.env.VITE_SUPABASE_ANON_KEY)
+  )
+    return null;
   const supabase = getSupabaseServerClient();
   const { data, error } = await supabase.auth.getUser();
   if (error || !data.user) return null;
