@@ -15,6 +15,11 @@ Build with `docker build -t vidrial-video-worker services/video-worker`. Deploy 
 
 ## Motion Studio roles
 
+For the dedicated Linux host setup, service unit and capability rollout, see
+[`deploy/README.md`](deploy/README.md). The controller now proves Docker
+isolation and a real watermarked H.264/AAC render at startup before claiming
+work, then pins its process to the verified image ID.
+
 Motion uses its own durable PostgreSQL task queue, not the source-acquisition process. Run the trusted controller with `npm run motion:start` after building. It holds Supabase/provider credentials and launches each HTML render or critique capture in a fresh credential-free container. The renderer image contains only the browser/FFmpeg runtime, three OFL font families and the seek contract. No source-acquisition or queue modules are included.
 
 Build from the repository root:

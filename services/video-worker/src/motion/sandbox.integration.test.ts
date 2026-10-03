@@ -61,5 +61,67 @@ describe.skipIf(!image || !seccompProfile)(
         await rm(directory, { recursive: true, force: true });
       }
     }, 90_000);
+    it("kills timed-out user code and removes its temporary files", async () => {
+      const directory = await mkdtemp(join(tmpdir(), "vidrial-docker-timeout-"));
+      try {
+        const stuck = source.replace("const g=document", "for(;;){};const g=document");
+        await expect(
+          withSandboxRender(
+            stuck,
+            spec,
+            true,
+            {
+              image: image!,
+              seccompProfile: seccompProfile!,
+              dockerPath: "docker",
+              tempRoot: directory,
+              memoryMb: 1024,
+              cpus: 1,
+              pids: 256,
+              timeoutMs: 30_000,
+            },
+            async () => undefined,
+          ),
+        ).rejects.toThrow();
+        expect(await readdir(directory)).toEqual([]);
+      } finally {
+        await rm(directory, { recursive: true, force: true });
+      }
+    }, 45_000);
+    it("cancels an active Docker render and removes its temporary files", async () => {
+      const directory = await mkdtemp(join(tmpdir(), "vidrial-docker-cancel-"));
+      const controller = new AbortController();
+      let framesStarted = false;
+      try {
+        await expect(
+          withSandboxRender(
+            source,
+            spec,
+            true,
+            {
+              image: image!,
+              seccompProfile: seccompProfile!,
+              dockerPath: "docker",
+              tempRoot: directory,
+              memoryMb: 1024,
+              cpus: 1,
+              pids: 256,
+              timeoutMs: 60_000,
+            },
+            async () => undefined,
+            controller.signal,
+            "render",
+            () => {
+              framesStarted = true;
+              controller.abort();
+            },
+          ),
+        ).rejects.toThrow();
+        expect(framesStarted).toBe(true);
+        expect(await readdir(directory)).toEqual([]);
+      } finally {
+        await rm(directory, { recursive: true, force: true });
+      }
+    }, 90_000);
   },
 );

@@ -147,6 +147,23 @@ The typed registry in `src/domain/connectors` drives source discovery, search, g
 
 Remote imports use `connector_imports` plus independently leased `connector_tasks`. The worker obtains provider tokens only from the encrypted server store, streams an officially authorised asset into an isolated directory, bounds transfer size/time, validates MIME and FFprobe output, writes an immutable private object and attaches the resulting `media_asset`. Clip usage is still reserved only when the user confirms a clipping job.
 
+## Motion production boundary
+
+Motion projects, versions, render manifests, usage and leases live in PostgreSQL
+with workspace RLS. `approved_motion_prompts` is a security-invoker view over
+`motion_public_catalog`, an approved-only RLS projection maintained by a trigger
+in the same moderation/counter transaction. Private submissions and author IDs
+remain in the restricted source table.
+
+The motion controller runs on a dedicated Linux Docker host, separately from
+source acquisition. Before leasing user jobs it proves OS network denial,
+nonroot execution, read-only root, credential absence and a real H.264/AAC
+watermarked render, then pins subsequent jobs to that image ID. Host deployment
+and capability rollout are documented in `services/video-worker/deploy/README.md`.
+Vercel hosts the app; its successful deployment does not establish worker
+availability. Database and Vercel flags remain disabled until the persistent
+host and any enabled provider lane are verified.
+
 ## Bring-your-own-key AI layer
 
 `src/domain/ai` is the pure source of truth: the provider registry, error taxonomy and redaction, fetch-based adapters (`validateKey`, `listModels`, `streamChat`, `completeJson`), the credential envelope, resolution order and chat context building. The video worker cannot import the web source tree (separate Docker context), so `scripts/sync-worker-ai.mjs` generates `services/video-worker/src/vendor/ai`; a unit test fails if the copy drifts (`npm run ai:sync`).

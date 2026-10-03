@@ -17,6 +17,10 @@ All notable changes to Vidrial are documented here. Format follows
 
 ### Motion Studio (2026-10-03, deployment gated)
 
+- Deployed the hosted Motion Studio schema and approved original gallery assets. Regenerated database types from the hosted schema after confirming existing BYOK permissions and Realtime tables.
+- Changed the public prompt view to a security-invoker view over an approved-only RLS catalog. A transaction-bound trigger updates metrics and moderation without exposing private creator IDs or submissions.
+- Added a dedicated Linux systemd deployment, fail-closed startup verification and exact renderer image pinning. Added Linux CI checks for Docker isolation, rendering, audio, timeouts and cancellation; production exports still require a verified persistent Docker host.
+
 - Added original motion prompt library, collection/detail resolver, generator gallery and private signup draft handoff.
 - Added twenty original briefs, two per canonical category, with truthful demo provenance and zero-initialized counters; verified assets appear through a manifest.
 - Added motion guide through the existing validated article pipeline, allowlisted prompt embeds, documentation, trust copy and public discovery links.
