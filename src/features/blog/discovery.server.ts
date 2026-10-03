@@ -27,6 +27,7 @@ export const PUBLIC_SITEMAP_PATHS = [
   "/use-cases/short-form",
   "/use-cases/youtube",
   "/docs",
+  "/docs/bring-your-own-key",
   "/docs/exporting",
   "/docs/getting-started",
   "/docs/uploading-media",

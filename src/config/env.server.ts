@@ -56,6 +56,14 @@ const serverEnvSchema = z.object({
   MOTION_REFERENCE_ENABLED: z.enum(["true", "false"]).default("false").transform((value) => value === "true"),
   MOTION_ALLOWED_MODELS: z.string().default(""),
   MOTION_VISION_MODELS: z.string().default(""),
+  // Bring-your-own-key AI credentials. Must match the worker. Rotate by raising the VERSION label
+  // and moving the old material into KEYS_PREVIOUS (`version:material,...`) until rows are re-encrypted.
+  AI_CREDENTIAL_ENCRYPTION_KEY: z.string().min(32).optional(),
+  AI_CREDENTIAL_ENCRYPTION_KEY_VERSION: z
+    .string()
+    .regex(/^[A-Za-z0-9_-]{1,16}$/)
+    .optional(),
+  AI_CREDENTIAL_ENCRYPTION_KEYS_PREVIOUS: z.string().optional(),
 });
 
 export function getServerEnv() {
@@ -103,5 +111,10 @@ export function getServerEnv() {
     MOTION_REFERENCE_ENABLED: process.env.MOTION_REFERENCE_ENABLED,
     MOTION_ALLOWED_MODELS: process.env.MOTION_ALLOWED_MODELS,
     MOTION_VISION_MODELS: process.env.MOTION_VISION_MODELS,
+    AI_CREDENTIAL_ENCRYPTION_KEY: process.env.AI_CREDENTIAL_ENCRYPTION_KEY || undefined,
+    AI_CREDENTIAL_ENCRYPTION_KEY_VERSION:
+      process.env.AI_CREDENTIAL_ENCRYPTION_KEY_VERSION || undefined,
+    AI_CREDENTIAL_ENCRYPTION_KEYS_PREVIOUS:
+      process.env.AI_CREDENTIAL_ENCRYPTION_KEYS_PREVIOUS || undefined,
   });
 }

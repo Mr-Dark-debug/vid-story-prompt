@@ -19,6 +19,10 @@ const sections = [
     body: "When enabled, Motion Studio sends your brief, exact text and prior scene code to the selected configured model. The current platform adapter uses OpenRouter. The model writes HTML; an isolated browser draws frames and FFmpeg encodes them. Official examples are original authored scenes, not claimed outputs of a named model. Reference frames are sent only when rights-attested vision analysis is enabled.",
   },
   {
+    title: "Your own AI key",
+    body: "If you connect your own provider key, chat messages and, for sources you choose to process with it, transcript text and clip details go to that provider using your key, under their terms. You choose the model per feature or per job. If your provider rejects the key, Vidrial says so and uses its built-in selection instead; it never silently pretends your model was used.",
+  },
+  {
     title: "What Vidrial does not promise",
     body: "AI assistance does not guarantee factual accuracy, animation quality or audience response. A model name in a prompt collection does not mean it is configured for generation. Your export remains your publishing decision.",
   },

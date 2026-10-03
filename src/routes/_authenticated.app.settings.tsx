@@ -1,5 +1,5 @@
 import { createFileRoute, Link, Outlet, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Bell, Plug, Settings2, Shield, UserRound } from "lucide-react";
+import { Bell, KeyRound, Plug, Settings2, Shield, UserRound, type LucideIcon } from "lucide-react";
 import { AppPageHeader } from "@/components/app/layout";
 import { settingsNavItems } from "@/config/app-navigation";
 import { cn } from "@/lib/utils";
@@ -10,7 +10,15 @@ export const Route = createFileRoute("/_authenticated/app/settings")({
   component: SettingsLayout,
 });
 
-const icons = [UserRound, Settings2, Bell, Plug, Shield];
+// Keyed by route so adding a settings section cannot misalign icons with labels.
+const icons: Record<string, LucideIcon> = {
+  "/app/settings": UserRound,
+  "/app/settings/preferences": Settings2,
+  "/app/settings/notifications": Bell,
+  "/app/settings/integrations": Plug,
+  "/app/settings/ai-providers": KeyRound,
+  "/app/settings/privacy": Shield,
+};
 
 function SettingsLayout() {
   const pathname = useRouterState({ select: (state) => state.location.pathname });
@@ -40,10 +48,10 @@ function SettingsLayout() {
           aria-label="Settings"
           className="sticky top-24 hidden rounded-xl border border-line bg-surface-panel p-2 lg:block"
         >
-          {settingsNavItems.map((item, index) => {
+          {settingsNavItems.map((item) => {
             const active =
               item.to === "/app/settings" ? pathname === item.to : pathname.startsWith(item.to);
-            const Icon = icons[index];
+            const Icon = icons[item.to] ?? Settings2;
             return (
               <Link
                 key={item.to}

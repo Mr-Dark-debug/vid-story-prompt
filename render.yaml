@@ -69,6 +69,12 @@ services:
         sync: false
       - key: CONNECTOR_TOKEN_ENCRYPTION_KEY
         sync: false
+      - key: AI_CREDENTIAL_ENCRYPTION_KEY
+        sync: false
+      - key: AI_CREDENTIAL_ENCRYPTION_KEY_VERSION
+        value: "1"
+      - key: AI_CREDENTIAL_ENCRYPTION_KEYS_PREVIOUS
+        sync: false
       - key: META_APP_ID
         sync: false
       - key: META_APP_SECRET

@@ -4,22 +4,28 @@ import { env } from "./config/env.js";
 import { createWorkerHttpServer } from "./http/server.js";
 import { logger } from "./logging/logger.js";
 import {
+  claimAiRun,
   claimConnectorTask,
+  completeAiRun,
   completeConnectorTask,
   completeTask,
   claimTask,
+  failAiRun,
   failConnectorTask,
   failTask,
+  heartbeatAiRun,
   heartbeatConnectorTask,
   heartbeat,
+  startAiRun,
   startConnectorTask,
   startTask,
 } from "./queue/repository.js";
-import { classifyFailure, failureForTaskAttempt, nextAttempt } from "./queue/retry.js";
+import { classifyFailure, failureForTaskAttempt, nextAttempt, retryAt } from "./queue/retry.js";
 import { supabase } from "./storage/client.js";
 import { handleTask } from "./tasks/handlers.js";
 import { handleConnectorImport } from "./tasks/connector-import.js";
-import type { ConnectorTask } from "./domain/types.js";
+import type { AiRunTask, ConnectorTask } from "./domain/types.js";
+import { handleAiRun } from "./tasks/ai-run.js";
 import {
   acquisitionTierDiagnostics,
   probeCobaltHealth,
@@ -202,6 +208,62 @@ async function processConnectorTask(task: ConnectorTask) {
   }
 }
 
+async function processAiRun(task: AiRunTask) {
+  activeTask = true;
+  const context = {
+    aiRunId: task.id,
+    purpose: task.purpose,
+    attempt: task.attempt,
+    workerId: env.WORKER_ID,
+  };
+  logger.info(context, "AI run leased");
+  await startAiRun(task.id);
+  // Cancelling (or losing the lease) must stop the provider call, not just the bookkeeping.
+  const cancelled = new AbortController();
+  const signal = AbortSignal.any([shutdown.signal, cancelled.signal]);
+  const timer = setInterval(
+    () =>
+      void heartbeatAiRun(task.id)
+        .then((alive) => {
+          if (!alive) cancelled.abort();
+        })
+        .catch((error) => logger.warn({ ...context, error }, "AI run heartbeat failed")),
+    Math.max(10_000, env.TASK_VISIBILITY_TIMEOUT_SECONDS * 500),
+  );
+  try {
+    const outcome = await handleAiRun(task, { signal });
+    await completeAiRun(task.id, {
+      output: outcome.output,
+      providerId: outcome.providerId,
+      modelId: outcome.modelId,
+      credentialSource: outcome.credentialSource,
+      inputTokens: outcome.usage.inputTokens,
+      outputTokens: outcome.usage.outputTokens,
+    });
+    logger.info(
+      { ...context, providerId: outcome.providerId, credentialSource: outcome.credentialSource },
+      "AI run succeeded",
+    );
+  } catch (error) {
+    const failure = classifyFailure(error);
+    await failAiRun(
+      task,
+      failure.code,
+      failure.message,
+      failure.retryable,
+      failure.retryable ? retryAt(task.attempt, failure) : null,
+    );
+    // Codes and classification only: prompts, transcripts and keys never reach the log.
+    logger[failure.retryable ? "warn" : "error"](
+      { ...context, errorCode: failure.code },
+      "AI run failed",
+    );
+  } finally {
+    clearInterval(timer);
+    activeTask = false;
+  }
+}
+
 async function run() {
   while (!stopping) {
     try {
@@ -214,6 +276,11 @@ async function run() {
         : null;
       if (connectorTask) {
         await processConnectorTask(connectorTask);
+        continue;
+      }
+      const aiRun = env.WORKER_AI_RUNS_ENABLED ? await claimAiRun() : null;
+      if (aiRun) {
+        await processAiRun(aiRun);
         continue;
       }
       const task = await claimTask();
@@ -249,7 +316,7 @@ async function run() {
           failure.code,
           failure.message,
           failure.retryable,
-          failure.retryable ? nextAttempt(task.attempt) : null,
+          failure.retryable ? retryAt(task.attempt, failure) : null,
           failure.proxyTier ?? null,
         );
         logger[failure.retryable ? "warn" : "error"](

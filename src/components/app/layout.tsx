@@ -1,23 +1,5 @@
 import { Link, Outlet, useNavigate, useRouter, useRouterState } from "@tanstack/react-router";
-import {
-  ArrowLeft,
-  ArrowRight,
-  CreditCard,
-  FolderKanban,
-  Gauge,
-  HelpCircle,
-  Layers3,
-  LayoutDashboard,
-  LogOut,
-  Menu,
-  MessageSquare,
-  PanelLeftClose,
-  PanelLeftOpen,
-  Plus,
-  Scissors,
-  Settings,
-  UploadCloud,
-} from "lucide-react";
+import { ArrowLeft, ArrowRight, CreditCard, FolderKanban, Gauge, HelpCircle, Layers3, LayoutDashboard, LogOut, Menu, MessageSquare, PanelLeftClose, PanelLeftOpen, Plus, Scissors, Settings, UploadCloud, MessagesSquare } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "sonner";
 import { AppBreadcrumbs } from "@/components/app/app-breadcrumbs";
@@ -45,6 +27,7 @@ const navIcons = {
   "/app": LayoutDashboard,
   "/app/youtube-clipper": Scissors,
   "/app/motion": Layers3,
+  "/app/chat": MessagesSquare,
   "/app/projects": FolderKanban,
   "/app/templates": Layers3,
   "/app/uploads": UploadCloud,

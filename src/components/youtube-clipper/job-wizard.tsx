@@ -19,6 +19,9 @@ import {
 import { SourceUpload, type UploadedSource } from "./source-upload";
 import { getYouTubeMetadata } from "@/services/youtube/server";
 import { parseYouTubeVideoId } from "@/services/youtube/parser";
+import { ModelPicker } from "@/components/ai/model-picker";
+import { parseModelKey } from "@/components/ai/model-catalog";
+import type { AiModelGroup } from "@/services/ai/server";
 import { createClipJob } from "@/services/clipping/server";
 import { trackAnalyticsEvent } from "@/services/analytics/client";
 import { attachSourceToAutomationDraft } from "@/services/youtube/automation.server";
@@ -64,11 +67,17 @@ export function JobWizard({
   initialDraft,
   connectors,
   creationContext,
+  aiModels = [],
+  aiPreferredModelKey = null,
 }: {
   initialYoutube?: string;
   initialSource?: string;
   initialDraft?: string;
   connectors?: PublicConnectorDefinition[];
+  /** The user's connected models (cached), for the optional AI model selector. */
+  aiModels?: AiModelGroup[];
+  /** `credentialId::modelId` of the user's saved clip-planning default, if any. */
+  aiPreferredModelKey?: string | null;
   creationContext?: {
     plan: PlanKey;
     entitlement: PlanEntitlement;
@@ -128,6 +137,8 @@ export function JobWizard({
   const [instruction, setInstruction] = useState(
     "Keep each clip understandable without prior context.",
   );
+  // Null means "use my default for clip planning, else the built-in selection".
+  const [aiModelKey, setAiModelKey] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [submitError, setSubmitError] = useState<JobErrorPresentation | null>(null);
@@ -334,6 +345,7 @@ export function JobWizard({
         durationRange,
         captionPreset,
         instruction,
+        aiModelKey,
       });
       if (submission.current?.fingerprint !== fingerprint)
         submission.current = { fingerprint, key: crypto.randomUUID() };
@@ -380,6 +392,9 @@ export function JobWizard({
                   autoCrop: "centre",
                   removeLongPauses: true,
                   removeFillerWords: false,
+                  ...(aiModelKey && parseModelKey(aiModelKey)
+                    ? { aiModel: parseModelKey(aiModelKey) }
+                    : {}),
                 },
           requestedClipCount: clipMode === "manual_timestamp" ? exactRanges.length : requestedClips,
           rightsAccepted: true,
@@ -510,6 +525,10 @@ export function JobWizard({
             setCaptionPreset={setCaptionPreset}
             instruction={instruction}
             setInstruction={setInstruction}
+            aiModels={aiModels}
+            aiPreferredModelKey={aiPreferredModelKey}
+            aiModelKey={aiModelKey}
+            setAiModelKey={setAiModelKey}
             plan={context.plan}
             entitlement={context.entitlement}
           />
@@ -1414,6 +1433,10 @@ function Preferences(props: {
   setCaptionPreset: (value: string) => void;
   instruction: string;
   setInstruction: (value: string) => void;
+  aiModels: AiModelGroup[];
+  aiPreferredModelKey: string | null;
+  aiModelKey: string | null;
+  setAiModelKey: (value: string | null) => void;
   plan: PlanKey;
   entitlement: PlanEntitlement;
 }) {
@@ -1488,6 +1511,31 @@ function Preferences(props: {
             className="rounded-xl border border-line bg-surface-page p-3 text-sm font-normal outline-none focus:border-ember"
           />
         </label>
+        {props.aiModels.some((group) => group.status === "active") ? (
+          <details className="sm:col-span-2 rounded-xl border border-line p-3">
+            <summary className="cursor-pointer text-xs font-medium text-ink">
+              AI model (advanced)
+            </summary>
+            <div className="mt-3 grid gap-2">
+              <ModelPicker
+                groups={props.aiModels}
+                value={props.aiModelKey}
+                ariaLabel="AI model for clip planning"
+                none={{
+                  label: props.aiPreferredModelKey
+                    ? "My default for clip planning"
+                    : "Built-in selection",
+                }}
+                onChange={(model) => props.setAiModelKey(model ? model.key : null)}
+              />
+              <p className="text-xs text-ink-mute">
+                {props.aiModelKey
+                  ? "Transcript text from this source is sent to your chosen provider using your key, and their terms apply. Source-minute limits still follow your plan."
+                  : "Plans use your saved default for clip planning if you set one, otherwise Vidrial's built-in selection."}
+              </p>
+            </div>
+          </details>
+        ) : null}
       </div>
     </div>
   );

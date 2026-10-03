@@ -21,7 +21,7 @@ reviewable plan — never a black box.
 ## Tech stack
 
 TanStack Start v1 · React 19 · Vite 7 · Tailwind v4 · Zustand ·
-TanStack Query · Strict TypeScript · Cloudflare Workers (edge) ·
+TanStack Query · Strict TypeScript · Vercel (Nitro, Node 24) ·
 Supabase (Auth / Postgres / Storage) · External Docker video worker
 (FFmpeg, Whisper, planner).
 
@@ -44,6 +44,11 @@ Supabase (Auth / Postgres / Storage) · External Docker video worker
 bun install
 bun install --cwd services/video-worker   # optional: only for the worker
 ```
+
+`bun.lock` is the only lockfile and must resolve from the public npm registry
+(use `bun install --frozen-lockfile` in CI). Do not commit a `package-lock.json`;
+`npm run <script>` still works because the scripts only call locally installed tools.
+If a lockfile entry ever points at a private mirror, regenerate it against the public registry.
 
 ### 2. Configure environment variables
 
@@ -105,7 +110,7 @@ bun run worker:dev
 | Command | Purpose |
 | --- | --- |
 | `bun run dev` | Start the Vite dev server on port 8080 |
-| `bun run build` | Production build (Cloudflare Workers target) |
+| `bun run build` | Production build (Nitro; `vercel` preset on Vercel, `cloudflare-module` fallback elsewhere) |
 | `bun run build:dev` | Build with development mode flags |
 | `bun run preview` | Preview the production build locally |
 | `bun run typecheck` | Strict TypeScript check (`tsc --noEmit`) |
@@ -119,6 +124,9 @@ bun run worker:dev
 | `bun run supabase:types` | Regenerate Supabase DB types |
 | `bun run worker:dev` | Run the external video worker locally |
 | `bun run worker:test` | Run the video worker test suite |
+| `bun run ai:sync` / `bun run ai:check` | Regenerate / verify the worker's copy of `src/domain/ai` (run after editing the AI domain) |
+| `pwsh scripts/test-ai-byok-db.ps1` | Isolated PostgreSQL contract tests for the BYOK migrations (needs a local PostgreSQL 17; redirect output to a file) |
+| `npx playwright test e2e/ai-byok.spec.ts` | AI UI contract tests against fake server functions and a fake provider |
 
 Before opening a PR, run:
 

@@ -35,6 +35,10 @@ For the zero-cost residential acquisition topology, apply `20260823220000_worker
 
 If Render is suspended or otherwise unavailable, re-run the installer with `-TaskMode FullPipeline`. The local worker then claims all clip-pipeline tasks while connector polling stays disabled. This is a continuity mode, not horizontal scaling: keep only one full-pipeline home worker active, monitor its loopback health, and switch back to `AcquisitionOnly` after the cloud worker is healthy.
 
+### Bring-your-own-key AI credentials
+
+Set the same `AI_CREDENTIAL_ENCRYPTION_KEY` (at least 32 random characters) on the web application and worker; saving a provider key is refused until it exists. User keys are encrypted with AES-256-GCM (HKDF-derived, bound to workspace, user and provider) and stored only as ciphertext plus the last four characters. To rotate, generate a new key, set `AI_CREDENTIAL_ENCRYPTION_KEY_VERSION` to a new label, and move the old key to `AI_CREDENTIAL_ENCRYPTION_KEYS_PREVIOUS` as `oldlabel:oldkey`; existing rows stay readable and are re-encrypted when next verified. Remove an old key only after no row carries its label. Never log, screenshot or commit these values. The queue migration schedules `public.purge_expired_ai_chats()` daily when `pg_cron` is installed (it is skipped silently otherwise; schedule it yourself in that case) so user chat-retention settings are honoured. Set `WORKER_AI_RUNS_ENABLED=false` on any worker that must not claim background AI runs (the acquisition-only home worker does this automatically) and keep `AI_RUN_CREDENTIAL_CONCURRENCY` (default 2) low enough for your users' provider rate limits.
+
 ### Credential-gated social publishing
 
 Set the same `CONNECTOR_TOKEN_ENCRYPTION_KEY` on the web application and worker. Add only providers you have actually registered and reviewed:

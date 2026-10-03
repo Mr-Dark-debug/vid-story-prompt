@@ -53,7 +53,13 @@ state without releasing the existing reservation or resurrecting cancelled jobs.
 
 - **Framework**: TanStack Start v1 (React 19, SSR, file-based routing)
 - **Build**: Vite 7 via `@lovable.dev/vite-tanstack-config`
-- **Runtime target**: Cloudflare Workers (edge) with `nodejs_compat`
+- **Runtime target**: Vercel production deploys use Nitro's `vercel` preset: a Node.js 24
+  serverless function with response streaming (`.vercel/output/functions/__server.func`).
+  When no host is detected (for example a local `npm run build` or the Lovable preview) the
+  Lovable Vite config falls back to the `cloudflare-module` preset with `nodejs_compat`.
+  Server code must therefore use only Web-standard APIs (`fetch`, `Response`, `ReadableStream`,
+  `AbortSignal`, Web Crypto) so it behaves identically on both. Never rely on Node-only streams
+  or on a request surviving a client disconnect.
 - **Styling**: Tailwind CSS v4 with tokens in `src/styles.css`
 - **State**: Zustand (timeline history), TanStack Query (server data)
 - **Types**: Strict TypeScript
@@ -70,7 +76,7 @@ state without releasing the existing reservation or resurrecting cancelled jobs.
                │  server functions (createServerFn)
                ▼
 ┌──────────────────────────────────────────────┐
-│ TanStack Start SSR (Cloudflare Worker)       │
+│ TanStack Start SSR (Vercel Node function)    │
 │  - Session verification, RLS-scoped queries  │
 │  - Signed URLs, quota enforcement, wake API  │
 └──────────────────────────────────────────────┘
@@ -129,7 +135,7 @@ state without releasing the existing reservation or resurrecting cancelled jobs.
 
 # Architecture
 
-TanStack Start serves the marketing and authenticated application on Vercel/Lovable-compatible Nitro output. Supabase provides Auth, PostgreSQL, Realtime, private Storage and PGMQ. Cookie-backed server clients verify users; service-role clients exist only in trusted server/worker modules.
+TanStack Start serves the marketing and authenticated application as Nitro output (Vercel in production; see the runtime target above). Supabase provides Auth, PostgreSQL, Realtime, private Storage and PGMQ. Cookie-backed server clients verify users; service-role clients exist only in trusted server/worker modules.
 
 Job creation atomically checks workspace, plan, usage and concurrency; records rights; reserves usage; creates a task; and writes an outbox event. PGMQ wakes a portable worker while `job_tasks` remains authoritative for leases, retries, recovery and idempotency. The worker streams immutable artifacts through isolated temp directories and executes FFmpeg with argument arrays.
 
@@ -140,3 +146,16 @@ See `docs/adr/0001-external-video-worker.md` for the worker placement decision.
 The typed registry in `src/domain/connectors` drives source discovery, search, grouping and honest availability. OAuth and provider API calls live under `src/services/connectors`; React only receives serialisable definitions, safe account metadata and remote asset records. `oauth_connections` remains the encrypted token source of truth and `connector_connections` is its token-free security-invoker view.
 
 Remote imports use `connector_imports` plus independently leased `connector_tasks`. The worker obtains provider tokens only from the encrypted server store, streams an officially authorised asset into an isolated directory, bounds transfer size/time, validates MIME and FFprobe output, writes an immutable private object and attaches the resulting `media_asset`. Clip usage is still reserved only when the user confirms a clipping job.
+
+## Bring-your-own-key AI layer
+
+`src/domain/ai` is the pure source of truth: the provider registry, error taxonomy and redaction, fetch-based adapters (`validateKey`, `listModels`, `streamChat`, `completeJson`), the credential envelope, resolution order and chat context building. The video worker cannot import the web source tree (separate Docker context), so `scripts/sync-worker-ai.mjs` generates `services/video-worker/src/vendor/ai`; a unit test fails if the copy drifts (`npm run ai:sync`).
+
+Credentials live in `ai_provider_credentials`. Only trusted server/worker code (service role) reads `key_encrypted`; browsers read `ai_provider_connections`. Every outbound call sends the key only in a header, never follows redirects, uses fixed registry base URLs, and redacts the key from every error path.
+
+Two execution lanes share the adapters:
+
+1. **Interactive chat** (`POST /api/ai/chat`). Persists the user message, streams the reply, checkpoints partial text, and always settles the assistant message (`complete`, `cancelled`, `interrupted`, `failed`). It never relies on the request surviving: the stream's `finally`, a heartbeat and a stale sweep settle abandoned replies. A database trigger mirrors the allowed status transitions.
+2. **Durable queue** (`ai_runs`). Clip planning keeps riding its existing `job_tasks` task and records an `ai_runs` row for provenance. Standalone work (social copy, regenerate-many) is leased from `ai_runs` itself because `job_tasks` requires a clip job, as connector imports already use `connector_tasks`. `claim_ai_run` enforces a per-credential concurrency cap, reclaims expired leases and dead-letters exhausted ones.
+
+Resolution order for every feature is explicit selection, saved default, platform model, deterministic selection. Unusable user choices are recorded as skipped with a reason, and `planning_runs` stores `credential_source`, `credential_id` and `fallback_reason`. Bring-your-own-key removes model cost, not transcription, rendering, storage or source-minute quotas.

@@ -28,6 +28,12 @@ export default defineConfig({
       url: "http://127.0.0.1:4192",
       reuseExistingServer: false,
     },
+    {
+      // Fake server functions and a fake provider endpoint; see e2e/ai.vite.config.ts.
+      command: "npx vite --config e2e/ai.vite.config.ts",
+      url: "http://127.0.0.1:4175",
+      reuseExistingServer: !process.env.CI,
+    },
   ],
   projects: [{ name: "chromium", use: { ...devices["Desktop Chrome"] } }],
 });

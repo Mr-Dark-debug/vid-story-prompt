@@ -33,6 +33,11 @@ function SecurityPage() {
         <li>Media access uses expiring, signed URLs — we don't ship permanent public links.</li>
         <li>You can download a copy of your personal data.</li>
         <li>
+          AI provider keys you add are <strong>encrypted before storage</strong>, bound to your
+          account, never sent back to your browser, and can be revoked (erased) at any time. They
+          are not written to logs or analytics.
+        </li>
+        <li>
           Consent for analytics and marketing is separate, revocable, and off by default for
           anything non-essential.
         </li>
