@@ -21,7 +21,7 @@ reviewable plan — never a black box.
 ## Tech stack
 
 TanStack Start v1 · React 19 · Vite 7 · Tailwind v4 · Zustand ·
-TanStack Query · Strict TypeScript · Cloudflare Workers (edge) ·
+TanStack Query · Strict TypeScript · Vercel (Nitro, Node 24) ·
 Supabase (Auth / Postgres / Storage) · External Docker video worker
 (FFmpeg, Whisper, planner).
 
@@ -110,7 +110,7 @@ bun run worker:dev
 | Command | Purpose |
 | --- | --- |
 | `bun run dev` | Start the Vite dev server on port 8080 |
-| `bun run build` | Production build (Cloudflare Workers target) |
+| `bun run build` | Production build (Nitro; `vercel` preset on Vercel, `cloudflare-module` fallback elsewhere) |
 | `bun run build:dev` | Build with development mode flags |
 | `bun run preview` | Preview the production build locally |
 | `bun run typecheck` | Strict TypeScript check (`tsc --noEmit`) |

@@ -43,7 +43,13 @@ state without releasing the existing reservation or resurrecting cancelled jobs.
 
 - **Framework**: TanStack Start v1 (React 19, SSR, file-based routing)
 - **Build**: Vite 7 via `@lovable.dev/vite-tanstack-config`
-- **Runtime target**: Cloudflare Workers (edge) with `nodejs_compat`
+- **Runtime target**: Vercel production deploys use Nitro's `vercel` preset: a Node.js 24
+  serverless function with response streaming (`.vercel/output/functions/__server.func`).
+  When no host is detected (for example a local `npm run build` or the Lovable preview) the
+  Lovable Vite config falls back to the `cloudflare-module` preset with `nodejs_compat`.
+  Server code must therefore use only Web-standard APIs (`fetch`, `Response`, `ReadableStream`,
+  `AbortSignal`, Web Crypto) so it behaves identically on both. Never rely on Node-only streams
+  or on a request surviving a client disconnect.
 - **Styling**: Tailwind CSS v4 with tokens in `src/styles.css`
 - **State**: Zustand (timeline history), TanStack Query (server data)
 - **Types**: Strict TypeScript
@@ -60,7 +66,7 @@ state without releasing the existing reservation or resurrecting cancelled jobs.
                │  server functions (createServerFn)
                ▼
 ┌──────────────────────────────────────────────┐
-│ TanStack Start SSR (Cloudflare Worker)       │
+│ TanStack Start SSR (Vercel Node function)    │
 │  - Session verification, RLS-scoped queries  │
 │  - Signed URLs, quota enforcement, wake API  │
 └──────────────────────────────────────────────┘
@@ -119,7 +125,7 @@ state without releasing the existing reservation or resurrecting cancelled jobs.
 
 # Architecture
 
-TanStack Start serves the marketing and authenticated application on Vercel/Lovable-compatible Nitro output. Supabase provides Auth, PostgreSQL, Realtime, private Storage and PGMQ. Cookie-backed server clients verify users; service-role clients exist only in trusted server/worker modules.
+TanStack Start serves the marketing and authenticated application as Nitro output (Vercel in production; see the runtime target above). Supabase provides Auth, PostgreSQL, Realtime, private Storage and PGMQ. Cookie-backed server clients verify users; service-role clients exist only in trusted server/worker modules.
 
 Job creation atomically checks workspace, plan, usage and concurrency; records rights; reserves usage; creates a task; and writes an outbox event. PGMQ wakes a portable worker while `job_tasks` remains authoritative for leases, retries, recovery and idempotency. The worker streams immutable artifacts through isolated temp directories and executes FFmpeg with argument arrays.
 
