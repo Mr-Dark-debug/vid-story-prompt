@@ -1,0 +1,202 @@
+[
+  {
+    "slug": "a-small-start",
+    "title": "A small start",
+    "category": "launch-film",
+    "aspect": "16:9",
+    "durationSeconds": 8,
+    "tags": ["minimal", "editorial"],
+    "description": "A quiet product launch told through a dot becoming a working system.",
+    "prompt": "Create an 8-second landscape launch film for the fictional tool 'Outline'. Tell one story: a scattered idea becomes a clear next step. Begin with loose charcoal marks on a cool paper field, gather them into one ordered card, and finish on the exact text 'Outline' and 'Make room for the next idea'. Use coral only for the decisive moment. Let the first beat feel hesitant and the final hold feel settled. Draw all artwork in code; no stock imagery, real logos, external requests or invented claims. First give a beat sheet and four keyframes, then a single deterministic HTML scene exposing window.DURATION and async window.seek(t)."
+  },
+  {
+    "slug": "open-the-day",
+    "title": "Open the day",
+    "category": "launch-film",
+    "aspect": "9:16",
+    "durationSeconds": 8,
+    "tags": ["vertical", "calm"],
+    "description": "A launch announcement that moves from closed shapes to breathing space.",
+    "prompt": "Make an 8-second vertical launch announcement for fictional 'Daylight'. A narrow stack of rectangles should slowly open into a spacious composition, like a desk cleared before work. Exact copy: 'Daylight', 'A little space to begin', 'Available when you are'. These are fictional creative lines, not a product availability claim. Use cool neutrals, charcoal type and one coral rule. Keep generous mobile safe margins and a readable last two seconds. Build one self-contained HTML animation with no external assets. Plan beats and four keyframes first; every pixel must be derived from t through async window.seek(t), with window.DURATION = 8."
+  },
+  {
+    "slug": "one-card-three-steps",
+    "title": "One card, three steps",
+    "category": "product-demo",
+    "aspect": "16:9",
+    "durationSeconds": 8,
+    "tags": ["interface", "minimal"],
+    "description": "A fictional interface demonstrates a single useful journey.",
+    "prompt": "Create an 8-second landscape product demonstration of a fictional note card. Show the exact journey 'Write' → 'Arrange' → 'Share' using three clear interface states, with the same card preserved between states. Use the placeholder note 'Our next small idea' and no cursor clicks, real brand logos, fabricated metrics or claims of a working application. Make the pace unhurried and the result legible on a phone. A charcoal, cool-neutral and restrained coral palette should support hierarchy. Describe the beats and four keyframes, then implement one HTML file using a pure seek(t) contract, window.DURATION = 8, locally drawn graphics and no network."
+  },
+  {
+    "slug": "focus-window",
+    "title": "Focus window",
+    "category": "product-demo",
+    "aspect": "1:1",
+    "durationSeconds": 8,
+    "tags": ["interface", "square"],
+    "description": "A selection moves through a diagram and finds one coherent idea.",
+    "prompt": "Make an 8-second square fictional product demo called 'Focus window'. A set of neutral content cards fills the frame; a highlighted window selects one coherent card and brings it forward. Exact copy is 'Find the idea', 'Keep its context', 'Ready to review'. Avoid AI scores and invented engagement promises. Maintain the selected card's identity, with coral used only for its border. Give the viewer time to read each line. Propose a beat sheet with four keyframes before writing a deterministic single-file HTML animation that defines window.DURATION and async window.seek(t), with no media imports or network."
+  },
+  {
+    "slug": "form-follows-rhythm",
+    "title": "Form follows rhythm",
+    "category": "showreel",
+    "aspect": "16:9",
+    "durationSeconds": 8,
+    "tags": ["geometric", "rhythmic"],
+    "description": "Three geometric studies share one moving line.",
+    "prompt": "Create an 8-second landscape motion design study titled 'Form follows rhythm'. One coral line is the protagonist: it becomes a grid, bends into an orbit, then resolves into the underline beneath the exact title. Use only charcoal and cool neutrals elsewhere. Connect the three sections through that same line rather than a montage of unrelated effects. Keep the last title readable. No real company marks, footage or external assets. Present a beat sheet and four keyframes, then produce one self-contained seekable HTML file with window.DURATION = 8 and async window.seek(t). All motion and any procedural sound must be reproducible from time."
+  },
+  {
+    "slug": "the-spacing-study",
+    "title": "The spacing study",
+    "category": "showreel",
+    "aspect": "9:16",
+    "durationSeconds": 8,
+    "tags": ["editorial", "vertical"],
+    "description": "A design reel explores scale, spacing and balance.",
+    "prompt": "Build an 8-second vertical showreel studying the words 'Scale', 'Space', and 'Balance'. Carry a single rectangular frame through all three beats: first expand it, then give it more breathing room, then settle it around the final word. Choose simple geometric artwork and a quiet charcoal-on-paper palette with one coral marker. No copied typography compositions or brand identities. Four keyframes should explain how each beat resolves. Output a self-contained HTML scene exposing window.DURATION = 8 and async window.seek(t), free of timers, unseeded randomness, external fonts and network requests."
+  },
+  {
+    "slug": "keep-a-little-room",
+    "title": "Keep a little room",
+    "category": "ad-edit",
+    "aspect": "9:16",
+    "durationSeconds": 8,
+    "tags": ["editorial", "vertical"],
+    "description": "A fictional campaign about making space for creative work.",
+    "prompt": "Create an 8-second vertical editorial ad for the fictional creative workshop 'Room'. Exact text: 'Keep a little room', 'For an unfinished idea', 'Room'. Show a dense grid of small geometric cards gently making space for one blank card. The blank card is the conclusion, not a sales number. Make the opening curious, the middle generous and the ending inviting. No pricing, testimonials, metrics or stock assets. Define beats and four keyframes first. Write one seekable HTML file using a restrained charcoal, cool-neutral and coral palette, window.DURATION = 8 and async window.seek(t)."
+  },
+  {
+    "slug": "a-second-look",
+    "title": "A second look",
+    "category": "ad-edit",
+    "aspect": "1:1",
+    "durationSeconds": 8,
+    "tags": ["square", "minimal"],
+    "description": "An abstract campaign asks viewers to notice a small detail.",
+    "prompt": "Design an 8-second square campaign animation with the exact copy 'A second look', 'Changes the picture', 'Look again'. An orderly set of lines should reveal a tiny coral gap; the composition reframes around that gap until it becomes the main shape. This is a fictional visual concept with no product claims. Use a patient pause before the reveal and a clean final hold. Draw everything in a self-contained HTML file, no fetched resources. Start with four keyframes and a beat sheet, then implement window.DURATION = 8 and async window.seek(t), with deterministic transitions."
+  },
+  {
+    "slug": "from-signal-to-pattern",
+    "title": "From signal to pattern",
+    "category": "explainer",
+    "aspect": "16:9",
+    "durationSeconds": 8,
+    "tags": ["diagram", "educational"],
+    "description": "A conceptual diagram shows observation becoming a pattern.",
+    "prompt": "Make an 8-second landscape conceptual explainer of grouping observations. Start with six abstract dots, group them into two sets, then show a simple repeated pattern. Use the exact labels 'Observe', 'Group', 'Notice a pattern'. Do not imply a scientific result or add statistics: this is an illustrative diagram. Keep every label readable and preserve dot identity throughout. Prefer cool neutrals with coral for the grouping line. Explain beats and four keyframes, then create a single HTML scene with window.DURATION = 8 and async window.seek(t), no timers, network or external assets."
+  },
+  {
+    "slug": "the-review-loop",
+    "title": "The review loop",
+    "category": "explainer",
+    "aspect": "1:1",
+    "durationSeconds": 8,
+    "tags": ["diagram", "square"],
+    "description": "A three-stage review loop keeps human judgment visible.",
+    "prompt": "Create an 8-second square diagram explaining a review loop with the exact labels 'Draft', 'Review', 'Refine'. A single card travels between the three labelled nodes; the last beat returns it to Review so the loop communicates iteration, not automatic approval. Draw subtle connecting paths and a coral active node on a quiet cool-neutral field. This is a conceptual workflow, not a claim that a service completed a job. Produce a beat sheet and four keyframes, then implement one deterministic HTML file with window.DURATION = 8 and async window.seek(t). No external resources."
+  },
+  {
+    "slug": "align-before-you-style",
+    "title": "Align before you style",
+    "category": "tutorial",
+    "aspect": "16:9",
+    "durationSeconds": 8,
+    "tags": ["diagram", "educational"],
+    "description": "A visual lesson demonstrates alignment before decoration.",
+    "prompt": "Create an 8-second landscape design tutorial with three beats: misaligned rectangles, shared baseline, consistent spacing. Exact instructional copy: 'Find the baseline', 'Align the edges', 'Give it space'. The rectangles should be simple and the improvement visible without a voice-over. Do not use an existing product UI or a real brand. Include a final pause to compare alignment. Plan four keyframes and beats first, then provide a self-contained HTML animation exposing window.DURATION = 8 and async window.seek(t). Use charcoal, cool neutrals and a small coral baseline, with no network or time-based loops."
+  },
+  {
+    "slug": "three-beats-one-story",
+    "title": "Three beats, one story",
+    "category": "tutorial",
+    "aspect": "9:16",
+    "durationSeconds": 8,
+    "tags": ["vertical", "educational"],
+    "description": "A mobile lesson turns a feature list into a simple narrative.",
+    "prompt": "Make an 8-second vertical tutorial about story structure using the exact words 'Before', 'Change', 'After'. One small square begins outside a frame, moves through an opening and settles inside it. Let those same objects explain all three beats, keeping text inside mobile safe margins. The story is abstract; add no results, promises or statistics. Use a calm neutral palette and coral for the moment of change. Present a beat sheet and four keyframes before creating a single HTML file with window.DURATION = 8 and async window.seek(t); no timers, external assets or network."
+  },
+  {
+    "slug": "words-with-weight",
+    "title": "Words with weight",
+    "category": "kinetic-typography",
+    "aspect": "9:16",
+    "durationSeconds": 8,
+    "tags": ["typography", "vertical"],
+    "description": "The rhythm of a sentence carries its meaning.",
+    "prompt": "Create an 8-second vertical kinetic typography piece using exactly 'Small steps. Clear direction. Keep going.' Let 'Small steps.' arrive quietly, give 'Clear direction.' a deliberate confident pause, and settle 'Keep going.' into a calm final hold. Build the meaning through spacing, scale and timing rather than decorative effects on every letter. Charcoal type on a pale cool field, with one coral punctuation accent. Respect mobile margins. Start with beats and four keyframes, then write one self-contained HTML animation with window.DURATION = 8 and async window.seek(t), using embedded or system fonts only."
+  },
+  {
+    "slug": "make-space-to-think",
+    "title": "Make space to think",
+    "category": "kinetic-typography",
+    "aspect": "16:9",
+    "durationSeconds": 8,
+    "tags": ["typography", "minimal"],
+    "description": "A typographic composition opens up as its message unfolds.",
+    "prompt": "Design an 8-second landscape typography film with exact text 'Make space to think'. Start with the words close together, gradually let the composition breathe, and end with the sentence in a readable centred arrangement. Keep each word intact and avoid rapid flashing. Use the change in whitespace as the entire story, charcoal on a cool-neutral canvas with a restrained coral rule. No borrowed brand layout, external fonts or stock graphics. Propose four keyframes, then implement a deterministic HTML scene defining window.DURATION = 8 and async window.seek(t)."
+  },
+  {
+    "slug": "line-to-letter",
+    "title": "Line to letter",
+    "category": "logo-reveal",
+    "aspect": "1:1",
+    "durationSeconds": 8,
+    "tags": ["geometric", "square"],
+    "description": "An original fictional monogram emerges from simple strokes.",
+    "prompt": "Create an 8-second square logo study for the fictional name 'Aperture Notes'. Use an original simple A formed from two charcoal strokes and a coral crossbar, then reveal the exact name beneath it. This is a fictional mark, not Vidrial's logo or an existing company identity. Let assembly feel precise and the last two seconds feel still. Avoid glow and distortion. Explain four keyframes and beats, then draw it inside one self-contained HTML file with window.DURATION = 8 and async window.seek(t). No external images or network."
+  },
+  {
+    "slug": "a-circle-finds-its-name",
+    "title": "A circle finds its name",
+    "category": "logo-reveal",
+    "aspect": "16:9",
+    "durationSeconds": 8,
+    "tags": ["geometric", "minimal"],
+    "description": "A fictional circular emblem resolves into a quiet wordmark.",
+    "prompt": "Build an 8-second landscape reveal for fictional 'Common Ground'. Three thin circular arcs gradually align into an original open-circle emblem; the exact text 'Common Ground' appears once the motion has settled. Do not imitate an existing logo or use Vidrial's mark. Use charcoal and cool neutral strokes, with coral restricted to the final alignment point. Preserve clear space and a readable ending. Plan beats plus four keyframes, then deliver a self-contained HTML scene that sets window.DURATION = 8 and async window.seek(t), with no fetched assets."
+  },
+  {
+    "slug": "three-days-of-reading",
+    "title": "Three days of reading",
+    "category": "data-story",
+    "aspect": "16:9",
+    "durationSeconds": 8,
+    "tags": ["data", "educational"],
+    "description": "An explicitly fictional dataset becomes an honest visual comparison.",
+    "prompt": "Create an 8-second landscape data story using only this fictional example dataset: 'Monday': 12, 'Tuesday': 18, 'Wednesday': 15, unit 'pages'. Show the exact title 'Example reading log' and the visible disclosure 'Fictional data'. Start at a common zero baseline, reveal the three bars in order, then hold the complete comparison. Use honest proportional heights and all numeric labels; do not invent a growth claim or extrapolate. Cool-neutral bars with coral on Tuesday. Write beats and four keyframes first, then one seekable HTML file with window.DURATION = 8 and async window.seek(t), no external chart library."
+  },
+  {
+    "slug": "a-clear-budget-picture",
+    "title": "A clear budget picture",
+    "category": "data-story",
+    "aspect": "1:1",
+    "durationSeconds": 8,
+    "tags": ["data", "square"],
+    "description": "Three labelled parts show a fictional allocation without financial advice.",
+    "prompt": "Make an 8-second square data animation from this fictional allocation: 'Materials' 50, 'Time' 30, 'Testing' 20, unit 'parts'. Use exact title 'Example project allocation' and disclosure 'Fictional data'. Animate one bar dividing into proportional labelled segments, then hold all three values. Include a total of 100 only because it follows from these values. No currency, financial advice or implied business performance. Use charcoal, cool neutrals and one coral segment. Give four keyframes and a beat sheet, then implement one HTML file with window.DURATION = 8 and async window.seek(t), no network."
+  },
+  {
+    "slug": "orbiting-planes",
+    "title": "Orbiting planes",
+    "category": "3d-loop",
+    "aspect": "1:1",
+    "durationSeconds": 8,
+    "tags": ["geometric", "loop"],
+    "description": "A code-drawn spatial study returns exactly to its opening frame.",
+    "prompt": "Create an 8-second square seamless spatial loop with three thin rectangular planes rotating around a shared centre. Use perspective projection in Canvas or local WebGL; no imported meshes or libraries. The opening and ending states must match mathematically. Keep a charcoal background, cool planes and one coral edge so depth remains legible. Exact small caption 'Orbiting planes'. Avoid strobing or rapid camera movement. Plan four keyframes, then implement a self-contained HTML file with window.DURATION = 8 and async window.seek(t), deriving rotation from periodic functions of t and using no animation loop or network."
+  },
+  {
+    "slug": "the-folded-grid",
+    "title": "The folded grid",
+    "category": "3d-loop",
+    "aspect": "16:9",
+    "durationSeconds": 8,
+    "tags": ["geometric", "loop"],
+    "description": "A gently folding grid makes a continuous perspective loop.",
+    "prompt": "Make an 8-second landscape seamless 3D-style loop titled exactly 'The folded grid'. A small wireframe grid gently folds into a shallow wave, then returns to a flat field. Use a fixed camera, charcoal lines on a cool-neutral field and a single coral guide edge. Calculate a periodic deformation so frame zero and the end agree; do not fetch textures, shaders, libraries or models. The mood should be patient and architectural. First supply a beat sheet and four keyframes, then one deterministic HTML file with window.DURATION = 8 and async window.seek(t)."
+  }
+]
