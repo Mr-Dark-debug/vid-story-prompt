@@ -7,6 +7,12 @@ import { pageMeta } from "@/config/seo";
 
 const cases = [
   {
+    to: "/claude-motion-graphics",
+    i: MonitorPlay,
+    t: "Code-drawn motion graphics",
+    d: "Explore original animation briefs and the capability-gated Motion Studio.",
+  },
+  {
     to: "/use-cases/youtube",
     i: Youtube,
     t: "YouTube videos",
@@ -51,7 +57,7 @@ export const Route = createFileRoute("/use-cases/")({
       <MarketingPageHero
         eyebrow="Use cases"
         title="Built for the way people make video."
-        lead="One clipping workflow for five kinds of source video."
+        lead="Clip authorised source video or explore original code-drawn motion."
       />
       <Section>
         <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">

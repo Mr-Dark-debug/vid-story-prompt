@@ -1,15 +1,18 @@
 import { MarketingLayout } from "./layout";
 import { MarketingPageHero, FinalCTA } from "./page-shell";
 import { Section } from "@/components/primitives/section";
+import type { ReactNode } from "react";
 
 export function ClippingInfoPage({
   title,
   lead,
   sections,
+  children,
 }: {
   title: string;
   lead: string;
   sections: ReadonlyArray<{ title: string; body: string }>;
+  children?: ReactNode;
 }) {
   return (
     <MarketingLayout>
@@ -30,6 +33,7 @@ export function ClippingInfoPage({
           ))}
         </div>
       </Section>
+      {children}
       <FinalCTA
         headline="Your next clips start with one video."
         body="Bring content you own or are authorised to use. Start with the free plan."

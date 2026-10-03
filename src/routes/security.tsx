@@ -37,6 +37,15 @@ function SecurityPage() {
           anything non-essential.
         </li>
       </ul>
+      <h3>Motion code isolation</h3>
+      <p>
+        Generated HTML is untrusted. The Motion Studio preview uses an opaque sandboxed iframe with
+        same-origin access denied and a restrictive Content Security Policy. Production exports
+        require a separate disposable browser container without service or provider credentials,
+        with outbound networking disabled, a read-only root and bounded CPU, memory, process, frame
+        and time limits. Rendering stays disabled when that isolation is unavailable. Lint and media
+        verification support these controls; they do not replace human review.
+      </p>
       <h3>What we don't claim (yet)</h3>
       <ul>
         <li>

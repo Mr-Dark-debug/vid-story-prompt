@@ -15,8 +15,12 @@ const sections = [
     body: "Check transcripts, captions, context and framing before sharing. Automated transcription can make mistakes, especially with quiet, noisy or multilingual audio.",
   },
   {
+    title: "Motion Studio models and examples",
+    body: "When enabled, Motion Studio sends your brief, exact text and prior scene code to the selected configured model. The current platform adapter uses OpenRouter. The model writes HTML; an isolated browser draws frames and FFmpeg encodes them. Official examples are original authored scenes, not claimed outputs of a named model. Reference frames are sent only when rights-attested vision analysis is enabled.",
+  },
+  {
     title: "What Vidrial does not promise",
-    body: "There is no general-purpose timeline editor, synthetic-video generator or automatic claim of factual accuracy. Your export remains your publishing decision.",
+    body: "AI assistance does not guarantee factual accuracy, animation quality or audience response. A model name in a prompt collection does not mean it is configured for generation. Your export remains your publishing decision.",
   },
 ];
 export const Route = createFileRoute("/ai-transparency")({

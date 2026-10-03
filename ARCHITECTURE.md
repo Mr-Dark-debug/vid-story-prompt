@@ -1,5 +1,15 @@
 # Vidrial Architecture
 
+## Motion Studio (feature branch, deployment gated)
+
+`src/domain/motion` owns the deterministic HTML contract, linter, staged prompts and category registry. Route components use `src/services/motion` for workspace persistence and durable queue work. Motion projects have immutable source versions and separately queued render records. Browser code never receives provider or service credentials.
+
+The privileged queue controller performs model, database and storage work. Submitted scene code runs only in a separate disposable browser container with no credentials, no outbound network, read-only root and explicit resource/time bounds. An opaque iframe provides the browser preview. Output is an MP4 only after frame and FFprobe checks; unavailable model/worker lanes remain disabled.
+
+Public prompts combine approved database rows with explicitly labelled original authored examples. Real counters belong to database rows. Local demo videos are exposed only by the verified asset manifest. The article pipeline supports an allowlisted `motion-prompt` code block resolved by original catalog slug; it does not enable arbitrary embedded HTML.
+
+Signup carries only an opaque session draft identifier. Private prompt text stays in tab-scoped session storage and expires after 24 hours. Public gallery opt-in, user-granted licensing and moderation remain separate from private generation.
+
 ## Clip Studio acquisition reliability
 
 Exact Cut on `feat/clip-studio`: `clip_candidates.origin` distinguishes
