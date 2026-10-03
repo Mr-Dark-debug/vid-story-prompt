@@ -2052,6 +2052,9 @@ export type Database = {
           "latency_ms": number | null;
           "created_at": string;
           "completed_at": string | null;
+          "credential_source": string | null;
+          "credential_id": string | null;
+          "fallback_reason": string | null;
         };
         Insert: {
           "id"?: string;
@@ -2067,6 +2070,9 @@ export type Database = {
           "latency_ms"?: number | null;
           "created_at"?: string;
           "completed_at"?: string | null;
+          "credential_source"?: string | null;
+          "credential_id"?: string | null;
+          "fallback_reason"?: string | null;
         };
         Update: {
           "id"?: string;
@@ -2082,6 +2088,9 @@ export type Database = {
           "latency_ms"?: number | null;
           "created_at"?: string;
           "completed_at"?: string | null;
+          "credential_source"?: string | null;
+          "credential_id"?: string | null;
+          "fallback_reason"?: string | null;
         };
         Relationships: [];
       };

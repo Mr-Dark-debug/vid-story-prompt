@@ -54,6 +54,12 @@ alter default privileges in schema public grant execute on functions to anon, au
   if ($LASTEXITCODE -ne 0) { throw "BYOK database assertions failed" }
   Write-Output "ai_byok_database_contract=passed"
 
+  & $psql @arguments -f (Join-Path $repository "supabase\migrations\20261003130000_byok_ai_run_queue.sql")
+  if ($LASTEXITCODE -ne 0) { throw "AI run queue migration failed" }
+  & $psql @arguments -f (Join-Path $repository "supabase\tests\ai-run-queue.sql")
+  if ($LASTEXITCODE -ne 0) { throw "AI run queue assertions failed" }
+  Write-Output "ai_run_queue_database_contract=passed"
+
   if ($Advisors) {
     & bunx supabase db advisors --db-url "postgresql://vidrial_test@127.0.0.1:$port/byok_test?sslmode=disable" --type security --level warn --fail-on error
     if ($LASTEXITCODE -ne 0) { throw "Isolated database advisors failed" }
