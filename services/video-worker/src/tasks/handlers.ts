@@ -3,6 +3,7 @@ import { mkdir, readdir, stat, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { execa } from "execa";
 import { z } from "zod";
+import { resolveWorkerLlm } from "../ai/credentials.js";
 import { planClips } from "../ai/planner.js";
 import { selectDiverseCandidates } from "../ai/selection.js";
 import { env } from "../config/env.js";
@@ -684,7 +685,12 @@ async function mergeTranscript(task: ClipTask): Promise<TaskResult> {
   };
 }
 
-async function plan(task: ClipTask): Promise<TaskResult> {
+const explicitModelSchema = z.object({
+  credentialId: z.string().uuid(),
+  modelId: z.string().min(1).max(200),
+});
+
+async function plan(task: ClipTask, signal?: AbortSignal): Promise<TaskResult> {
   const job = await getJob(task.clip_job_id);
   const { data: transcript, error } = await supabase
     .from("transcripts")
@@ -699,18 +705,37 @@ async function plan(task: ClipTask): Promise<TaskResult> {
     .order("sequence", { ascending: true });
   if (segmentError) throw segmentError;
   const settings = job.settings_json as Record<string, unknown>;
-  const planning = await planClips({
-    transcript: transcript.text,
-    words: (transcriptSegments ?? []).map((segment) => ({
-      start: Number(segment.start_seconds),
-      end: Number(segment.end_seconds),
-      text: String(segment.text),
-    })),
-    durationSeconds: Number(job.source_duration_seconds),
-    requestedClips: job.requested_clip_count,
-    instruction: String(settings.instruction ?? ""),
+  // The job owner's chosen model (wizard), else their default, else the platform, else deterministic.
+  // The credential is always looked up under the job's own workspace and user, so a forged id in
+  // settings_json can never reach another account's key.
+  const explicitModel = explicitModelSchema.safeParse(settings.aiModel);
+  const { llm, resolution } = await resolveWorkerLlm({
+    workspaceId: job.workspace_id,
+    userId: job.user_id,
+    purpose: "clip_planning",
+    explicit: explicitModel.success ? explicitModel.data : null,
   });
+  const startedAt = new Date().toISOString();
+  const planning = await planClips(
+    {
+      transcript: transcript.text,
+      words: (transcriptSegments ?? []).map((segment) => ({
+        start: Number(segment.start_seconds),
+        end: Number(segment.end_seconds),
+        text: String(segment.text),
+      })),
+      durationSeconds: Number(job.source_duration_seconds),
+      requestedClips: job.requested_clip_count,
+      instruction: String(settings.instruction ?? ""),
+    },
+    signal,
+    { llm, finalAttempt: task.attempt >= task.max_attempts },
+  );
   const candidates = selectDiverseCandidates(planning.candidates, job.requested_clip_count);
+  // A user's model that could not serve the plan is recorded with the reason, never hidden.
+  const fallbackReason =
+    planning.fallbackReason ??
+    (resolution.skipped[0] ? resolution.skipped[0].reason : null);
   const { data: planningRun, error: runError } = await supabase
     .from("planning_runs")
     .insert({
@@ -720,11 +745,48 @@ async function plan(task: ClipTask): Promise<TaskResult> {
       prompt_version: "clip-planner-v2-bounded-windows",
       schema_version: "clip-candidate-v2-social-copy",
       status: "succeeded",
+      input_token_count: planning.usage.inputTokens,
+      output_token_count: planning.usage.outputTokens,
+      credential_source: planning.source,
+      credential_id: planning.credentialId,
+      fallback_reason: fallbackReason,
       completed_at: new Date().toISOString(),
     })
     .select("id")
     .single();
   if (runError) throw runError;
+  // Observability only: failing to record the run must never fail the plan.
+  try {
+    await supabase.from("ai_runs").upsert(
+      {
+        workspace_id: job.workspace_id,
+        user_id: job.user_id,
+        purpose: "clip_planning",
+        status: "succeeded",
+        credential_id: planning.credentialId,
+        credential_source: planning.source,
+        provider_id: planning.provider === "deterministic" ? null : planning.provider,
+        model_id: planning.provider === "deterministic" ? null : planning.model,
+        clip_job_id: job.id,
+        job_task_id: task.id,
+        result_json: {
+          planningRunId: planningRun.id,
+          candidateCount: candidates.length,
+          usedFallback: planning.usedFallback,
+          fallbackReason,
+        },
+        usage_input_tokens: planning.usage.inputTokens,
+        usage_output_tokens: planning.usage.outputTokens,
+        idempotency_key: `plan:${task.id}`,
+        attempt: task.attempt,
+        started_at: startedAt,
+        completed_at: new Date().toISOString(),
+      },
+      { onConflict: "workspace_id,idempotency_key" },
+    );
+  } catch {
+    // Provenance is also on planning_runs; the ai_runs row is a convenience for the UI.
+  }
   const children = [];
   for (let index = 0; index < candidates.length; index++) {
     const item = candidates[index];
@@ -990,7 +1052,7 @@ export async function handleTask(task: ClipTask, signal?: AbortSignal): Promise<
     case "merge_transcript":
       return mergeTranscript(task);
     case "generate_candidate_windows":
-      return plan(task);
+      return plan(task, signal);
     case "render_clip_preview":
       return preview(task);
     case "render_clip_export":

@@ -25,6 +25,12 @@ export const env = z
       .enum(["true", "false"])
       .default("true")
       .transform((value) => value === "true"),
+    // The acquisition-only home worker sets this to false, like WORKER_CONNECTOR_TASKS_ENABLED.
+    WORKER_AI_RUNS_ENABLED: z
+      .enum(["true", "false"])
+      .default("true")
+      .transform((value) => value === "true"),
+    AI_RUN_CREDENTIAL_CONCURRENCY: z.coerce.number().int().min(1).max(8).default(2),
     WORKER_TEMP_ROOT: z.string().default("/tmp/vidrial"),
     CURL_PATH: z.string().min(1).default("curl"),
     FFMPEG_PATH: z.string().default("ffmpeg"),

@@ -7,16 +7,22 @@ export type ClassifiedFailure = {
   message: string;
   retryable: boolean;
   proxyTier?: YouTubeProxyTier;
+  /** Minimum wait requested by a provider (HTTP Retry-After), in seconds. */
+  retryAfterSeconds?: number;
 };
 
 export function classifyFailure(error: unknown): ClassifiedFailure {
   if (error instanceof TaskFailure) {
     const proxyTier = error.metadata.proxyTier;
+    const retryAfter = error.metadata.retryAfterSeconds;
     return {
       code: error.code,
       message: error.message,
       retryable: error.retryable,
       ...(typeof proxyTier === "string" ? { proxyTier: proxyTier as YouTubeProxyTier } : {}),
+      ...(typeof retryAfter === "number" && Number.isFinite(retryAfter) && retryAfter > 0
+        ? { retryAfterSeconds: Math.min(retryAfter, 3_600) }
+        : {}),
     };
   }
   const message = error instanceof Error ? error.message : "Unknown worker failure";
@@ -28,11 +34,23 @@ export function classifyFailure(error: unknown): ClassifiedFailure {
   };
 }
 
-export function nextAttempt(attempt: number, random = Math.random()) {
+export function nextAttempt(attempt: number, random = Math.random(), now = Date.now()) {
   const delay =
     Math.min(300_000, 1000 * 2 ** Math.max(0, attempt - 1)) *
     (0.75 + Math.min(1, Math.max(0, random)) * 0.5);
-  return new Date(Date.now() + delay).toISOString();
+  return new Date(now + delay).toISOString();
+}
+
+/** When to retry: the usual backoff, but never sooner than a provider's Retry-After. */
+export function retryAt(
+  attempt: number,
+  failure: Pick<ClassifiedFailure, "retryAfterSeconds">,
+  now = Date.now(),
+  random = Math.random(),
+): string {
+  const backoff = Date.parse(nextAttempt(attempt, random, now));
+  const requested = failure.retryAfterSeconds ? now + failure.retryAfterSeconds * 1_000 : 0;
+  return new Date(Math.max(backoff, requested)).toISOString();
 }
 
 export function failureForTaskAttempt(

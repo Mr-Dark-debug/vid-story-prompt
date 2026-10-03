@@ -1,5 +1,11 @@
 import { env } from "../config/env.js";
-import type { ClipTask, ConnectorTask, ConnectorTaskResult, TaskResult } from "../domain/types.js";
+import type {
+  AiRunTask,
+  ClipTask,
+  ConnectorTask,
+  ConnectorTaskResult,
+  TaskResult,
+} from "../domain/types.js";
 import { supabase } from "../storage/client.js";
 import { parseTaskCapabilities } from "./task-capabilities.js";
 
@@ -111,6 +117,76 @@ export async function failConnectorTask(
 ) {
   const { error } = await supabase.rpc("fail_connector_task", {
     p_task_id: task.id,
+    p_worker_id: env.WORKER_ID,
+    p_error_code: code,
+    p_error_message: message,
+    p_retryable: retryable,
+    p_next_attempt_at: nextAttemptAt,
+  });
+  if (error) throw error;
+}
+
+export async function claimAiRun() {
+  const { data, error } = await supabase.rpc("claim_ai_run", {
+    p_worker_id: env.WORKER_ID,
+    p_lease_seconds: env.TASK_VISIBILITY_TIMEOUT_SECONDS,
+    p_credential_limit: env.AI_RUN_CREDENTIAL_CONCURRENCY,
+  });
+  if (error) throw error;
+  return first<AiRunTask>(data);
+}
+export async function startAiRun(id: string) {
+  const { data, error } = await supabase.rpc("start_ai_run", {
+    p_run_id: id,
+    p_worker_id: env.WORKER_ID,
+  });
+  if (error || !data) throw error ?? new Error("AI run lease was lost before start");
+}
+/** Resolves to false when the lease is lost or the user cancelled, telling the worker to stop. */
+export async function heartbeatAiRun(id: string, current?: number, total?: number) {
+  const { data, error } = await supabase.rpc("heartbeat_ai_run", {
+    p_run_id: id,
+    p_worker_id: env.WORKER_ID,
+    p_lease_seconds: env.TASK_VISIBILITY_TIMEOUT_SECONDS,
+    p_current: current ?? null,
+    p_total: total ?? null,
+  });
+  if (error) throw error;
+  return data === true;
+}
+export async function completeAiRun(
+  id: string,
+  result: {
+    output: Record<string, unknown>;
+    providerId: string | null;
+    modelId: string | null;
+    credentialSource: string | null;
+    inputTokens: number | null;
+    outputTokens: number | null;
+  },
+) {
+  const { data, error } = await supabase.rpc("complete_ai_run", {
+    p_run_id: id,
+    p_worker_id: env.WORKER_ID,
+    p_result: result.output,
+    p_provider_id: result.providerId,
+    p_model_id: result.modelId,
+    p_credential_source: result.credentialSource,
+    p_input_tokens: result.inputTokens,
+    p_output_tokens: result.outputTokens,
+  });
+  if (error) throw error;
+  return data === true;
+}
+export async function failAiRun(
+  run: AiRunTask,
+  code: string,
+  message: string,
+  retryable: boolean,
+  nextAttemptAt: string | null,
+) {
+  const { error } = await supabase.rpc("fail_ai_run", {
+    p_run_id: run.id,
     p_worker_id: env.WORKER_ID,
     p_error_code: code,
     p_error_message: message,

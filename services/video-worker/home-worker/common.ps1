@@ -129,6 +129,8 @@ function Set-HomeWorkerEnvironment {
   [Environment]::SetEnvironmentVariable("WORKER_TASK_INCLUDE_TYPES", $taskInclude, "Process")
   [Environment]::SetEnvironmentVariable("WORKER_TASK_EXCLUDE_TYPES", "", "Process")
   [Environment]::SetEnvironmentVariable("WORKER_CONNECTOR_TASKS_ENABLED", "false", "Process")
+  # The home machine never holds users' AI provider keys, so it does not claim background AI runs.
+  [Environment]::SetEnvironmentVariable("WORKER_AI_RUNS_ENABLED", "false", "Process")
   [Environment]::SetEnvironmentVariable("YTDLP_PATH", $ytdlp, "Process")
   [Environment]::SetEnvironmentVariable("CURL_PATH", (Join-Path $env:SystemRoot "System32\curl.exe"), "Process")
   [Environment]::SetEnvironmentVariable("FFMPEG_PATH", $ffmpeg, "Process")
