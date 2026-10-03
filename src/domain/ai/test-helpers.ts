@@ -56,3 +56,29 @@ export async function collect<T>(iterable: AsyncIterable<T>): Promise<T[]> {
   for await (const item of iterable) items.push(item);
   return items;
 }
+
+/** An SSE response the test drives by hand, to interleave events with stops and disconnects. */
+export function controlledSse() {
+  const encoder = new TextEncoder();
+  let controller!: ReadableStreamDefaultController<Uint8Array>;
+  const stream = new ReadableStream<Uint8Array>({
+    start(c) {
+      controller = c;
+    },
+  });
+  return {
+    response: new Response(stream, {
+      status: 200,
+      headers: { "content-type": "text/event-stream" },
+    }),
+    push(block: string) {
+      controller.enqueue(encoder.encode(block));
+    },
+    close() {
+      controller.close();
+    },
+    fail() {
+      controller.error(new Error("socket reset"));
+    },
+  };
+}

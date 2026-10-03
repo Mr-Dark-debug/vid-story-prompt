@@ -62,6 +62,7 @@ import { Route as BlogCategoryCategoryRouteImport } from './routes/blog.category
 import { Route as AuthYoutubeCallbackRouteImport } from './routes/auth.youtube.callback'
 import { Route as ApiYoutubeWebhookRouteImport } from './routes/api.youtube.webhook'
 import { Route as ApiIndexnowPublishRouteImport } from './routes/api.indexnow.publish'
+import { Route as ApiAiChatRouteImport } from './routes/api.ai.chat'
 import { Route as AuthenticatedAppYoutubeClipperRouteImport } from './routes/_authenticated.app.youtube-clipper'
 import { Route as AuthenticatedAppUsageRouteImport } from './routes/_authenticated.app.usage'
 import { Route as AuthenticatedAppUploadsRouteImport } from './routes/_authenticated.app.uploads'
@@ -359,6 +360,11 @@ const ApiIndexnowPublishRoute = ApiIndexnowPublishRouteImport.update({
   path: '/api/indexnow/publish',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiAiChatRoute = ApiAiChatRouteImport.update({
+  id: '/api/ai/chat',
+  path: '/api/ai/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const AuthenticatedAppYoutubeClipperRoute =
   AuthenticatedAppYoutubeClipperRouteImport.update({
     id: '/youtube-clipper',
@@ -605,6 +611,7 @@ export interface FileRoutesByFullPath {
   '/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/app/usage': typeof AuthenticatedAppUsageRoute
   '/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperRouteWithChildren
+  '/api/ai/chat': typeof ApiAiChatRoute
   '/api/indexnow/publish': typeof ApiIndexnowPublishRoute
   '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
@@ -684,6 +691,7 @@ export interface FileRoutesByTo {
   '/app/templates': typeof AuthenticatedAppTemplatesRoute
   '/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/app/usage': typeof AuthenticatedAppUsageRoute
+  '/api/ai/chat': typeof ApiAiChatRoute
   '/api/indexnow/publish': typeof ApiIndexnowPublishRoute
   '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
@@ -771,6 +779,7 @@ export interface FileRoutesById {
   '/_authenticated/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/_authenticated/app/usage': typeof AuthenticatedAppUsageRoute
   '/_authenticated/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperRouteWithChildren
+  '/api/ai/chat': typeof ApiAiChatRoute
   '/api/indexnow/publish': typeof ApiIndexnowPublishRoute
   '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
@@ -859,6 +868,7 @@ export interface FileRouteTypes {
     | '/app/uploads'
     | '/app/usage'
     | '/app/youtube-clipper'
+    | '/api/ai/chat'
     | '/api/indexnow/publish'
     | '/api/youtube/webhook'
     | '/auth/youtube/callback'
@@ -938,6 +948,7 @@ export interface FileRouteTypes {
     | '/app/templates'
     | '/app/uploads'
     | '/app/usage'
+    | '/api/ai/chat'
     | '/api/indexnow/publish'
     | '/api/youtube/webhook'
     | '/auth/youtube/callback'
@@ -1024,6 +1035,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/uploads'
     | '/_authenticated/app/usage'
     | '/_authenticated/app/youtube-clipper'
+    | '/api/ai/chat'
     | '/api/indexnow/publish'
     | '/api/youtube/webhook'
     | '/auth/youtube/callback'
@@ -1088,6 +1100,7 @@ export interface RootRouteChildren {
   VerifyEmailRoute: typeof VerifyEmailRoute
   YoutubeClipperRoute: typeof YoutubeClipperRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  ApiAiChatRoute: typeof ApiAiChatRoute
   ApiIndexnowPublishRoute: typeof ApiIndexnowPublishRoute
   ApiYoutubeWebhookRoute: typeof ApiYoutubeWebhookRoute
   AuthYoutubeCallbackRoute: typeof AuthYoutubeCallbackRoute
@@ -1465,6 +1478,13 @@ declare module '@tanstack/react-router' {
       path: '/api/indexnow/publish'
       fullPath: '/api/indexnow/publish'
       preLoaderRoute: typeof ApiIndexnowPublishRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ai/chat': {
+      id: '/api/ai/chat'
+      path: '/api/ai/chat'
+      fullPath: '/api/ai/chat'
+      preLoaderRoute: typeof ApiAiChatRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app/youtube-clipper': {
@@ -1936,6 +1956,7 @@ const rootRouteChildren: RootRouteChildren = {
   VerifyEmailRoute: VerifyEmailRoute,
   YoutubeClipperRoute: YoutubeClipperRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  ApiAiChatRoute: ApiAiChatRoute,
   ApiIndexnowPublishRoute: ApiIndexnowPublishRoute,
   ApiYoutubeWebhookRoute: ApiYoutubeWebhookRoute,
   AuthYoutubeCallbackRoute: AuthYoutubeCallbackRoute,
