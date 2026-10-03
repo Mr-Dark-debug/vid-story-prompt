@@ -91,7 +91,7 @@ export default defineConfig({
         find: /^@\/services\/ai\/(?:server|threads|runs)$/,
         replacement: file("./ai-fixture/providers.ts"),
       },
-      { find: "@tanstack/react-router", replacement: file("./ai-fixture/router.tsx") },
+      { find: "@tanstack/react-router", replacement: file("./ai-fixture/router.ts") },
       { find: "@", replacement: file("../src") },
     ],
   },

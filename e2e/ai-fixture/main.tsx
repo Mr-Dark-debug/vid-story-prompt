@@ -12,7 +12,7 @@ import "../../src/styles.css";
 const anthropic = getAiProvider("anthropic")!;
 
 // Mirrors the wiring in the settings route (which needs the real router and loader).
-function ProvidersFixture() {
+export function ProvidersFixture() {
   const [connections, setConnections] = useState<AiConnection[]>([]);
   const [open, setOpen] = useState(false);
   return (
@@ -53,7 +53,7 @@ function ProvidersFixture() {
   );
 }
 
-function ChatFixture() {
+export function ChatFixture() {
   const [groups, setGroups] = useState<AiModelGroup[]>([]);
   useEffect(() => {
     void listAiModels().then(setGroups);
@@ -80,7 +80,7 @@ function ChatFixture() {
   );
 }
 
-function Fixture() {
+export function Fixture() {
   const view = window.location.hash.replace("#", "");
   return (
     <main style={{ maxWidth: 900, margin: "auto", padding: 16 }}>

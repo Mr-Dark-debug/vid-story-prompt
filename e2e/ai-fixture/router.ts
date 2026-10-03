@@ -1,6 +1,6 @@
 // Minimal stand-ins for the router APIs the AI components use. Only the dedicated localhost Vite
 // test server imports this file.
-import type { AnchorHTMLAttributes, ReactNode } from "react";
+import { createElement, type AnchorHTMLAttributes, type ReactNode } from "react";
 
 export function Link({
   to,
@@ -13,11 +13,7 @@ export function Link({
   children?: ReactNode;
 }) {
   const href = params ? to.replace("$threadId", params.threadId) : to;
-  return (
-    <a href={`#${href}`} {...props}>
-      {children}
-    </a>
-  );
+  return createElement("a", { href: `#${href}`, ...props }, children);
 }
 export const useRouter = () => ({ invalidate: async () => undefined });
 export const useNavigate = () => async () => undefined;
