@@ -9,7 +9,8 @@ vi.mock("@/services/ai/threads", () => ({
 vi.mock("sonner", () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
 
 import { deleteAllChatThreads, setChatRetention } from "@/services/ai/threads";
-import { ChatHistoryPanel, retentionValue } from "./chat-history-panel";
+import { ChatHistoryPanel } from "./chat-history-panel";
+import { retentionValue } from "./retention";
 
 beforeAll(() => {
   Element.prototype.hasPointerCapture ??= () => false;
