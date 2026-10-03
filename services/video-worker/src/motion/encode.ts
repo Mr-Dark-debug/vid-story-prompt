@@ -14,6 +14,12 @@ export function startEncoder(
     "error",
     "-nostdin",
     "-n",
+    "-filter_threads",
+    "1",
+    "-filter_complex_threads",
+    "1",
+    "-threads",
+    "1",
     "-f",
     "image2pipe",
     "-framerate",
@@ -54,7 +60,11 @@ export function startEncoder(
     signal: options.signal,
   });
   // Drain stderr without returning model-supplied content or unbounded logs.
-  process.stderr.on("data", () => undefined);
+  let diagnostic = "";
+  process.stderr.on("data", (chunk: Buffer) => {
+    // Bounded in memory only. Never log filenames, scene data or provider text.
+    diagnostic = (diagnostic + chunk.toString("utf8")).slice(-4096);
+  });
   process.stdin.on("error", () => undefined);
   let exit: number | null = null;
   const done = new Promise<void>((resolve, reject) => {
@@ -66,7 +76,16 @@ export function startEncoder(
     process.once("close", (code) => {
       exit = code;
       if (code === 0) resolve();
-      else reject(new Error(options.signal?.aborted ? "motion_cancelled" : "motion_encode_failed"));
+      else {
+        const code = options.signal?.aborted
+          ? "motion_cancelled"
+          : /No such filter.*drawtext/.test(diagnostic)
+            ? "motion_watermark_filter_unavailable"
+            : /Resource temporarily unavailable|pthread_create/.test(diagnostic)
+              ? "motion_encoder_resource_limit"
+              : "motion_encode_failed";
+        reject(new Error(code));
+      }
     });
   });
   // Attach a rejection observer immediately; await the same promise at finish.
@@ -135,6 +154,10 @@ export async function frameQuality(png: Buffer, ffmpegPath: string, signal?: Abo
       "-hide_banner",
       "-loglevel",
       "error",
+      "-filter_threads",
+      "1",
+      "-threads",
+      "1",
       "-f",
       "image2pipe",
       "-i",

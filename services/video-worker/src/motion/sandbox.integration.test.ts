@@ -38,7 +38,7 @@ describe.skipIf(!image || !seccompProfile)(
         };
         const args = sandboxArguments(config, `vidrial-motion-${randomUUID()}`, input, output);
         args.splice(args.length - 1, 0, "--entrypoint", "node");
-        const assertion = `const fs=require('fs'),net=require('net');if(process.getuid()!==10001)process.exit(2);if(Object.keys(process.env).some(k=>/SUPABASE|API_KEY|TOKEN|SECRET/.test(k)))process.exit(3);try{fs.writeFileSync('/escape','x');process.exit(4)}catch(e){if(e.code!=='EROFS'&&e.code!=='EACCES')process.exit(5)}const s=net.connect({host:'1.1.1.1',port:443});s.on('connect',()=>process.exit(6));s.on('error',()=>process.exit(0));setTimeout(()=>{s.destroy();process.exit(0)},1000);`;
+        const assertion = `const fs=require('fs'),net=require('net');if(process.getuid()!==10001)process.exit(2);if(Object.keys(process.env).some(k=>/SUPABASE|API_KEY|TOKEN|SECRET/.test(k)))process.exit(3);try{fs.writeFileSync('/escape','x');process.exit(4)}catch(e){if(e.code!=='EROFS'&&e.code!=='EACCES')process.exit(5)}const rootAttempt=require('child_process').spawnSync('/usr/sbin/chroot',['/','/bin/true']);if(rootAttempt.error||rootAttempt.status===0)process.exit(9);const s=net.connect({host:'1.1.1.1',port:443});s.on('connect',()=>process.exit(6));s.on('error',()=>process.exit(0));setTimeout(()=>{s.destroy();process.exit(0)},1000);`;
         const result = await execa("docker", [...args, "-e", assertion], {
           reject: false,
           timeout: 30_000,
@@ -57,6 +57,68 @@ describe.skipIf(!image || !seccompProfile)(
         expect(manifest.watermarked).toBe(true);
         expect(manifest.frameCount).toBe(24);
         expect((await readdir(directory)).sort()).toEqual(["input", "output"]);
+      } finally {
+        await rm(directory, { recursive: true, force: true });
+      }
+    }, 90_000);
+    it("kills timed-out user code and removes its temporary files", async () => {
+      const directory = await mkdtemp(join(tmpdir(), "vidrial-docker-timeout-"));
+      try {
+        const stuck = source.replace("const g=document", "for(;;){};const g=document");
+        await expect(
+          withSandboxRender(
+            stuck,
+            spec,
+            true,
+            {
+              image: image!,
+              seccompProfile: seccompProfile!,
+              dockerPath: "docker",
+              tempRoot: directory,
+              memoryMb: 1024,
+              cpus: 1,
+              pids: 256,
+              timeoutMs: 30_000,
+            },
+            async () => undefined,
+          ),
+        ).rejects.toThrow("motion_frame_timeout");
+        expect(await readdir(directory)).toEqual([]);
+      } finally {
+        await rm(directory, { recursive: true, force: true });
+      }
+    }, 45_000);
+    it("cancels an active Docker render and removes its temporary files", async () => {
+      const directory = await mkdtemp(join(tmpdir(), "vidrial-docker-cancel-"));
+      const controller = new AbortController();
+      let framesStarted = false;
+      try {
+        await expect(
+          withSandboxRender(
+            source,
+            spec,
+            true,
+            {
+              image: image!,
+              seccompProfile: seccompProfile!,
+              dockerPath: "docker",
+              tempRoot: directory,
+              memoryMb: 1024,
+              cpus: 1,
+              pids: 256,
+              timeoutMs: 60_000,
+            },
+            async () => undefined,
+            controller.signal,
+            "render",
+            () => {
+              framesStarted = true;
+              controller.abort();
+            },
+          ),
+        ).rejects.toThrow();
+        expect(framesStarted).toBe(true);
+        expect(await readdir(directory)).toEqual([]);
       } finally {
         await rm(directory, { recursive: true, force: true });
       }

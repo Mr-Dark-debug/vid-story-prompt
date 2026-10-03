@@ -15,6 +15,11 @@ Build with `docker build -t vidrial-video-worker services/video-worker`. Deploy 
 
 ## Motion Studio roles
 
+For the dedicated Linux host setup, service unit and capability rollout, see
+[`deploy/README.md`](deploy/README.md). The controller now proves Docker
+isolation and a real watermarked H.264/AAC render at startup before claiming
+work, then pins its process to the verified image ID.
+
 Motion uses its own durable PostgreSQL task queue, not the source-acquisition process. Run the trusted controller with `npm run motion:start` after building. It holds Supabase/provider credentials and launches each HTML render or critique capture in a fresh credential-free container. The renderer image contains only the browser/FFmpeg runtime, three OFL font families and the seek contract. No source-acquisition or queue modules are included.
 
 Build from the repository root:
@@ -24,6 +29,14 @@ docker build -f services/video-worker/Dockerfile.motion -t vidrial-motion-render
 ```
 
 The pinned Playwright Core version is 1.61.1; installation pins its Chromium revision. Fonts are Manrope, JetBrains Mono and EB Garamond (Latin, normal 400). They are embedded as data URLs, with OFL notices copied into the image. Liberation remains the installed fallback. Image size, cold start and host user-namespace support must be measured on the deployment host; they have not been measured on this Windows machine without Docker.
+
+Linux CI verification on 2026-10-03 built a 1,482,593,030-byte image (1.48 GB)
+and completed the startup isolation plus one-second H.264/AAC smoke in 2.86
+seconds with the image already present. This excludes image download/build time
+and is not a production-host cold-start measurement. All 21 motion tests passed,
+including real Docker rendering, cancellation and timeout cleanup. See
+[`docs/verification/motion-production-2026-10-03.md`](../../docs/verification/motion-production-2026-10-03.md)
+for the exact CI run and remaining deployment boundaries.
 
 Configure `WORKER_MOTION_ENABLED=true`, the explicit `WORKER_TASK_INCLUDE_TYPES=motion_generate,motion_render,motion_analyze_reference`, the sandbox image, and the absolute seccomp profile path. Generation/reference/critique have separate default-off switches. Set `MOTION_ALLOWED_MODELS` to verified provider model IDs and `MOTION_VISION_MODELS` to their vision-capable subset. The motion model seam currently resolves the platform OpenRouter key. The existing BYOK chat/clipping lane is preserved; wiring Motion Studio to those credentials remains a separate integration step.
 

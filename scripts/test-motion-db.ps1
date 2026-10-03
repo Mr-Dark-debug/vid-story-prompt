@@ -28,7 +28,7 @@ alter default privileges in schema public grant execute on functions to anon, au
  if($LASTEXITCODE -ne 0){throw "Application foundation failed"}
  & (Join-Path $PostgresBin "psql.exe") @arguments -f (Join-Path $repository "supabase\migrations\20261003120000_byok_ai_layer.sql") -f (Join-Path $repository "supabase\migrations\20261003130000_byok_ai_run_queue.sql")
  if($LASTEXITCODE -ne 0){throw "Existing BYOK migrations failed"}
- & (Join-Path $PostgresBin "psql.exe") @arguments -f (Join-Path $repository "supabase\migrations\20261003010000_motion_studio.sql") -f (Join-Path $repository "supabase\tests\motion-studio.sql")
+ & (Join-Path $PostgresBin "psql.exe") @arguments -f (Join-Path $repository "supabase\migrations\20261003010000_motion_studio.sql") -f (Join-Path $repository "supabase\migrations\20261003220000_motion_public_catalog.sql") -f (Join-Path $repository "supabase\tests\motion-studio.sql")
  if($LASTEXITCODE -ne 0){throw "Motion database assertions failed"}
  & (Join-Path $PostgresBin "psql.exe") @arguments -f (Join-Path $repository "supabase\tests\ai-byok.sql") -f (Join-Path $repository "supabase\tests\ai-run-queue.sql")
  if($LASTEXITCODE -ne 0){throw "BYOK regression assertions failed after Motion Studio migration"}

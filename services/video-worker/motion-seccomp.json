@@ -51,6 +51,17 @@
 	],
 	"syscalls": [
 		{
+			"comment": "Chromium chroots inside its user namespace; host capabilities remain dropped and the kernel denies host chroot",
+			"names": ["chroot"],
+			"action": "SCMP_ACT_ALLOW"
+		},
+		{
+			"comment": "Match Moby's ENOSYS fallback for modern glibc; clone3 remains denied",
+			"names": ["clone3"],
+			"action": "SCMP_ACT_ERRNO",
+			"errnoRet": 38
+		},
+		{
 			"comment": "Allow create user namespaces",
 			"names": [
 				"clone",

@@ -4,6 +4,8 @@ import { supabase } from "../storage/client.js";
 import { parseTaskCapabilities, MOTION_TASK_TYPES } from "../queue/task-capabilities.js";
 import { handleMotionTask, parseMotionClaim, type MotionClaim } from "./task.js";
 import { logger } from "../logging/logger.js";
+import { verifyMotionHost } from "./preflight.js";
+import { motionSandboxConfig } from "../tasks/motion-render.js";
 
 /** Trusted controller role; Chromium is only launched in the credential-free Docker job. */
 const shutdown = new AbortController();
@@ -21,6 +23,19 @@ const include = MOTION_TASK_TYPES.filter(
 if (!include.length) throw new Error("Motion controller has no task capabilities.");
 await mkdir(env.WORKER_TEMP_ROOT, { recursive: true });
 for (const name of ["SIGTERM", "SIGINT"] as const) process.on(name, () => shutdown.abort());
+try {
+  env.MOTION_SANDBOX_IMAGE = await verifyMotionHost(motionSandboxConfig(), shutdown.signal);
+  logger.info(
+    { rendererImage: env.MOTION_SANDBOX_IMAGE },
+    "Motion sandbox verified; controller may claim jobs",
+  );
+} catch {
+  logger.fatal(
+    { errorCode: "motion_host_verification_failed" },
+    "Motion controller cannot start; verify the dedicated Linux Docker host",
+  );
+  process.exit(1);
+}
 
 async function processTask(task: MotionClaim) {
   const controller = new AbortController();

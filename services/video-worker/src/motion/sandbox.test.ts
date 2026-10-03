@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { sandboxArguments } from "./sandbox.js";
 import { validateSpec } from "./limits.js";
 import { resolve } from "node:path";
+import { readFileSync } from "node:fs";
 const config = {
   image: "vidrial-motion-renderer:local",
   dockerPath: "docker",
@@ -14,6 +15,36 @@ const config = {
   timeoutMs: 120_000,
 };
 describe("motion sandbox admission", () => {
+  it("denies clone3 with glibc's safe fallback error", () => {
+    const profile = JSON.parse(
+      readFileSync(new URL("../../motion-seccomp.json", import.meta.url), "utf8"),
+    ) as {
+      syscalls: { names: string[]; action: string; errnoRet?: number }[];
+    };
+    const rules = profile.syscalls.filter((rule) => rule.names.includes("clone3"));
+    expect(rules).toEqual([expect.objectContaining({ action: "SCMP_ACT_ERRNO", errnoRet: 38 })]);
+  });
+  it("permits Chromium's namespace chroot without granting a host capability", () => {
+    const profile = JSON.parse(
+      readFileSync(new URL("../../motion-seccomp.json", import.meta.url), "utf8"),
+    ) as {
+      syscalls: { names: string[]; action: string; includes?: unknown }[];
+    };
+    expect(
+      profile.syscalls.some(
+        (rule) =>
+          rule.names.includes("chroot") && rule.action === "SCMP_ACT_ALLOW" && !rule.includes,
+      ),
+    ).toBe(true);
+    expect(
+      sandboxArguments(
+        config,
+        "vidrial-motion-00000000-0000-0000-0000-000000000000",
+        "/tmp/in",
+        "/tmp/out",
+      ),
+    ).toContain("--cap-drop=ALL");
+  });
   it("passes explicit OS controls and no credential environment", () => {
     const args = sandboxArguments(
       config,

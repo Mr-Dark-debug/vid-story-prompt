@@ -1,0 +1,28 @@
+[Unit]
+Description=Vidrial isolated motion controller
+After=network-online.target docker.service
+Requires=docker.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=vidrial-motion
+Group=vidrial-motion
+SupplementaryGroups=docker
+WorkingDirectory=/opt/vidrial/services/video-worker
+EnvironmentFile=/etc/vidrial/motion.env
+ExecStart=/usr/bin/node dist/motion/controller.js
+Restart=on-failure
+RestartSec=15
+KillSignal=SIGTERM
+TimeoutStopSec=30
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+ReadWritePaths=/var/lib/vidrial-motion
+UMask=0077
+LimitNOFILE=1024
+
+[Install]
+WantedBy=multi-user.target
