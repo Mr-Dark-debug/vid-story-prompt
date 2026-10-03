@@ -18,6 +18,11 @@ threads. This does not grant extra container capabilities or disable Chromium
 sandboxing. FFmpeg decoder and filter threads are explicitly bounded as well as
 the encoder, since host CPU discovery can otherwise exceed the container PID cap.
 
+The profile also permits the `chroot` syscall so Chromium can restrict its
+filesystem inside its own user namespace. The container still drops every host
+capability; the startup proof checks that its nonroot process cannot chroot in
+the host/container namespace. The Chromium sandbox is never disabled.
+
 ## Prepare the host
 
 1. Check out the reviewed production commit in `/opt/vidrial`. Install worker

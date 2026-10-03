@@ -38,7 +38,7 @@ describe.skipIf(!image || !seccompProfile)(
         };
         const args = sandboxArguments(config, `vidrial-motion-${randomUUID()}`, input, output);
         args.splice(args.length - 1, 0, "--entrypoint", "node");
-        const assertion = `const fs=require('fs'),net=require('net');if(process.getuid()!==10001)process.exit(2);if(Object.keys(process.env).some(k=>/SUPABASE|API_KEY|TOKEN|SECRET/.test(k)))process.exit(3);try{fs.writeFileSync('/escape','x');process.exit(4)}catch(e){if(e.code!=='EROFS'&&e.code!=='EACCES')process.exit(5)}const s=net.connect({host:'1.1.1.1',port:443});s.on('connect',()=>process.exit(6));s.on('error',()=>process.exit(0));setTimeout(()=>{s.destroy();process.exit(0)},1000);`;
+        const assertion = `const fs=require('fs'),net=require('net');if(process.getuid()!==10001)process.exit(2);if(Object.keys(process.env).some(k=>/SUPABASE|API_KEY|TOKEN|SECRET/.test(k)))process.exit(3);try{fs.writeFileSync('/escape','x');process.exit(4)}catch(e){if(e.code!=='EROFS'&&e.code!=='EACCES')process.exit(5)}const rootAttempt=require('child_process').spawnSync('/usr/sbin/chroot',['/','/bin/true']);if(rootAttempt.error||rootAttempt.status===0)process.exit(9);const s=net.connect({host:'1.1.1.1',port:443});s.on('connect',()=>process.exit(6));s.on('error',()=>process.exit(0));setTimeout(()=>{s.destroy();process.exit(0)},1000);`;
         const result = await execa("docker", [...args, "-e", assertion], {
           reject: false,
           timeout: 30_000,
