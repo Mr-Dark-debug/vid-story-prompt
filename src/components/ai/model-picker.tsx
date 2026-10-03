@@ -79,7 +79,7 @@ function ModelRow({
   const chips = capabilityChips(model);
   return (
     <>
-      <ModelLogo family={model.family} provider={model.providerId} size={22} className="mr-3" />
+      <ModelLogo family={model.family} provider={model.providerId} size={24} className="mr-4" />
       <span className="min-w-0 flex-1">
         <span className="flex items-center gap-2">
           <span className="truncate text-sm font-medium text-ink">{model.displayName}</span>

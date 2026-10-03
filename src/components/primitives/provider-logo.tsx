@@ -63,7 +63,7 @@ export function ModelLogo({
     >
       <ProviderLogo family={family} size={size} />
       {showBadge ? (
-        <span className="absolute -bottom-1 -right-1 rounded-full bg-surface p-px ring-1 ring-line">
+        <span className="absolute -bottom-1.5 -right-2 rounded-full bg-surface-panel p-0.5 ring-1 ring-line">
           <ProviderLogo
             provider={provider}
             size={Math.max(10, Math.round(size * 0.5))}
