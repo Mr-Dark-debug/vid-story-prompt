@@ -19,6 +19,7 @@ export const appNavGroups: AppNavGroup[] = [
         to: "/app/youtube-clipper",
         description: "Create and manage clipping jobs",
       },
+      { label: "AI chat", to: "/app/chat", description: "Chat with your own AI models" },
       { label: "Uploads", to: "/app/uploads", description: "Manage authorised source media" },
     ],
   },
@@ -57,6 +58,11 @@ export const settingsNavItems = [
     label: "Integrations",
     to: "/app/settings/integrations",
     description: "Connected publishing accounts",
+  },
+  {
+    label: "AI providers",
+    to: "/app/settings/ai-providers",
+    description: "Bring your own model keys",
   },
   {
     label: "Privacy & data",
@@ -118,6 +124,9 @@ export function getAppBreadcrumbs(pathname: string): BreadcrumbItem[] {
                   ? "New project"
                   : "Project";
     return [{ label: "Projects", to: "/app/projects" }, { label: detailLabel }];
+  }
+  if (pathname.startsWith("/app/chat/")) {
+    return [{ label: "AI chat", to: "/app/chat" }, { label: "Conversation" }];
   }
   if (pathname.startsWith("/app/youtube-clipper/")) {
     return [

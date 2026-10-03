@@ -11,6 +11,9 @@ import {
 } from "@/domain/clipping/score-presentation";
 import { regenerateClipTitle } from "@/services/clipping/server";
 import { requestBatchExport } from "@/services/exports/server";
+import { cancelAiRun, enqueueSocialCopyRuns } from "@/services/ai/runs";
+import { clipRunState, latestRunByClip, type AiRunView } from "./ai-run-status";
+import { describePlanning, type PlanningRunInfo } from "./planning-provenance";
 
 type Candidate = {
   id: string;
@@ -60,12 +63,18 @@ export function ResultsGallery({
   exports = [],
   jobId,
   titleRegenerationAvailable,
+  planning = null,
+  aiRuns = [],
 }: {
   candidates: Candidate[];
   clips: Clip[];
   exports?: { clip_id: string | null; status: string; export_type: string }[];
   jobId: string;
   titleRegenerationAvailable: boolean;
+  /** Which model produced the plan; omitted for jobs planned before provenance was recorded. */
+  planning?: PlanningRunInfo | null;
+  /** Durable background copy runs for this job, newest first. */
+  aiRuns?: AiRunView[];
 }) {
   const router = useRouter();
   const [minimumScore, setMinimumScore] = useState(0);
@@ -73,6 +82,9 @@ export function ResultsGallery({
   const [selected, setSelected] = useState<Set<string>>(() => new Set());
   const [regenerating, setRegenerating] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [queueingCopy, setQueueingCopy] = useState(false);
+  const provenance = describePlanning(planning);
+  const runByClip = useMemo(() => latestRunByClip(aiRuns), [aiRuns]);
   const hasScoredCandidates = candidates.some(
     (item) => candidateScore(item.overall_score, item.origin) !== null,
   );
@@ -114,6 +126,25 @@ export function ResultsGallery({
       else next.add(clipId);
       return next;
     });
+  };
+
+  const writeCopyForSelected = async () => {
+    const clipIds = clips.filter((clip) => selected.has(clip.id)).map((clip) => clip.id);
+    if (!clipIds.length) return;
+    setQueueingCopy(true);
+    try {
+      await enqueueSocialCopyRuns({ data: { clipIds, batchId: crypto.randomUUID() } });
+      toast.success(
+        `Writing copy for ${clipIds.length} clip${clipIds.length === 1 ? "" : "s"}. You can leave this page; it continues in the background.`,
+      );
+      await router.invalidate();
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "The copy requests could not be queued.",
+      );
+    } finally {
+      setQueueingCopy(false);
+    }
   };
 
   const exportSelected = async () => {
@@ -169,6 +200,19 @@ export function ResultsGallery({
                 ? " Your selected ranges stay visible regardless of the score filter."
                 : ""}
             </p>
+            {provenance ? (
+              <p
+                data-testid="planning-provenance"
+                className={cn(
+                  "mt-2 max-w-2xl text-xs leading-5",
+                  provenance.tone === "warning" ? "text-warning" : "text-ink-mute",
+                )}
+              >
+                <span className="font-semibold text-ink-soft">{provenance.headline}.</span>
+                {provenance.detail ? ` ${provenance.detail}` : ""}
+                {provenance.tokens ? ` ${provenance.tokens}.` : ""}
+              </p>
+            ) : null}
           </div>
           <div className="flex flex-wrap items-end gap-3">
             <label className="text-xs font-medium text-ink-soft">
@@ -201,6 +245,24 @@ export function ResultsGallery({
                 <option value="duration">Longest first</option>
               </select>
             </label>
+            <button
+              type="button"
+              disabled={!selected.size || queueingCopy || !titleRegenerationAvailable}
+              title={
+                titleRegenerationAvailable
+                  ? "Write new titles and platform copy in the background"
+                  : "Connect an AI provider key to write copy"
+              }
+              onClick={() => void writeCopyForSelected()}
+              className="inline-flex min-h-10 items-center gap-2 rounded-lg border border-line px-4 text-sm font-semibold text-ink disabled:cursor-not-allowed disabled:opacity-45"
+            >
+              {queueingCopy ? (
+                <LoaderCircle className="h-4 w-4 animate-spin" />
+              ) : (
+                <Sparkles className="h-4 w-4" />
+              )}
+              Write copy with AI{selected.size ? ` (${selected.size})` : ""}
+            </button>
             <button
               type="button"
               disabled={!selected.size || exporting}
@@ -345,6 +407,49 @@ export function ResultsGallery({
                       </div>
                     </details>
                   ) : null}
+                  {clip
+                    ? (() => {
+                        const state = clipRunState(runByClip.get(clip.id));
+                        if (!state) return null;
+                        return (
+                          <p
+                            role={state.kind === "failed" ? "alert" : "status"}
+                            className={cn(
+                              "mt-3 flex flex-wrap items-center gap-2 text-xs",
+                              state.kind === "failed" ? "text-danger" : "text-ink-soft",
+                            )}
+                          >
+                            {state.kind === "working" ? (
+                              <LoaderCircle
+                                className="h-3.5 w-3.5 animate-spin"
+                                aria-hidden="true"
+                              />
+                            ) : null}
+                            <span>{state.label}</span>
+                            {state.kind === "working" ? (
+                              <button
+                                type="button"
+                                className="font-semibold underline underline-offset-2"
+                                onClick={async () => {
+                                  try {
+                                    await cancelAiRun({ data: { runId: state.runId } });
+                                    await router.invalidate();
+                                  } catch (error) {
+                                    toast.error(
+                                      error instanceof Error
+                                        ? error.message
+                                        : "The run could not be cancelled.",
+                                    );
+                                  }
+                                }}
+                              >
+                                Cancel
+                              </button>
+                            ) : null}
+                          </p>
+                        );
+                      })()
+                    : null}
                   <div className="mt-4 flex flex-wrap items-center gap-3">
                     {clip ? (
                       <Link

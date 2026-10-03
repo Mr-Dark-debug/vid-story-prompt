@@ -15,6 +15,31 @@ All notable changes to Vidrial are documented here. Format follows
 
 ## [Unreleased]
 
+### Bring-your-own-key AI layer (2026-10-03, branch `feat/byok-ai`, live-provider verification pending)
+
+- Added a single provider registry (`src/domain/ai/providers.ts`) with fetch-only adapters for
+  Anthropic, OpenAI, Google Gemini and OpenRouter (available) and Groq, DeepSeek, Mistral, xAI and
+  Together AI (beta, not yet exercised with live keys). A user-supplied base URL is deliberately not
+  offered until the worker's SSRF controls are reused for it.
+- Added encrypted credential storage (AES-256-GCM, HKDF per key version, ciphertext bound to
+  workspace/user/provider, rotation via `AI_CREDENTIAL_ENCRYPTION_KEY_VERSION` and
+  `AI_CREDENTIAL_ENCRYPTION_KEYS_PREVIOUS`), a token-free connection view, a model cache and
+  per-user validation rate limiting. Browser roles cannot select ciphertext.
+- Added `/app/settings/ai-providers`, a searchable model picker with maker logos, and
+  `/app/chat` with persistent history, SSE streaming, Stop, Regenerate, edit-and-resend and
+  clip-job context attachment. Replies checkpoint while streaming and are settled as complete,
+  cancelled, interrupted or failed.
+- Clip planning, social copy and the AI editor now resolve explicit selection, then the user's
+  default, then the platform model, then the deterministic selection, and record which was used.
+  Rejected keys are flagged and never retried; rate limits and 5xx errors retry with Retry-After.
+- Added a durable `ai_runs` lease queue (claim, heartbeat, cancel, retry classification, per-key
+  concurrency cap) with a background social-copy handler, plus Realtime status in the results gallery.
+- Fixed first: `bun.lock` now resolves from the public registry and the stale `package-lock.json` was
+  removed; the root `errorComponent` typecheck error; unit tests run on a clean checkout; worker
+  tests run under Vitest (`bun test` is refused); root Vitest no longer collects worker tests.
+- Documented the real deployment target (Vercel Nitro Node function, Worker preset as fallback).
+- Not changed: Exact Cut and the full authenticated source-to-export flow remain release-pending.
+
 ### Clip Studio Exact Cut wiring (2026-09-07, release pending)
 
 - Wired timestamp mode into the existing source wizard with a database capability

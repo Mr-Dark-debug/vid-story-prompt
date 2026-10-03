@@ -116,3 +116,11 @@ The current clipping wizard has three steps: source (including rights), clip pre
 - `/app/automations/:automationId` — automation rule details.
 - `/auth/connectors/:connectorId/callback` — exact PKCE callback for Google Drive, Dropbox and OneDrive.
 - `/app/settings/integrations` — connected sources, available sources, provider beta setup, publishing, developer and coming-soon connections.
+
+## AI providers and chat
+
+- `/app/settings/ai-providers` — connect, re-check, replace, revoke and delete provider keys; default model per feature; chat retention and permanent deletion.
+- `/app/chat` — new chat (model picker, suggested prompts, optional clip-job context).
+- `/app/chat/$threadId` — persisted conversation with streaming, Stop, Regenerate and edit-and-resend.
+- `POST /api/ai/chat` — Server-Sent Events endpoint for one chat turn (same-origin, session-authenticated, duration-capped).
+- `/docs/bring-your-own-key` — public explanation of what is stored and sent.

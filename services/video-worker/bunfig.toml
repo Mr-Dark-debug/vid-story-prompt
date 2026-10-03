@@ -1,0 +1,4 @@
+[test]
+# These suites use Vitest APIs (vi.mock, vi.mocked) that Bun's native runner does not implement.
+# Run them with `bun run test` (or `npm run worker:test` from the repo root).
+preload = ["./scripts/refuse-bun-test.ts"]

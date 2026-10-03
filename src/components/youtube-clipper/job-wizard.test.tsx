@@ -1,5 +1,6 @@
 import { cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
-import { afterEach, describe, expect, it, vi } from "vitest";
+import userEvent from "@testing-library/user-event";
+import { afterEach, beforeAll, describe, expect, it, vi } from "vitest";
 
 vi.mock("@tanstack/react-router", () => ({ useNavigate: () => vi.fn() }));
 vi.mock("@/services/youtube/server", () => ({ getYouTubeMetadata: vi.fn() }));
@@ -246,5 +247,109 @@ describe("job wizard", () => {
     });
 
     expect(screen.getByLabelText("YouTube video link")).toHaveValue("https://youtu.be/dQw4w9WgXcQ");
+  });
+});
+
+describe("job wizard: optional AI model", () => {
+  beforeAll(() => {
+    globalThis.ResizeObserver ??= class {
+      observe() {}
+      unobserve() {}
+      disconnect() {}
+    };
+    Element.prototype.hasPointerCapture ??= () => false;
+    Element.prototype.releasePointerCapture ??= () => {};
+    Element.prototype.scrollIntoView ??= () => {};
+  });
+
+  const context = {
+    plan: "free" as const,
+    entitlement: PLAN_ENTITLEMENTS.free,
+    activeJobs: 0,
+    reservedSeconds: 0,
+    committedSeconds: 0,
+  };
+  const models = [
+    {
+      credentialId: "6f1c0a54-0000-4000-8000-000000000001",
+      providerId: "anthropic",
+      label: "Personal",
+      status: "active" as const,
+      fetchedAt: "2026-10-03T00:00:00Z",
+      models: [
+        {
+          providerId: "anthropic",
+          modelId: "claude-opus-5",
+          displayName: "Claude Opus 5",
+          family: "anthropic",
+          contextWindow: 1_000_000,
+          maxOutput: 128_000,
+          supportsVision: true,
+          supportsJsonSchema: true,
+          supportsStreaming: true,
+        },
+      ],
+    },
+  ];
+
+  async function toPreferences(props: Partial<Parameters<typeof JobWizard>[0]>) {
+    render(<JobWizard initialSource="upload" creationContext={context} {...props} />);
+    fireEvent.click(screen.getByRole("button", { name: "Complete mock upload" }));
+    fireEvent.click(screen.getByRole("checkbox"));
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    await screen.findByRole("heading", { name: "Clip preferences" });
+  }
+
+  it("offers no model selector when the user has no working key", async () => {
+    await toPreferences({ aiModels: [] });
+    expect(screen.queryByText("AI model (advanced)")).not.toBeInTheDocument();
+  });
+
+  it("sends the chosen model with the job, with a clear data-sharing notice", async () => {
+    const user = userEvent.setup();
+    vi.mocked(createClipJob).mockResolvedValueOnce({
+      jobId: "11111111-1111-4111-8111-111111111111",
+      workerWake: "accepted",
+    });
+    await toPreferences({ aiModels: models });
+    await user.click(screen.getByText("AI model (advanced)"));
+    expect(screen.getByRole("combobox", { name: "AI model for clip planning" })).toHaveTextContent(
+      "Built-in selection",
+    );
+    await user.click(screen.getByRole("combobox", { name: "AI model for clip planning" }));
+    await user.click(await screen.findByText("Claude Opus 5"));
+    expect(screen.getByText(/sent to your chosen provider using your key/)).toBeInTheDocument();
+
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Create clipping job" }));
+    await waitFor(() =>
+      expect(createClipJob).toHaveBeenLastCalledWith({
+        data: expect.objectContaining({
+          settings: expect.objectContaining({
+            aiModel: { credentialId: models[0].credentialId, modelId: "claude-opus-5" },
+          }),
+        }),
+      }),
+    );
+  });
+
+  it("omits aiModel when the default is kept", async () => {
+    vi.mocked(createClipJob).mockResolvedValueOnce({
+      jobId: "11111111-1111-4111-8111-111111111111",
+      workerWake: "accepted",
+    });
+    await toPreferences({
+      aiModels: models,
+      aiPreferredModelKey: `${models[0].credentialId}::claude-opus-5`,
+    });
+    fireEvent.click(screen.getByRole("button", { name: "Continue" }));
+    fireEvent.click(await screen.findByRole("button", { name: "Create clipping job" }));
+    await waitFor(() => expect(createClipJob).toHaveBeenCalled());
+    const settings = (
+      vi.mocked(createClipJob).mock.calls.at(-1)?.[0] as unknown as {
+        data: { settings: Record<string, unknown> };
+      }
+    ).data.settings;
+    expect(settings).not.toHaveProperty("aiModel");
   });
 });

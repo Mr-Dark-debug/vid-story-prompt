@@ -9,6 +9,19 @@ export type ClipTask = {
   priority: number;
   lease_owner: string | null;
 };
+export type AiRunTask = {
+  id: string;
+  workspace_id: string;
+  user_id: string;
+  purpose: string;
+  credential_id: string | null;
+  model_id: string | null;
+  clip_job_id: string | null;
+  input_json: Record<string, unknown>;
+  attempt: number;
+  max_attempts: number;
+  lease_owner: string | null;
+};
 export type ConnectorTask = {
   id: string;
   connector_import_id: string;

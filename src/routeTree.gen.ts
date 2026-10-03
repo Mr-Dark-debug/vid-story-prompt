@@ -9,234 +9,104 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as YoutubeClipperRouteImport } from './routes/youtube-clipper'
-import { Route as VerifyEmailRouteImport } from './routes/verify-email'
-import { Route as UseCasesRouteImport } from './routes/use-cases'
-import { Route as TermsRouteImport } from './routes/terms'
-import { Route as StatusRouteImport } from './routes/status'
-import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
-import { Route as SitemapBlogDotxmlRouteImport } from './routes/sitemap-blog[.]xml'
-import { Route as SignupRouteImport } from './routes/signup'
-import { Route as SecurityRouteImport } from './routes/security'
-import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
-import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
-import { Route as RoadmapRouteImport } from './routes/roadmap'
-import { Route as ResetPasswordRouteImport } from './routes/reset-password'
-import { Route as PrivacyRouteImport } from './routes/privacy'
-import { Route as PricingRouteImport } from './routes/pricing'
-import { Route as LoginRouteImport } from './routes/login'
-import { Route as ImprintRouteImport } from './routes/imprint'
-import { Route as HowItWorksRouteImport } from './routes/how-it-works'
-import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
-import { Route as FeaturesRouteImport } from './routes/features'
-import { Route as DocsRouteImport } from './routes/docs'
-import { Route as DesignSystemRouteImport } from './routes/design-system'
-import { Route as CopyrightRouteImport } from './routes/copyright'
-import { Route as CookiesRouteImport } from './routes/cookies'
-import { Route as ContactRouteImport } from './routes/contact'
-import { Route as ChangelogRouteImport } from './routes/changelog'
-import { Route as BlogRouteImport } from './routes/blog'
-import { Route as AiTransparencyRouteImport } from './routes/ai-transparency'
-import { Route as AcceptableUseRouteImport } from './routes/acceptable-use'
-import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
 import { Route as IndexRouteImport } from './routes/index'
-import { Route as UseCasesIndexRouteImport } from './routes/use-cases.index'
-import { Route as DocsIndexRouteImport } from './routes/docs.index'
-import { Route as BlogIndexRouteImport } from './routes/blog.index'
-import { Route as UseCasesYoutubeRouteImport } from './routes/use-cases.youtube'
-import { Route as UseCasesShortFormRouteImport } from './routes/use-cases.short-form'
-import { Route as UseCasesProductDemosRouteImport } from './routes/use-cases.product-demos'
-import { Route as UseCasesPodcastsRouteImport } from './routes/use-cases.podcasts'
-import { Route as UseCasesCoursesRouteImport } from './routes/use-cases.courses'
-import { Route as DocsUploadingMediaRouteImport } from './routes/docs.uploading-media'
-import { Route as DocsTimelineRouteImport } from './routes/docs.timeline'
-import { Route as DocsGettingStartedRouteImport } from './routes/docs.getting-started'
-import { Route as DocsExportingRouteImport } from './routes/docs.exporting'
-import { Route as DocsAiEditorRouteImport } from './routes/docs.ai-editor'
-import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
-import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as AuthenticatedRouteImport } from './routes/_authenticated'
+import { Route as AcceptableUseRouteImport } from './routes/acceptable-use'
+import { Route as AiTransparencyRouteImport } from './routes/ai-transparency'
+import { Route as BlogRouteImport } from './routes/blog'
+import { Route as ChangelogRouteImport } from './routes/changelog'
+import { Route as ContactRouteImport } from './routes/contact'
+import { Route as CookiesRouteImport } from './routes/cookies'
+import { Route as CopyrightRouteImport } from './routes/copyright'
+import { Route as DesignSystemRouteImport } from './routes/design-system'
+import { Route as DocsRouteImport } from './routes/docs'
+import { Route as FeaturesRouteImport } from './routes/features'
+import { Route as ForgotPasswordRouteImport } from './routes/forgot-password'
+import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as ImprintRouteImport } from './routes/imprint'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as PricingRouteImport } from './routes/pricing'
+import { Route as PrivacyRouteImport } from './routes/privacy'
+import { Route as ResetPasswordRouteImport } from './routes/reset-password'
+import { Route as RoadmapRouteImport } from './routes/roadmap'
+import { Route as RobotsDottxtRouteImport } from './routes/robots[.]txt'
+import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
+import { Route as SecurityRouteImport } from './routes/security'
+import { Route as SignupRouteImport } from './routes/signup'
+import { Route as SitemapBlogDotxmlRouteImport } from './routes/sitemap-blog[.]xml'
+import { Route as SitemapPagesDotxmlRouteImport } from './routes/sitemap-pages[.]xml'
+import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as StatusRouteImport } from './routes/status'
+import { Route as TermsRouteImport } from './routes/terms'
+import { Route as UseCasesRouteImport } from './routes/use-cases'
+import { Route as VerifyEmailRouteImport } from './routes/verify-email'
+import { Route as YoutubeClipperRouteImport } from './routes/youtube-clipper'
 import { Route as AuthenticatedAppRouteImport } from './routes/_authenticated.app'
+import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
+import { Route as BlogIndexRouteImport } from './routes/blog.index'
+import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
+import { Route as DocsIndexRouteImport } from './routes/docs.index'
+import { Route as DocsAiEditorRouteImport } from './routes/docs.ai-editor'
+import { Route as DocsBringYourOwnKeyRouteImport } from './routes/docs.bring-your-own-key'
+import { Route as DocsExportingRouteImport } from './routes/docs.exporting'
+import { Route as DocsGettingStartedRouteImport } from './routes/docs.getting-started'
+import { Route as DocsTimelineRouteImport } from './routes/docs.timeline'
+import { Route as DocsUploadingMediaRouteImport } from './routes/docs.uploading-media'
+import { Route as UseCasesIndexRouteImport } from './routes/use-cases.index'
+import { Route as UseCasesCoursesRouteImport } from './routes/use-cases.courses'
+import { Route as UseCasesPodcastsRouteImport } from './routes/use-cases.podcasts'
+import { Route as UseCasesProductDemosRouteImport } from './routes/use-cases.product-demos'
+import { Route as UseCasesShortFormRouteImport } from './routes/use-cases.short-form'
+import { Route as UseCasesYoutubeRouteImport } from './routes/use-cases.youtube'
 import { Route as AuthenticatedAppIndexRouteImport } from './routes/_authenticated.app.index'
-import { Route as BlogCategoryCategoryRouteImport } from './routes/blog.category.$category'
-import { Route as AuthYoutubeCallbackRouteImport } from './routes/auth.youtube.callback'
-import { Route as ApiYoutubeWebhookRouteImport } from './routes/api.youtube.webhook'
-import { Route as ApiIndexnowPublishRouteImport } from './routes/api.indexnow.publish'
-import { Route as AuthenticatedAppYoutubeClipperRouteImport } from './routes/_authenticated.app.youtube-clipper'
-import { Route as AuthenticatedAppUsageRouteImport } from './routes/_authenticated.app.usage'
-import { Route as AuthenticatedAppUploadsRouteImport } from './routes/_authenticated.app.uploads'
-import { Route as AuthenticatedAppTemplatesRouteImport } from './routes/_authenticated.app.templates'
-import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated.app.settings'
-import { Route as AuthenticatedAppHelpRouteImport } from './routes/_authenticated.app.help'
-import { Route as AuthenticatedAppFeedbackRouteImport } from './routes/_authenticated.app.feedback'
-import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authenticated.app.billing'
 import { Route as AuthenticatedAppAutomationsRouteImport } from './routes/_authenticated.app.automations'
-import { Route as AuthenticatedAppYoutubeClipperIndexRouteImport } from './routes/_authenticated.app.youtube-clipper.index'
-import { Route as AuthenticatedAppSettingsIndexRouteImport } from './routes/_authenticated.app.settings.index'
-import { Route as AuthenticatedAppProjectsIndexRouteImport } from './routes/_authenticated.app.projects.index'
+import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authenticated.app.billing'
+import { Route as AuthenticatedAppChatRouteImport } from './routes/_authenticated.app.chat'
+import { Route as AuthenticatedAppFeedbackRouteImport } from './routes/_authenticated.app.feedback'
+import { Route as AuthenticatedAppHelpRouteImport } from './routes/_authenticated.app.help'
+import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated.app.settings'
+import { Route as AuthenticatedAppTemplatesRouteImport } from './routes/_authenticated.app.templates'
+import { Route as AuthenticatedAppUploadsRouteImport } from './routes/_authenticated.app.uploads'
+import { Route as AuthenticatedAppUsageRouteImport } from './routes/_authenticated.app.usage'
+import { Route as AuthenticatedAppYoutubeClipperRouteImport } from './routes/_authenticated.app.youtube-clipper'
+import { Route as ApiAiChatRouteImport } from './routes/api.ai.chat'
+import { Route as ApiIndexnowPublishRouteImport } from './routes/api.indexnow.publish'
+import { Route as ApiYoutubeWebhookRouteImport } from './routes/api.youtube.webhook'
+import { Route as AuthYoutubeCallbackRouteImport } from './routes/auth.youtube.callback'
+import { Route as BlogCategoryCategoryRouteImport } from './routes/blog.category.$category'
 import { Route as AuthenticatedAppAutomationsIndexRouteImport } from './routes/_authenticated.app.automations.index'
-import { Route as AuthConnectorsConnectorIdCallbackRouteImport } from './routes/auth.connectors.$connectorId.callback'
-import { Route as AuthenticatedAppYoutubeClipperNewRouteImport } from './routes/_authenticated.app.youtube-clipper.new'
-import { Route as AuthenticatedAppSettingsPrivacyRouteImport } from './routes/_authenticated.app.settings.privacy'
-import { Route as AuthenticatedAppSettingsPreferencesRouteImport } from './routes/_authenticated.app.settings.preferences'
-import { Route as AuthenticatedAppSettingsNotificationsRouteImport } from './routes/_authenticated.app.settings.notifications'
-import { Route as AuthenticatedAppSettingsIntegrationsRouteImport } from './routes/_authenticated.app.settings.integrations'
-import { Route as AuthenticatedAppProjectsNewRouteImport } from './routes/_authenticated.app.projects.new'
-import { Route as AuthenticatedAppProjectsProjectIdRouteImport } from './routes/_authenticated.app.projects.$projectId'
-import { Route as AuthenticatedAppAutomationsNewRouteImport } from './routes/_authenticated.app.automations.new'
 import { Route as AuthenticatedAppAutomationsAutomationIdRouteImport } from './routes/_authenticated.app.automations.$automationId'
+import { Route as AuthenticatedAppAutomationsNewRouteImport } from './routes/_authenticated.app.automations.new'
+import { Route as AuthenticatedAppChatIndexRouteImport } from './routes/_authenticated.app.chat.index'
+import { Route as AuthenticatedAppChatThreadIdRouteImport } from './routes/_authenticated.app.chat.$threadId'
+import { Route as AuthenticatedAppProjectsIndexRouteImport } from './routes/_authenticated.app.projects.index'
+import { Route as AuthenticatedAppProjectsProjectIdRouteImport } from './routes/_authenticated.app.projects.$projectId'
+import { Route as AuthenticatedAppProjectsNewRouteImport } from './routes/_authenticated.app.projects.new'
+import { Route as AuthenticatedAppSettingsIndexRouteImport } from './routes/_authenticated.app.settings.index'
+import { Route as AuthenticatedAppSettingsAiProvidersRouteImport } from './routes/_authenticated.app.settings.ai-providers'
+import { Route as AuthenticatedAppSettingsIntegrationsRouteImport } from './routes/_authenticated.app.settings.integrations'
+import { Route as AuthenticatedAppSettingsNotificationsRouteImport } from './routes/_authenticated.app.settings.notifications'
+import { Route as AuthenticatedAppSettingsPreferencesRouteImport } from './routes/_authenticated.app.settings.preferences'
+import { Route as AuthenticatedAppSettingsPrivacyRouteImport } from './routes/_authenticated.app.settings.privacy'
+import { Route as AuthenticatedAppYoutubeClipperIndexRouteImport } from './routes/_authenticated.app.youtube-clipper.index'
+import { Route as AuthenticatedAppYoutubeClipperNewRouteImport } from './routes/_authenticated.app.youtube-clipper.new'
+import { Route as AuthConnectorsConnectorIdCallbackRouteImport } from './routes/auth.connectors.$connectorId.callback'
 import { Route as AuthenticatedAppProjectsProjectIdIndexRouteImport } from './routes/_authenticated.app.projects.$projectId.index'
-import { Route as AuthenticatedAppYoutubeClipperJobsJobIdRouteImport } from './routes/_authenticated.app.youtube-clipper.jobs.$jobId'
-import { Route as AuthenticatedAppProjectsProjectIdVersionsRouteImport } from './routes/_authenticated.app.projects.$projectId.versions'
-import { Route as AuthenticatedAppProjectsProjectIdTranscriptRouteImport } from './routes/_authenticated.app.projects.$projectId.transcript'
-import { Route as AuthenticatedAppProjectsProjectIdMediaRouteImport } from './routes/_authenticated.app.projects.$projectId.media'
-import { Route as AuthenticatedAppProjectsProjectIdExportsRouteImport } from './routes/_authenticated.app.projects.$projectId.exports'
 import { Route as AuthenticatedAppProjectsProjectIdEditorRouteImport } from './routes/_authenticated.app.projects.$projectId.editor'
+import { Route as AuthenticatedAppProjectsProjectIdExportsRouteImport } from './routes/_authenticated.app.projects.$projectId.exports'
+import { Route as AuthenticatedAppProjectsProjectIdMediaRouteImport } from './routes/_authenticated.app.projects.$projectId.media'
+import { Route as AuthenticatedAppProjectsProjectIdTranscriptRouteImport } from './routes/_authenticated.app.projects.$projectId.transcript'
+import { Route as AuthenticatedAppProjectsProjectIdVersionsRouteImport } from './routes/_authenticated.app.projects.$projectId.versions'
+import { Route as AuthenticatedAppYoutubeClipperJobsJobIdRouteImport } from './routes/_authenticated.app.youtube-clipper.jobs.$jobId'
 import { Route as AuthenticatedAppYoutubeClipperClipsClipIdEditRouteImport } from './routes/_authenticated.app.youtube-clipper.clips.$clipId.edit'
 
-const YoutubeClipperRoute = YoutubeClipperRouteImport.update({
-  id: '/youtube-clipper',
-  path: '/youtube-clipper',
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
-const VerifyEmailRoute = VerifyEmailRouteImport.update({
-  id: '/verify-email',
-  path: '/verify-email',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const UseCasesRoute = UseCasesRouteImport.update({
-  id: '/use-cases',
-  path: '/use-cases',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const TermsRoute = TermsRouteImport.update({
-  id: '/terms',
-  path: '/terms',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const StatusRoute = StatusRouteImport.update({
-  id: '/status',
-  path: '/status',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
-  id: '/sitemap-pages.xml',
-  path: '/sitemap-pages.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SitemapBlogDotxmlRoute = SitemapBlogDotxmlRouteImport.update({
-  id: '/sitemap-blog.xml',
-  path: '/sitemap-blog.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SignupRoute = SignupRouteImport.update({
-  id: '/signup',
-  path: '/signup',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const SecurityRoute = SecurityRouteImport.update({
-  id: '/security',
-  path: '/security',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RssDotxmlRoute = RssDotxmlRouteImport.update({
-  id: '/rss.xml',
-  path: '/rss.xml',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
-  id: '/robots.txt',
-  path: '/robots.txt',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RoadmapRoute = RoadmapRouteImport.update({
-  id: '/roadmap',
-  path: '/roadmap',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ResetPasswordRoute = ResetPasswordRouteImport.update({
-  id: '/reset-password',
-  path: '/reset-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PrivacyRoute = PrivacyRouteImport.update({
-  id: '/privacy',
-  path: '/privacy',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const PricingRoute = PricingRouteImport.update({
-  id: '/pricing',
-  path: '/pricing',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const LoginRoute = LoginRouteImport.update({
-  id: '/login',
-  path: '/login',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ImprintRoute = ImprintRouteImport.update({
-  id: '/imprint',
-  path: '/imprint',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const HowItWorksRoute = HowItWorksRouteImport.update({
-  id: '/how-it-works',
-  path: '/how-it-works',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
-  id: '/forgot-password',
-  path: '/forgot-password',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const FeaturesRoute = FeaturesRouteImport.update({
-  id: '/features',
-  path: '/features',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DocsRoute = DocsRouteImport.update({
-  id: '/docs',
-  path: '/docs',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const DesignSystemRoute = DesignSystemRouteImport.update({
-  id: '/design-system',
-  path: '/design-system',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CopyrightRoute = CopyrightRouteImport.update({
-  id: '/copyright',
-  path: '/copyright',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const CookiesRoute = CookiesRouteImport.update({
-  id: '/cookies',
-  path: '/cookies',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ContactRoute = ContactRouteImport.update({
-  id: '/contact',
-  path: '/contact',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ChangelogRoute = ChangelogRouteImport.update({
-  id: '/changelog',
-  path: '/changelog',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const BlogRoute = BlogRouteImport.update({
-  id: '/blog',
-  path: '/blog',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AiTransparencyRoute = AiTransparencyRouteImport.update({
-  id: '/ai-transparency',
-  path: '/ai-transparency',
+const AuthenticatedRoute = AuthenticatedRouteImport.update({
+  id: '/_authenticated',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AcceptableUseRoute = AcceptableUseRouteImport.update({
@@ -244,88 +114,149 @@ const AcceptableUseRoute = AcceptableUseRouteImport.update({
   path: '/acceptable-use',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRoute = AuthenticatedRouteImport.update({
-  id: '/_authenticated',
+const AiTransparencyRoute = AiTransparencyRouteImport.update({
+  id: '/ai-transparency',
+  path: '/ai-transparency',
   getParentRoute: () => rootRouteImport,
 } as any)
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
+const BlogRoute = BlogRouteImport.update({
+  id: '/blog',
+  path: '/blog',
   getParentRoute: () => rootRouteImport,
 } as any)
-const UseCasesIndexRoute = UseCasesIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => UseCasesRoute,
+const ChangelogRoute = ChangelogRouteImport.update({
+  id: '/changelog',
+  path: '/changelog',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DocsIndexRoute = DocsIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => DocsRoute,
+const ContactRoute = ContactRouteImport.update({
+  id: '/contact',
+  path: '/contact',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const BlogIndexRoute = BlogIndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => BlogRoute,
+const CookiesRoute = CookiesRouteImport.update({
+  id: '/cookies',
+  path: '/cookies',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const UseCasesYoutubeRoute = UseCasesYoutubeRouteImport.update({
-  id: '/youtube',
-  path: '/youtube',
-  getParentRoute: () => UseCasesRoute,
+const CopyrightRoute = CopyrightRouteImport.update({
+  id: '/copyright',
+  path: '/copyright',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const UseCasesShortFormRoute = UseCasesShortFormRouteImport.update({
-  id: '/short-form',
-  path: '/short-form',
-  getParentRoute: () => UseCasesRoute,
+const DesignSystemRoute = DesignSystemRouteImport.update({
+  id: '/design-system',
+  path: '/design-system',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const UseCasesProductDemosRoute = UseCasesProductDemosRouteImport.update({
-  id: '/product-demos',
-  path: '/product-demos',
-  getParentRoute: () => UseCasesRoute,
+const DocsRoute = DocsRouteImport.update({
+  id: '/docs',
+  path: '/docs',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const UseCasesPodcastsRoute = UseCasesPodcastsRouteImport.update({
-  id: '/podcasts',
-  path: '/podcasts',
-  getParentRoute: () => UseCasesRoute,
+const FeaturesRoute = FeaturesRouteImport.update({
+  id: '/features',
+  path: '/features',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const UseCasesCoursesRoute = UseCasesCoursesRouteImport.update({
-  id: '/courses',
-  path: '/courses',
-  getParentRoute: () => UseCasesRoute,
+const ForgotPasswordRoute = ForgotPasswordRouteImport.update({
+  id: '/forgot-password',
+  path: '/forgot-password',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DocsUploadingMediaRoute = DocsUploadingMediaRouteImport.update({
-  id: '/uploading-media',
-  path: '/uploading-media',
-  getParentRoute: () => DocsRoute,
+const HowItWorksRoute = HowItWorksRouteImport.update({
+  id: '/how-it-works',
+  path: '/how-it-works',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DocsTimelineRoute = DocsTimelineRouteImport.update({
-  id: '/timeline',
-  path: '/timeline',
-  getParentRoute: () => DocsRoute,
+const ImprintRoute = ImprintRouteImport.update({
+  id: '/imprint',
+  path: '/imprint',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DocsGettingStartedRoute = DocsGettingStartedRouteImport.update({
-  id: '/getting-started',
-  path: '/getting-started',
-  getParentRoute: () => DocsRoute,
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DocsExportingRoute = DocsExportingRouteImport.update({
-  id: '/exporting',
-  path: '/exporting',
-  getParentRoute: () => DocsRoute,
+const PricingRoute = PricingRouteImport.update({
+  id: '/pricing',
+  path: '/pricing',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const DocsAiEditorRoute = DocsAiEditorRouteImport.update({
-  id: '/ai-editor',
-  path: '/ai-editor',
-  getParentRoute: () => DocsRoute,
+const PrivacyRoute = PrivacyRouteImport.update({
+  id: '/privacy',
+  path: '/privacy',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const BlogSlugRoute = BlogSlugRouteImport.update({
-  id: '/$slug',
-  path: '/$slug',
-  getParentRoute: () => BlogRoute,
+const ResetPasswordRoute = ResetPasswordRouteImport.update({
+  id: '/reset-password',
+  path: '/reset-password',
+  getParentRoute: () => rootRouteImport,
 } as any)
-const AuthCallbackRoute = AuthCallbackRouteImport.update({
-  id: '/auth/callback',
-  path: '/auth/callback',
+const RoadmapRoute = RoadmapRouteImport.update({
+  id: '/roadmap',
+  path: '/roadmap',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RobotsDottxtRoute = RobotsDottxtRouteImport.update({
+  id: '/robots.txt',
+  path: '/robots.txt',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RssDotxmlRoute = RssDotxmlRouteImport.update({
+  id: '/rss.xml',
+  path: '/rss.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SecurityRoute = SecurityRouteImport.update({
+  id: '/security',
+  path: '/security',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapBlogDotxmlRoute = SitemapBlogDotxmlRouteImport.update({
+  id: '/sitemap-blog.xml',
+  path: '/sitemap-blog.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapPagesDotxmlRoute = SitemapPagesDotxmlRouteImport.update({
+  id: '/sitemap-pages.xml',
+  path: '/sitemap-pages.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const StatusRoute = StatusRouteImport.update({
+  id: '/status',
+  path: '/status',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TermsRoute = TermsRouteImport.update({
+  id: '/terms',
+  path: '/terms',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UseCasesRoute = UseCasesRouteImport.update({
+  id: '/use-cases',
+  path: '/use-cases',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const VerifyEmailRoute = VerifyEmailRouteImport.update({
+  id: '/verify-email',
+  path: '/verify-email',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const YoutubeClipperRoute = YoutubeClipperRouteImport.update({
+  id: '/youtube-clipper',
+  path: '/youtube-clipper',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
@@ -333,73 +264,89 @@ const AuthenticatedAppRoute = AuthenticatedAppRouteImport.update({
   path: '/app',
   getParentRoute: () => AuthenticatedRoute,
 } as any)
+const AuthCallbackRoute = AuthCallbackRouteImport.update({
+  id: '/auth/callback',
+  path: '/auth/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogIndexRoute = BlogIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => BlogRoute,
+} as any)
+const BlogSlugRoute = BlogSlugRouteImport.update({
+  id: '/$slug',
+  path: '/$slug',
+  getParentRoute: () => BlogRoute,
+} as any)
+const DocsIndexRoute = DocsIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsAiEditorRoute = DocsAiEditorRouteImport.update({
+  id: '/ai-editor',
+  path: '/ai-editor',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsBringYourOwnKeyRoute = DocsBringYourOwnKeyRouteImport.update({
+  id: '/bring-your-own-key',
+  path: '/bring-your-own-key',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsExportingRoute = DocsExportingRouteImport.update({
+  id: '/exporting',
+  path: '/exporting',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsGettingStartedRoute = DocsGettingStartedRouteImport.update({
+  id: '/getting-started',
+  path: '/getting-started',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsTimelineRoute = DocsTimelineRouteImport.update({
+  id: '/timeline',
+  path: '/timeline',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsUploadingMediaRoute = DocsUploadingMediaRouteImport.update({
+  id: '/uploading-media',
+  path: '/uploading-media',
+  getParentRoute: () => DocsRoute,
+} as any)
+const UseCasesIndexRoute = UseCasesIndexRouteImport.update({
+  id: '/',
+  path: '/',
+  getParentRoute: () => UseCasesRoute,
+} as any)
+const UseCasesCoursesRoute = UseCasesCoursesRouteImport.update({
+  id: '/courses',
+  path: '/courses',
+  getParentRoute: () => UseCasesRoute,
+} as any)
+const UseCasesPodcastsRoute = UseCasesPodcastsRouteImport.update({
+  id: '/podcasts',
+  path: '/podcasts',
+  getParentRoute: () => UseCasesRoute,
+} as any)
+const UseCasesProductDemosRoute = UseCasesProductDemosRouteImport.update({
+  id: '/product-demos',
+  path: '/product-demos',
+  getParentRoute: () => UseCasesRoute,
+} as any)
+const UseCasesShortFormRoute = UseCasesShortFormRouteImport.update({
+  id: '/short-form',
+  path: '/short-form',
+  getParentRoute: () => UseCasesRoute,
+} as any)
+const UseCasesYoutubeRoute = UseCasesYoutubeRouteImport.update({
+  id: '/youtube',
+  path: '/youtube',
+  getParentRoute: () => UseCasesRoute,
+} as any)
 const AuthenticatedAppIndexRoute = AuthenticatedAppIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const BlogCategoryCategoryRoute = BlogCategoryCategoryRouteImport.update({
-  id: '/category/$category',
-  path: '/category/$category',
-  getParentRoute: () => BlogRoute,
-} as any)
-const AuthYoutubeCallbackRoute = AuthYoutubeCallbackRouteImport.update({
-  id: '/auth/youtube/callback',
-  path: '/auth/youtube/callback',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiYoutubeWebhookRoute = ApiYoutubeWebhookRouteImport.update({
-  id: '/api/youtube/webhook',
-  path: '/api/youtube/webhook',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const ApiIndexnowPublishRoute = ApiIndexnowPublishRouteImport.update({
-  id: '/api/indexnow/publish',
-  path: '/api/indexnow/publish',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedAppYoutubeClipperRoute =
-  AuthenticatedAppYoutubeClipperRouteImport.update({
-    id: '/youtube-clipper',
-    path: '/youtube-clipper',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppUsageRoute = AuthenticatedAppUsageRouteImport.update({
-  id: '/usage',
-  path: '/usage',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppUploadsRoute = AuthenticatedAppUploadsRouteImport.update({
-  id: '/uploads',
-  path: '/uploads',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppTemplatesRoute =
-  AuthenticatedAppTemplatesRouteImport.update({
-    id: '/templates',
-    path: '/templates',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppSettingsRoute =
-  AuthenticatedAppSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppHelpRoute = AuthenticatedAppHelpRouteImport.update({
-  id: '/help',
-  path: '/help',
-  getParentRoute: () => AuthenticatedAppRoute,
-} as any)
-const AuthenticatedAppFeedbackRoute =
-  AuthenticatedAppFeedbackRouteImport.update({
-    id: '/feedback',
-    path: '/feedback',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppBillingRoute = AuthenticatedAppBillingRouteImport.update({
-  id: '/billing',
-  path: '/billing',
   getParentRoute: () => AuthenticatedAppRoute,
 } as any)
 const AuthenticatedAppAutomationsRoute =
@@ -408,82 +355,84 @@ const AuthenticatedAppAutomationsRoute =
     path: '/automations',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
-const AuthenticatedAppYoutubeClipperIndexRoute =
-  AuthenticatedAppYoutubeClipperIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedAppYoutubeClipperRoute,
-  } as any)
-const AuthenticatedAppSettingsIndexRoute =
-  AuthenticatedAppSettingsIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedAppSettingsRoute,
-  } as any)
-const AuthenticatedAppProjectsIndexRoute =
-  AuthenticatedAppProjectsIndexRouteImport.update({
-    id: '/projects/',
-    path: '/projects/',
+const AuthenticatedAppBillingRoute = AuthenticatedAppBillingRouteImport.update({
+  id: '/billing',
+  path: '/billing',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppChatRoute = AuthenticatedAppChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppFeedbackRoute =
+  AuthenticatedAppFeedbackRouteImport.update({
+    id: '/feedback',
+    path: '/feedback',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppHelpRoute = AuthenticatedAppHelpRouteImport.update({
+  id: '/help',
+  path: '/help',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppSettingsRoute =
+  AuthenticatedAppSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppTemplatesRoute =
+  AuthenticatedAppTemplatesRouteImport.update({
+    id: '/templates',
+    path: '/templates',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppUploadsRoute = AuthenticatedAppUploadsRouteImport.update({
+  id: '/uploads',
+  path: '/uploads',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppUsageRoute = AuthenticatedAppUsageRouteImport.update({
+  id: '/usage',
+  path: '/usage',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
+const AuthenticatedAppYoutubeClipperRoute =
+  AuthenticatedAppYoutubeClipperRouteImport.update({
+    id: '/youtube-clipper',
+    path: '/youtube-clipper',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const ApiAiChatRoute = ApiAiChatRouteImport.update({
+  id: '/api/ai/chat',
+  path: '/api/ai/chat',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiIndexnowPublishRoute = ApiIndexnowPublishRouteImport.update({
+  id: '/api/indexnow/publish',
+  path: '/api/indexnow/publish',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiYoutubeWebhookRoute = ApiYoutubeWebhookRouteImport.update({
+  id: '/api/youtube/webhook',
+  path: '/api/youtube/webhook',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthYoutubeCallbackRoute = AuthYoutubeCallbackRouteImport.update({
+  id: '/auth/youtube/callback',
+  path: '/auth/youtube/callback',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const BlogCategoryCategoryRoute = BlogCategoryCategoryRouteImport.update({
+  id: '/category/$category',
+  path: '/category/$category',
+  getParentRoute: () => BlogRoute,
+} as any)
 const AuthenticatedAppAutomationsIndexRoute =
   AuthenticatedAppAutomationsIndexRouteImport.update({
     id: '/',
     path: '/',
-    getParentRoute: () => AuthenticatedAppAutomationsRoute,
-  } as any)
-const AuthConnectorsConnectorIdCallbackRoute =
-  AuthConnectorsConnectorIdCallbackRouteImport.update({
-    id: '/auth/connectors/$connectorId/callback',
-    path: '/auth/connectors/$connectorId/callback',
-    getParentRoute: () => rootRouteImport,
-  } as any)
-const AuthenticatedAppYoutubeClipperNewRoute =
-  AuthenticatedAppYoutubeClipperNewRouteImport.update({
-    id: '/new',
-    path: '/new',
-    getParentRoute: () => AuthenticatedAppYoutubeClipperRoute,
-  } as any)
-const AuthenticatedAppSettingsPrivacyRoute =
-  AuthenticatedAppSettingsPrivacyRouteImport.update({
-    id: '/privacy',
-    path: '/privacy',
-    getParentRoute: () => AuthenticatedAppSettingsRoute,
-  } as any)
-const AuthenticatedAppSettingsPreferencesRoute =
-  AuthenticatedAppSettingsPreferencesRouteImport.update({
-    id: '/preferences',
-    path: '/preferences',
-    getParentRoute: () => AuthenticatedAppSettingsRoute,
-  } as any)
-const AuthenticatedAppSettingsNotificationsRoute =
-  AuthenticatedAppSettingsNotificationsRouteImport.update({
-    id: '/notifications',
-    path: '/notifications',
-    getParentRoute: () => AuthenticatedAppSettingsRoute,
-  } as any)
-const AuthenticatedAppSettingsIntegrationsRoute =
-  AuthenticatedAppSettingsIntegrationsRouteImport.update({
-    id: '/integrations',
-    path: '/integrations',
-    getParentRoute: () => AuthenticatedAppSettingsRoute,
-  } as any)
-const AuthenticatedAppProjectsNewRoute =
-  AuthenticatedAppProjectsNewRouteImport.update({
-    id: '/projects/new',
-    path: '/projects/new',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppProjectsProjectIdRoute =
-  AuthenticatedAppProjectsProjectIdRouteImport.update({
-    id: '/projects/$projectId',
-    path: '/projects/$projectId',
-    getParentRoute: () => AuthenticatedAppRoute,
-  } as any)
-const AuthenticatedAppAutomationsNewRoute =
-  AuthenticatedAppAutomationsNewRouteImport.update({
-    id: '/new',
-    path: '/new',
     getParentRoute: () => AuthenticatedAppAutomationsRoute,
   } as any)
 const AuthenticatedAppAutomationsAutomationIdRoute =
@@ -492,34 +441,106 @@ const AuthenticatedAppAutomationsAutomationIdRoute =
     path: '/$automationId',
     getParentRoute: () => AuthenticatedAppAutomationsRoute,
   } as any)
+const AuthenticatedAppAutomationsNewRoute =
+  AuthenticatedAppAutomationsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAppAutomationsRoute,
+  } as any)
+const AuthenticatedAppChatIndexRoute =
+  AuthenticatedAppChatIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAppChatRoute,
+  } as any)
+const AuthenticatedAppChatThreadIdRoute =
+  AuthenticatedAppChatThreadIdRouteImport.update({
+    id: '/$threadId',
+    path: '/$threadId',
+    getParentRoute: () => AuthenticatedAppChatRoute,
+  } as any)
+const AuthenticatedAppProjectsIndexRoute =
+  AuthenticatedAppProjectsIndexRouteImport.update({
+    id: '/projects/',
+    path: '/projects/',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppProjectsProjectIdRoute =
+  AuthenticatedAppProjectsProjectIdRouteImport.update({
+    id: '/projects/$projectId',
+    path: '/projects/$projectId',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppProjectsNewRoute =
+  AuthenticatedAppProjectsNewRouteImport.update({
+    id: '/projects/new',
+    path: '/projects/new',
+    getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppSettingsIndexRoute =
+  AuthenticatedAppSettingsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAppSettingsRoute,
+  } as any)
+const AuthenticatedAppSettingsAiProvidersRoute =
+  AuthenticatedAppSettingsAiProvidersRouteImport.update({
+    id: '/ai-providers',
+    path: '/ai-providers',
+    getParentRoute: () => AuthenticatedAppSettingsRoute,
+  } as any)
+const AuthenticatedAppSettingsIntegrationsRoute =
+  AuthenticatedAppSettingsIntegrationsRouteImport.update({
+    id: '/integrations',
+    path: '/integrations',
+    getParentRoute: () => AuthenticatedAppSettingsRoute,
+  } as any)
+const AuthenticatedAppSettingsNotificationsRoute =
+  AuthenticatedAppSettingsNotificationsRouteImport.update({
+    id: '/notifications',
+    path: '/notifications',
+    getParentRoute: () => AuthenticatedAppSettingsRoute,
+  } as any)
+const AuthenticatedAppSettingsPreferencesRoute =
+  AuthenticatedAppSettingsPreferencesRouteImport.update({
+    id: '/preferences',
+    path: '/preferences',
+    getParentRoute: () => AuthenticatedAppSettingsRoute,
+  } as any)
+const AuthenticatedAppSettingsPrivacyRoute =
+  AuthenticatedAppSettingsPrivacyRouteImport.update({
+    id: '/privacy',
+    path: '/privacy',
+    getParentRoute: () => AuthenticatedAppSettingsRoute,
+  } as any)
+const AuthenticatedAppYoutubeClipperIndexRoute =
+  AuthenticatedAppYoutubeClipperIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAppYoutubeClipperRoute,
+  } as any)
+const AuthenticatedAppYoutubeClipperNewRoute =
+  AuthenticatedAppYoutubeClipperNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAppYoutubeClipperRoute,
+  } as any)
+const AuthConnectorsConnectorIdCallbackRoute =
+  AuthConnectorsConnectorIdCallbackRouteImport.update({
+    id: '/auth/connectors/$connectorId/callback',
+    path: '/auth/connectors/$connectorId/callback',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAppProjectsProjectIdIndexRoute =
   AuthenticatedAppProjectsProjectIdIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
   } as any)
-const AuthenticatedAppYoutubeClipperJobsJobIdRoute =
-  AuthenticatedAppYoutubeClipperJobsJobIdRouteImport.update({
-    id: '/jobs/$jobId',
-    path: '/jobs/$jobId',
-    getParentRoute: () => AuthenticatedAppYoutubeClipperRoute,
-  } as any)
-const AuthenticatedAppProjectsProjectIdVersionsRoute =
-  AuthenticatedAppProjectsProjectIdVersionsRouteImport.update({
-    id: '/versions',
-    path: '/versions',
-    getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
-  } as any)
-const AuthenticatedAppProjectsProjectIdTranscriptRoute =
-  AuthenticatedAppProjectsProjectIdTranscriptRouteImport.update({
-    id: '/transcript',
-    path: '/transcript',
-    getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
-  } as any)
-const AuthenticatedAppProjectsProjectIdMediaRoute =
-  AuthenticatedAppProjectsProjectIdMediaRouteImport.update({
-    id: '/media',
-    path: '/media',
+const AuthenticatedAppProjectsProjectIdEditorRoute =
+  AuthenticatedAppProjectsProjectIdEditorRouteImport.update({
+    id: '/editor',
+    path: '/editor',
     getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
   } as any)
 const AuthenticatedAppProjectsProjectIdExportsRoute =
@@ -528,11 +549,29 @@ const AuthenticatedAppProjectsProjectIdExportsRoute =
     path: '/exports',
     getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
   } as any)
-const AuthenticatedAppProjectsProjectIdEditorRoute =
-  AuthenticatedAppProjectsProjectIdEditorRouteImport.update({
-    id: '/editor',
-    path: '/editor',
+const AuthenticatedAppProjectsProjectIdMediaRoute =
+  AuthenticatedAppProjectsProjectIdMediaRouteImport.update({
+    id: '/media',
+    path: '/media',
     getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
+  } as any)
+const AuthenticatedAppProjectsProjectIdTranscriptRoute =
+  AuthenticatedAppProjectsProjectIdTranscriptRouteImport.update({
+    id: '/transcript',
+    path: '/transcript',
+    getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
+  } as any)
+const AuthenticatedAppProjectsProjectIdVersionsRoute =
+  AuthenticatedAppProjectsProjectIdVersionsRouteImport.update({
+    id: '/versions',
+    path: '/versions',
+    getParentRoute: () => AuthenticatedAppProjectsProjectIdRoute,
+  } as any)
+const AuthenticatedAppYoutubeClipperJobsJobIdRoute =
+  AuthenticatedAppYoutubeClipperJobsJobIdRouteImport.update({
+    id: '/jobs/$jobId',
+    path: '/jobs/$jobId',
+    getParentRoute: () => AuthenticatedAppYoutubeClipperRoute,
   } as any)
 const AuthenticatedAppYoutubeClipperClipsClipIdEditRoute =
   AuthenticatedAppYoutubeClipperClipsClipIdEditRouteImport.update({
@@ -577,6 +616,7 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/docs/ai-editor': typeof DocsAiEditorRoute
+  '/docs/bring-your-own-key': typeof DocsBringYourOwnKeyRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
   '/docs/timeline': typeof DocsTimelineRoute
@@ -591,6 +631,7 @@ export interface FileRoutesByFullPath {
   '/use-cases/': typeof UseCasesIndexRoute
   '/app/automations': typeof AuthenticatedAppAutomationsRouteWithChildren
   '/app/billing': typeof AuthenticatedAppBillingRoute
+  '/app/chat': typeof AuthenticatedAppChatRouteWithChildren
   '/app/feedback': typeof AuthenticatedAppFeedbackRoute
   '/app/help': typeof AuthenticatedAppHelpRoute
   '/app/settings': typeof AuthenticatedAppSettingsRouteWithChildren
@@ -598,6 +639,7 @@ export interface FileRoutesByFullPath {
   '/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/app/usage': typeof AuthenticatedAppUsageRoute
   '/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperRouteWithChildren
+  '/api/ai/chat': typeof ApiAiChatRoute
   '/api/indexnow/publish': typeof ApiIndexnowPublishRoute
   '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
@@ -605,8 +647,10 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
   '/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
+  '/app/chat/$threadId': typeof AuthenticatedAppChatThreadIdRoute
   '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
+  '/app/settings/ai-providers': typeof AuthenticatedAppSettingsAiProvidersRoute
   '/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
   '/app/settings/notifications': typeof AuthenticatedAppSettingsNotificationsRoute
   '/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
@@ -614,6 +658,7 @@ export interface FileRoutesByFullPath {
   '/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
   '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
   '/app/automations/': typeof AuthenticatedAppAutomationsIndexRoute
+  '/app/chat/': typeof AuthenticatedAppChatIndexRoute
   '/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
   '/app/settings/': typeof AuthenticatedAppSettingsIndexRoute
   '/app/youtube-clipper/': typeof AuthenticatedAppYoutubeClipperIndexRoute
@@ -658,6 +703,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/docs/ai-editor': typeof DocsAiEditorRoute
+  '/docs/bring-your-own-key': typeof DocsBringYourOwnKeyRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
   '/docs/timeline': typeof DocsTimelineRoute
@@ -676,6 +722,7 @@ export interface FileRoutesByTo {
   '/app/templates': typeof AuthenticatedAppTemplatesRoute
   '/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/app/usage': typeof AuthenticatedAppUsageRoute
+  '/api/ai/chat': typeof ApiAiChatRoute
   '/api/indexnow/publish': typeof ApiIndexnowPublishRoute
   '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
@@ -683,7 +730,9 @@ export interface FileRoutesByTo {
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
   '/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
+  '/app/chat/$threadId': typeof AuthenticatedAppChatThreadIdRoute
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
+  '/app/settings/ai-providers': typeof AuthenticatedAppSettingsAiProvidersRoute
   '/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
   '/app/settings/notifications': typeof AuthenticatedAppSettingsNotificationsRoute
   '/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
@@ -691,6 +740,7 @@ export interface FileRoutesByTo {
   '/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
   '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
   '/app/automations': typeof AuthenticatedAppAutomationsIndexRoute
+  '/app/chat': typeof AuthenticatedAppChatIndexRoute
   '/app/projects': typeof AuthenticatedAppProjectsIndexRoute
   '/app/settings': typeof AuthenticatedAppSettingsIndexRoute
   '/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperIndexRoute
@@ -741,6 +791,7 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/docs/ai-editor': typeof DocsAiEditorRoute
+  '/docs/bring-your-own-key': typeof DocsBringYourOwnKeyRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
   '/docs/timeline': typeof DocsTimelineRoute
@@ -755,6 +806,7 @@ export interface FileRoutesById {
   '/use-cases/': typeof UseCasesIndexRoute
   '/_authenticated/app/automations': typeof AuthenticatedAppAutomationsRouteWithChildren
   '/_authenticated/app/billing': typeof AuthenticatedAppBillingRoute
+  '/_authenticated/app/chat': typeof AuthenticatedAppChatRouteWithChildren
   '/_authenticated/app/feedback': typeof AuthenticatedAppFeedbackRoute
   '/_authenticated/app/help': typeof AuthenticatedAppHelpRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRouteWithChildren
@@ -762,6 +814,7 @@ export interface FileRoutesById {
   '/_authenticated/app/uploads': typeof AuthenticatedAppUploadsRoute
   '/_authenticated/app/usage': typeof AuthenticatedAppUsageRoute
   '/_authenticated/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperRouteWithChildren
+  '/api/ai/chat': typeof ApiAiChatRoute
   '/api/indexnow/publish': typeof ApiIndexnowPublishRoute
   '/api/youtube/webhook': typeof ApiYoutubeWebhookRoute
   '/auth/youtube/callback': typeof AuthYoutubeCallbackRoute
@@ -769,8 +822,10 @@ export interface FileRoutesById {
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
   '/_authenticated/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
+  '/_authenticated/app/chat/$threadId': typeof AuthenticatedAppChatThreadIdRoute
   '/_authenticated/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   '/_authenticated/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
+  '/_authenticated/app/settings/ai-providers': typeof AuthenticatedAppSettingsAiProvidersRoute
   '/_authenticated/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
   '/_authenticated/app/settings/notifications': typeof AuthenticatedAppSettingsNotificationsRoute
   '/_authenticated/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
@@ -778,6 +833,7 @@ export interface FileRoutesById {
   '/_authenticated/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
   '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
   '/_authenticated/app/automations/': typeof AuthenticatedAppAutomationsIndexRoute
+  '/_authenticated/app/chat/': typeof AuthenticatedAppChatIndexRoute
   '/_authenticated/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
   '/_authenticated/app/settings/': typeof AuthenticatedAppSettingsIndexRoute
   '/_authenticated/app/youtube-clipper/': typeof AuthenticatedAppYoutubeClipperIndexRoute
@@ -828,6 +884,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/blog/$slug'
     | '/docs/ai-editor'
+    | '/docs/bring-your-own-key'
     | '/docs/exporting'
     | '/docs/getting-started'
     | '/docs/timeline'
@@ -842,6 +899,7 @@ export interface FileRouteTypes {
     | '/use-cases/'
     | '/app/automations'
     | '/app/billing'
+    | '/app/chat'
     | '/app/feedback'
     | '/app/help'
     | '/app/settings'
@@ -849,6 +907,7 @@ export interface FileRouteTypes {
     | '/app/uploads'
     | '/app/usage'
     | '/app/youtube-clipper'
+    | '/api/ai/chat'
     | '/api/indexnow/publish'
     | '/api/youtube/webhook'
     | '/auth/youtube/callback'
@@ -856,8 +915,10 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/automations/$automationId'
     | '/app/automations/new'
+    | '/app/chat/$threadId'
     | '/app/projects/$projectId'
     | '/app/projects/new'
+    | '/app/settings/ai-providers'
     | '/app/settings/integrations'
     | '/app/settings/notifications'
     | '/app/settings/preferences'
@@ -865,6 +926,7 @@ export interface FileRouteTypes {
     | '/app/youtube-clipper/new'
     | '/auth/connectors/$connectorId/callback'
     | '/app/automations/'
+    | '/app/chat/'
     | '/app/projects/'
     | '/app/settings/'
     | '/app/youtube-clipper/'
@@ -909,6 +971,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/blog/$slug'
     | '/docs/ai-editor'
+    | '/docs/bring-your-own-key'
     | '/docs/exporting'
     | '/docs/getting-started'
     | '/docs/timeline'
@@ -927,6 +990,7 @@ export interface FileRouteTypes {
     | '/app/templates'
     | '/app/uploads'
     | '/app/usage'
+    | '/api/ai/chat'
     | '/api/indexnow/publish'
     | '/api/youtube/webhook'
     | '/auth/youtube/callback'
@@ -934,7 +998,9 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/automations/$automationId'
     | '/app/automations/new'
+    | '/app/chat/$threadId'
     | '/app/projects/new'
+    | '/app/settings/ai-providers'
     | '/app/settings/integrations'
     | '/app/settings/notifications'
     | '/app/settings/preferences'
@@ -942,6 +1008,7 @@ export interface FileRouteTypes {
     | '/app/youtube-clipper/new'
     | '/auth/connectors/$connectorId/callback'
     | '/app/automations'
+    | '/app/chat'
     | '/app/projects'
     | '/app/settings'
     | '/app/youtube-clipper'
@@ -991,6 +1058,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/blog/$slug'
     | '/docs/ai-editor'
+    | '/docs/bring-your-own-key'
     | '/docs/exporting'
     | '/docs/getting-started'
     | '/docs/timeline'
@@ -1005,6 +1073,7 @@ export interface FileRouteTypes {
     | '/use-cases/'
     | '/_authenticated/app/automations'
     | '/_authenticated/app/billing'
+    | '/_authenticated/app/chat'
     | '/_authenticated/app/feedback'
     | '/_authenticated/app/help'
     | '/_authenticated/app/settings'
@@ -1012,6 +1081,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/uploads'
     | '/_authenticated/app/usage'
     | '/_authenticated/app/youtube-clipper'
+    | '/api/ai/chat'
     | '/api/indexnow/publish'
     | '/api/youtube/webhook'
     | '/auth/youtube/callback'
@@ -1019,8 +1089,10 @@ export interface FileRouteTypes {
     | '/_authenticated/app/'
     | '/_authenticated/app/automations/$automationId'
     | '/_authenticated/app/automations/new'
+    | '/_authenticated/app/chat/$threadId'
     | '/_authenticated/app/projects/$projectId'
     | '/_authenticated/app/projects/new'
+    | '/_authenticated/app/settings/ai-providers'
     | '/_authenticated/app/settings/integrations'
     | '/_authenticated/app/settings/notifications'
     | '/_authenticated/app/settings/preferences'
@@ -1028,6 +1100,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/youtube-clipper/new'
     | '/auth/connectors/$connectorId/callback'
     | '/_authenticated/app/automations/'
+    | '/_authenticated/app/chat/'
     | '/_authenticated/app/projects/'
     | '/_authenticated/app/settings/'
     | '/_authenticated/app/youtube-clipper/'
@@ -1075,6 +1148,7 @@ export interface RootRouteChildren {
   VerifyEmailRoute: typeof VerifyEmailRoute
   YoutubeClipperRoute: typeof YoutubeClipperRoute
   AuthCallbackRoute: typeof AuthCallbackRoute
+  ApiAiChatRoute: typeof ApiAiChatRoute
   ApiIndexnowPublishRoute: typeof ApiIndexnowPublishRoute
   ApiYoutubeWebhookRoute: typeof ApiYoutubeWebhookRoute
   AuthYoutubeCallbackRoute: typeof AuthYoutubeCallbackRoute
@@ -1083,214 +1157,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/youtube-clipper': {
-      id: '/youtube-clipper'
-      path: '/youtube-clipper'
-      fullPath: '/youtube-clipper'
-      preLoaderRoute: typeof YoutubeClipperRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/verify-email': {
-      id: '/verify-email'
-      path: '/verify-email'
-      fullPath: '/verify-email'
-      preLoaderRoute: typeof VerifyEmailRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/use-cases': {
-      id: '/use-cases'
-      path: '/use-cases'
-      fullPath: '/use-cases'
-      preLoaderRoute: typeof UseCasesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/terms': {
-      id: '/terms'
-      path: '/terms'
-      fullPath: '/terms'
-      preLoaderRoute: typeof TermsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/status': {
-      id: '/status'
-      path: '/status'
-      fullPath: '/status'
-      preLoaderRoute: typeof StatusRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap-pages.xml': {
-      id: '/sitemap-pages.xml'
-      path: '/sitemap-pages.xml'
-      fullPath: '/sitemap-pages.xml'
-      preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/sitemap-blog.xml': {
-      id: '/sitemap-blog.xml'
-      path: '/sitemap-blog.xml'
-      fullPath: '/sitemap-blog.xml'
-      preLoaderRoute: typeof SitemapBlogDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/signup': {
-      id: '/signup'
-      path: '/signup'
-      fullPath: '/signup'
-      preLoaderRoute: typeof SignupRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/security': {
-      id: '/security'
-      path: '/security'
-      fullPath: '/security'
-      preLoaderRoute: typeof SecurityRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rss.xml': {
-      id: '/rss.xml'
-      path: '/rss.xml'
-      fullPath: '/rss.xml'
-      preLoaderRoute: typeof RssDotxmlRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/robots.txt': {
-      id: '/robots.txt'
-      path: '/robots.txt'
-      fullPath: '/robots.txt'
-      preLoaderRoute: typeof RobotsDottxtRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/roadmap': {
-      id: '/roadmap'
-      path: '/roadmap'
-      fullPath: '/roadmap'
-      preLoaderRoute: typeof RoadmapRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/reset-password': {
-      id: '/reset-password'
-      path: '/reset-password'
-      fullPath: '/reset-password'
-      preLoaderRoute: typeof ResetPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/privacy': {
-      id: '/privacy'
-      path: '/privacy'
-      fullPath: '/privacy'
-      preLoaderRoute: typeof PrivacyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/pricing': {
-      id: '/pricing'
-      path: '/pricing'
-      fullPath: '/pricing'
-      preLoaderRoute: typeof PricingRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/login': {
-      id: '/login'
-      path: '/login'
-      fullPath: '/login'
-      preLoaderRoute: typeof LoginRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/imprint': {
-      id: '/imprint'
-      path: '/imprint'
-      fullPath: '/imprint'
-      preLoaderRoute: typeof ImprintRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/how-it-works': {
-      id: '/how-it-works'
-      path: '/how-it-works'
-      fullPath: '/how-it-works'
-      preLoaderRoute: typeof HowItWorksRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/forgot-password': {
-      id: '/forgot-password'
-      path: '/forgot-password'
-      fullPath: '/forgot-password'
-      preLoaderRoute: typeof ForgotPasswordRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/features': {
-      id: '/features'
-      path: '/features'
-      fullPath: '/features'
-      preLoaderRoute: typeof FeaturesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/docs': {
-      id: '/docs'
-      path: '/docs'
-      fullPath: '/docs'
-      preLoaderRoute: typeof DocsRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/design-system': {
-      id: '/design-system'
-      path: '/design-system'
-      fullPath: '/design-system'
-      preLoaderRoute: typeof DesignSystemRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/copyright': {
-      id: '/copyright'
-      path: '/copyright'
-      fullPath: '/copyright'
-      preLoaderRoute: typeof CopyrightRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/cookies': {
-      id: '/cookies'
-      path: '/cookies'
-      fullPath: '/cookies'
-      preLoaderRoute: typeof CookiesRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/contact': {
-      id: '/contact'
-      path: '/contact'
-      fullPath: '/contact'
-      preLoaderRoute: typeof ContactRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/changelog': {
-      id: '/changelog'
-      path: '/changelog'
-      fullPath: '/changelog'
-      preLoaderRoute: typeof ChangelogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/blog': {
-      id: '/blog'
-      path: '/blog'
-      fullPath: '/blog'
-      preLoaderRoute: typeof BlogRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/ai-transparency': {
-      id: '/ai-transparency'
-      path: '/ai-transparency'
-      fullPath: '/ai-transparency'
-      preLoaderRoute: typeof AiTransparencyRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/acceptable-use': {
-      id: '/acceptable-use'
-      path: '/acceptable-use'
-      fullPath: '/acceptable-use'
-      preLoaderRoute: typeof AcceptableUseRouteImport
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated': {
@@ -1300,116 +1171,214 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
+    '/acceptable-use': {
+      id: '/acceptable-use'
+      path: '/acceptable-use'
+      fullPath: '/acceptable-use'
+      preLoaderRoute: typeof AcceptableUseRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/use-cases/': {
-      id: '/use-cases/'
-      path: '/'
-      fullPath: '/use-cases/'
-      preLoaderRoute: typeof UseCasesIndexRouteImport
-      parentRoute: typeof UseCasesRoute
+    '/ai-transparency': {
+      id: '/ai-transparency'
+      path: '/ai-transparency'
+      fullPath: '/ai-transparency'
+      preLoaderRoute: typeof AiTransparencyRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/docs/': {
-      id: '/docs/'
-      path: '/'
-      fullPath: '/docs/'
-      preLoaderRoute: typeof DocsIndexRouteImport
-      parentRoute: typeof DocsRoute
+    '/blog': {
+      id: '/blog'
+      path: '/blog'
+      fullPath: '/blog'
+      preLoaderRoute: typeof BlogRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/blog/': {
-      id: '/blog/'
-      path: '/'
-      fullPath: '/blog/'
-      preLoaderRoute: typeof BlogIndexRouteImport
-      parentRoute: typeof BlogRoute
+    '/changelog': {
+      id: '/changelog'
+      path: '/changelog'
+      fullPath: '/changelog'
+      preLoaderRoute: typeof ChangelogRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/use-cases/youtube': {
-      id: '/use-cases/youtube'
-      path: '/youtube'
-      fullPath: '/use-cases/youtube'
-      preLoaderRoute: typeof UseCasesYoutubeRouteImport
-      parentRoute: typeof UseCasesRoute
+    '/contact': {
+      id: '/contact'
+      path: '/contact'
+      fullPath: '/contact'
+      preLoaderRoute: typeof ContactRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/use-cases/short-form': {
-      id: '/use-cases/short-form'
-      path: '/short-form'
-      fullPath: '/use-cases/short-form'
-      preLoaderRoute: typeof UseCasesShortFormRouteImport
-      parentRoute: typeof UseCasesRoute
+    '/cookies': {
+      id: '/cookies'
+      path: '/cookies'
+      fullPath: '/cookies'
+      preLoaderRoute: typeof CookiesRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/use-cases/product-demos': {
-      id: '/use-cases/product-demos'
-      path: '/product-demos'
-      fullPath: '/use-cases/product-demos'
-      preLoaderRoute: typeof UseCasesProductDemosRouteImport
-      parentRoute: typeof UseCasesRoute
+    '/copyright': {
+      id: '/copyright'
+      path: '/copyright'
+      fullPath: '/copyright'
+      preLoaderRoute: typeof CopyrightRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/use-cases/podcasts': {
-      id: '/use-cases/podcasts'
-      path: '/podcasts'
-      fullPath: '/use-cases/podcasts'
-      preLoaderRoute: typeof UseCasesPodcastsRouteImport
-      parentRoute: typeof UseCasesRoute
+    '/design-system': {
+      id: '/design-system'
+      path: '/design-system'
+      fullPath: '/design-system'
+      preLoaderRoute: typeof DesignSystemRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/use-cases/courses': {
-      id: '/use-cases/courses'
-      path: '/courses'
-      fullPath: '/use-cases/courses'
-      preLoaderRoute: typeof UseCasesCoursesRouteImport
-      parentRoute: typeof UseCasesRoute
+    '/docs': {
+      id: '/docs'
+      path: '/docs'
+      fullPath: '/docs'
+      preLoaderRoute: typeof DocsRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/docs/uploading-media': {
-      id: '/docs/uploading-media'
-      path: '/uploading-media'
-      fullPath: '/docs/uploading-media'
-      preLoaderRoute: typeof DocsUploadingMediaRouteImport
-      parentRoute: typeof DocsRoute
+    '/features': {
+      id: '/features'
+      path: '/features'
+      fullPath: '/features'
+      preLoaderRoute: typeof FeaturesRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/docs/timeline': {
-      id: '/docs/timeline'
-      path: '/timeline'
-      fullPath: '/docs/timeline'
-      preLoaderRoute: typeof DocsTimelineRouteImport
-      parentRoute: typeof DocsRoute
+    '/forgot-password': {
+      id: '/forgot-password'
+      path: '/forgot-password'
+      fullPath: '/forgot-password'
+      preLoaderRoute: typeof ForgotPasswordRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/docs/getting-started': {
-      id: '/docs/getting-started'
-      path: '/getting-started'
-      fullPath: '/docs/getting-started'
-      preLoaderRoute: typeof DocsGettingStartedRouteImport
-      parentRoute: typeof DocsRoute
+    '/how-it-works': {
+      id: '/how-it-works'
+      path: '/how-it-works'
+      fullPath: '/how-it-works'
+      preLoaderRoute: typeof HowItWorksRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/docs/exporting': {
-      id: '/docs/exporting'
-      path: '/exporting'
-      fullPath: '/docs/exporting'
-      preLoaderRoute: typeof DocsExportingRouteImport
-      parentRoute: typeof DocsRoute
+    '/imprint': {
+      id: '/imprint'
+      path: '/imprint'
+      fullPath: '/imprint'
+      preLoaderRoute: typeof ImprintRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/docs/ai-editor': {
-      id: '/docs/ai-editor'
-      path: '/ai-editor'
-      fullPath: '/docs/ai-editor'
-      preLoaderRoute: typeof DocsAiEditorRouteImport
-      parentRoute: typeof DocsRoute
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/blog/$slug': {
-      id: '/blog/$slug'
-      path: '/$slug'
-      fullPath: '/blog/$slug'
-      preLoaderRoute: typeof BlogSlugRouteImport
-      parentRoute: typeof BlogRoute
+    '/pricing': {
+      id: '/pricing'
+      path: '/pricing'
+      fullPath: '/pricing'
+      preLoaderRoute: typeof PricingRouteImport
+      parentRoute: typeof rootRouteImport
     }
-    '/auth/callback': {
-      id: '/auth/callback'
-      path: '/auth/callback'
-      fullPath: '/auth/callback'
-      preLoaderRoute: typeof AuthCallbackRouteImport
+    '/privacy': {
+      id: '/privacy'
+      path: '/privacy'
+      fullPath: '/privacy'
+      preLoaderRoute: typeof PrivacyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/reset-password': {
+      id: '/reset-password'
+      path: '/reset-password'
+      fullPath: '/reset-password'
+      preLoaderRoute: typeof ResetPasswordRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/roadmap': {
+      id: '/roadmap'
+      path: '/roadmap'
+      fullPath: '/roadmap'
+      preLoaderRoute: typeof RoadmapRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/robots.txt': {
+      id: '/robots.txt'
+      path: '/robots.txt'
+      fullPath: '/robots.txt'
+      preLoaderRoute: typeof RobotsDottxtRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rss.xml': {
+      id: '/rss.xml'
+      path: '/rss.xml'
+      fullPath: '/rss.xml'
+      preLoaderRoute: typeof RssDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/security': {
+      id: '/security'
+      path: '/security'
+      fullPath: '/security'
+      preLoaderRoute: typeof SecurityRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-blog.xml': {
+      id: '/sitemap-blog.xml'
+      path: '/sitemap-blog.xml'
+      fullPath: '/sitemap-blog.xml'
+      preLoaderRoute: typeof SitemapBlogDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap-pages.xml': {
+      id: '/sitemap-pages.xml'
+      path: '/sitemap-pages.xml'
+      fullPath: '/sitemap-pages.xml'
+      preLoaderRoute: typeof SitemapPagesDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/status': {
+      id: '/status'
+      path: '/status'
+      fullPath: '/status'
+      preLoaderRoute: typeof StatusRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/terms': {
+      id: '/terms'
+      path: '/terms'
+      fullPath: '/terms'
+      preLoaderRoute: typeof TermsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/use-cases': {
+      id: '/use-cases'
+      path: '/use-cases'
+      fullPath: '/use-cases'
+      preLoaderRoute: typeof UseCasesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/verify-email': {
+      id: '/verify-email'
+      path: '/verify-email'
+      fullPath: '/verify-email'
+      preLoaderRoute: typeof VerifyEmailRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/youtube-clipper': {
+      id: '/youtube-clipper'
+      path: '/youtube-clipper'
+      fullPath: '/youtube-clipper'
+      preLoaderRoute: typeof YoutubeClipperRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/_authenticated/app': {
@@ -1419,95 +1388,123 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppRouteImport
       parentRoute: typeof AuthenticatedRoute
     }
+    '/auth/callback': {
+      id: '/auth/callback'
+      path: '/auth/callback'
+      fullPath: '/auth/callback'
+      preLoaderRoute: typeof AuthCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/': {
+      id: '/blog/'
+      path: '/'
+      fullPath: '/blog/'
+      preLoaderRoute: typeof BlogIndexRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/blog/$slug': {
+      id: '/blog/$slug'
+      path: '/$slug'
+      fullPath: '/blog/$slug'
+      preLoaderRoute: typeof BlogSlugRouteImport
+      parentRoute: typeof BlogRoute
+    }
+    '/docs/': {
+      id: '/docs/'
+      path: '/'
+      fullPath: '/docs/'
+      preLoaderRoute: typeof DocsIndexRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/ai-editor': {
+      id: '/docs/ai-editor'
+      path: '/ai-editor'
+      fullPath: '/docs/ai-editor'
+      preLoaderRoute: typeof DocsAiEditorRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/bring-your-own-key': {
+      id: '/docs/bring-your-own-key'
+      path: '/bring-your-own-key'
+      fullPath: '/docs/bring-your-own-key'
+      preLoaderRoute: typeof DocsBringYourOwnKeyRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/exporting': {
+      id: '/docs/exporting'
+      path: '/exporting'
+      fullPath: '/docs/exporting'
+      preLoaderRoute: typeof DocsExportingRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/getting-started': {
+      id: '/docs/getting-started'
+      path: '/getting-started'
+      fullPath: '/docs/getting-started'
+      preLoaderRoute: typeof DocsGettingStartedRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/timeline': {
+      id: '/docs/timeline'
+      path: '/timeline'
+      fullPath: '/docs/timeline'
+      preLoaderRoute: typeof DocsTimelineRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/uploading-media': {
+      id: '/docs/uploading-media'
+      path: '/uploading-media'
+      fullPath: '/docs/uploading-media'
+      preLoaderRoute: typeof DocsUploadingMediaRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/use-cases/': {
+      id: '/use-cases/'
+      path: '/'
+      fullPath: '/use-cases/'
+      preLoaderRoute: typeof UseCasesIndexRouteImport
+      parentRoute: typeof UseCasesRoute
+    }
+    '/use-cases/courses': {
+      id: '/use-cases/courses'
+      path: '/courses'
+      fullPath: '/use-cases/courses'
+      preLoaderRoute: typeof UseCasesCoursesRouteImport
+      parentRoute: typeof UseCasesRoute
+    }
+    '/use-cases/podcasts': {
+      id: '/use-cases/podcasts'
+      path: '/podcasts'
+      fullPath: '/use-cases/podcasts'
+      preLoaderRoute: typeof UseCasesPodcastsRouteImport
+      parentRoute: typeof UseCasesRoute
+    }
+    '/use-cases/product-demos': {
+      id: '/use-cases/product-demos'
+      path: '/product-demos'
+      fullPath: '/use-cases/product-demos'
+      preLoaderRoute: typeof UseCasesProductDemosRouteImport
+      parentRoute: typeof UseCasesRoute
+    }
+    '/use-cases/short-form': {
+      id: '/use-cases/short-form'
+      path: '/short-form'
+      fullPath: '/use-cases/short-form'
+      preLoaderRoute: typeof UseCasesShortFormRouteImport
+      parentRoute: typeof UseCasesRoute
+    }
+    '/use-cases/youtube': {
+      id: '/use-cases/youtube'
+      path: '/youtube'
+      fullPath: '/use-cases/youtube'
+      preLoaderRoute: typeof UseCasesYoutubeRouteImport
+      parentRoute: typeof UseCasesRoute
+    }
     '/_authenticated/app/': {
       id: '/_authenticated/app/'
       path: '/'
       fullPath: '/app/'
       preLoaderRoute: typeof AuthenticatedAppIndexRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/blog/category/$category': {
-      id: '/blog/category/$category'
-      path: '/category/$category'
-      fullPath: '/blog/category/$category'
-      preLoaderRoute: typeof BlogCategoryCategoryRouteImport
-      parentRoute: typeof BlogRoute
-    }
-    '/auth/youtube/callback': {
-      id: '/auth/youtube/callback'
-      path: '/auth/youtube/callback'
-      fullPath: '/auth/youtube/callback'
-      preLoaderRoute: typeof AuthYoutubeCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/youtube/webhook': {
-      id: '/api/youtube/webhook'
-      path: '/api/youtube/webhook'
-      fullPath: '/api/youtube/webhook'
-      preLoaderRoute: typeof ApiYoutubeWebhookRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/api/indexnow/publish': {
-      id: '/api/indexnow/publish'
-      path: '/api/indexnow/publish'
-      fullPath: '/api/indexnow/publish'
-      preLoaderRoute: typeof ApiIndexnowPublishRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/app/youtube-clipper': {
-      id: '/_authenticated/app/youtube-clipper'
-      path: '/youtube-clipper'
-      fullPath: '/app/youtube-clipper'
-      preLoaderRoute: typeof AuthenticatedAppYoutubeClipperRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/usage': {
-      id: '/_authenticated/app/usage'
-      path: '/usage'
-      fullPath: '/app/usage'
-      preLoaderRoute: typeof AuthenticatedAppUsageRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/uploads': {
-      id: '/_authenticated/app/uploads'
-      path: '/uploads'
-      fullPath: '/app/uploads'
-      preLoaderRoute: typeof AuthenticatedAppUploadsRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/templates': {
-      id: '/_authenticated/app/templates'
-      path: '/templates'
-      fullPath: '/app/templates'
-      preLoaderRoute: typeof AuthenticatedAppTemplatesRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/settings': {
-      id: '/_authenticated/app/settings'
-      path: '/settings'
-      fullPath: '/app/settings'
-      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/help': {
-      id: '/_authenticated/app/help'
-      path: '/help'
-      fullPath: '/app/help'
-      preLoaderRoute: typeof AuthenticatedAppHelpRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/feedback': {
-      id: '/_authenticated/app/feedback'
-      path: '/feedback'
-      fullPath: '/app/feedback'
-      preLoaderRoute: typeof AuthenticatedAppFeedbackRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/billing': {
-      id: '/_authenticated/app/billing'
-      path: '/billing'
-      fullPath: '/app/billing'
-      preLoaderRoute: typeof AuthenticatedAppBillingRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
     '/_authenticated/app/automations': {
@@ -1517,95 +1514,109 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAutomationsRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
-    '/_authenticated/app/youtube-clipper/': {
-      id: '/_authenticated/app/youtube-clipper/'
-      path: '/'
-      fullPath: '/app/youtube-clipper/'
-      preLoaderRoute: typeof AuthenticatedAppYoutubeClipperIndexRouteImport
-      parentRoute: typeof AuthenticatedAppYoutubeClipperRoute
-    }
-    '/_authenticated/app/settings/': {
-      id: '/_authenticated/app/settings/'
-      path: '/'
-      fullPath: '/app/settings/'
-      preLoaderRoute: typeof AuthenticatedAppSettingsIndexRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsRoute
-    }
-    '/_authenticated/app/projects/': {
-      id: '/_authenticated/app/projects/'
-      path: '/projects'
-      fullPath: '/app/projects/'
-      preLoaderRoute: typeof AuthenticatedAppProjectsIndexRouteImport
+    '/_authenticated/app/billing': {
+      id: '/_authenticated/app/billing'
+      path: '/billing'
+      fullPath: '/app/billing'
+      preLoaderRoute: typeof AuthenticatedAppBillingRouteImport
       parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/chat': {
+      id: '/_authenticated/app/chat'
+      path: '/chat'
+      fullPath: '/app/chat'
+      preLoaderRoute: typeof AuthenticatedAppChatRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/feedback': {
+      id: '/_authenticated/app/feedback'
+      path: '/feedback'
+      fullPath: '/app/feedback'
+      preLoaderRoute: typeof AuthenticatedAppFeedbackRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/help': {
+      id: '/_authenticated/app/help'
+      path: '/help'
+      fullPath: '/app/help'
+      preLoaderRoute: typeof AuthenticatedAppHelpRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/settings': {
+      id: '/_authenticated/app/settings'
+      path: '/settings'
+      fullPath: '/app/settings'
+      preLoaderRoute: typeof AuthenticatedAppSettingsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/templates': {
+      id: '/_authenticated/app/templates'
+      path: '/templates'
+      fullPath: '/app/templates'
+      preLoaderRoute: typeof AuthenticatedAppTemplatesRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/uploads': {
+      id: '/_authenticated/app/uploads'
+      path: '/uploads'
+      fullPath: '/app/uploads'
+      preLoaderRoute: typeof AuthenticatedAppUploadsRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/usage': {
+      id: '/_authenticated/app/usage'
+      path: '/usage'
+      fullPath: '/app/usage'
+      preLoaderRoute: typeof AuthenticatedAppUsageRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/youtube-clipper': {
+      id: '/_authenticated/app/youtube-clipper'
+      path: '/youtube-clipper'
+      fullPath: '/app/youtube-clipper'
+      preLoaderRoute: typeof AuthenticatedAppYoutubeClipperRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/api/ai/chat': {
+      id: '/api/ai/chat'
+      path: '/api/ai/chat'
+      fullPath: '/api/ai/chat'
+      preLoaderRoute: typeof ApiAiChatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/indexnow/publish': {
+      id: '/api/indexnow/publish'
+      path: '/api/indexnow/publish'
+      fullPath: '/api/indexnow/publish'
+      preLoaderRoute: typeof ApiIndexnowPublishRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/youtube/webhook': {
+      id: '/api/youtube/webhook'
+      path: '/api/youtube/webhook'
+      fullPath: '/api/youtube/webhook'
+      preLoaderRoute: typeof ApiYoutubeWebhookRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/auth/youtube/callback': {
+      id: '/auth/youtube/callback'
+      path: '/auth/youtube/callback'
+      fullPath: '/auth/youtube/callback'
+      preLoaderRoute: typeof AuthYoutubeCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/blog/category/$category': {
+      id: '/blog/category/$category'
+      path: '/category/$category'
+      fullPath: '/blog/category/$category'
+      preLoaderRoute: typeof BlogCategoryCategoryRouteImport
+      parentRoute: typeof BlogRoute
     }
     '/_authenticated/app/automations/': {
       id: '/_authenticated/app/automations/'
       path: '/'
       fullPath: '/app/automations/'
       preLoaderRoute: typeof AuthenticatedAppAutomationsIndexRouteImport
-      parentRoute: typeof AuthenticatedAppAutomationsRoute
-    }
-    '/auth/connectors/$connectorId/callback': {
-      id: '/auth/connectors/$connectorId/callback'
-      path: '/auth/connectors/$connectorId/callback'
-      fullPath: '/auth/connectors/$connectorId/callback'
-      preLoaderRoute: typeof AuthConnectorsConnectorIdCallbackRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated/app/youtube-clipper/new': {
-      id: '/_authenticated/app/youtube-clipper/new'
-      path: '/new'
-      fullPath: '/app/youtube-clipper/new'
-      preLoaderRoute: typeof AuthenticatedAppYoutubeClipperNewRouteImport
-      parentRoute: typeof AuthenticatedAppYoutubeClipperRoute
-    }
-    '/_authenticated/app/settings/privacy': {
-      id: '/_authenticated/app/settings/privacy'
-      path: '/privacy'
-      fullPath: '/app/settings/privacy'
-      preLoaderRoute: typeof AuthenticatedAppSettingsPrivacyRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsRoute
-    }
-    '/_authenticated/app/settings/preferences': {
-      id: '/_authenticated/app/settings/preferences'
-      path: '/preferences'
-      fullPath: '/app/settings/preferences'
-      preLoaderRoute: typeof AuthenticatedAppSettingsPreferencesRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsRoute
-    }
-    '/_authenticated/app/settings/notifications': {
-      id: '/_authenticated/app/settings/notifications'
-      path: '/notifications'
-      fullPath: '/app/settings/notifications'
-      preLoaderRoute: typeof AuthenticatedAppSettingsNotificationsRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsRoute
-    }
-    '/_authenticated/app/settings/integrations': {
-      id: '/_authenticated/app/settings/integrations'
-      path: '/integrations'
-      fullPath: '/app/settings/integrations'
-      preLoaderRoute: typeof AuthenticatedAppSettingsIntegrationsRouteImport
-      parentRoute: typeof AuthenticatedAppSettingsRoute
-    }
-    '/_authenticated/app/projects/new': {
-      id: '/_authenticated/app/projects/new'
-      path: '/projects/new'
-      fullPath: '/app/projects/new'
-      preLoaderRoute: typeof AuthenticatedAppProjectsNewRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/projects/$projectId': {
-      id: '/_authenticated/app/projects/$projectId'
-      path: '/projects/$projectId'
-      fullPath: '/app/projects/$projectId'
-      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdRouteImport
-      parentRoute: typeof AuthenticatedAppRoute
-    }
-    '/_authenticated/app/automations/new': {
-      id: '/_authenticated/app/automations/new'
-      path: '/new'
-      fullPath: '/app/automations/new'
-      preLoaderRoute: typeof AuthenticatedAppAutomationsNewRouteImport
       parentRoute: typeof AuthenticatedAppAutomationsRoute
     }
     '/_authenticated/app/automations/$automationId': {
@@ -1615,6 +1626,111 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppAutomationsAutomationIdRouteImport
       parentRoute: typeof AuthenticatedAppAutomationsRoute
     }
+    '/_authenticated/app/automations/new': {
+      id: '/_authenticated/app/automations/new'
+      path: '/new'
+      fullPath: '/app/automations/new'
+      preLoaderRoute: typeof AuthenticatedAppAutomationsNewRouteImport
+      parentRoute: typeof AuthenticatedAppAutomationsRoute
+    }
+    '/_authenticated/app/chat/': {
+      id: '/_authenticated/app/chat/'
+      path: '/'
+      fullPath: '/app/chat/'
+      preLoaderRoute: typeof AuthenticatedAppChatIndexRouteImport
+      parentRoute: typeof AuthenticatedAppChatRoute
+    }
+    '/_authenticated/app/chat/$threadId': {
+      id: '/_authenticated/app/chat/$threadId'
+      path: '/$threadId'
+      fullPath: '/app/chat/$threadId'
+      preLoaderRoute: typeof AuthenticatedAppChatThreadIdRouteImport
+      parentRoute: typeof AuthenticatedAppChatRoute
+    }
+    '/_authenticated/app/projects/': {
+      id: '/_authenticated/app/projects/'
+      path: '/projects'
+      fullPath: '/app/projects/'
+      preLoaderRoute: typeof AuthenticatedAppProjectsIndexRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/projects/$projectId': {
+      id: '/_authenticated/app/projects/$projectId'
+      path: '/projects/$projectId'
+      fullPath: '/app/projects/$projectId'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/projects/new': {
+      id: '/_authenticated/app/projects/new'
+      path: '/projects/new'
+      fullPath: '/app/projects/new'
+      preLoaderRoute: typeof AuthenticatedAppProjectsNewRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/settings/': {
+      id: '/_authenticated/app/settings/'
+      path: '/'
+      fullPath: '/app/settings/'
+      preLoaderRoute: typeof AuthenticatedAppSettingsIndexRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsRoute
+    }
+    '/_authenticated/app/settings/ai-providers': {
+      id: '/_authenticated/app/settings/ai-providers'
+      path: '/ai-providers'
+      fullPath: '/app/settings/ai-providers'
+      preLoaderRoute: typeof AuthenticatedAppSettingsAiProvidersRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsRoute
+    }
+    '/_authenticated/app/settings/integrations': {
+      id: '/_authenticated/app/settings/integrations'
+      path: '/integrations'
+      fullPath: '/app/settings/integrations'
+      preLoaderRoute: typeof AuthenticatedAppSettingsIntegrationsRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsRoute
+    }
+    '/_authenticated/app/settings/notifications': {
+      id: '/_authenticated/app/settings/notifications'
+      path: '/notifications'
+      fullPath: '/app/settings/notifications'
+      preLoaderRoute: typeof AuthenticatedAppSettingsNotificationsRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsRoute
+    }
+    '/_authenticated/app/settings/preferences': {
+      id: '/_authenticated/app/settings/preferences'
+      path: '/preferences'
+      fullPath: '/app/settings/preferences'
+      preLoaderRoute: typeof AuthenticatedAppSettingsPreferencesRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsRoute
+    }
+    '/_authenticated/app/settings/privacy': {
+      id: '/_authenticated/app/settings/privacy'
+      path: '/privacy'
+      fullPath: '/app/settings/privacy'
+      preLoaderRoute: typeof AuthenticatedAppSettingsPrivacyRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsRoute
+    }
+    '/_authenticated/app/youtube-clipper/': {
+      id: '/_authenticated/app/youtube-clipper/'
+      path: '/'
+      fullPath: '/app/youtube-clipper/'
+      preLoaderRoute: typeof AuthenticatedAppYoutubeClipperIndexRouteImport
+      parentRoute: typeof AuthenticatedAppYoutubeClipperRoute
+    }
+    '/_authenticated/app/youtube-clipper/new': {
+      id: '/_authenticated/app/youtube-clipper/new'
+      path: '/new'
+      fullPath: '/app/youtube-clipper/new'
+      preLoaderRoute: typeof AuthenticatedAppYoutubeClipperNewRouteImport
+      parentRoute: typeof AuthenticatedAppYoutubeClipperRoute
+    }
+    '/auth/connectors/$connectorId/callback': {
+      id: '/auth/connectors/$connectorId/callback'
+      path: '/auth/connectors/$connectorId/callback'
+      fullPath: '/auth/connectors/$connectorId/callback'
+      preLoaderRoute: typeof AuthConnectorsConnectorIdCallbackRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/_authenticated/app/projects/$projectId/': {
       id: '/_authenticated/app/projects/$projectId/'
       path: '/'
@@ -1622,32 +1738,11 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdIndexRouteImport
       parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
     }
-    '/_authenticated/app/youtube-clipper/jobs/$jobId': {
-      id: '/_authenticated/app/youtube-clipper/jobs/$jobId'
-      path: '/jobs/$jobId'
-      fullPath: '/app/youtube-clipper/jobs/$jobId'
-      preLoaderRoute: typeof AuthenticatedAppYoutubeClipperJobsJobIdRouteImport
-      parentRoute: typeof AuthenticatedAppYoutubeClipperRoute
-    }
-    '/_authenticated/app/projects/$projectId/versions': {
-      id: '/_authenticated/app/projects/$projectId/versions'
-      path: '/versions'
-      fullPath: '/app/projects/$projectId/versions'
-      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdVersionsRouteImport
-      parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
-    }
-    '/_authenticated/app/projects/$projectId/transcript': {
-      id: '/_authenticated/app/projects/$projectId/transcript'
-      path: '/transcript'
-      fullPath: '/app/projects/$projectId/transcript'
-      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdTranscriptRouteImport
-      parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
-    }
-    '/_authenticated/app/projects/$projectId/media': {
-      id: '/_authenticated/app/projects/$projectId/media'
-      path: '/media'
-      fullPath: '/app/projects/$projectId/media'
-      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdMediaRouteImport
+    '/_authenticated/app/projects/$projectId/editor': {
+      id: '/_authenticated/app/projects/$projectId/editor'
+      path: '/editor'
+      fullPath: '/app/projects/$projectId/editor'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdEditorRouteImport
       parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
     }
     '/_authenticated/app/projects/$projectId/exports': {
@@ -1657,12 +1752,33 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdExportsRouteImport
       parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
     }
-    '/_authenticated/app/projects/$projectId/editor': {
-      id: '/_authenticated/app/projects/$projectId/editor'
-      path: '/editor'
-      fullPath: '/app/projects/$projectId/editor'
-      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdEditorRouteImport
+    '/_authenticated/app/projects/$projectId/media': {
+      id: '/_authenticated/app/projects/$projectId/media'
+      path: '/media'
+      fullPath: '/app/projects/$projectId/media'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdMediaRouteImport
       parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
+    }
+    '/_authenticated/app/projects/$projectId/transcript': {
+      id: '/_authenticated/app/projects/$projectId/transcript'
+      path: '/transcript'
+      fullPath: '/app/projects/$projectId/transcript'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdTranscriptRouteImport
+      parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
+    }
+    '/_authenticated/app/projects/$projectId/versions': {
+      id: '/_authenticated/app/projects/$projectId/versions'
+      path: '/versions'
+      fullPath: '/app/projects/$projectId/versions'
+      preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdVersionsRouteImport
+      parentRoute: typeof AuthenticatedAppProjectsProjectIdRoute
+    }
+    '/_authenticated/app/youtube-clipper/jobs/$jobId': {
+      id: '/_authenticated/app/youtube-clipper/jobs/$jobId'
+      path: '/jobs/$jobId'
+      fullPath: '/app/youtube-clipper/jobs/$jobId'
+      preLoaderRoute: typeof AuthenticatedAppYoutubeClipperJobsJobIdRouteImport
+      parentRoute: typeof AuthenticatedAppYoutubeClipperRoute
     }
     '/_authenticated/app/youtube-clipper/clips/$clipId/edit': {
       id: '/_authenticated/app/youtube-clipper/clips/$clipId/edit'
@@ -1694,7 +1810,21 @@ const AuthenticatedAppAutomationsRouteWithChildren =
     AuthenticatedAppAutomationsRouteChildren,
   )
 
+interface AuthenticatedAppChatRouteChildren {
+  AuthenticatedAppChatThreadIdRoute: typeof AuthenticatedAppChatThreadIdRoute
+  AuthenticatedAppChatIndexRoute: typeof AuthenticatedAppChatIndexRoute
+}
+
+const AuthenticatedAppChatRouteChildren: AuthenticatedAppChatRouteChildren = {
+  AuthenticatedAppChatThreadIdRoute: AuthenticatedAppChatThreadIdRoute,
+  AuthenticatedAppChatIndexRoute: AuthenticatedAppChatIndexRoute,
+}
+
+const AuthenticatedAppChatRouteWithChildren =
+  AuthenticatedAppChatRoute._addFileChildren(AuthenticatedAppChatRouteChildren)
+
 interface AuthenticatedAppSettingsRouteChildren {
+  AuthenticatedAppSettingsAiProvidersRoute: typeof AuthenticatedAppSettingsAiProvidersRoute
   AuthenticatedAppSettingsIntegrationsRoute: typeof AuthenticatedAppSettingsIntegrationsRoute
   AuthenticatedAppSettingsNotificationsRoute: typeof AuthenticatedAppSettingsNotificationsRoute
   AuthenticatedAppSettingsPreferencesRoute: typeof AuthenticatedAppSettingsPreferencesRoute
@@ -1704,6 +1834,8 @@ interface AuthenticatedAppSettingsRouteChildren {
 
 const AuthenticatedAppSettingsRouteChildren: AuthenticatedAppSettingsRouteChildren =
   {
+    AuthenticatedAppSettingsAiProvidersRoute:
+      AuthenticatedAppSettingsAiProvidersRoute,
     AuthenticatedAppSettingsIntegrationsRoute:
       AuthenticatedAppSettingsIntegrationsRoute,
     AuthenticatedAppSettingsNotificationsRoute:
@@ -1776,6 +1908,7 @@ const AuthenticatedAppProjectsProjectIdRouteWithChildren =
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAutomationsRoute: typeof AuthenticatedAppAutomationsRouteWithChildren
   AuthenticatedAppBillingRoute: typeof AuthenticatedAppBillingRoute
+  AuthenticatedAppChatRoute: typeof AuthenticatedAppChatRouteWithChildren
   AuthenticatedAppFeedbackRoute: typeof AuthenticatedAppFeedbackRoute
   AuthenticatedAppHelpRoute: typeof AuthenticatedAppHelpRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRouteWithChildren
@@ -1793,6 +1926,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAutomationsRoute:
     AuthenticatedAppAutomationsRouteWithChildren,
   AuthenticatedAppBillingRoute: AuthenticatedAppBillingRoute,
+  AuthenticatedAppChatRoute: AuthenticatedAppChatRouteWithChildren,
   AuthenticatedAppFeedbackRoute: AuthenticatedAppFeedbackRoute,
   AuthenticatedAppHelpRoute: AuthenticatedAppHelpRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRouteWithChildren,
@@ -1839,6 +1973,7 @@ const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
 interface DocsRouteChildren {
   DocsAiEditorRoute: typeof DocsAiEditorRoute
+  DocsBringYourOwnKeyRoute: typeof DocsBringYourOwnKeyRoute
   DocsExportingRoute: typeof DocsExportingRoute
   DocsGettingStartedRoute: typeof DocsGettingStartedRoute
   DocsTimelineRoute: typeof DocsTimelineRoute
@@ -1848,6 +1983,7 @@ interface DocsRouteChildren {
 
 const DocsRouteChildren: DocsRouteChildren = {
   DocsAiEditorRoute: DocsAiEditorRoute,
+  DocsBringYourOwnKeyRoute: DocsBringYourOwnKeyRoute,
   DocsExportingRoute: DocsExportingRoute,
   DocsGettingStartedRoute: DocsGettingStartedRoute,
   DocsTimelineRoute: DocsTimelineRoute,
@@ -1913,6 +2049,7 @@ const rootRouteChildren: RootRouteChildren = {
   VerifyEmailRoute: VerifyEmailRoute,
   YoutubeClipperRoute: YoutubeClipperRoute,
   AuthCallbackRoute: AuthCallbackRoute,
+  ApiAiChatRoute: ApiAiChatRoute,
   ApiIndexnowPublishRoute: ApiIndexnowPublishRoute,
   ApiYoutubeWebhookRoute: ApiYoutubeWebhookRoute,
   AuthYoutubeCallbackRoute: AuthYoutubeCallbackRoute,

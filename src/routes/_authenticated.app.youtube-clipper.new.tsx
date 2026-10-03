@@ -4,6 +4,8 @@ import { AppPageHeader } from "@/components/app/layout";
 import { JobWizard } from "@/components/youtube-clipper/job-wizard";
 import { getPublicConnectorCatalog } from "@/services/connectors/server";
 import { getClipJobCreationContext } from "@/services/clipping/server";
+import { getAiPreferences, listAiModels } from "@/services/ai/server";
+import { modelKey } from "@/components/ai/model-catalog";
 
 export const Route = createFileRoute("/_authenticated/app/youtube-clipper/new")({
   validateSearch: z.object({
@@ -12,18 +14,27 @@ export const Route = createFileRoute("/_authenticated/app/youtube-clipper/new")(
     draft: z.string().uuid().optional(),
   }),
   loader: async () => {
-    const [connectors, creationContext] = await Promise.all([
+    const [connectors, creationContext, aiModels, preferences] = await Promise.all([
       getPublicConnectorCatalog(),
       getClipJobCreationContext(),
+      // Optional extras: a failure here must never block creating a job.
+      listAiModels().catch(() => []),
+      getAiPreferences().catch(() => []),
     ]);
-    return { connectors, creationContext };
+    const planning = preferences.find((item) => item.purpose === "clip_planning");
+    return {
+      connectors,
+      creationContext,
+      aiModels,
+      aiPreferredModelKey: planning ? modelKey(planning.credentialId, planning.modelId) : null,
+    };
   },
   component: NewClipJob,
 });
 
 function NewClipJob() {
   const search = Route.useSearch();
-  const { connectors, creationContext } = Route.useLoaderData();
+  const { connectors, creationContext, aiModels, aiPreferredModelKey } = Route.useLoaderData();
   return (
     <div className="mx-auto max-w-4xl">
       <AppPageHeader
@@ -34,6 +45,8 @@ function NewClipJob() {
       <JobWizard
         connectors={connectors}
         creationContext={creationContext}
+        aiModels={aiModels}
+        aiPreferredModelKey={aiPreferredModelKey}
         initialYoutube={search.youtube}
         initialSource={search.source}
         initialDraft={search.draft}

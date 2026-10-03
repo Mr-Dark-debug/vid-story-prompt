@@ -51,6 +51,14 @@ const serverEnvSchema = z.object({
   WORKER_WAKE_SECRET: z.string().min(20).optional(),
   OPENROUTER_API_KEY: z.string().min(10).optional(),
   OPENROUTER_CLIP_MODEL: z.string().min(3).optional(),
+  // Bring-your-own-key AI credentials. Must match the worker. Rotate by raising the VERSION label
+  // and moving the old material into KEYS_PREVIOUS (`version:material,...`) until rows are re-encrypted.
+  AI_CREDENTIAL_ENCRYPTION_KEY: z.string().min(32).optional(),
+  AI_CREDENTIAL_ENCRYPTION_KEY_VERSION: z
+    .string()
+    .regex(/^[A-Za-z0-9_-]{1,16}$/)
+    .optional(),
+  AI_CREDENTIAL_ENCRYPTION_KEYS_PREVIOUS: z.string().optional(),
 });
 
 export function getServerEnv() {
@@ -93,5 +101,10 @@ export function getServerEnv() {
     WORKER_WAKE_SECRET: process.env.WORKER_WAKE_SECRET,
     OPENROUTER_API_KEY: process.env.OPENROUTER_API_KEY,
     OPENROUTER_CLIP_MODEL: process.env.OPENROUTER_CLIP_MODEL,
+    AI_CREDENTIAL_ENCRYPTION_KEY: process.env.AI_CREDENTIAL_ENCRYPTION_KEY || undefined,
+    AI_CREDENTIAL_ENCRYPTION_KEY_VERSION:
+      process.env.AI_CREDENTIAL_ENCRYPTION_KEY_VERSION || undefined,
+    AI_CREDENTIAL_ENCRYPTION_KEYS_PREVIOUS:
+      process.env.AI_CREDENTIAL_ENCRYPTION_KEYS_PREVIOUS || undefined,
   });
 }

@@ -5,9 +5,14 @@ import {
   verifyConnectorOAuthState,
 } from "./oauth.server";
 
-const original = process.env.CONNECTOR_TOKEN_ENCRYPTION_KEY;
+const touched = ["CONNECTOR_TOKEN_ENCRYPTION_KEY", "TIKTOK_CLIENT_KEY", "TIKTOK_CLIENT_SECRET"];
+const original = Object.fromEntries(touched.map((name) => [name, process.env[name]]));
 afterEach(() => {
-  process.env.CONNECTOR_TOKEN_ENCRYPTION_KEY = original;
+  for (const name of touched) {
+    // Assigning undefined to process.env stores the string "undefined", so delete instead.
+    if (original[name] === undefined) delete process.env[name];
+    else process.env[name] = original[name];
+  }
 });
 
 describe("connector OAuth state", () => {
