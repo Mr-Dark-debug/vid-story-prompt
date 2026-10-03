@@ -81,6 +81,7 @@ import { Route as AuthenticatedAppSettingsPrivacyRouteImport } from './routes/_a
 import { Route as AuthenticatedAppSettingsPreferencesRouteImport } from './routes/_authenticated.app.settings.preferences'
 import { Route as AuthenticatedAppSettingsNotificationsRouteImport } from './routes/_authenticated.app.settings.notifications'
 import { Route as AuthenticatedAppSettingsIntegrationsRouteImport } from './routes/_authenticated.app.settings.integrations'
+import { Route as AuthenticatedAppSettingsAiProvidersRouteImport } from './routes/_authenticated.app.settings.ai-providers'
 import { Route as AuthenticatedAppProjectsNewRouteImport } from './routes/_authenticated.app.projects.new'
 import { Route as AuthenticatedAppProjectsProjectIdRouteImport } from './routes/_authenticated.app.projects.$projectId'
 import { Route as AuthenticatedAppAutomationsNewRouteImport } from './routes/_authenticated.app.automations.new'
@@ -468,6 +469,12 @@ const AuthenticatedAppSettingsIntegrationsRoute =
     path: '/integrations',
     getParentRoute: () => AuthenticatedAppSettingsRoute,
   } as any)
+const AuthenticatedAppSettingsAiProvidersRoute =
+  AuthenticatedAppSettingsAiProvidersRouteImport.update({
+    id: '/ai-providers',
+    path: '/ai-providers',
+    getParentRoute: () => AuthenticatedAppSettingsRoute,
+  } as any)
 const AuthenticatedAppProjectsNewRoute =
   AuthenticatedAppProjectsNewRouteImport.update({
     id: '/projects/new',
@@ -607,6 +614,7 @@ export interface FileRoutesByFullPath {
   '/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
   '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
+  '/app/settings/ai-providers': typeof AuthenticatedAppSettingsAiProvidersRoute
   '/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
   '/app/settings/notifications': typeof AuthenticatedAppSettingsNotificationsRoute
   '/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
@@ -684,6 +692,7 @@ export interface FileRoutesByTo {
   '/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
   '/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
+  '/app/settings/ai-providers': typeof AuthenticatedAppSettingsAiProvidersRoute
   '/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
   '/app/settings/notifications': typeof AuthenticatedAppSettingsNotificationsRoute
   '/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
@@ -771,6 +780,7 @@ export interface FileRoutesById {
   '/_authenticated/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
   '/_authenticated/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   '/_authenticated/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
+  '/_authenticated/app/settings/ai-providers': typeof AuthenticatedAppSettingsAiProvidersRoute
   '/_authenticated/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
   '/_authenticated/app/settings/notifications': typeof AuthenticatedAppSettingsNotificationsRoute
   '/_authenticated/app/settings/preferences': typeof AuthenticatedAppSettingsPreferencesRoute
@@ -858,6 +868,7 @@ export interface FileRouteTypes {
     | '/app/automations/new'
     | '/app/projects/$projectId'
     | '/app/projects/new'
+    | '/app/settings/ai-providers'
     | '/app/settings/integrations'
     | '/app/settings/notifications'
     | '/app/settings/preferences'
@@ -935,6 +946,7 @@ export interface FileRouteTypes {
     | '/app/automations/$automationId'
     | '/app/automations/new'
     | '/app/projects/new'
+    | '/app/settings/ai-providers'
     | '/app/settings/integrations'
     | '/app/settings/notifications'
     | '/app/settings/preferences'
@@ -1021,6 +1033,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/automations/new'
     | '/_authenticated/app/projects/$projectId'
     | '/_authenticated/app/projects/new'
+    | '/_authenticated/app/settings/ai-providers'
     | '/_authenticated/app/settings/integrations'
     | '/_authenticated/app/settings/notifications'
     | '/_authenticated/app/settings/preferences'
@@ -1587,6 +1600,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppSettingsIntegrationsRouteImport
       parentRoute: typeof AuthenticatedAppSettingsRoute
     }
+    '/_authenticated/app/settings/ai-providers': {
+      id: '/_authenticated/app/settings/ai-providers'
+      path: '/ai-providers'
+      fullPath: '/app/settings/ai-providers'
+      preLoaderRoute: typeof AuthenticatedAppSettingsAiProvidersRouteImport
+      parentRoute: typeof AuthenticatedAppSettingsRoute
+    }
     '/_authenticated/app/projects/new': {
       id: '/_authenticated/app/projects/new'
       path: '/projects/new'
@@ -1695,6 +1715,7 @@ const AuthenticatedAppAutomationsRouteWithChildren =
   )
 
 interface AuthenticatedAppSettingsRouteChildren {
+  AuthenticatedAppSettingsAiProvidersRoute: typeof AuthenticatedAppSettingsAiProvidersRoute
   AuthenticatedAppSettingsIntegrationsRoute: typeof AuthenticatedAppSettingsIntegrationsRoute
   AuthenticatedAppSettingsNotificationsRoute: typeof AuthenticatedAppSettingsNotificationsRoute
   AuthenticatedAppSettingsPreferencesRoute: typeof AuthenticatedAppSettingsPreferencesRoute
@@ -1704,6 +1725,8 @@ interface AuthenticatedAppSettingsRouteChildren {
 
 const AuthenticatedAppSettingsRouteChildren: AuthenticatedAppSettingsRouteChildren =
   {
+    AuthenticatedAppSettingsAiProvidersRoute:
+      AuthenticatedAppSettingsAiProvidersRoute,
     AuthenticatedAppSettingsIntegrationsRoute:
       AuthenticatedAppSettingsIntegrationsRoute,
     AuthenticatedAppSettingsNotificationsRoute:

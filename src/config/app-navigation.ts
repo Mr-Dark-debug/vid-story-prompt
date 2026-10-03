@@ -59,6 +59,11 @@ export const settingsNavItems = [
     description: "Connected publishing accounts",
   },
   {
+    label: "AI providers",
+    to: "/app/settings/ai-providers",
+    description: "Bring your own model keys",
+  },
+  {
     label: "Privacy & data",
     to: "/app/settings/privacy",
     description: "Data exports and account controls",
