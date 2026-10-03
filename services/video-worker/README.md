@@ -30,6 +30,14 @@ docker build -f services/video-worker/Dockerfile.motion -t vidrial-motion-render
 
 The pinned Playwright Core version is 1.61.1; installation pins its Chromium revision. Fonts are Manrope, JetBrains Mono and EB Garamond (Latin, normal 400). They are embedded as data URLs, with OFL notices copied into the image. Liberation remains the installed fallback. Image size, cold start and host user-namespace support must be measured on the deployment host; they have not been measured on this Windows machine without Docker.
 
+Linux CI verification on 2026-10-03 built a 1,482,593,030-byte image (1.48 GB)
+and completed the startup isolation plus one-second H.264/AAC smoke in 2.86
+seconds with the image already present. This excludes image download/build time
+and is not a production-host cold-start measurement. All 21 motion tests passed,
+including real Docker rendering, cancellation and timeout cleanup. See
+[`docs/verification/motion-production-2026-10-03.md`](../../docs/verification/motion-production-2026-10-03.md)
+for the exact CI run and remaining deployment boundaries.
+
 Configure `WORKER_MOTION_ENABLED=true`, the explicit `WORKER_TASK_INCLUDE_TYPES=motion_generate,motion_render,motion_analyze_reference`, the sandbox image, and the absolute seccomp profile path. Generation/reference/critique have separate default-off switches. Set `MOTION_ALLOWED_MODELS` to verified provider model IDs and `MOTION_VISION_MODELS` to their vision-capable subset. The motion model seam currently resolves the platform OpenRouter key. The existing BYOK chat/clipping lane is preserved; wiring Motion Studio to those credentials remains a separate integration step.
 
 Never mount the Docker socket into submitted-code containers. The trusted controller needs Docker access on a dedicated motion host. Its command uses non-root UID 10001, no network, a read-only root, dropped capabilities, no-new-privileges, a pinned seccomp profile, private IPC, bounded tmpfs and CPU/memory/PID/file limits. There is no native fallback for submitted HTML and no `--no-sandbox`. Host/kernel support for Chromium user namespaces is required; failure is fail-closed. Do not enable database `motion_runtime_config` capabilities until the corresponding controller/provider and sandbox checks pass.
