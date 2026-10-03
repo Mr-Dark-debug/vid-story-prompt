@@ -139,6 +139,27 @@ export const createClipJob = createServerFn({ method: "POST" })
       requestedClips: data.requestedClipCount,
       maximumClips: plan.maxClipsPerJob,
     });
+    // An explicit AI model must be one of the caller's own active keys; the worker also re-checks
+    // ownership, so a forged id can never reach another account's key.
+    if (settings.aiModel !== undefined) {
+      const choice = z
+        .object({ credentialId: z.string().uuid(), modelId: z.string().min(1).max(200) })
+        .safeParse(settings.aiModel);
+      const { data: connection } = choice.success
+        ? await getSupabaseServerClient()
+            .from("ai_provider_connections")
+            .select("id")
+            .eq("id", choice.data.credentialId)
+            .eq("workspace_id", session.workspaceId)
+            .eq("status", "active")
+            .maybeSingle()
+        : { data: null };
+      if (!choice.success || !connection) {
+        throw new Error(
+          "The selected AI model is no longer available. Choose another model or use the default.",
+        );
+      }
+    }
     if (settings.mode === "manual_timestamp") {
       const { data: capabilities, error: capabilityError } = await client.rpc(
         "clip_studio_capabilities",
@@ -325,7 +346,34 @@ export const getClipJob = createServerFn({ method: "GET" })
         if (signed?.signedUrl) previewUrls.set(asset.id, signed.signedUrl);
       }),
     );
+    const [{ data: planningRun }, { data: aiRuns }] = await Promise.all([
+      supabase
+        .from("planning_runs")
+        .select(
+          "provider,model,credential_source,fallback_reason,input_token_count,output_token_count",
+        )
+        .eq("clip_job_id", data.jobId)
+        .order("created_at", { ascending: false })
+        .limit(1)
+        .maybeSingle(),
+      supabase
+        .from("ai_runs")
+        .select("id,status,input_json,error_code,error_message,created_at")
+        .eq("clip_job_id", data.jobId)
+        .eq("purpose", "social_copy")
+        .order("created_at", { ascending: false })
+        .limit(100),
+    ]);
     return {
+      planning: planningRun ?? null,
+      aiRuns: (aiRuns ?? []).map((run) => ({
+        id: run.id,
+        status: run.status,
+        clipId: String((run.input_json as { clipId?: unknown } | null)?.clipId ?? ""),
+        errorCode: run.error_code,
+        errorMessage: run.error_message,
+        createdAt: run.created_at,
+      })),
       job,
       events: events ?? [],
       clips: (clips ?? []).map((clip) => ({

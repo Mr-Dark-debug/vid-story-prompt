@@ -92,6 +92,12 @@ export function JobProgress({
         { event: "*", schema: "public", table: "job_tasks", filter: `clip_job_id=eq.${job.id}` },
         () => router.invalidate(),
       )
+      // Background AI copy runs for this job: status changes refresh the gallery without polling.
+      .on(
+        "postgres_changes",
+        { event: "*", schema: "public", table: "ai_runs", filter: `clip_job_id=eq.${job.id}` },
+        () => router.invalidate(),
+      )
       .subscribe();
     return () => {
       window.clearInterval(timer);
@@ -244,6 +250,8 @@ export function JobProgress({
           exports={exports}
           jobId={job.id}
           titleRegenerationAvailable={data.titleRegenerationAvailable}
+          planning={data.planning}
+          aiRuns={data.aiRuns}
         />
       ) : null}
       {exports.length > 0 && (

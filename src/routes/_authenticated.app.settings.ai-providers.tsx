@@ -140,6 +140,22 @@ function AiProvidersSettings() {
             description: "Used when you start a new chat.",
             noneLabel: "Choose each time",
           },
+          {
+            purpose: "clip_planning",
+            description:
+              "Ranks and explains clip candidates. Transcript text from your sources is sent to this provider; source-minute limits still follow your plan.",
+            noneLabel: "Built-in selection",
+          },
+          {
+            purpose: "social_copy",
+            description: "Writes clip titles and platform copy, including background runs.",
+            noneLabel: "Vidrial's built-in model, if available",
+          },
+          {
+            purpose: "editor_plan",
+            description: "Plans timeline edits in the AI editor for existing projects.",
+            noneLabel: "Vidrial's built-in model, if available",
+          },
         ]}
         groups={models}
         preferences={preferences}

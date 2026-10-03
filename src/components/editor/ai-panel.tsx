@@ -1,11 +1,14 @@
 import { Check, Sparkles, Wand2, X } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
+import { parseModelKey } from "@/components/ai/model-catalog";
+import { ModelPicker } from "@/components/ai/model-picker";
 import { StatusDot } from "@/components/primitives/status-dot";
 import { Button } from "@/components/ui/button";
 import { useTimeline } from "@/domain/timeline/store";
 import type { Plan, PlanOp } from "@/domain/timeline/types";
 import { userFacingError } from "@/lib/user-facing-error";
+import { listAiModels, type AiModelGroup } from "@/services/ai/server";
 import { planProjectEdit } from "@/services/projects/server";
 
 type PlanOpWithStatus = PlanOp & { status: "pending" | "accepted" | "rejected" };
@@ -17,13 +20,33 @@ const suggestions = [
   "Build a short product story with the clearest final call to action.",
 ];
 
-export function AIPanel({ projectId, requireReview = true }: { projectId: string; requireReview?: boolean }) {
+export function AIPanel({
+  projectId,
+  requireReview = true,
+}: {
+  projectId: string;
+  requireReview?: boolean;
+}) {
   const [prompt, setPrompt] = useState("");
   const [plan, setPlan] = useState<Plan | null>(null);
   const [messages, setMessages] = useState<{ role: "user" | "ai"; text: string }[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const applyOps = useTimeline((state) => state.applyOps);
+  // Optional: a user's own models. Without them the panel behaves exactly as before.
+  const [groups, setGroups] = useState<AiModelGroup[]>([]);
+  const [modelKey, setModelKey] = useState<string | null>(null);
+  const [usedModel, setUsedModel] = useState<string | null>(null);
+
+  useEffect(() => {
+    let active = true;
+    void listAiModels()
+      .then((result) => active && setGroups(result))
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, []);
 
   const submit = async (suggested?: string) => {
     const request = (suggested ?? prompt).trim();
@@ -33,7 +56,15 @@ export function AIPanel({ projectId, requireReview = true }: { projectId: string
     setMessages((current) => [...current, { role: "user", text: request }]);
     setPrompt("");
     try {
-      const result = await planProjectEdit({ data: { projectId, prompt: request } });
+      const chosen = modelKey ? parseModelKey(modelKey) : null;
+      const result = await planProjectEdit({
+        data: { projectId, prompt: request, ...(chosen ? { model: chosen } : {}) },
+      });
+      setUsedModel(
+        result.model.source === "user_key"
+          ? `Planned with your key (${result.model.modelId})`
+          : "Planned with Vidrial's built-in model",
+      );
       const next: Plan = {
         id: result.id,
         prompt: result.prompt,
@@ -107,6 +138,24 @@ export function AIPanel({ projectId, requireReview = true }: { projectId: string
           Request an edit, review every proposed change, then save a version.
         </p>
       </div>
+      {groups.some((group) => group.status === "active") ? (
+        <div className="border-b border-line px-4 py-2">
+          <ModelPicker
+            groups={groups}
+            value={modelKey}
+            ariaLabel="AI model for this edit"
+            none={{ label: "Default model" }}
+            className="h-9 min-h-9 px-3 text-xs"
+            disabled={loading}
+            onChange={(model) => setModelKey(model ? model.key : null)}
+          />
+          <p className="mt-1 text-[11px] text-ink-mute">
+            {modelKey
+              ? "Your request, asset names and transcript text are sent to this provider using your key."
+              : "Uses your editor default, otherwise Vidrial's built-in model."}
+          </p>
+        </div>
+      ) : null}
       <div className="flex-1 space-y-3 overflow-y-auto px-4 py-3" aria-live="polite">
         {messages.length === 0 ? (
           <div className="space-y-2">
@@ -144,6 +193,7 @@ export function AIPanel({ projectId, requireReview = true }: { projectId: string
             Creating a reviewable edit plan…
           </div>
         ) : null}
+        {usedModel && !loading ? <p className="text-[11px] text-ink-mute">{usedModel}</p> : null}
         {error ? (
           <p
             role="alert"
