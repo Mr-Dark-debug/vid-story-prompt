@@ -82,7 +82,7 @@ describe.skipIf(!image || !seccompProfile)(
             },
             async () => undefined,
           ),
-        ).rejects.toThrow();
+        ).rejects.toThrow("motion_frame_timeout");
         expect(await readdir(directory)).toEqual([]);
       } finally {
         await rm(directory, { recursive: true, force: true });

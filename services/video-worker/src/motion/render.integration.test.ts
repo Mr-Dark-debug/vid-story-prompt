@@ -8,8 +8,8 @@ import { renderScene } from "./frame-loop.js";
 import { openScene, bounded } from "./browser.js";
 const require = createRequire(import.meta.url);
 const executablePath = process.env.MOTION_TEST_CHROMIUM_PATH;
-const ffmpegPath: string = require("ffmpeg-static");
-const ffprobePath: string = require("ffprobe-static").path;
+const ffmpegPath: string = process.env.MOTION_TEST_FFMPEG_PATH ?? require("ffmpeg-static");
+const ffprobePath: string = process.env.MOTION_TEST_FFPROBE_PATH ?? require("ffprobe-static").path;
 const spec = {
   width: 320,
   height: 180,

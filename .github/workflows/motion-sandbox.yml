@@ -24,8 +24,8 @@ jobs:
     runs-on: ubuntu-22.04
     timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
         with:
           node-version: "22"
           cache: npm
@@ -40,13 +40,16 @@ jobs:
         working-directory: services/video-worker
         run: |
           npx playwright-core install --with-deps chromium
+          sudo apt-get install -y ffmpeg
           node --input-type=module -e "import { chromium } from 'playwright-core'; console.log('MOTION_TEST_CHROMIUM_PATH='+chromium.executablePath())" >> "$GITHUB_ENV"
       - name: Verify actual Linux isolation and rendering
-        run: npm run test:motion
+        run: npm run test:motion -- --maxWorkers=1
         working-directory: services/video-worker
         env:
           MOTION_DOCKER_TEST_IMAGE: vidrial-motion-renderer:ci
           MOTION_TEST_SECCOMP_PROFILE: ${{ github.workspace }}/services/video-worker/motion-seccomp.json
+          MOTION_TEST_FFMPEG_PATH: /usr/bin/ffmpeg
+          MOTION_TEST_FFPROBE_PATH: /usr/bin/ffprobe
       - name: Verify production startup gate with synthetic configuration
         run: node scripts/check-motion-host.mjs
         working-directory: services/video-worker

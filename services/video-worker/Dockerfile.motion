@@ -24,8 +24,9 @@ COPY --from=build /repo/services/video-worker/dist/motion/generated ./motion/gen
 COPY --from=build /fonts/fonts.css ./fonts.css
 COPY --from=build /fonts/*LICENSE.txt /usr/share/licenses/vidrial-motion/
 RUN ./node_modules/.bin/playwright-core install --with-deps chromium \
-    && apt-get update && apt-get install -y --no-install-recommends ffmpeg fonts-liberation tini \
+    && apt-get update && apt-get install -y --no-install-recommends ffmpeg fonts-liberation \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd --gid 10001 renderer && useradd --uid 10001 --gid 10001 --no-create-home renderer
 USER 10001:10001
-ENTRYPOINT ["/usr/bin/tini", "--", "node", "/renderer/motion/cli.js"]
+# sandboxArguments supplies Docker's --init; avoid a second nested init process.
+ENTRYPOINT ["node", "/renderer/motion/cli.js"]
