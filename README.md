@@ -45,6 +45,11 @@ bun install
 bun install --cwd services/video-worker   # optional: only for the worker
 ```
 
+`bun.lock` is the only lockfile and must resolve from the public npm registry
+(use `bun install --frozen-lockfile` in CI). Do not commit a `package-lock.json`;
+`npm run <script>` still works because the scripts only call locally installed tools.
+If a lockfile entry ever points at a private mirror, regenerate it against the public registry.
+
 ### 2. Configure environment variables
 
 Copy the example file and fill in values as needed:
