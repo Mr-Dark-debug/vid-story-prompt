@@ -23,6 +23,7 @@ const docsGroups = [
     items: [
       { to: "/docs/uploading-media", label: "Uploading media" },
       { to: "/docs/exporting", label: "Exporting" },
+      { to: "/docs/bring-your-own-key", label: "Bring your own AI key" },
     ],
   },
 ];

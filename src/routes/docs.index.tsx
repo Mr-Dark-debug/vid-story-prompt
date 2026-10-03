@@ -6,6 +6,7 @@ const docsNav = [
   { to: "/docs/getting-started", label: "Getting started" },
   { to: "/docs/uploading-media", label: "Uploading media" },
   { to: "/docs/exporting", label: "Exporting" },
+  { to: "/docs/bring-your-own-key", label: "Bring your own AI key" },
 ] as const;
 
 export const Route = createFileRoute("/docs/")({

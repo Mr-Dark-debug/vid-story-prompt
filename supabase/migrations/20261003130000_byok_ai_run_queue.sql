@@ -173,4 +173,15 @@ grant execute on function
   public.cancel_ai_run(uuid, uuid)
 to service_role;
 
+-- Honour user chat-retention settings with a daily purge. Guarded so environments without
+-- pg_cron (local, isolated tests) are unaffected; there the function can be scheduled elsewhere.
+do $$
+begin
+  if exists (select 1 from pg_extension where extname = 'pg_cron') then
+    perform cron.unschedule(jobid) from cron.job where jobname = 'purge-expired-ai-chats';
+    perform cron.schedule('purge-expired-ai-chats', '17 3 * * *', 'select public.purge_expired_ai_chats()');
+  end if;
+end;
+$$;
+
 commit;

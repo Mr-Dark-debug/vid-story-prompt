@@ -3,6 +3,7 @@ import { LockKeyhole } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { AddKeyDialog } from "@/components/ai/add-key-dialog";
+import { ChatHistoryPanel } from "@/components/ai/chat-history-panel";
 import { DefaultModelsPanel } from "@/components/ai/default-models-panel";
 import { ProviderCard, type ConnectionAction } from "@/components/ai/provider-card";
 import { ConfirmationDialog } from "@/components/ui/status-dialog";
@@ -19,6 +20,7 @@ import {
   revokeAiProvider,
   type AiConnection,
 } from "@/services/ai/server";
+import { getChatRetention } from "@/services/ai/threads";
 
 export const Route = createFileRoute("/_authenticated/app/settings/ai-providers")({
   head: () => ({
@@ -28,12 +30,13 @@ export const Route = createFileRoute("/_authenticated/app/settings/ai-providers"
     ],
   }),
   loader: async () => {
-    const [overview, models, preferences] = await Promise.all([
+    const [overview, models, preferences, retention] = await Promise.all([
       getAiProviderOverview(),
       listAiModels(),
       getAiPreferences(),
+      getChatRetention(),
     ]);
-    return { overview, models, preferences };
+    return { overview, models, preferences, retention };
   },
   component: AiProvidersSettings,
 });
@@ -42,7 +45,7 @@ type DialogState = { providerId: string; mode: "add" | "replace"; credentialId?:
 type ConfirmState = { connection: AiConnection; action: "revoke" | "delete" };
 
 function AiProvidersSettings() {
-  const { overview, models, preferences } = Route.useLoaderData();
+  const { overview, models, preferences, retention } = Route.useLoaderData();
   const router = useRouter();
   const [dialog, setDialog] = useState<DialogState | null>(null);
   const [confirm, setConfirm] = useState<ConfirmState | null>(null);
@@ -175,6 +178,8 @@ function AiProvidersSettings() {
           />
         ))}
       </div>
+
+      <ChatHistoryPanel retentionDays={retention.days} onChanged={refresh} />
 
       <AddKeyDialog
         provider={dialogProvider}

@@ -21,7 +21,7 @@ function PrivacyPage() {
       lead="What we collect, why we use it, and how you stay in control."
       cta={false}
     >
-      <p>Last updated: 13 July 2026.</p>
+      <p>Last updated: 3 October 2026.</p>
 
       <h3>Data we collect</h3>
       <ul>
@@ -35,6 +35,25 @@ function PrivacyPage() {
           abuse, and protect the service.
         </li>
         <li>Optional product analytics only after the applicable consent has been provided.</li>
+      </ul>
+
+      <h3>AI provider keys and chats</h3>
+      <ul>
+        <li>
+          If you add your own AI provider key, we store it encrypted along with its last four
+          characters and a label you choose. We use it only for requests you start, and you can
+          revoke or delete it at any time.
+        </li>
+        <li>
+          Chat messages you write are stored so you can return to them, and are sent to the provider
+          whose model you chose, using your key. You can delete any chat permanently and set how
+          long chats are kept.
+        </li>
+        <li>
+          Transcript text and clip details are sent to your provider only when you choose your key
+          for a clip job, copy request or chat attachment. We do not store provider keys or prompts
+          in analytics or logs.
+        </li>
       </ul>
 
       <h3>Google and YouTube data</h3>

@@ -15,6 +15,10 @@ const sections = [
     body: "Check transcripts, captions, context and framing before sharing. Automated transcription can make mistakes, especially with quiet, noisy or multilingual audio.",
   },
   {
+    title: "Your own AI key",
+    body: "If you connect your own provider key, chat messages and, for sources you choose to process with it, transcript text and clip details go to that provider using your key, under their terms. You choose the model per feature or per job. If your provider rejects the key, Vidrial says so and uses its built-in selection instead; it never silently pretends your model was used.",
+  },
+  {
     title: "What Vidrial does not promise",
     body: "There is no general-purpose timeline editor, synthetic-video generator or automatic claim of factual accuracy. Your export remains your publishing decision.",
   },

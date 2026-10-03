@@ -53,6 +53,7 @@ import { Route as DocsUploadingMediaRouteImport } from './routes/docs.uploading-
 import { Route as DocsTimelineRouteImport } from './routes/docs.timeline'
 import { Route as DocsGettingStartedRouteImport } from './routes/docs.getting-started'
 import { Route as DocsExportingRouteImport } from './routes/docs.exporting'
+import { Route as DocsBringYourOwnKeyRouteImport } from './routes/docs.bring-your-own-key'
 import { Route as DocsAiEditorRouteImport } from './routes/docs.ai-editor'
 import { Route as BlogSlugRouteImport } from './routes/blog.$slug'
 import { Route as AuthCallbackRouteImport } from './routes/auth.callback'
@@ -316,6 +317,11 @@ const DocsGettingStartedRoute = DocsGettingStartedRouteImport.update({
 const DocsExportingRoute = DocsExportingRouteImport.update({
   id: '/exporting',
   path: '/exporting',
+  getParentRoute: () => DocsRoute,
+} as any)
+const DocsBringYourOwnKeyRoute = DocsBringYourOwnKeyRouteImport.update({
+  id: '/bring-your-own-key',
+  path: '/bring-your-own-key',
   getParentRoute: () => DocsRoute,
 } as any)
 const DocsAiEditorRoute = DocsAiEditorRouteImport.update({
@@ -610,6 +616,7 @@ export interface FileRoutesByFullPath {
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/docs/ai-editor': typeof DocsAiEditorRoute
+  '/docs/bring-your-own-key': typeof DocsBringYourOwnKeyRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
   '/docs/timeline': typeof DocsTimelineRoute
@@ -696,6 +703,7 @@ export interface FileRoutesByTo {
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/docs/ai-editor': typeof DocsAiEditorRoute
+  '/docs/bring-your-own-key': typeof DocsBringYourOwnKeyRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
   '/docs/timeline': typeof DocsTimelineRoute
@@ -783,6 +791,7 @@ export interface FileRoutesById {
   '/auth/callback': typeof AuthCallbackRoute
   '/blog/$slug': typeof BlogSlugRoute
   '/docs/ai-editor': typeof DocsAiEditorRoute
+  '/docs/bring-your-own-key': typeof DocsBringYourOwnKeyRoute
   '/docs/exporting': typeof DocsExportingRoute
   '/docs/getting-started': typeof DocsGettingStartedRoute
   '/docs/timeline': typeof DocsTimelineRoute
@@ -875,6 +884,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/blog/$slug'
     | '/docs/ai-editor'
+    | '/docs/bring-your-own-key'
     | '/docs/exporting'
     | '/docs/getting-started'
     | '/docs/timeline'
@@ -961,6 +971,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/blog/$slug'
     | '/docs/ai-editor'
+    | '/docs/bring-your-own-key'
     | '/docs/exporting'
     | '/docs/getting-started'
     | '/docs/timeline'
@@ -1047,6 +1058,7 @@ export interface FileRouteTypes {
     | '/auth/callback'
     | '/blog/$slug'
     | '/docs/ai-editor'
+    | '/docs/bring-your-own-key'
     | '/docs/exporting'
     | '/docs/getting-started'
     | '/docs/timeline'
@@ -1451,6 +1463,13 @@ declare module '@tanstack/react-router' {
       path: '/exporting'
       fullPath: '/docs/exporting'
       preLoaderRoute: typeof DocsExportingRouteImport
+      parentRoute: typeof DocsRoute
+    }
+    '/docs/bring-your-own-key': {
+      id: '/docs/bring-your-own-key'
+      path: '/bring-your-own-key'
+      fullPath: '/docs/bring-your-own-key'
+      preLoaderRoute: typeof DocsBringYourOwnKeyRouteImport
       parentRoute: typeof DocsRoute
     }
     '/docs/ai-editor': {
@@ -1954,6 +1973,7 @@ const BlogRouteWithChildren = BlogRoute._addFileChildren(BlogRouteChildren)
 
 interface DocsRouteChildren {
   DocsAiEditorRoute: typeof DocsAiEditorRoute
+  DocsBringYourOwnKeyRoute: typeof DocsBringYourOwnKeyRoute
   DocsExportingRoute: typeof DocsExportingRoute
   DocsGettingStartedRoute: typeof DocsGettingStartedRoute
   DocsTimelineRoute: typeof DocsTimelineRoute
@@ -1963,6 +1983,7 @@ interface DocsRouteChildren {
 
 const DocsRouteChildren: DocsRouteChildren = {
   DocsAiEditorRoute: DocsAiEditorRoute,
+  DocsBringYourOwnKeyRoute: DocsBringYourOwnKeyRoute,
   DocsExportingRoute: DocsExportingRoute,
   DocsGettingStartedRoute: DocsGettingStartedRoute,
   DocsTimelineRoute: DocsTimelineRoute,
