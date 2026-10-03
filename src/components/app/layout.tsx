@@ -44,6 +44,7 @@ import { getAccountPreferences } from "@/services/settings/server";
 const navIcons = {
   "/app": LayoutDashboard,
   "/app/youtube-clipper": Scissors,
+  "/app/motion": Layers3,
   "/app/projects": FolderKanban,
   "/app/templates": Layers3,
   "/app/uploads": UploadCloud,

@@ -19,8 +19,8 @@ const listMarkdownBasenames = async (directory) =>
 
 try {
   const backlog = JSON.parse(await readFile(backlogPath, "utf8"));
-  if (!Array.isArray(backlog) || backlog.length !== 60) {
-    throw new Error(`Expected exactly 60 backlog entries, found ${backlog.length}.`);
+  if (!Array.isArray(backlog) || backlog.length < 60) {
+    throw new Error("Expected the original 60-entry backlog plus any registered additions.");
   }
 
   const expectedSlugs = new Set(backlog.map((entry) => entry.slug));
@@ -54,7 +54,7 @@ try {
         `${entry.slug}: primaryKeyword is ${String(data.primaryKeyword)}; expected ${entry.primaryKeyword}`,
       );
     }
-    const shouldBePublic = launchIds.has(entry.id);
+    const shouldBePublic = launchIds.has(entry.id) || entry.published === true;
     if (shouldBePublic && (data.draft !== false || data.reviewStatus !== "PASS")) {
       metadataMismatches.push(`${entry.slug}: launch article must be public and PASS`);
     }
@@ -78,7 +78,7 @@ try {
   }
 
   process.stdout.write(
-    "Blog backlog validation passed: 60 articles, 60 paired research notes, and 60 independent reviews.\n",
+    `Blog backlog validation passed: ${backlog.length} articles, ${backlog.length} paired research notes, and ${backlog.length} review records.\n`,
   );
 } catch (error) {
   const message = error instanceof Error ? error.message : String(error);

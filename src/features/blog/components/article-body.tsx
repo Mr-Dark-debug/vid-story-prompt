@@ -2,6 +2,8 @@ import type { ComponentPropsWithoutRef, ReactNode } from "react";
 import ReactMarkdown, { type ExtraProps } from "react-markdown";
 import remarkGfm from "remark-gfm";
 import type { BlogHeading } from "@/features/blog/schema";
+import { MotionPromptEmbed } from "@/components/motion/public-gallery";
+import { officialMotionPrompts } from "@/services/motion/catalog";
 
 function textFromChildren(children: ReactNode): string {
   if (typeof children === "string" || typeof children === "number") return String(children);
@@ -54,8 +56,22 @@ export function ArticleBody({ body, headings }: { body: string; headings: BlogHe
           h5: heading("h5"),
           h6: heading("h6"),
           img: () => null,
+          pre: ({ children }) => {
+            const child = children as { props?: { className?: string; children?: ReactNode } };
+            if (child?.props?.className === "language-motion-prompt") {
+              const slug = textFromChildren(child.props.children).trim();
+              const prompt = officialMotionPrompts.find((item) => item.slug === slug);
+              if (prompt) return <MotionPromptEmbed prompt={prompt} />;
+            }
+            return <pre>{children}</pre>;
+          },
           table: ({ children }) => (
-            <div className="blog-table-wrap" tabIndex={0} role="region" aria-label="Scrollable table">
+            <div
+              className="blog-table-wrap"
+              tabIndex={0}
+              role="region"
+              aria-label="Scrollable table"
+            >
               <table>{children}</table>
             </div>
           ),

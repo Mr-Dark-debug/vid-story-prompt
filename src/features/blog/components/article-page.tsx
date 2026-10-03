@@ -2,7 +2,7 @@ import { ArrowRight, ExternalLink } from "lucide-react";
 import { Link } from "@tanstack/react-router";
 import { useEffect } from "react";
 import type { BlogArticle, BlogArticleMeta } from "@/features/blog/schema";
-import { absoluteUrl } from "@/config/seo";
+import { absoluteUrl, serializeJsonLd } from "@/config/seo";
 import { blogCategorySlug } from "@/features/blog/category";
 import { formatUtcDate } from "@/lib/format-date";
 import { ArticleBody } from "./article-body";
@@ -14,6 +14,14 @@ import { ArticleToc } from "./article-toc";
 import { trackBlogEvent } from "./blog-analytics";
 
 function ctaForCategory(category: string) {
+  if (category === "Motion Graphics") {
+    return {
+      to: "/claude-motion-graphics" as const,
+      title: "One clear story. Every frame reviewable.",
+      body: "Explore original briefs, preserve your private draft and check the configured models and renderer in Motion Studio.",
+      label: "Explore Motion Studio",
+    };
+  }
   if (category.includes("Podcast")) {
     return {
       to: "/use-cases/podcasts" as const,
@@ -66,6 +74,43 @@ export function ArticlePage({
 
   return (
     <article>
+      {article.slug === "claude-motion-graphics" && (
+        <>
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: serializeJsonLd({
+                "@context": "https://schema.org",
+                "@type": "HowTo",
+                name: "Create deterministic HTML motion graphics",
+                description:
+                  "Plan one story, write a seekable scene, review its frames and verify an isolated MP4 export.",
+                step: [
+                  "Specify duration, aspect ratio and one coherent story.",
+                  "Supply exact strings, verified numbers and visual constraints.",
+                  "Request a beat sheet and four keyframes before the single-file scene.",
+                  "Lint the source and inspect deterministic preview frames.",
+                  "Render in an isolated browser and verify the actual encoded MP4.",
+                ].map((text, index) => ({ "@type": "HowToStep", position: index + 1, text })),
+              }),
+            }}
+          />
+          <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{
+              __html: serializeJsonLd({
+                "@context": "https://schema.org",
+                "@type": "FAQPage",
+                mainEntity: article.faqs.map((faq) => ({
+                  "@type": "Question",
+                  name: faq.question,
+                  acceptedAnswer: { "@type": "Answer", text: faq.answer },
+                })),
+              }),
+            }}
+          />
+        </>
+      )}
       <header className="border-b border-line bg-surface-panel">
         <div className="mx-auto w-full max-w-6xl px-5 py-10 sm:px-8 sm:py-16">
           <nav

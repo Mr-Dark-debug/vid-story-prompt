@@ -2,6 +2,7 @@ import { absoluteUrl, SEO_SITE_NAME } from "@/config/seo";
 import { blogCategorySlug } from "@/features/blog/category";
 import { getPublishedArticles } from "@/features/blog/repository.server";
 import type { BlogArticleMeta } from "@/features/blog/schema";
+import { officialMotionPrompts } from "@/services/motion/catalog";
 
 const XML_DECLARATION = '<?xml version="1.0" encoding="UTF-8"?>';
 const SITEMAP_NAMESPACE = "http://www.sitemaps.org/schemas/sitemap/0.9";
@@ -14,6 +15,11 @@ export const PUBLIC_SITEMAP_PATHS = [
   "/how-it-works",
   "/pricing",
   "/youtube-clipper",
+  "/prompts",
+  "/prompts/claude-opus-5-5",
+  "/claude-motion-graphics",
+  "/docs/motion-studio",
+  ...officialMotionPrompts.map((prompt) => `/prompts/${prompt.slug}`),
   "/use-cases",
   "/use-cases/courses",
   "/use-cases/podcasts",
@@ -82,7 +88,11 @@ export function toCategorySlug(category: string): string {
 }
 
 export function sitemapIndexResponse(): Response {
-  const locations = [absoluteUrl("/sitemap-pages.xml"), absoluteUrl("/sitemap-blog.xml")];
+  const locations = [
+    absoluteUrl("/sitemap-pages.xml"),
+    absoluteUrl("/sitemap-blog.xml"),
+    absoluteUrl("/sitemap-motion.xml"),
+  ];
   const entries = locations
     .map((location) => `  <sitemap><loc>${xmlEscape(location)}</loc></sitemap>`)
     .join("\n");

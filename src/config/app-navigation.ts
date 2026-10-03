@@ -20,6 +20,11 @@ export const appNavGroups: AppNavGroup[] = [
         description: "Create and manage clipping jobs",
       },
       { label: "Uploads", to: "/app/uploads", description: "Manage authorised source media" },
+      {
+        label: "Motion Studio",
+        to: "/app/motion",
+        description: "Create editable motion scenes and MP4s",
+      },
     ],
   },
   {
@@ -87,6 +92,8 @@ const routeLabels = new Map<string, string>([
   ...settingsNavItems.map((item) => [item.to, item.label] as const),
   ["/app/projects/new", "New project"],
   ["/app/youtube-clipper/new", "New clipping job"],
+  ["/app/motion/new", "New motion project"],
+  ["/app/motion/gallery", "Motion gallery"],
 ]);
 
 export type BreadcrumbItem = { label: string; to?: string };
@@ -118,6 +125,9 @@ export function getAppBreadcrumbs(pathname: string): BreadcrumbItem[] {
                   ? "New project"
                   : "Project";
     return [{ label: "Projects", to: "/app/projects" }, { label: detailLabel }];
+  }
+  if (pathname.startsWith("/app/motion/")) {
+    return [{ label: "Motion Studio", to: "/app/motion" }, { label: exact ?? "Motion project" }];
   }
   if (pathname.startsWith("/app/youtube-clipper/")) {
     return [

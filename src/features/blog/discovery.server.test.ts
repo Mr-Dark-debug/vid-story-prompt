@@ -59,6 +59,7 @@ describe("blog discovery responses", () => {
     expect(locations(document)).toEqual([
       "https://vidrial.vercel.app/sitemap-pages.xml",
       "https://vidrial.vercel.app/sitemap-blog.xml",
+      "https://vidrial.vercel.app/sitemap-motion.xml",
     ]);
   });
 
