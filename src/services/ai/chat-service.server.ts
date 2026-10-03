@@ -20,7 +20,8 @@ import { getAiProvider } from "@/domain/ai/providers";
 import type { AdapterDeps, FinishReason, TokenUsage } from "@/domain/ai/types";
 import { AiServiceError, type Actor, type CredentialService } from "./credential-service.server";
 
-export const MAX_MESSAGE_CHARS = 32_000;
+export { MAX_MESSAGE_CHARS } from "./limits";
+import { MAX_MESSAGE_CHARS } from "./limits";
 export const MAX_CONCURRENT_STREAMS = 4;
 export const DEFAULT_OUTPUT_TOKENS = 4_096;
 const CHECKPOINT_INTERVAL_MS = 1_500;

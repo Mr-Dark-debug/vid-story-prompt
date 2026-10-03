@@ -4,6 +4,8 @@ import type { AiModelGroup } from "@/services/ai/server";
 import {
   SEARCH_RESULT_LIMIT,
   buildSections,
+  estimateCost,
+  findPricing,
   capabilityChips,
   flattenGroups,
   formatContext,
@@ -185,5 +187,40 @@ describe("model catalog", () => {
     expect(recents).toEqual(["a", "f", "e", "d", "c"]);
     expect(toggleFavorite(["x"], "y")).toEqual(["x", "y"]);
     expect(toggleFavorite(["x", "y"], "x")).toEqual(["y"]);
+  });
+});
+
+describe("cost estimates", () => {
+  const pricing = { inputPerMillion: 3, outputPerMillion: 15 };
+  it("estimates only from published pricing and reported usage", () => {
+    expect(estimateCost(pricing, { inputTokens: 1_000, outputTokens: 500 })).toBe("≈ $0.0105");
+    expect(estimateCost(pricing, { inputTokens: 1_000_000, outputTokens: 1_000_000 })).toBe(
+      "≈ $18.00",
+    );
+    expect(estimateCost(undefined, { inputTokens: 1, outputTokens: 1 })).toBeNull();
+    expect(estimateCost(pricing, { inputTokens: null, outputTokens: 5 })).toBeNull();
+    expect(
+      estimateCost(
+        { inputPerMillion: null, outputPerMillion: 1 },
+        { inputTokens: 1, outputTokens: 1 },
+      ),
+    ).toBeNull();
+    expect(
+      estimateCost(
+        { inputPerMillion: 0, outputPerMillion: 0 },
+        { inputTokens: 10, outputTokens: 10 },
+      ),
+    ).toBe("Free");
+    expect(estimateCost(pricing, { inputTokens: 1, outputTokens: 1 })).toBe("< $0.0001");
+  });
+
+  it("finds pricing by provider and model, never across providers", () => {
+    expect(findPricing(groups, "openrouter", "meta-llama/llama-3.3-70b")).toEqual({
+      inputPerMillion: 0.1,
+      outputPerMillion: 0.3,
+    });
+    expect(findPricing(groups, "anthropic", "claude-opus-5")).toBeUndefined();
+    expect(findPricing(groups, "openai", "meta-llama/llama-3.3-70b")).toBeUndefined();
+    expect(findPricing(groups, null, "x")).toBeUndefined();
   });
 });

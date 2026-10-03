@@ -155,3 +155,36 @@ export function pushRecent(recents: readonly string[], key: string): string[] {
 export function toggleFavorite(favorites: readonly string[], key: string): string[] {
   return favorites.includes(key) ? favorites.filter((item) => item !== key) : [...favorites, key];
 }
+
+/**
+ * Estimated cost of one reply, only when the provider published per-token pricing and the reply
+ * reported usage. Returns null otherwise; prices are never invented.
+ */
+export function estimateCost(
+  pricing: ModelPricing | undefined,
+  usage: { inputTokens: number | null; outputTokens: number | null },
+): string | null {
+  if (!pricing || pricing.inputPerMillion === null || pricing.outputPerMillion === null)
+    return null;
+  if (usage.inputTokens === null || usage.outputTokens === null) return null;
+  const cost =
+    (usage.inputTokens * pricing.inputPerMillion + usage.outputTokens * pricing.outputPerMillion) /
+    1_000_000;
+  if (cost === 0) return "Free";
+  return cost < 0.0001 ? "< $0.0001" : `≈ $${cost < 0.1 ? cost.toFixed(4) : cost.toFixed(2)}`;
+}
+
+/** Finds a model's pricing across the loaded groups (provider and model id identify it). */
+export function findPricing(
+  groups: readonly AiModelGroup[],
+  providerId: string | null,
+  modelId: string | null,
+): ModelPricing | undefined {
+  if (!providerId || !modelId) return undefined;
+  for (const group of groups) {
+    if (group.providerId !== providerId) continue;
+    const model = group.models.find((item) => item.modelId === modelId);
+    if (model) return model.pricing;
+  }
+  return undefined;
+}

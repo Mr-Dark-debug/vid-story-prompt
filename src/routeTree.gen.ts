@@ -70,11 +70,13 @@ import { Route as AuthenticatedAppTemplatesRouteImport } from './routes/_authent
 import { Route as AuthenticatedAppSettingsRouteImport } from './routes/_authenticated.app.settings'
 import { Route as AuthenticatedAppHelpRouteImport } from './routes/_authenticated.app.help'
 import { Route as AuthenticatedAppFeedbackRouteImport } from './routes/_authenticated.app.feedback'
+import { Route as AuthenticatedAppChatRouteImport } from './routes/_authenticated.app.chat'
 import { Route as AuthenticatedAppBillingRouteImport } from './routes/_authenticated.app.billing'
 import { Route as AuthenticatedAppAutomationsRouteImport } from './routes/_authenticated.app.automations'
 import { Route as AuthenticatedAppYoutubeClipperIndexRouteImport } from './routes/_authenticated.app.youtube-clipper.index'
 import { Route as AuthenticatedAppSettingsIndexRouteImport } from './routes/_authenticated.app.settings.index'
 import { Route as AuthenticatedAppProjectsIndexRouteImport } from './routes/_authenticated.app.projects.index'
+import { Route as AuthenticatedAppChatIndexRouteImport } from './routes/_authenticated.app.chat.index'
 import { Route as AuthenticatedAppAutomationsIndexRouteImport } from './routes/_authenticated.app.automations.index'
 import { Route as AuthConnectorsConnectorIdCallbackRouteImport } from './routes/auth.connectors.$connectorId.callback'
 import { Route as AuthenticatedAppYoutubeClipperNewRouteImport } from './routes/_authenticated.app.youtube-clipper.new'
@@ -85,6 +87,7 @@ import { Route as AuthenticatedAppSettingsIntegrationsRouteImport } from './rout
 import { Route as AuthenticatedAppSettingsAiProvidersRouteImport } from './routes/_authenticated.app.settings.ai-providers'
 import { Route as AuthenticatedAppProjectsNewRouteImport } from './routes/_authenticated.app.projects.new'
 import { Route as AuthenticatedAppProjectsProjectIdRouteImport } from './routes/_authenticated.app.projects.$projectId'
+import { Route as AuthenticatedAppChatThreadIdRouteImport } from './routes/_authenticated.app.chat.$threadId'
 import { Route as AuthenticatedAppAutomationsNewRouteImport } from './routes/_authenticated.app.automations.new'
 import { Route as AuthenticatedAppAutomationsAutomationIdRouteImport } from './routes/_authenticated.app.automations.$automationId'
 import { Route as AuthenticatedAppProjectsProjectIdIndexRouteImport } from './routes/_authenticated.app.projects.$projectId.index'
@@ -404,6 +407,11 @@ const AuthenticatedAppFeedbackRoute =
     path: '/feedback',
     getParentRoute: () => AuthenticatedAppRoute,
   } as any)
+const AuthenticatedAppChatRoute = AuthenticatedAppChatRouteImport.update({
+  id: '/chat',
+  path: '/chat',
+  getParentRoute: () => AuthenticatedAppRoute,
+} as any)
 const AuthenticatedAppBillingRoute = AuthenticatedAppBillingRouteImport.update({
   id: '/billing',
   path: '/billing',
@@ -432,6 +440,12 @@ const AuthenticatedAppProjectsIndexRoute =
     id: '/projects/',
     path: '/projects/',
     getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppChatIndexRoute =
+  AuthenticatedAppChatIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAppChatRoute,
   } as any)
 const AuthenticatedAppAutomationsIndexRoute =
   AuthenticatedAppAutomationsIndexRouteImport.update({
@@ -492,6 +506,12 @@ const AuthenticatedAppProjectsProjectIdRoute =
     id: '/projects/$projectId',
     path: '/projects/$projectId',
     getParentRoute: () => AuthenticatedAppRoute,
+  } as any)
+const AuthenticatedAppChatThreadIdRoute =
+  AuthenticatedAppChatThreadIdRouteImport.update({
+    id: '/$threadId',
+    path: '/$threadId',
+    getParentRoute: () => AuthenticatedAppChatRoute,
   } as any)
 const AuthenticatedAppAutomationsNewRoute =
   AuthenticatedAppAutomationsNewRouteImport.update({
@@ -604,6 +624,7 @@ export interface FileRoutesByFullPath {
   '/use-cases/': typeof UseCasesIndexRoute
   '/app/automations': typeof AuthenticatedAppAutomationsRouteWithChildren
   '/app/billing': typeof AuthenticatedAppBillingRoute
+  '/app/chat': typeof AuthenticatedAppChatRouteWithChildren
   '/app/feedback': typeof AuthenticatedAppFeedbackRoute
   '/app/help': typeof AuthenticatedAppHelpRoute
   '/app/settings': typeof AuthenticatedAppSettingsRouteWithChildren
@@ -619,6 +640,7 @@ export interface FileRoutesByFullPath {
   '/app/': typeof AuthenticatedAppIndexRoute
   '/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
   '/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
+  '/app/chat/$threadId': typeof AuthenticatedAppChatThreadIdRoute
   '/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/settings/ai-providers': typeof AuthenticatedAppSettingsAiProvidersRoute
@@ -629,6 +651,7 @@ export interface FileRoutesByFullPath {
   '/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
   '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
   '/app/automations/': typeof AuthenticatedAppAutomationsIndexRoute
+  '/app/chat/': typeof AuthenticatedAppChatIndexRoute
   '/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
   '/app/settings/': typeof AuthenticatedAppSettingsIndexRoute
   '/app/youtube-clipper/': typeof AuthenticatedAppYoutubeClipperIndexRoute
@@ -699,6 +722,7 @@ export interface FileRoutesByTo {
   '/app': typeof AuthenticatedAppIndexRoute
   '/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
   '/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
+  '/app/chat/$threadId': typeof AuthenticatedAppChatThreadIdRoute
   '/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/app/settings/ai-providers': typeof AuthenticatedAppSettingsAiProvidersRoute
   '/app/settings/integrations': typeof AuthenticatedAppSettingsIntegrationsRoute
@@ -708,6 +732,7 @@ export interface FileRoutesByTo {
   '/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
   '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
   '/app/automations': typeof AuthenticatedAppAutomationsIndexRoute
+  '/app/chat': typeof AuthenticatedAppChatIndexRoute
   '/app/projects': typeof AuthenticatedAppProjectsIndexRoute
   '/app/settings': typeof AuthenticatedAppSettingsIndexRoute
   '/app/youtube-clipper': typeof AuthenticatedAppYoutubeClipperIndexRoute
@@ -772,6 +797,7 @@ export interface FileRoutesById {
   '/use-cases/': typeof UseCasesIndexRoute
   '/_authenticated/app/automations': typeof AuthenticatedAppAutomationsRouteWithChildren
   '/_authenticated/app/billing': typeof AuthenticatedAppBillingRoute
+  '/_authenticated/app/chat': typeof AuthenticatedAppChatRouteWithChildren
   '/_authenticated/app/feedback': typeof AuthenticatedAppFeedbackRoute
   '/_authenticated/app/help': typeof AuthenticatedAppHelpRoute
   '/_authenticated/app/settings': typeof AuthenticatedAppSettingsRouteWithChildren
@@ -787,6 +813,7 @@ export interface FileRoutesById {
   '/_authenticated/app/': typeof AuthenticatedAppIndexRoute
   '/_authenticated/app/automations/$automationId': typeof AuthenticatedAppAutomationsAutomationIdRoute
   '/_authenticated/app/automations/new': typeof AuthenticatedAppAutomationsNewRoute
+  '/_authenticated/app/chat/$threadId': typeof AuthenticatedAppChatThreadIdRoute
   '/_authenticated/app/projects/$projectId': typeof AuthenticatedAppProjectsProjectIdRouteWithChildren
   '/_authenticated/app/projects/new': typeof AuthenticatedAppProjectsNewRoute
   '/_authenticated/app/settings/ai-providers': typeof AuthenticatedAppSettingsAiProvidersRoute
@@ -797,6 +824,7 @@ export interface FileRoutesById {
   '/_authenticated/app/youtube-clipper/new': typeof AuthenticatedAppYoutubeClipperNewRoute
   '/auth/connectors/$connectorId/callback': typeof AuthConnectorsConnectorIdCallbackRoute
   '/_authenticated/app/automations/': typeof AuthenticatedAppAutomationsIndexRoute
+  '/_authenticated/app/chat/': typeof AuthenticatedAppChatIndexRoute
   '/_authenticated/app/projects/': typeof AuthenticatedAppProjectsIndexRoute
   '/_authenticated/app/settings/': typeof AuthenticatedAppSettingsIndexRoute
   '/_authenticated/app/youtube-clipper/': typeof AuthenticatedAppYoutubeClipperIndexRoute
@@ -861,6 +889,7 @@ export interface FileRouteTypes {
     | '/use-cases/'
     | '/app/automations'
     | '/app/billing'
+    | '/app/chat'
     | '/app/feedback'
     | '/app/help'
     | '/app/settings'
@@ -876,6 +905,7 @@ export interface FileRouteTypes {
     | '/app/'
     | '/app/automations/$automationId'
     | '/app/automations/new'
+    | '/app/chat/$threadId'
     | '/app/projects/$projectId'
     | '/app/projects/new'
     | '/app/settings/ai-providers'
@@ -886,6 +916,7 @@ export interface FileRouteTypes {
     | '/app/youtube-clipper/new'
     | '/auth/connectors/$connectorId/callback'
     | '/app/automations/'
+    | '/app/chat/'
     | '/app/projects/'
     | '/app/settings/'
     | '/app/youtube-clipper/'
@@ -956,6 +987,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/app/automations/$automationId'
     | '/app/automations/new'
+    | '/app/chat/$threadId'
     | '/app/projects/new'
     | '/app/settings/ai-providers'
     | '/app/settings/integrations'
@@ -965,6 +997,7 @@ export interface FileRouteTypes {
     | '/app/youtube-clipper/new'
     | '/auth/connectors/$connectorId/callback'
     | '/app/automations'
+    | '/app/chat'
     | '/app/projects'
     | '/app/settings'
     | '/app/youtube-clipper'
@@ -1028,6 +1061,7 @@ export interface FileRouteTypes {
     | '/use-cases/'
     | '/_authenticated/app/automations'
     | '/_authenticated/app/billing'
+    | '/_authenticated/app/chat'
     | '/_authenticated/app/feedback'
     | '/_authenticated/app/help'
     | '/_authenticated/app/settings'
@@ -1043,6 +1077,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/'
     | '/_authenticated/app/automations/$automationId'
     | '/_authenticated/app/automations/new'
+    | '/_authenticated/app/chat/$threadId'
     | '/_authenticated/app/projects/$projectId'
     | '/_authenticated/app/projects/new'
     | '/_authenticated/app/settings/ai-providers'
@@ -1053,6 +1088,7 @@ export interface FileRouteTypes {
     | '/_authenticated/app/youtube-clipper/new'
     | '/auth/connectors/$connectorId/callback'
     | '/_authenticated/app/automations/'
+    | '/_authenticated/app/chat/'
     | '/_authenticated/app/projects/'
     | '/_authenticated/app/settings/'
     | '/_authenticated/app/youtube-clipper/'
@@ -1536,6 +1572,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAppFeedbackRouteImport
       parentRoute: typeof AuthenticatedAppRoute
     }
+    '/_authenticated/app/chat': {
+      id: '/_authenticated/app/chat'
+      path: '/chat'
+      fullPath: '/app/chat'
+      preLoaderRoute: typeof AuthenticatedAppChatRouteImport
+      parentRoute: typeof AuthenticatedAppRoute
+    }
     '/_authenticated/app/billing': {
       id: '/_authenticated/app/billing'
       path: '/billing'
@@ -1570,6 +1613,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/projects/'
       preLoaderRoute: typeof AuthenticatedAppProjectsIndexRouteImport
       parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/chat/': {
+      id: '/_authenticated/app/chat/'
+      path: '/'
+      fullPath: '/app/chat/'
+      preLoaderRoute: typeof AuthenticatedAppChatIndexRouteImport
+      parentRoute: typeof AuthenticatedAppChatRoute
     }
     '/_authenticated/app/automations/': {
       id: '/_authenticated/app/automations/'
@@ -1640,6 +1690,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/app/projects/$projectId'
       preLoaderRoute: typeof AuthenticatedAppProjectsProjectIdRouteImport
       parentRoute: typeof AuthenticatedAppRoute
+    }
+    '/_authenticated/app/chat/$threadId': {
+      id: '/_authenticated/app/chat/$threadId'
+      path: '/$threadId'
+      fullPath: '/app/chat/$threadId'
+      preLoaderRoute: typeof AuthenticatedAppChatThreadIdRouteImport
+      parentRoute: typeof AuthenticatedAppChatRoute
     }
     '/_authenticated/app/automations/new': {
       id: '/_authenticated/app/automations/new'
@@ -1734,6 +1791,19 @@ const AuthenticatedAppAutomationsRouteWithChildren =
     AuthenticatedAppAutomationsRouteChildren,
   )
 
+interface AuthenticatedAppChatRouteChildren {
+  AuthenticatedAppChatThreadIdRoute: typeof AuthenticatedAppChatThreadIdRoute
+  AuthenticatedAppChatIndexRoute: typeof AuthenticatedAppChatIndexRoute
+}
+
+const AuthenticatedAppChatRouteChildren: AuthenticatedAppChatRouteChildren = {
+  AuthenticatedAppChatThreadIdRoute: AuthenticatedAppChatThreadIdRoute,
+  AuthenticatedAppChatIndexRoute: AuthenticatedAppChatIndexRoute,
+}
+
+const AuthenticatedAppChatRouteWithChildren =
+  AuthenticatedAppChatRoute._addFileChildren(AuthenticatedAppChatRouteChildren)
+
 interface AuthenticatedAppSettingsRouteChildren {
   AuthenticatedAppSettingsAiProvidersRoute: typeof AuthenticatedAppSettingsAiProvidersRoute
   AuthenticatedAppSettingsIntegrationsRoute: typeof AuthenticatedAppSettingsIntegrationsRoute
@@ -1819,6 +1889,7 @@ const AuthenticatedAppProjectsProjectIdRouteWithChildren =
 interface AuthenticatedAppRouteChildren {
   AuthenticatedAppAutomationsRoute: typeof AuthenticatedAppAutomationsRouteWithChildren
   AuthenticatedAppBillingRoute: typeof AuthenticatedAppBillingRoute
+  AuthenticatedAppChatRoute: typeof AuthenticatedAppChatRouteWithChildren
   AuthenticatedAppFeedbackRoute: typeof AuthenticatedAppFeedbackRoute
   AuthenticatedAppHelpRoute: typeof AuthenticatedAppHelpRoute
   AuthenticatedAppSettingsRoute: typeof AuthenticatedAppSettingsRouteWithChildren
@@ -1836,6 +1907,7 @@ const AuthenticatedAppRouteChildren: AuthenticatedAppRouteChildren = {
   AuthenticatedAppAutomationsRoute:
     AuthenticatedAppAutomationsRouteWithChildren,
   AuthenticatedAppBillingRoute: AuthenticatedAppBillingRoute,
+  AuthenticatedAppChatRoute: AuthenticatedAppChatRouteWithChildren,
   AuthenticatedAppFeedbackRoute: AuthenticatedAppFeedbackRoute,
   AuthenticatedAppHelpRoute: AuthenticatedAppHelpRoute,
   AuthenticatedAppSettingsRoute: AuthenticatedAppSettingsRouteWithChildren,

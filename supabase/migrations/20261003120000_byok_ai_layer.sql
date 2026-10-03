@@ -342,12 +342,9 @@ alter table public.ai_runs enable row level security;
 create policy ai_runs_select on public.ai_runs for select to authenticated
   using (user_id = (select auth.uid()) and public.is_workspace_member(workspace_id));
 revoke all on public.ai_runs from public, anon, authenticated;
-grant select (
-  id, workspace_id, user_id, purpose, status, credential_id, credential_source, provider_id, model_id,
-  clip_job_id, job_task_id, thread_id, result_json, error_code, error_message,
-  usage_input_tokens, usage_output_tokens, attempt, max_attempts,
-  progress_current, progress_total, created_at, started_at, completed_at, updated_at
-) on public.ai_runs to authenticated;
+-- Table-level (not column-level) so Supabase Realtime can deliver run changes. Owner-only via RLS;
+-- input_json holds references and parameters, never keys or raw transcripts.
+grant select on public.ai_runs to authenticated;
 
 -- ---------------------------------------------------------------------------------------------
 -- Abuse controls and retention

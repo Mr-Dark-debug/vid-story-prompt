@@ -80,13 +80,10 @@ do $$ begin
   if (select count(*) from public.ai_model_cache) <> 1 then raise exception 'Cache isolation failed'; end if;
 end $$;
 
--- run input_json (may reference prompts) is not exposed to the browser.
+-- Runs are readable by their owner only; usage starts empty.
 do $$ begin
-  begin
-    perform input_json from public.ai_runs;
-    raise exception 'Browser role read ai_runs.input_json';
-  exception when insufficient_privilege then null; end;
   if (select usage_output_tokens from public.ai_runs limit 1) is not null then raise exception 'unexpected usage'; end if;
+  if (select count(*) from public.ai_runs where input_json->>'prompt' = 'private') <> 1 then raise exception 'Owner cannot read their own run'; end if;
 end $$;
 
 -- 3. Browser writes to protected tables are refused.
