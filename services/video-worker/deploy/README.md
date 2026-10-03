@@ -11,6 +11,13 @@ systemd and unprivileged user namespaces. Start with 4 CPU cores, 8 GB RAM and
 or AppArmor failure. The controller's Docker access is effectively host-root
 access, so this machine must not share unrelated services or sensitive files.
 
+The seccomp profile keeps `clone3` denied with errno 38, matching
+[Moby's default profile](https://github.com/moby/profiles/blob/main/seccomp/default.json).
+Modern glibc can then fall back to the permitted `clone` path for Node/Chromium
+threads. This does not grant extra container capabilities or disable Chromium
+sandboxing. FFmpeg decoder and filter threads are explicitly bounded as well as
+the encoder, since host CPU discovery can otherwise exceed the container PID cap.
+
 ## Prepare the host
 
 1. Check out the reviewed production commit in `/opt/vidrial`. Install worker

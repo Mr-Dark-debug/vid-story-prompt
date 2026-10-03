@@ -61,3 +61,10 @@ jobs:
           MOTION_SECCOMP_PROFILE: ${{ github.workspace }}/services/video-worker/motion-seccomp.json
       - name: Record image footprint
         run: docker image inspect vidrial-motion-renderer:ci --format 'Image bytes={{.Size}}'
+      - name: Diagnose only the fixed authored browser fixture on failure
+        if: failure()
+        working-directory: services/video-worker
+        run: node scripts/diagnose-motion-fixture.mjs
+        env:
+          MOTION_DOCKER_TEST_IMAGE: vidrial-motion-renderer:ci
+          MOTION_TEST_SECCOMP_PROFILE: ${{ github.workspace }}/services/video-worker/motion-seccomp.json

@@ -146,8 +146,14 @@ export async function withSandboxRender<T>(
     });
     const result = await process;
     if (result.exitCode !== 0) {
-      const code = result.stderr.trim();
-      throw new Error(/^motion_[a-z_]+$/.test(code) ? code : "motion_sandbox_failed");
+      // Runtime warnings may precede the CLI's fixed error code. Discard all
+      // unstructured output rather than losing the useful retry classification.
+      const code = result.stderr
+        .split(/\r?\n/)
+        .map((line) => line.trim())
+        .reverse()
+        .find((line) => /^motion_[a-z_]+$/.test(line));
+      throw new Error(code ?? "motion_sandbox_failed");
     }
     const manifest = JSON.parse(await readFile(join(output, "manifest.json"), "utf8")) as Record<
       string,
