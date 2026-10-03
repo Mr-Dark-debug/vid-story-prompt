@@ -29,6 +29,8 @@
     "supabase:stop": "supabase stop",
     "supabase:reset": "supabase db reset",
     "supabase:types": "node scripts/generate-database-types.mjs",
+    "ai:sync": "node scripts/sync-worker-ai.mjs",
+    "ai:check": "node scripts/sync-worker-ai.mjs --check",
     "worker:dev": "bun --cwd services/video-worker dev",
     "worker:test": "bun --cwd services/video-worker test"
   },
