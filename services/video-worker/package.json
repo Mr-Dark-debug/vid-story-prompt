@@ -5,15 +5,25 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "start": "node dist/index.js",
+    "motion:start": "node dist/motion/controller.js",
+    "motion:fonts": "node scripts/bundle-motion-fonts.mjs",
+    "motion:demos": "tsx scripts/render-motion-demos.ts",
+    "prebuild": "node ../../scripts/sync-motion-domain.mjs",
     "build": "tsc -p tsconfig.json",
+    "pretypecheck": "node ../../scripts/sync-motion-domain.mjs",
     "typecheck": "tsc --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:motion": "vitest run src/motion"
   },
   "dependencies": {
+    "@fontsource/eb-garamond": "5.2.6",
+    "@fontsource/jetbrains-mono": "5.2.6",
+    "@fontsource/manrope": "5.2.6",
     "@supabase/supabase-js": "^2.110.2",
     "archiver": "^8.0.0",
     "execa": "^9.6.1",
     "pino": "^9.7.0",
+    "playwright-core": "1.61.1",
     "tus-js-client": "4.3.1",
     "zod": "^3.24.2"
   },
