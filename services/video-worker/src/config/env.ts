@@ -111,6 +111,18 @@ export const env = z
       (value) => (value === "" ? undefined : value),
       z.string().min(32).optional(),
     ),
+    AI_CREDENTIAL_ENCRYPTION_KEY: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.string().min(32).optional(),
+    ),
+    AI_CREDENTIAL_ENCRYPTION_KEY_VERSION: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.string().regex(/^[A-Za-z0-9_-]{1,16}$/).optional(),
+    ),
+    AI_CREDENTIAL_ENCRYPTION_KEYS_PREVIOUS: z.preprocess(
+      (value) => (value === "" ? undefined : value),
+      z.string().optional(),
+    ),
     CONNECTOR_TOKEN_ENCRYPTION_KEY: z.preprocess(
       (value) => (value === "" ? undefined : value),
       z.string().min(32).optional(),
