@@ -18,6 +18,10 @@ export type PlanEntitlement = {
   publishingConnectionsEnabled: boolean;
   apiBetaEnabled: boolean;
   priority: number;
+  monthlyMotionRenderSeconds: number;
+  maxMotionSecondsPerVideo: number;
+  maxMotionResolution: { width: number; height: number; fps: number };
+  motionWatermarkRequired: boolean;
 };
 
 export const PLAN_ENTITLEMENTS: Readonly<Record<PlanKey, PlanEntitlement>> = {
@@ -39,6 +43,10 @@ export const PLAN_ENTITLEMENTS: Readonly<Record<PlanKey, PlanEntitlement>> = {
     publishingConnectionsEnabled: false,
     apiBetaEnabled: false,
     priority: 10,
+    monthlyMotionRenderSeconds: 120,
+    maxMotionSecondsPerVideo: 15,
+    maxMotionResolution: { width: 1280, height: 720, fps: 30 },
+    motionWatermarkRequired: true,
   },
   creator: {
     key: "creator",
@@ -58,6 +66,10 @@ export const PLAN_ENTITLEMENTS: Readonly<Record<PlanKey, PlanEntitlement>> = {
     publishingConnectionsEnabled: false,
     apiBetaEnabled: false,
     priority: 20,
+    monthlyMotionRenderSeconds: 1800,
+    maxMotionSecondsPerVideo: 60,
+    maxMotionResolution: { width: 1920, height: 1080, fps: 30 },
+    motionWatermarkRequired: false,
   },
   pro: {
     key: "pro",
@@ -77,6 +89,10 @@ export const PLAN_ENTITLEMENTS: Readonly<Record<PlanKey, PlanEntitlement>> = {
     publishingConnectionsEnabled: true,
     apiBetaEnabled: true,
     priority: 30,
+    monthlyMotionRenderSeconds: 7200,
+    maxMotionSecondsPerVideo: 60,
+    maxMotionResolution: { width: 1920, height: 1080, fps: 60 },
+    motionWatermarkRequired: false,
   },
 };
 

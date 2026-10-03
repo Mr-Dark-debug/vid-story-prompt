@@ -1,0 +1,76 @@
+import { MOTION_LIMITS } from "./contract";
+import type { MotionLintIssue, MotionLintReport } from "./types";
+
+// Conservative admission check, not a sandbox. Browser/OS policy remains mandatory.
+// Reject even a forbidden identifier in a string/comment: an LLM can repair it.
+export function lintMotionHtml(source: string): MotionLintReport {
+  const errors: MotionLintIssue[] = [];
+  const add = (code: string, message: string) => errors.push({ code, message });
+  if (new TextEncoder().encode(source).length > MOTION_LIMITS.maxSourceBytes)
+    add("source_too_large", "HTML exceeds the source byte limit.");
+  if (!/^\s*(?:<!doctype html>\s*)?<html\b/i.test(source) || !/<\/html>\s*$/i.test(source))
+    add("invalid_document", "Return one complete HTML document.");
+  const rules: [string, RegExp, string][] = [
+    [
+      "clock",
+      /\b(?:Date|performance)\s*(?:\.\s*now|\[)|\bDate\s*\(|\bnew\s+Date\b/,
+      "Use only the supplied seek time; wall clocks are forbidden.",
+    ],
+    ["random", /\bMath\s*(?:\.\s*random|\[)/, "Use a seeded RNG instead of Math.random."],
+    [
+      "timer",
+      /\b(?:setTimeout|setInterval|requestAnimationFrame|requestIdleCallback)\b/,
+      "Timers and continuous animation loops are forbidden.",
+    ],
+    [
+      "network",
+      /\b(?:fetch|XMLHttpRequest|WebSocket|EventSource|sendBeacon|importScripts|Worker|SharedWorker|RTCPeerConnection)\b/,
+      "Network and worker APIs are forbidden.",
+    ],
+    [
+      "dynamic_code",
+      /\b(?:eval|Function|Reflect|Proxy)\b|\bimport\s*\(|\bimport\s+|\.\s*(?:constructor|__proto__|prototype)\b/,
+      "Dynamic code, imports and reflective construction are forbidden.",
+    ],
+    [
+      "escape",
+      /\b(?:location|top|parent|opener|open|serviceWorker|cookie|localStorage|sessionStorage|indexedDB)\s*(?:[.([]|=)|\b(?:window|document|navigator|globalThis|self)\s*\[/,
+      "Navigation, parent access and persistent storage are forbidden.",
+    ],
+    [
+      "obfuscation",
+      /\\(?:u[0-9a-fA-F]{4}|u\{[0-9a-fA-F]+\}|x[0-9a-fA-F]{2})|(?:\b(?!return\b|yield\b|throw\b)[A-Za-z_$]\w*|[)\]])\s*\[\s*["'`]|\b(?:atob|btoa|fromCharCode|fromCodePoint)\s*\(/,
+      "Encoded identifiers and computed string property access are forbidden.",
+    ],
+    [
+      "external_url",
+      /(?:https?:|wss?:|ftp:|file:|javascript:)\/\/|(?:src|href|action|poster)\s*=\s*["']\s*(?!data:|blob:|#)[^"']+|url\(\s*["']?(?!data:|blob:|#)[^\s)"']+/i,
+      "Embed assets; external and filesystem URLs are forbidden.",
+    ],
+    [
+      "active_markup",
+      /<\s*(?:iframe|frame|object|embed|base|form)\b|<meta\b[^>]*http-equiv\s*=\s*["']?refresh|<script\b[^>]*\bsrc\s*=|\bon\w+\s*=/i,
+      "Frames, forms, navigation metadata, external scripts and inline event handlers are forbidden.",
+    ],
+    ["module", /<script\b[^>]*type\s*=\s*["']module["']/i, "Use a single inline classic script."],
+  ];
+  for (const [code, pattern, message] of rules) if (pattern.test(source)) add(code, message);
+  if (
+    /\banimation(?:-name)?\s*:/i.test(source) &&
+    (!/animation-play-state\s*:\s*paused/i.test(source) || !/\bcurrentTime\s*=/.test(source))
+  )
+    add(
+      "unpaused_animation",
+      "CSS animations must be paused and explicitly sought with currentTime.",
+    );
+  if (/<\s*(?:animate|animateMotion|animateTransform|set)\b/i.test(source))
+    add("autonomous_svg", "Use seek-driven SVG attributes instead of autonomous SVG animation.");
+  const duration = /\bwindow\s*\.\s*DURATION\s*=\s*(\d+(?:\.\d+)?)\s*;/.exec(source);
+  if (!duration)
+    add("missing_duration", "Set window.DURATION to a numeric literal followed by a semicolon.");
+  else if (Number(duration[1]) < 1 || Number(duration[1]) > MOTION_LIMITS.maxDurationSeconds)
+    add("invalid_duration", "Duration must be between 1 and 60 seconds.");
+  if (!/\bwindow\s*\.\s*seek\s*=\s*(?:async\s+)?(?:function\b|\(?\s*\w+\s*\)?\s*=>)/.test(source))
+    add("missing_seek", "Expose window.seek(t) as a function.");
+  return { ok: errors.length === 0, errors, warnings: [] };
+}
