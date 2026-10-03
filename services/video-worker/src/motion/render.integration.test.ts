@@ -140,6 +140,20 @@ describe.skipIf(!executablePath)(
         await scene.close();
       }
     }, 30_000);
+    it("terminates a renderer stuck in a CPU-bound script", async () => {
+      const scene = await openScene(authoredScene, spec, { executablePath });
+      try {
+        const busy = scene.frame.evaluate(() => {
+          for (;;) {
+            /* Authored denial-of-service fixture. */
+          }
+        });
+        await expect(bounded(busy, 75, scene.browser)).rejects.toThrow("motion_frame_timeout");
+        expect(scene.browser.isConnected()).toBe(false);
+      } finally {
+        await scene.close().catch(() => undefined);
+      }
+    }, 30_000);
     it("closes Chromium on per-frame timeout", async () => {
       const scene = await openScene(authoredScene, spec, { executablePath });
       try {
