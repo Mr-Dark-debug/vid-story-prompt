@@ -12,3 +12,9 @@ Portable Node.js 22 worker for YouTube Clipper media processing. PostgreSQL/Supa
 Copy the server-only variables from the repository `.env.example`. Never expose `SUPABASE_SERVICE_ROLE_KEY` in a browser or client-side deployment. Provider calls fail explicitly when credentials are absent; they do not return fake successful results.
 
 Build with `docker build -t vidrial-video-worker services/video-worker`. Deploy the image to Railway, Render, Fly.io, Cloud Run or another Docker host with persistent outbound HTTPS and sufficient ephemeral disk. For capability-routed residential YouTube acquisition on Windows, see `home-worker/README.md`; it uses the same durable queue and never exposes a public media API.
+
+## Tests
+
+Run `bun run test` here (or `npm run worker:test` from the repository root). The suites use Vitest
+APIs, so Bun's native `bun test` runner is intentionally refused by `bunfig.toml`: it cannot
+execute `vi.mock`/`vi.mocked` and reports spurious failures.
